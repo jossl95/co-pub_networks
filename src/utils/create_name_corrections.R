@@ -1,0 +1,68 @@
+source("src/utils/custom_functions.r")
+
+# load and activate packages
+fpackage.check(c(
+  'tidyverse', 'readxl',  'stringr', 
+  'lubridate'
+))
+
+corrections <- tibble::tribble(
+  ~naam,                            ~first_name, ~particle, ~last_name,
+  "Marjolein Broese van Groenou",   "Marjolein", NA_character_, "Broese-van Groenou",
+  "Albornoz Barra Gonzalo",         "Alborno",   NA_character_, "Barra Gonzalo",
+  "Amina op de Weegh",              "Amina",     "op de",       "Weegh",
+  "Amina Op de Weegh",              "Amina",     "Op de",       "Weegh",
+  "Ana Maria Torres Chedraui",      "Ana Maria", NA_character_, "Torres Chedraui",
+  "Ana Mishkovska Kajevska",        "Ana",       NA_character_, "Mishkovska Kajevska",
+  "Aris Agoglossakis Foley",        "Aris",      NA_character_, "Agoglossakis Foley",
+  "Aylin Aydin Cakir",              "Aylin",     NA_character_, "Aydin Cakir",
+  "Busisiwe Octavia Ntsele",        "Busisiwe",  NA_character_, "Octavia Ntsele",
+  "Carla Ferreira Rodrigues",       "Carla",     NA_character_, "Ferreira Rodrigues",
+  "Carlos de Matos Fernandes",      "Carlos",    "de",          "Matos Fernandes",
+  "Daphne Valk-van Waarde",         "Daphne",    NA_character_, "Valk-van Waarde",
+  "Diana Davilla Gordillo",         "Diana",     NA_character_, "Davilla Gordillo",
+  "Diana Zacca Thomaz",             "Dianna",    NA_character_, "Zacca Thomaz",
+  "Duygu Uysal Dincol",             "Duygu",     NA_character_, "Uysal Dincol",
+  "Eda Kiriscioglu Tasan",          "Eda",       NA_character_, "Kiriscioglu-Tasan",
+  "Elissa El Khawli",               "Elissa",    "El",          "Khawli",
+  "Emmanuel Ogwuche Okpe",          "Emmanuel",  NA_character_, "Ogwuche Okpe",
+  "Emran Riffi Acharki",            "Emran",     NA_character_, "Riffi Acharki",
+  "Esra Nartok-van der Kist",       "Esra",      NA_character_, "Nartok-van der Kist",
+  "Fernando San Antonio Gutiérrez", "Fernando",  "San",         "Antonio Gutiérrez",
+  "Floris Mansvelt Beck",           "Floris",    NA_character_, "Mansvelt Beck",
+  "Gabriela Gallardo Lastra",       "Gabriella", NA_character_, "Gallardo Lastra",
+  "Gijsbert van Iterson Scholten",  "Gijsbert",  "van",         "Iterson Scholten",
+  "Henriëtte Boersma-de Vries",     "Henriëtte", NA_character_, "Boersma-de Vries",
+  "Jimena Pacheco Miranda",         "Jimena",    NA_character_, "Pacheco Miranda",
+  "Joep Bonnekamp-Van Lit",         "Joep",      NA_character_, "Bonnekamp-van Lit",
+  "Joost Oude Groeniger",           "Joost",     NA_character_, "Oude Groeniger",
+  "Juan Masullo Jimenez",           "Juan",      NA_character_, "Masullo Jimenez",
+  "Julia Puente Duyn",              "Julia",     NA_character_, "Puente Duyn",
+  "Juliana Chueri Barbosa Correa",  "Juliana",   NA_character_, "Chueri Barbosa Correa",
+  "Kalima Carrigan Chavez",         "Kalima",    NA_character_, "Carrigan Chavez",
+  "Katia Aviles Quiroz",            "Katia",     NA_character_, "Aviles Quiroz",
+  "Laura Vargas Llona",             "Laura",     NA_character_, "Vargas Llona",
+  "Manoela Carpenedo Rodrigues",    "Manoela",   NA_character_, "Carpenedo Rodrigues",
+  "Manuel Cabal Lopez",             "Manuel",    NA_character_, "Cabal Lopez",
+  "Mauricio Garnier Villarreal",    "Mauricio",  NA_character_, "Garnier Villarreal",
+  "Mehdi Parvizi Amineh",           "Mehdi",     NA_character_, "Parvizi Amineh",
+  "Melisa Soto",                    "Melisa",    NA_character_, "Soto Lafontaine",
+  "Melisa Soto Lafontaine",         "Melisa",    NA_character_, "Soto Lafontaine",
+  "Miguel A Rivera Quinones",       "Miguel A.", NA_character_, "Rivera Quinones",
+  "Mimi Ocadiz Arriaga",            "Mimi",      NA_character_, "Ocadiz Arriaga",
+  "Montserrat Koloffon Rosas",      "Montserrat",NA_character_, "Koloffon Rosas",
+  "Nora von Ingersleben Seip",      "Nora",      "von",         "Ingersleben-Seip",
+  "Radost Sharenkova - Toshkova",   "Radostina", NA_character_, "Sharenkova-Toshkova",
+  "Radostina Sharenkova - Toshkova","Radostina", NA_character_, "Sharenkova-Toshkova",
+  "Rosa Sanchez Salgado",           "Roza",      NA_character_, "Sanchez Salgado",
+  "Rosalba Icaza Garza",            "Rosalba",   NA_character_, "Icaza Garza",
+  "Santiago Gomez Echeverry",       "Santiago",  NA_character_, "Gomez Echeverry",
+  "Sixtine van Outryve d'Ydewalle", "Siztine",   "van",         "Outryve-d'Ydewalle",
+  "Sonja Evaldsson Mellstrom",      "Sonja",     NA_character_, "Evaldsson Mellstrom",
+  "Suzanne Klein Schaarsberg",      "Suzanne",   NA_character_, "Klein Schaarsberg",
+  "Tabasum Westra-van Till",        "Tabasum",   NA_character_, "Westra-van Till",
+  "Victor Bouemar Dinocheau",       "Victor",    NA_character_, "Bouemar Dinocheau",
+  "Weverthon Barbosa Machado",      "Weverthon", NA_character_, "Barbosa Machado"
+)
+
+saveRDS(corrections, file.path('data', 'utils', 'name_corrections.Rds'))

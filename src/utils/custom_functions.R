@@ -31,10 +31,23 @@ fsave <- function(x, file, location = "./data/processed/", ...) {
     save(x, file = totalname)
 }
 
-fload  <- function(fileName){
+fsaveRDS <- function(x, file, location = "./data/processed/", ...) {
+    # if directory does not exist, create it
+    if (!dir.exists(location))
+        dir.create(location)
+    
+    # create filename with date
+    datename <- substr(gsub("[:-]", "", Sys.time()), 1, 8)
+    totalname <- paste(location, datename, file, ".Rds", sep = "")
+
+    # save file
+    print(paste("SAVING: ", totalname, sep = ""))
+    saveRDS(x, file = totalname)
+}
+
+freadRDS  <- function(fileName){
     # load file and return object
-    load(fileName)
-    get(ls()[ls() != "fileName"])
+    readRDS(fileName)
 }
 
 # colorize <- function(x, color) {sprintf("<span style='color: %s;'>%s</span>", color, x) }

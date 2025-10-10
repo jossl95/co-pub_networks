@@ -217,8 +217,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-Ncells  826141 44.2    1447732 77.4         NA  1447732 77.4
-Vcells 1626568 12.5    8388608 64.0      16384  2823925 21.6</code></pre>
+Ncells  605228 32.4    1371322 73.3         NA   715800 38.3
+Vcells 1118586  8.6    8388608 64.0      16384  2012047 15.4</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -293,37 +293,43 @@ Vcells 1626568 12.5    8388608 64.0      16384  2823925 21.6</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>fix_scholar_names <span class="ot">=</span> <span class="cf">function</span>(data){</span>
 <span id="cb5-2"><a href="#cb5-2"></a>  <span class="co"># fix the particles in the names</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a>  particles <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"van"</span>, <span class="st">"de"</span>, <span class="st">"den"</span>, <span class="st">"der"</span>, <span class="st">"te"</span>, <span class="st">"ten"</span>, <span class="st">"ter"</span>)</span>
-<span id="cb5-4"><a href="#cb5-4"></a>  pattern <span class="ot">=</span> <span class="fu">regex</span>(</span>
-<span id="cb5-5"><a href="#cb5-5"></a>    <span class="fu">paste0</span>(<span class="st">"(?&lt;=</span><span class="sc">\\</span><span class="st">s)("</span>, <span class="fu">paste</span>(particles, <span class="at">collapse =</span> <span class="st">"|"</span>), <span class="st">")(?=</span><span class="sc">\\</span><span class="st">s)"</span>),</span>
-<span id="cb5-6"><a href="#cb5-6"></a>    <span class="at">ignore_case =</span> <span class="cn">TRUE</span></span>
-<span id="cb5-7"><a href="#cb5-7"></a>  )</span>
-<span id="cb5-8"><a href="#cb5-8"></a></span>
-<span id="cb5-9"><a href="#cb5-9"></a>  data <span class="sc">|&gt;</span></span>
-<span id="cb5-10"><a href="#cb5-10"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb5-11"><a href="#cb5-11"></a>      <span class="co"># replace capitalized particles</span></span>
-<span id="cb5-12"><a href="#cb5-12"></a>      <span class="at">naam =</span> <span class="fu">str_replace_all</span>(naam, pattern, <span class="sc">~</span> <span class="fu">tolower</span>(.x)),</span>
-<span id="cb5-13"><a href="#cb5-13"></a></span>
-<span id="cb5-14"><a href="#cb5-14"></a>      <span class="co"># replace typos and mistakes in names</span></span>
-<span id="cb5-15"><a href="#cb5-15"></a>      <span class="at">naam =</span> <span class="fu">case_when</span>(</span>
-<span id="cb5-16"><a href="#cb5-16"></a>        naam <span class="sc">==</span> <span class="st">"Andrea Forstrer"</span>      <span class="sc">~</span> <span class="st">"Andrea Forster"</span>,</span>
-<span id="cb5-17"><a href="#cb5-17"></a>        naam <span class="sc">==</span> <span class="st">"AJGM van Montfort"</span>    <span class="sc">~</span> <span class="st">"A.J.G.M. van Montfort"</span>,</span>
-<span id="cb5-18"><a href="#cb5-18"></a>        naam <span class="sc">==</span> <span class="st">"FP Wagenaar"</span>          <span class="sc">~</span> <span class="st">"F.P. Wagenaar"</span>,</span>
-<span id="cb5-19"><a href="#cb5-19"></a>        naam <span class="sc">==</span> <span class="st">"JP Presley"</span>           <span class="sc">~</span> <span class="st">"J.P. Presley"</span>,</span>
-<span id="cb5-20"><a href="#cb5-20"></a>        naam <span class="sc">==</span> <span class="st">"JS Timmer"</span>            <span class="sc">~</span> <span class="st">"J.S. Timmer"</span>,</span>
-<span id="cb5-21"><a href="#cb5-21"></a>        naam <span class="sc">==</span> <span class="st">"ilya Lavrov"</span>          <span class="sc">~</span> <span class="st">"Ilya Lavrov"</span>,</span>
-<span id="cb5-22"><a href="#cb5-22"></a>        naam <span class="sc">==</span> <span class="st">"p. Vila Soler"</span>        <span class="sc">~</span> <span class="st">"P. Vila Soler"</span>,</span>
-<span id="cb5-23"><a href="#cb5-23"></a>        naam <span class="sc">==</span> <span class="st">"Z Dong"</span>               <span class="sc">~</span> <span class="st">"Z. Dong"</span>,</span>
-<span id="cb5-24"><a href="#cb5-24"></a>        naam <span class="sc">==</span> <span class="st">"Renae  Loh"</span>           <span class="sc">~</span> <span class="st">"Renae Loh"</span>,</span>
-<span id="cb5-25"><a href="#cb5-25"></a>        naam <span class="sc">==</span> <span class="st">"Paulina Pankowski"</span>    <span class="sc">~</span> <span class="st">"Paulina Pankowska"</span>,</span>
-<span id="cb5-26"><a href="#cb5-26"></a>        naam <span class="sc">==</span> <span class="st">"M.M Cuperus"</span>          <span class="sc">~</span> <span class="st">"M.M. Cuperus"</span>,</span>
-<span id="cb5-27"><a href="#cb5-27"></a>        naam <span class="sc">==</span> <span class="st">"Lea Kroner"</span>           <span class="sc">~</span> <span class="st">"Lea Kröner"</span>,</span>
-<span id="cb5-28"><a href="#cb5-28"></a>        naam <span class="sc">==</span> <span class="st">"L Slot"</span>               <span class="sc">~</span> <span class="st">"L. Slot"</span>,</span>
-<span id="cb5-29"><a href="#cb5-29"></a>        naam <span class="sc">==</span> <span class="st">"Jan Willen Duyvendak"</span> <span class="sc">~</span> <span class="st">"Jan Willem Duyvendak"</span>,</span>
-<span id="cb5-30"><a href="#cb5-30"></a>        <span class="at">.default =</span> naam</span>
-<span id="cb5-31"><a href="#cb5-31"></a>      )</span>
-<span id="cb5-32"><a href="#cb5-32"></a>    )</span>
-<span id="cb5-33"><a href="#cb5-33"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-3"><a href="#cb5-3"></a>  particles <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="st">"van"</span>, <span class="st">"in"</span>,</span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="st">"de"</span>, <span class="st">"den"</span>, <span class="st">"der"</span>, <span class="st">"den"</span>, <span class="st">"del"</span>,</span>
+<span id="cb5-6"><a href="#cb5-6"></a>    <span class="st">"te"</span>, <span class="st">"ten"</span>, <span class="st">"ter"</span>, <span class="st">"tes"</span>, <span class="st">"'t"</span>,</span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="st">"la"</span>, <span class="st">"le"</span>, <span class="st">"les"</span>, <span class="st">"los"</span>, <span class="st">"el"</span>, <span class="st">"el-"</span>,</span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="st">"op den"</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>  )</span>
+<span id="cb5-10"><a href="#cb5-10"></a>  pattern <span class="ot">=</span> <span class="fu">regex</span>(</span>
+<span id="cb5-11"><a href="#cb5-11"></a>    <span class="fu">paste0</span>(<span class="st">"(?&lt;=</span><span class="sc">\\</span><span class="st">s)("</span>, <span class="fu">paste</span>(particles, <span class="at">collapse =</span> <span class="st">"|"</span>), <span class="st">")(?=</span><span class="sc">\\</span><span class="st">s)"</span>),</span>
+<span id="cb5-12"><a href="#cb5-12"></a>    <span class="at">ignore_case =</span> <span class="cn">TRUE</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a>  )</span>
+<span id="cb5-14"><a href="#cb5-14"></a></span>
+<span id="cb5-15"><a href="#cb5-15"></a>  data <span class="sc">|&gt;</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb5-17"><a href="#cb5-17"></a>      <span class="co"># replace capitalized particles</span></span>
+<span id="cb5-18"><a href="#cb5-18"></a>      <span class="at">naam =</span> <span class="fu">str_replace_all</span>(naam, pattern, <span class="sc">~</span> <span class="fu">tolower</span>(.x)),</span>
+<span id="cb5-19"><a href="#cb5-19"></a></span>
+<span id="cb5-20"><a href="#cb5-20"></a>      <span class="co"># replace typos and mistakes in names</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a>      <span class="at">naam =</span> <span class="fu">case_when</span>(</span>
+<span id="cb5-22"><a href="#cb5-22"></a>        naam <span class="sc">==</span> <span class="st">"Andrea Forstrer"</span>      <span class="sc">~</span> <span class="st">"Andrea Forster"</span>,</span>
+<span id="cb5-23"><a href="#cb5-23"></a>        naam <span class="sc">==</span> <span class="st">"AJGM van Montfort"</span>    <span class="sc">~</span> <span class="st">"A.J.G.M. van Montfort"</span>,</span>
+<span id="cb5-24"><a href="#cb5-24"></a>        naam <span class="sc">==</span> <span class="st">"FP Wagenaar"</span>          <span class="sc">~</span> <span class="st">"F.P. Wagenaar"</span>,</span>
+<span id="cb5-25"><a href="#cb5-25"></a>        naam <span class="sc">==</span> <span class="st">"JP Presley"</span>           <span class="sc">~</span> <span class="st">"J.P. Presley"</span>,</span>
+<span id="cb5-26"><a href="#cb5-26"></a>        naam <span class="sc">==</span> <span class="st">"JS Timmer"</span>            <span class="sc">~</span> <span class="st">"J.S. Timmer"</span>,</span>
+<span id="cb5-27"><a href="#cb5-27"></a>        naam <span class="sc">==</span> <span class="st">"ilya Lavrov"</span>          <span class="sc">~</span> <span class="st">"Ilya Lavrov"</span>,</span>
+<span id="cb5-28"><a href="#cb5-28"></a>        naam <span class="sc">==</span> <span class="st">"p. Vila Soler"</span>        <span class="sc">~</span> <span class="st">"P. Vila Soler"</span>,</span>
+<span id="cb5-29"><a href="#cb5-29"></a>        naam <span class="sc">==</span> <span class="st">"Z Dong"</span>               <span class="sc">~</span> <span class="st">"Z. Dong"</span>,</span>
+<span id="cb5-30"><a href="#cb5-30"></a>        naam <span class="sc">==</span> <span class="st">"Renae  Loh"</span>           <span class="sc">~</span> <span class="st">"Renae Loh"</span>,</span>
+<span id="cb5-31"><a href="#cb5-31"></a>        naam <span class="sc">==</span> <span class="st">"Paulina Pankowski"</span>    <span class="sc">~</span> <span class="st">"Paulina Pankowska"</span>,</span>
+<span id="cb5-32"><a href="#cb5-32"></a>        naam <span class="sc">==</span> <span class="st">"M.M Cuperus"</span>          <span class="sc">~</span> <span class="st">"M.M. Cuperus"</span>,</span>
+<span id="cb5-33"><a href="#cb5-33"></a>        naam <span class="sc">==</span> <span class="st">"Lea Kroner"</span>           <span class="sc">~</span> <span class="st">"Lea Kröner"</span>,</span>
+<span id="cb5-34"><a href="#cb5-34"></a>        naam <span class="sc">==</span> <span class="st">"L Slot"</span>               <span class="sc">~</span> <span class="st">"L. Slot"</span>,</span>
+<span id="cb5-35"><a href="#cb5-35"></a>        naam <span class="sc">==</span> <span class="st">"Jan Willen Duyvendak"</span> <span class="sc">~</span> <span class="st">"Jan Willem Duyvendak"</span>,</span>
+<span id="cb5-36"><a href="#cb5-36"></a>        <span class="at">.default =</span> naam</span>
+<span id="cb5-37"><a href="#cb5-37"></a>      )</span>
+<span id="cb5-38"><a href="#cb5-38"></a>    )</span>
+<span id="cb5-39"><a href="#cb5-39"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="fixing-google-scholar-id" class="level3">
@@ -595,7 +601,7 @@ Vcells 1626568 12.5    8388608 64.0      16384  2823925 21.6</code></pre>
 <span id="cb10-8"><a href="#cb10-8"></a>  <span class="fu">clean_universities</span>() <span class="sc">|&gt;</span></span>
 <span id="cb10-9"><a href="#cb10-9"></a>  <span class="fu">fix_email_adresses</span>() <span class="sc">|&gt;</span></span>
 <span id="cb10-10"><a href="#cb10-10"></a>  <span class="fu">fix_google_scholar_id</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-11"><a href="#cb10-11"></a>  <span class="fu">select</span>(<span class="sc">-</span>specialisatie, <span class="sc">-</span>notitie, <span class="sc">-</span>additional, <span class="sc">-</span>universiteit, <span class="sc">-</span>checked) <span class="sc">|&gt;</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a>  <span class="fu">select</span>(<span class="sc">-</span>specialisatie, <span class="sc">-</span>notitie, <span class="sc">-</span>additional, <span class="sc">-</span>checked) <span class="sc">|&gt;</span></span>
 <span id="cb10-12"><a href="#cb10-12"></a>  <span class="fu">arrange</span>(discipline, date, naam, university) <span class="sc">|&gt;</span></span>
 <span id="cb10-13"><a href="#cb10-13"></a>  <span class="fu">clean_functie</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -604,23 +610,21 @@ Vcells 1626568 12.5    8388608 64.0      16384  2823925 21.6</code></pre>
 Joining with `by = join_by(date, naam)`</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># save data</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a><span class="fu">fsave</span>(data, <span class="st">'scholarid.Rdata'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "SAVING: ./data/processed/20251010scholarid.Rdata"</code></pre>
-</div>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="fu">saveRDS</span>(data, <span class="st">"mtcars.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>data <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>data <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 7
-  discipline   date       naam  university email_adres functie google_scholar_id
-  &lt;chr&gt;        &lt;date&gt;     &lt;chr&gt; &lt;list&gt;     &lt;chr&gt;       &lt;chr&gt;   &lt;chr&gt;            
-1 Politicolog… 2022-12-19 A.J.… &lt;chr [1]&gt;  a.j.g.m.va… Associ… &lt;NA&gt;             
-2 Politicolog… 2022-12-19 Abbe… &lt;chr [1]&gt;  a.a.steele… Associ… 5U0D46YAAAAJ     
-3 Politicolog… 2022-12-19 Adin… &lt;chr [1]&gt;  a.akbik@fs… Assist… m3_6VpEAAAAJ     
-4 Politicolog… 2022-12-19 Agha… &lt;chr [1]&gt;  a.g.bayram… Lectur… yUBUMiEAAAAJ     
-5 Politicolog… 2022-12-19 Alan… &lt;chr [1]&gt;  a.castrode… PhD Ca… &lt;NA&gt;             
-6 Politicolog… 2022-12-19 Alek… &lt;chr [1]&gt;  a.khokhlov… PhD Ca… &lt;NA&gt;             </code></pre>
+<pre><code># A tibble: 6 × 8
+  discipline    date       naam      universiteit university email_adres functie
+  &lt;chr&gt;         &lt;date&gt;     &lt;chr&gt;     &lt;chr&gt;        &lt;list&gt;     &lt;chr&gt;       &lt;chr&gt;  
+1 Politicologie 2022-12-19 A.J.G.M.… VU           &lt;chr [1]&gt;  a.j.g.m.va… Associ…
+2 Politicologie 2022-12-19 Abbey St… UvA          &lt;chr [1]&gt;  a.a.steele… Associ…
+3 Politicologie 2022-12-19 Adina Ak… Leiden       &lt;chr [1]&gt;  a.akbik@fs… Assist…
+4 Politicologie 2022-12-19 Agha Bay… Leiden       &lt;chr [1]&gt;  a.g.bayram… Lectur…
+5 Politicologie 2022-12-19 Alana Ca… VU           &lt;chr [1]&gt;  a.castrode… PhD Ca…
+6 Politicologie 2022-12-19 Aleksand… Leiden       &lt;chr [1]&gt;  a.khokhlov… PhD Ca…
+# ℹ 1 more variable: google_scholar_id &lt;chr&gt;</code></pre>
 </div>
 </div>
 

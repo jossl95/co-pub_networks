@@ -94,7 +94,13 @@ fread = function(
 ```{r}
 fix_scholar_names = function(data){
   # fix the particles in the names
-  particles = c("van", "de", "den", "der", "te", "ten", "ter")
+  particles = c(
+    "van", "in",
+    "de", "den", "der", "den", "del",
+    "te", "ten", "ter", "tes", "'t",
+    "la", "le", "les", "los", "el", "el-",
+    "op den"
+  )
   pattern = regex(
     paste0("(?<=\\s)(", paste(particles, collapse = "|"), ")(?=\\s)"),
     ignore_case = TRUE
@@ -142,7 +148,6 @@ fix_google_scholar_id = function(data, .direction='updown'){
 ```
 
 ### Fixing Email Addresses
-
 
 ```{r}
 fix_email_adresses = function(data, .direction = "updown"){
@@ -391,12 +396,12 @@ data = fread(files, source) |>
   clean_universities() |>
   fix_email_adresses() |>
   fix_google_scholar_id() |>
-  select(-specialisatie, -notitie, -additional, -universiteit, -checked) |>
+  select(-specialisatie, -notitie, -additional, -checked) |>
   arrange(discipline, date, naam, university) |>
   clean_functie()
 
 # save data
-fsave(data, 'scholarid.Rdata')
+saveRDS(data, "mtcars.rds")
 ```
 
 

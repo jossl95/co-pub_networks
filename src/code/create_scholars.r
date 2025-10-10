@@ -1,12 +1,13 @@
-library(tidyverse)
-library(readxl)
-library(renv)
-library(janitor)
-library(lubridate)
-source("src/utils/custom_functions.R")
+source("src/utils/custom_functions.r")
 
-# clear the global environment
-clear_environment()
+rm(list = ls())
+gc()
+
+# load and activate packages
+fpackage.check(c(
+  'tidyverse', 'readxl', 'stringr', 
+  'janitor', 'lubridate'
+))
 
 
 # define tailored functions
@@ -59,10 +60,15 @@ fread = function(
   return(data)
 }
 
-
 fix_scholar_names = function(data){
   # fix the particles in the names
-  particles = c("van", "de", "den", "der", "te", "ten", "ter")
+  particles = c(
+    "van", "in",
+    "de", "den", "der", "den", "del",
+    "te", "ten", "ter", "tes", "'t",
+    "la", "le", "les", "los", "el", "el-",
+    "op den",
+  )
   pattern = regex(
     paste0("(?<=\\s)(", paste(particles, collapse = "|"), ")(?=\\s)"),
     ignore_case = TRUE
@@ -89,6 +95,7 @@ fix_scholar_names = function(data){
         naam == "Lea Kroner"           ~ "Lea Kröner",
         naam == "L Slot"               ~ "L. Slot",
         naam == "Jan Willen Duyvendak" ~ "Jan Willem Duyvendak",
+        naam == "Miguel A Rivera Quinones" ~ "Miguel A. Rivera Quinones",
         .default = naam
       )
     )
@@ -339,4 +346,4 @@ data = fread(files, source) |>
   clean_functie()
 
 
-fsave(data, 'scholarid.Rdata')
+fsave(data, 'scholarid')
