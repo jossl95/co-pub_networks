@@ -1,6 +1,14 @@
 ---
 title: "Data Preparation Scholars"
-author: "Jos Slabbekoorn"
+author: 
+  - name: "Jos Slabbekoorn"
+  - name: "Jochem Tolsma"
+  - name: "Bas Hofstra"
+  - name: "Roza Meuleman"
 ---
 
+## Getting Started
 
+```{r}
+
+```
