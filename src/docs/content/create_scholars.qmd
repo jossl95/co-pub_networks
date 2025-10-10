@@ -36,6 +36,8 @@ fpackage.check(c(
 
 ### Loading in Raw Data
 
+This function loads in Excel files containing information on scholars working in Dutch sociology and political science departments. The data have been collected at three points in time — 19 December 2022, 19 April 2024, and 1 October 2025 — to capture changes in staff composition over time. Each Excel file includes two sheets, one for Sociologie and one for Politicologie, which are read in separately, harmonized, and then concatenated into a single dataset that combines all disciplines and time points.
+
 ```{r}
 # define tailored functions
 read_spreadsheet = function(filepath, sheet){  
@@ -90,6 +92,7 @@ fread = function(
 
 ### Fix Scholar Names
 
+This step standardizes scholar names to ensure consistent matching across sources. It first normalizes name particles common in Dutch and related languages (e.g., van, de, der, ten, ’t, le, el, op den) by converting them to lowercase when they appear between spaces (e.g., “Jan van Dijk”). Next, it corrects a curated set of frequent typos and formatting inconsistencies - such as fixing misplaced or missing initials, diacritics, and misspellings (e.g., “AJGM van Montfort” to “A.J.G.M. van Montfort,” “Lea Kroner” to “Lea Kröner”). The result is a cleaned naam field with harmonized capitalization and corrected names, improving join accuracy and downstream deduplication.
 
 ```{r}
 fix_scholar_names = function(data){
@@ -134,6 +137,7 @@ fix_scholar_names = function(data){
 ```
 
 ### Fixing Google Scholar ID
+This step propagates known Google Scholar IDs across time for the same person. The data are first ordered by naam and date, then grouped by naam so that each individual’s records form a sequence. Within each group, missing values in google_scholar_id are filled using the nearest available value, with the fill direction controlled by the .direction argument (default “updown” fills forward and backward; alternatives like “down” or “up” restrict the fill to one direction). Groups are then ungrouped and the dataset is tidied by universiteit and date. This reduces missing IDs while ensuring values never leak across different people; it assumes that identical names refer to the same scholar, so remaining homonyms should be checked upstream.
 
 ```{r}
 fix_google_scholar_id = function(data, .direction='updown'){
@@ -148,6 +152,8 @@ fix_google_scholar_id = function(data, .direction='updown'){
 ```
 
 ### Fixing Email Addresses
+
+This step standardizes and completes the email address information for each scholar. It first applies a practical, case-insensitive regular expression that captures valid email formats, including subdomains, to extract clean addresses from the email_adres field. All extracted emails are then converted to lowercase to ensure consistency. Next, the data are grouped by universiteit and naam, and missing email values are filled using the nearest available information within each group (by default in both directions, controlled by the .direction argument). Finally, the dataset is ungrouped and ordered by universiteit and date, resulting in a harmonized and more complete set of email addresses that align across time points for the same scholar
 
 ```{r}
 fix_email_adresses = function(data, .direction = "updown"){
@@ -173,6 +179,8 @@ fix_email_adresses = function(data, .direction = "updown"){
 ```
 
 ### Fixing Universities
+
+This step harmonizes university affiliations and adds a canonical code alongside the raw label. It first splits multi-valued entries in universiteit (e.g., “UU / UvA”) into separate rows, then trims and normalizes each label. Using a case-insensitive pattern, it maps recognized names/abbreviations to a standard set (EUR, RU, RUG, UU, VU, UvA, UvT, Leiden). If a canonical code is still missing, it infers the affiliation from the email domain (e.g., …`@essb.eur.nl` -> EUR, …`@vu.nl` -> VU, …`@uva.nl` -> UvA, etc.). After removing duplicates, affiliations are re-aggregated per person and date into a list column university, joined back to the original data, and positioned next to universiteit. The result is a consistent, machine-readable university code that supports reliable grouping, filtering, and longitudinal comparison.
 
 ```{r}
 clean_universities = function(data){
@@ -217,17 +225,34 @@ clean_universities = function(data){
 
 ### Clean `functie`
 
+This step parses free-text job titles in functie into a set of consistent role flags. It first keeps only date, naam, and functie, then lowercases functie for keyword matching. Using targeted patterns in Dutch and English, it creates boolean indicators for common categories:
+
+- visiting (e.g., gast, visit),
+- external (buiten, external),
+- professor (incl. typos like proffessor),
+- associate professor (hoofddocent, associate, uhd),
+- assistant professor (universitair docent, assistant),
+- postdoc (postdoc, doctoral),
+- lecturer (docent, lecturer, teacher),
+- researcher (onderzoeker, research), 
+- PhD (phd, promovend), 
+- senior/junior, 
+- emeritus (professor + emiri) or endowed (professor + bijzon), 
+- fellow, 
+- and a broad staff (e.g., advisor, secretary, assistent, medewerker, manager, coordinator, director/directeur). 
+
+To avoid double counting, several flags are explicitly set to FALSE when a more specific academic rank applies (e.g., assistant/associate/full professor precedence over lecturer/researcher/staff). Missing titles propagate as NA in the corresponding flags. The result is a tidy, machine-readable set of role indicators that standardizes heterogeneous job titles for downstream classification and analysis.
 
 ```{r}
 parse_job_titles = function(data){
   data |>
     select(date, naam, functie) |>
     mutate(
-      is_visiting = case_when(                               # <1>
-        str_detect(str_to_lower(functie), 'gast') ~ TRUE,    # <1>
-        str_detect(str_to_lower(functie), 'visit') ~ TRUE,   # <1>
-        is.na(functie) ~ NA,                                 # <1>
-        .default = FALSE                                     # <1>
+      is_visiting = case_when(
+        str_detect(str_to_lower(functie), 'gast') ~ TRUE,
+        str_detect(str_to_lower(functie), 'visit') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
       ),
       is_external = case_when(
         str_detect(str_to_lower(functie), 'external') ~ TRUE,
@@ -337,7 +362,18 @@ parse_job_titles = function(data){
     )
 }
 ```
-1. Identifiy visiting scholars
+
+Building on the role flags derived in Clean functie, this step converts those boolean indicators into human-readable position labels and, optionally, a compact string that also captures distinctions.
+
+- `construct_positions()` maps the mutually exclusive academic roles to a canonical position (e.g., Full Professor, Associate Professor, Assistant Professor, Postdoctoral Researcher, PhD Candidate, Lecturer, Researcher, Staff) while separately flagging distinctions as short text labels: Visiting, External, Senior, Junior, Emeritus, Endowed, and Fellow.
+
+After creating these columns, it drops the original `is_` flags and constructs `position2` by uniting any present distinctions (from visiting through fellow) into a single, comma-separated string (leaving the per-column distinction flags intact for auditing).
+
+- `clean_functie()` then orchestrates the full cleaning. It first runs parse_job_titles() to produce the role flags, passes the result through construct_positions(), and finally writes the output back into the original data:
+- `.what = "complete"` (default) sets functie to the canonical position (rank only).
+- `.what = "simplified"` sets functie to position2, which includes any distinctions (e.g., Assistant Professor, Visiting; Fellow).
+
+The result is a consistent functie column suitable either for strict rank analyses (complete) or for descriptive reporting that preserves visiting/external/fellow/etc. qualifiers (simplified).
 
 ```{r}
 construct_positions = function(data) {
@@ -401,10 +437,5 @@ data = fread(files, source) |>
   clean_functie()
 
 # save data
-saveRDS(data, "mtcars.rds")
-```
-
-
-```{r}
-data |> head()
+fsave(data, 'scholarid')
 ```

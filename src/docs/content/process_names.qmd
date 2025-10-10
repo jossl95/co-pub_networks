@@ -13,12 +13,16 @@ date: today
 ## Getting Started
 
 ```{r}
+#| warning: false
+#| output: false
 # clear the global environment
 rm(list = ls())
 gc()
 ```
 
 ```{r}
+#| warning: false
+#| output: false
 source("src/utils/custom_functions.r")
 
 # load and activate packages

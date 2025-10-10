@@ -17,7 +17,7 @@ website:
           text: Process Names
         - href: src/docs/content/process_gender.qmd
           text: Process Gender
-        - href: src/docs/content/process_ethnnicity.qmd
+        - href: src/docs/content/process_ethnicity.qmd
           text: Process Ethnicity
 
 execute:
