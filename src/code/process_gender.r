@@ -115,13 +115,12 @@ get_gender_row = function(name, gender) {
       first_name       = NA_character_,
       male_count       = NA_integer_,
       female_count     = NA_integer_,
-      probability_male = NA_real_,
-      status           = r$status
+      probability_male = NA_real_
     ))
   }
 
   out <- safe_extract(r$resp, name) |>
-    mutate(status = r$status, first_name = name)
+    mutate(first_name = name)
 
   out
 }
@@ -164,10 +163,28 @@ patch_gender_on_splits = function(gender){
       female_count = as.integer(mean(female_count)),
       probability_male = mean(probability_male)
     ) |>
-    ungroup() |>
-    mutate(status = 200)
+    ungroup()
 
   gender |> rows_update(gender_patch)
+}
+
+clean_gender = function(data){
+  gender |>
+  mutate(
+    gender = ifelse(
+      probability_male >= 0.5,
+      'male','female'
+    ),
+    count = ifelse(
+      gender == 'male',
+      male_count, female_count
+    ),
+    prob = ifelse(
+      gender == 'male',
+      probability_male, 1 - probability_male
+    )
+  ) |>
+  select(first_name, gender, prob, count)
 }
 
 dir = file.path('data', 'processed')
@@ -180,7 +197,7 @@ first_names = names |>
   pull(first_name)
 
 gender_cache = readRDS(file.path("data", "utils", "nvb_gender.Rds")) |> 
-  select(-status) |>
+  # select(-status) |>
   tidyr::drop_na()
 
 gender = purrr::map_dfr(
@@ -189,60 +206,16 @@ gender = purrr::map_dfr(
     gender = gender_cache
   ) |>
   patch_gender_on_splits() |>
-  select(-status)
+  # select(-status)
 
 saveRDS(
   gender |> drop_na(),
   file.path('data', 'utils', "nvb_gender.Rds")
 )
 
-fsaveRDS(gender, 'gender')
-
-
-# read_gender_io_source = function(
-#     gender,
-#     file = file.path('data', 'utils', 'all_genderize_io.csv')
-#   ){
-#   # load genderized data 
-#   # data was sourced from:
-#   # https://raw.githubusercontent.com/GenderGapSTEM-PublicationAnalysis/name_gender_inference/refs/heads/main/name_gender_inference/test_data/gender_api_full/all_gender_api_full.csv
-#   gender_source = read.csv(file) |>
-#     select(first_name, api_count, api_probability, api_gender) |>
-#     drop_na()
-
-#   # get the names for whom we have no data
-#   first_names = gender |> 
-#     filter(is.na(probability_male)) |> 
-#     select(first_name) |> pull()
-
-#   # loop over first_names
-#   hold = c()
-#   for (name in first_names){
-#     temp = gender_source |> filter(first_name == tolower(name))
-
-#     hold[[name]] = temp |>
-#       mutate(first_name = name) |>
-#       head(1)
-#   }
-# }
+gender |> 
+  clean_gender() |>
+  fsaveRDS('gender')
 
 
 
-# hold = c()
-# for (name in first_names){
-#   temp = gender_source |> filter(first_name == tolower(name))
-
-#   hold[[name]] = temp |>
-#     mutate(first_name = name) |>
-#     head(1)
-# }
-
-# gender |>
-#   filter(is.na(probability_male)) |>
-#   left_join(bind_rows(hold)) |>
-#   drop_na(api_count) |>
-#   mutate(
-#     male_count = ifelse(api_gender == 'male', api_count, NA),
-#     female_count = ifelse(api_gender == 'female', api_count, NA),
-#     probability_male = ifelse(api_gender == 'male', api_count, 1 - api_count)
-#   )

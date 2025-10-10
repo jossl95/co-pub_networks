@@ -32,7 +32,7 @@ fpackage.check(c(
 ```
 
 
-## Defining Functions
+## Functions
 
 ### Loading in Raw Data
 

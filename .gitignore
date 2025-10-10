@@ -1,4 +1,5 @@
 /.quarto/
-.Rhistory
 /_extensions/
+/_freeze/
 .DS_Store
+.Rhistory

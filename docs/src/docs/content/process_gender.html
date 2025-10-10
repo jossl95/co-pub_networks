@@ -12,7 +12,7 @@
 <meta name="author" content="Roza Meuleman">
 <meta name="dcterms.date" content="2025-10-10">
 
-<title>Processing Gender – Networks</title>
+<title>Data Preparation Gender – Networks</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -148,6 +148,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../../../src/docs/content/process_gender.html">
  <span class="dropdown-text">Process Gender</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../../src/docs/content/process_ethnnicity.qmd">
+ <span class="dropdown-text">Process Ethnicity</span></a>
+  </li>  
     </ul>
   </li>
 </ul>
@@ -167,6 +171,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
+  <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a>
+  <ul class="collapse">
+  <li><a href="#call-meertens-voornamen-databank" id="toc-call-meertens-voornamen-databank" class="nav-link" data-scroll-target="#call-meertens-voornamen-databank">Call Meertens Voornamen Databank</a></li>
+  <li><a href="#extract-gender-information" id="toc-extract-gender-information" class="nav-link" data-scroll-target="#extract-gender-information">Extract Gender Information</a></li>
+  <li><a href="#helper-functions" id="toc-helper-functions" class="nav-link" data-scroll-target="#helper-functions">Helper functions</a></li>
+  <li><a href="#patch-difficult-names" id="toc-patch-difficult-names" class="nav-link" data-scroll-target="#patch-difficult-names">Patch Difficult Names</a></li>
+  <li><a href="#clean-gender-information" id="toc-clean-gender-information" class="nav-link" data-scroll-target="#clean-gender-information">Clean Gender Information</a></li>
+  </ul></li>
+  <li><a href="#application" id="toc-application" class="nav-link" data-scroll-target="#application">Application</a></li>
   </ul>
 </nav>
     </div>
@@ -175,7 +188,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Processing Gender</h1>
+<h1 class="title">Data Preparation Gender</h1>
 </div>
 
 
@@ -215,8 +228,259 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-Ncells  603960 32.3    1367700 73.1         NA   715800 38.3
-Vcells 1110345  8.5    8388608 64.0      16384  2012047 15.4</code></pre>
+Ncells  605059 32.4    1370840 73.3         NA   715800 38.3
+Vcells 1115595  8.6    8388608 64.0      16384  2012043 15.4</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># load custom functions</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co"># load and activate packages</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="fu">fpackage.check</span>(<span class="fu">c</span>(</span>
+<span id="cb3-6"><a href="#cb3-6"></a>  <span class="st">'tidyverse'</span>, <span class="st">'readxl'</span>,  <span class="st">'stringr'</span>, </span>
+<span id="cb3-7"><a href="#cb3-7"></a>  <span class="st">'lubridate'</span>, <span class="st">'httr2'</span>, <span class="st">'rvest'</span>, <span class="st">'xml2'</span>,</span>
+<span id="cb3-8"><a href="#cb3-8"></a>  <span class="st">"purrr"</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="functions" class="level2">
+<h2 class="anchored" data-anchor-id="functions">Functions</h2>
+<section id="call-meertens-voornamen-databank" class="level3">
+<h3 class="anchored" data-anchor-id="call-meertens-voornamen-databank">Call Meertens Voornamen Databank</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>is_ok <span class="ot">=</span> <span class="cf">function</span>(resp) <span class="fu">resp_status</span>(resp) <span class="sc">&gt;=</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span> <span class="fu">resp_status</span>(resp) <span class="sc">&lt;</span> <span class="dv">300</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a>request_gender <span class="ot">=</span> <span class="cf">function</span>(</span>
+<span id="cb4-4"><a href="#cb4-4"></a>    first_name,</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="at">base =</span> <span class="st">"https://nvb.meertens.knaw.nl/naam/is/"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="at">pause =</span> <span class="fl">0.5</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>  ){</span>
+<span id="cb4-8"><a href="#cb4-8"></a>  <span class="co"># configure url for scraping</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>  url  <span class="ot">=</span> <span class="fu">paste0</span>(base, <span class="fu">URLencode</span>(<span class="fu">tolower</span>(first_name), <span class="at">reserved =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb4-10"><a href="#cb4-10"></a></span>
+<span id="cb4-11"><a href="#cb4-11"></a>  <span class="co"># configure user agent</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a>  ua <span class="ot">=</span> <span class="fu">paste</span>(</span>
+<span id="cb4-13"><a href="#cb4-13"></a>    <span class="st">"Mozilla/5.0 (Macintosh; Intel Mac OS X 15_5)"</span>,</span>
+<span id="cb4-14"><a href="#cb4-14"></a>    <span class="st">"AppleWebKit/537.36 (KHTML, like Gecko)"</span>,</span>
+<span id="cb4-15"><a href="#cb4-15"></a>    <span class="st">"Chrome/129.0.0.0 Safari/537.36"</span></span>
+<span id="cb4-16"><a href="#cb4-16"></a>  )</span>
+<span id="cb4-17"><a href="#cb4-17"></a></span>
+<span id="cb4-18"><a href="#cb4-18"></a>  req <span class="ot">=</span> <span class="fu">request</span>(url) <span class="sc">|&gt;</span></span>
+<span id="cb4-19"><a href="#cb4-19"></a>    <span class="fu">req_user_agent</span>(ua) <span class="sc">|&gt;</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a>    <span class="fu">req_timeout</span>(<span class="dv">30</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-21"><a href="#cb4-21"></a>    <span class="fu">req_headers</span>(</span>
+<span id="cb4-22"><a href="#cb4-22"></a>      <span class="st">"Accept"</span> <span class="ot">=</span> <span class="st">"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"</span>,</span>
+<span id="cb4-23"><a href="#cb4-23"></a>      <span class="st">"Accept-Language"</span> <span class="ot">=</span> <span class="st">"nl,en;q=0.8"</span></span>
+<span id="cb4-24"><a href="#cb4-24"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb4-25"><a href="#cb4-25"></a>    <span class="co"># Retry on 429/5xx, and *also* on network hiccups:</span></span>
+<span id="cb4-26"><a href="#cb4-26"></a>    <span class="fu">req_retry</span>(</span>
+<span id="cb4-27"><a href="#cb4-27"></a>      <span class="at">max_tries =</span> <span class="dv">4</span>,</span>
+<span id="cb4-28"><a href="#cb4-28"></a>      <span class="at">backoff =</span> <span class="sc">~</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>) <span class="sc">*</span> (<span class="dv">2</span> <span class="sc">^</span> (.x <span class="sc">-</span> <span class="dv">1</span>)),  <span class="co"># jittered exponential</span></span>
+<span id="cb4-29"><a href="#cb4-29"></a>      <span class="at">is_transient =</span> <span class="cf">function</span>(resp) {</span>
+<span id="cb4-30"><a href="#cb4-30"></a>        code <span class="ot">&lt;-</span> <span class="fu">resp_status</span>(resp)</span>
+<span id="cb4-31"><a href="#cb4-31"></a>        <span class="fu">isTRUE</span>(code <span class="sc">==</span> <span class="dv">429</span>L <span class="sc">||</span> (code <span class="sc">&gt;=</span> <span class="dv">500</span>L <span class="sc">&amp;</span> code <span class="sc">&lt;</span> <span class="dv">600</span>L))</span>
+<span id="cb4-32"><a href="#cb4-32"></a>      }</span>
+<span id="cb4-33"><a href="#cb4-33"></a>    )</span>
+<span id="cb4-34"><a href="#cb4-34"></a></span>
+<span id="cb4-35"><a href="#cb4-35"></a>  <span class="co"># polite pause + jitter</span></span>
+<span id="cb4-36"><a href="#cb4-36"></a>  <span class="cf">if</span> (pause <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">Sys.sleep</span>(pause <span class="sc">+</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">0.4</span>))</span>
+<span id="cb4-37"><a href="#cb4-37"></a></span>
+<span id="cb4-38"><a href="#cb4-38"></a>  <span class="co"># CRITICAL: don't throw on transport errors</span></span>
+<span id="cb4-39"><a href="#cb4-39"></a>  resp <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(</span>
+<span id="cb4-40"><a href="#cb4-40"></a>    <span class="fu">req_perform</span>(req),</span>
+<span id="cb4-41"><a href="#cb4-41"></a>    <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb4-42"><a href="#cb4-42"></a>      <span class="fu">attr</span>(e, <span class="st">"nvb_url"</span>) <span class="ot">&lt;-</span> url</span>
+<span id="cb4-43"><a href="#cb4-43"></a>      e</span>
+<span id="cb4-44"><a href="#cb4-44"></a>    }</span>
+<span id="cb4-45"><a href="#cb4-45"></a>  )</span>
+<span id="cb4-46"><a href="#cb4-46"></a></span>
+<span id="cb4-47"><a href="#cb4-47"></a>  <span class="co"># Return a uniform list the caller can inspect</span></span>
+<span id="cb4-48"><a href="#cb4-48"></a>  <span class="cf">if</span> (<span class="fu">inherits</span>(resp, <span class="st">"error"</span>)) {</span>
+<span id="cb4-49"><a href="#cb4-49"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">ok =</span> <span class="cn">FALSE</span>, <span class="at">status =</span> <span class="cn">NA_integer_</span>, <span class="at">url =</span> url, <span class="at">resp =</span> <span class="cn">NULL</span>, <span class="at">error =</span> resp))</span>
+<span id="cb4-50"><a href="#cb4-50"></a>  }</span>
+<span id="cb4-51"><a href="#cb4-51"></a></span>
+<span id="cb4-52"><a href="#cb4-52"></a>  <span class="fu">list</span>(<span class="at">ok =</span> <span class="fu">is_ok</span>(resp), <span class="at">status =</span> <span class="fu">resp_status</span>(resp), <span class="at">url =</span> url, <span class="at">resp =</span> resp, <span class="at">error =</span> <span class="cn">NULL</span>)</span>
+<span id="cb4-53"><a href="#cb4-53"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="extract-gender-information" class="level3">
+<h3 class="anchored" data-anchor-id="extract-gender-information">Extract Gender Information</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>extract_gender_information <span class="ot">=</span> <span class="cf">function</span>(</span>
+<span id="cb5-2"><a href="#cb5-2"></a>    resp,</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    first_name</span>
+<span id="cb5-4"><a href="#cb5-4"></a>  ){</span>
+<span id="cb5-5"><a href="#cb5-5"></a>  <span class="co"># extract all the tables on the page</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>  html <span class="ot">=</span> <span class="fu">read_html</span>(<span class="fu">resp_body_string</span>(resp))</span>
+<span id="cb5-7"><a href="#cb5-7"></a>  tables <span class="ot">=</span> <span class="fu">html_table</span>(html, <span class="at">header=</span><span class="cn">TRUE</span>)</span>
+<span id="cb5-8"><a href="#cb5-8"></a></span>
+<span id="cb5-9"><a href="#cb5-9"></a>  <span class="co"># select the first table if a table if found</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>  <span class="cf">if</span> (<span class="fu">length</span>(tables) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">"No tables were found"</span>)</span>
+<span id="cb5-11"><a href="#cb5-11"></a>  tab <span class="ot">=</span> tables[[<span class="dv">1</span>]]</span>
+<span id="cb5-12"><a href="#cb5-12"></a></span>
+<span id="cb5-13"><a href="#cb5-13"></a>  <span class="co"># extract information from table</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a>  male_count <span class="ot">=</span> tab[<span class="dv">1</span>, <span class="dv">3</span>] <span class="sc">|&gt;</span> <span class="fu">pull</span>()</span>
+<span id="cb5-15"><a href="#cb5-15"></a>  male_count <span class="ot">=</span> <span class="fu">ifelse</span>(male_count <span class="sc">==</span> <span class="st">'--'</span>, <span class="dv">0</span>, <span class="fu">as.numeric</span>(male_count))</span>
+<span id="cb5-16"><a href="#cb5-16"></a>  female_count <span class="ot">=</span> tab[<span class="dv">5</span>, <span class="dv">3</span>] <span class="sc">|&gt;</span> <span class="fu">pull</span>() </span>
+<span id="cb5-17"><a href="#cb5-17"></a>  female_count <span class="ot">=</span> <span class="fu">ifelse</span>(female_count <span class="sc">==</span> <span class="st">'--'</span>, <span class="dv">0</span>, <span class="fu">as.numeric</span>(female_count))</span>
+<span id="cb5-18"><a href="#cb5-18"></a>  probability_male <span class="ot">=</span> male_count <span class="sc">/</span> (female_count <span class="sc">+</span> male_count) </span>
+<span id="cb5-19"><a href="#cb5-19"></a></span>
+<span id="cb5-20"><a href="#cb5-20"></a>  <span class="co"># configure results table</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a>  res <span class="ot">=</span> tibble<span class="sc">::</span><span class="fu">tribble</span>(</span>
+<span id="cb5-22"><a href="#cb5-22"></a>    <span class="sc">~</span>first_name, <span class="sc">~</span>male_count, <span class="sc">~</span>female_count, <span class="sc">~</span>probability_male,</span>
+<span id="cb5-23"><a href="#cb5-23"></a>    first_name, male_count,  female_count,  probability_male</span>
+<span id="cb5-24"><a href="#cb5-24"></a>  )</span>
+<span id="cb5-25"><a href="#cb5-25"></a>  <span class="fu">return</span>(res)</span>
+<span id="cb5-26"><a href="#cb5-26"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="helper-functions" class="level3">
+<h3 class="anchored" data-anchor-id="helper-functions">Helper functions</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>safe_extract <span class="ot">=</span> purrr<span class="sc">::</span><span class="fu">possibly</span>(</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  extract_gender_information,</span>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="at">otherwise =</span> tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="at">first_name       =</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    <span class="at">male_count       =</span> <span class="cn">NA_integer_</span>,</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    <span class="at">female_count     =</span> <span class="cn">NA_integer_</span>,</span>
+<span id="cb6-7"><a href="#cb6-7"></a>    <span class="at">probability_male =</span> <span class="cn">NA_real_</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>  )</span>
+<span id="cb6-9"><a href="#cb6-9"></a>)</span>
+<span id="cb6-10"><a href="#cb6-10"></a></span>
+<span id="cb6-11"><a href="#cb6-11"></a>get_gender_row <span class="ot">=</span> <span class="cf">function</span>(name, gender) {</span>
+<span id="cb6-12"><a href="#cb6-12"></a>  <span class="co"># If cached, return from cache</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a>  <span class="cf">if</span> (name <span class="sc">%in%</span> gender<span class="sc">$</span>first_name) {</span>
+<span id="cb6-14"><a href="#cb6-14"></a>    <span class="fu">return</span>(gender <span class="sc">|&gt;</span> <span class="fu">filter</span>(first_name <span class="sc">==</span> name))</span>
+<span id="cb6-15"><a href="#cb6-15"></a>  }</span>
+<span id="cb6-16"><a href="#cb6-16"></a></span>
+<span id="cb6-17"><a href="#cb6-17"></a>  r <span class="ot">&lt;-</span> <span class="fu">request_gender</span>(name)</span>
+<span id="cb6-18"><a href="#cb6-18"></a></span>
+<span id="cb6-19"><a href="#cb6-19"></a>  <span class="co"># If transport error or HTTP not OK, surface status &amp; keep going</span></span>
+<span id="cb6-20"><a href="#cb6-20"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">isTRUE</span>(r<span class="sc">$</span>ok)) {</span>
+<span id="cb6-21"><a href="#cb6-21"></a>    <span class="fu">return</span>(<span class="fu">tibble</span>(</span>
+<span id="cb6-22"><a href="#cb6-22"></a>      <span class="at">first_name       =</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb6-23"><a href="#cb6-23"></a>      <span class="at">male_count       =</span> <span class="cn">NA_integer_</span>,</span>
+<span id="cb6-24"><a href="#cb6-24"></a>      <span class="at">female_count     =</span> <span class="cn">NA_integer_</span>,</span>
+<span id="cb6-25"><a href="#cb6-25"></a>      <span class="at">probability_male =</span> <span class="cn">NA_real_</span></span>
+<span id="cb6-26"><a href="#cb6-26"></a>    ))</span>
+<span id="cb6-27"><a href="#cb6-27"></a>  }</span>
+<span id="cb6-28"><a href="#cb6-28"></a></span>
+<span id="cb6-29"><a href="#cb6-29"></a>  out <span class="ot">&lt;-</span> <span class="fu">safe_extract</span>(r<span class="sc">$</span>resp, name) <span class="sc">|&gt;</span></span>
+<span id="cb6-30"><a href="#cb6-30"></a>    <span class="fu">mutate</span>(<span class="at">first_name =</span> name)</span>
+<span id="cb6-31"><a href="#cb6-31"></a></span>
+<span id="cb6-32"><a href="#cb6-32"></a>  out</span>
+<span id="cb6-33"><a href="#cb6-33"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="patch-difficult-names" class="level3">
+<h3 class="anchored" data-anchor-id="patch-difficult-names">Patch Difficult Names</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>patch_gender_on_splits <span class="ot">=</span> <span class="cf">function</span>(gender){</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="co"># set gender cache</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>  gender_cache <span class="ot">=</span> gender <span class="sc">|&gt;</span> <span class="fu">drop_na</span>()</span>
+<span id="cb7-4"><a href="#cb7-4"></a>  <span class="co"># select authors without gender, and split their names</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>  selection <span class="ot">=</span> gender <span class="sc">|&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>    <span class="fu">filter</span>(<span class="fu">is.na</span>(male_count)) <span class="sc">|&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>    <span class="fu">mutate</span>(<span class="at">first_name_split =</span> <span class="fu">str_split</span>(first_name, <span class="st">' '</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>    <span class="fu">unnest_longer</span>(first_name_split) <span class="sc">|&gt;</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a>    <span class="fu">select</span>(first_name, first_name_split)</span>
+<span id="cb7-10"><a href="#cb7-10"></a></span>
+<span id="cb7-11"><a href="#cb7-11"></a>  <span class="co"># get first names from selection</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a>  first_names <span class="ot">=</span> selection <span class="sc">|&gt;</span></span>
+<span id="cb7-13"><a href="#cb7-13"></a>    <span class="fu">select</span>(first_name_split) <span class="sc">|&gt;</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a>    <span class="fu">pull</span>() <span class="sc">|&gt;</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a>    <span class="fu">unique</span>()</span>
+<span id="cb7-16"><a href="#cb7-16"></a></span>
+<span id="cb7-17"><a href="#cb7-17"></a>  <span class="co"># patch gender --------------------------------------</span></span>
+<span id="cb7-18"><a href="#cb7-18"></a>  gender_patch <span class="ot">=</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(</span>
+<span id="cb7-19"><a href="#cb7-19"></a>    first_names, get_gender_row, <span class="at">gender =</span> gender_cache</span>
+<span id="cb7-20"><a href="#cb7-20"></a>  )</span>
+<span id="cb7-21"><a href="#cb7-21"></a></span>
+<span id="cb7-22"><a href="#cb7-22"></a>  <span class="co"># aggregate gender information</span></span>
+<span id="cb7-23"><a href="#cb7-23"></a>  gender_patch <span class="ot">=</span> selection <span class="sc">|&gt;</span></span>
+<span id="cb7-24"><a href="#cb7-24"></a>    <span class="fu">left_join</span>(</span>
+<span id="cb7-25"><a href="#cb7-25"></a>      gender_patch, </span>
+<span id="cb7-26"><a href="#cb7-26"></a>      <span class="at">by=</span><span class="fu">join_by</span>(first_name_split <span class="sc">==</span> first_name)</span>
+<span id="cb7-27"><a href="#cb7-27"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb7-28"><a href="#cb7-28"></a>    <span class="fu">drop_na</span>() <span class="sc">|&gt;</span></span>
+<span id="cb7-29"><a href="#cb7-29"></a>    <span class="co"># take the average gender count and probablity</span></span>
+<span id="cb7-30"><a href="#cb7-30"></a>    <span class="co"># for names where both splits yielded a gender</span></span>
+<span id="cb7-31"><a href="#cb7-31"></a>    <span class="co"># result</span></span>
+<span id="cb7-32"><a href="#cb7-32"></a>    <span class="fu">group_by</span>(first_name) <span class="sc">|&gt;</span></span>
+<span id="cb7-33"><a href="#cb7-33"></a>    <span class="fu">summarise</span>(</span>
+<span id="cb7-34"><a href="#cb7-34"></a>      <span class="at">male_count =</span> <span class="fu">as.integer</span>(<span class="fu">mean</span>(male_count)),</span>
+<span id="cb7-35"><a href="#cb7-35"></a>      <span class="at">female_count =</span> <span class="fu">as.integer</span>(<span class="fu">mean</span>(female_count)),</span>
+<span id="cb7-36"><a href="#cb7-36"></a>      <span class="at">probability_male =</span> <span class="fu">mean</span>(probability_male)</span>
+<span id="cb7-37"><a href="#cb7-37"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb7-38"><a href="#cb7-38"></a>    <span class="fu">ungroup</span>() </span>
+<span id="cb7-39"><a href="#cb7-39"></a></span>
+<span id="cb7-40"><a href="#cb7-40"></a>  gender <span class="sc">|&gt;</span> <span class="fu">rows_update</span>(gender_patch)</span>
+<span id="cb7-41"><a href="#cb7-41"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="clean-gender-information" class="level3">
+<h3 class="anchored" data-anchor-id="clean-gender-information">Clean Gender Information</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>clean_gender <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  gender <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="at">gender =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb8-5"><a href="#cb8-5"></a>      probability_male <span class="sc">&gt;=</span> <span class="fl">0.5</span>,</span>
+<span id="cb8-6"><a href="#cb8-6"></a>      <span class="st">'male'</span>,<span class="st">'female'</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>    ),</span>
+<span id="cb8-8"><a href="#cb8-8"></a>    <span class="at">count =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb8-9"><a href="#cb8-9"></a>      gender <span class="sc">==</span> <span class="st">'male'</span>,</span>
+<span id="cb8-10"><a href="#cb8-10"></a>      male_count, female_count</span>
+<span id="cb8-11"><a href="#cb8-11"></a>    ),</span>
+<span id="cb8-12"><a href="#cb8-12"></a>    <span class="at">prob =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb8-13"><a href="#cb8-13"></a>      gender <span class="sc">==</span> <span class="st">'male'</span>,</span>
+<span id="cb8-14"><a href="#cb8-14"></a>      probability_male, <span class="dv">1</span> <span class="sc">-</span> probability_male</span>
+<span id="cb8-15"><a href="#cb8-15"></a>    )</span>
+<span id="cb8-16"><a href="#cb8-16"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>  <span class="fu">select</span>(first_name, gender, prob, count)</span>
+<span id="cb8-18"><a href="#cb8-18"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="application" class="level2">
+<h2 class="anchored" data-anchor-id="application">Application</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'processed'</span>)</span>
+<span id="cb9-2"><a href="#cb9-2"></a>file <span class="ot">=</span> <span class="fu">list.files</span>(dir, <span class="at">pattern =</span> <span class="st">'names.Rds'</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb9-3"><a href="#cb9-3"></a>names <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(dir, file))</span>
+<span id="cb9-4"><a href="#cb9-4"></a></span>
+<span id="cb9-5"><a href="#cb9-5"></a>first_names <span class="ot">=</span> names <span class="sc">|&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a>  <span class="fu">distinct</span>(first_name) <span class="sc">|&gt;</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(first_name), first_name <span class="sc">!=</span> <span class="st">""</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a>  <span class="fu">pull</span>(first_name)</span>
+<span id="cb9-9"><a href="#cb9-9"></a></span>
+<span id="cb9-10"><a href="#cb9-10"></a>gender_cache <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(<span class="st">"data"</span>, <span class="st">"utils"</span>, <span class="st">"nvb_gender.Rds"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb9-11"><a href="#cb9-11"></a>  <span class="co"># select(-status) |&gt;</span></span>
+<span id="cb9-12"><a href="#cb9-12"></a>  tidyr<span class="sc">::</span><span class="fu">drop_na</span>()</span>
+<span id="cb9-13"><a href="#cb9-13"></a></span>
+<span id="cb9-14"><a href="#cb9-14"></a>gender <span class="ot">=</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(</span>
+<span id="cb9-15"><a href="#cb9-15"></a>    first_names, </span>
+<span id="cb9-16"><a href="#cb9-16"></a>    get_gender_row, </span>
+<span id="cb9-17"><a href="#cb9-17"></a>    <span class="at">gender =</span> gender_cache</span>
+<span id="cb9-18"><a href="#cb9-18"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb9-19"><a href="#cb9-19"></a>  <span class="fu">patch_gender_on_splits</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Matching, by = "first_name"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>  <span class="co"># |&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>  <span class="co"># select(-status)</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a></span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="fu">saveRDS</span>(</span>
+<span id="cb11-5"><a href="#cb11-5"></a>  gender <span class="sc">|&gt;</span> <span class="fu">drop_na</span>(),</span>
+<span id="cb11-6"><a href="#cb11-6"></a>  <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">"nvb_gender.Rds"</span>)</span>
+<span id="cb11-7"><a href="#cb11-7"></a>)</span>
+<span id="cb11-8"><a href="#cb11-8"></a></span>
+<span id="cb11-9"><a href="#cb11-9"></a>gender <span class="sc">|&gt;</span> </span>
+<span id="cb11-10"><a href="#cb11-10"></a>  <span class="fu">clean_gender</span>() <span class="sc">|&gt;</span></span>
+<span id="cb11-11"><a href="#cb11-11"></a>  <span class="fu">fsaveRDS</span>(<span class="st">'gender'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "SAVING: ./data/processed/20251010gender.Rds"</code></pre>
 </div>
 </div>
 
