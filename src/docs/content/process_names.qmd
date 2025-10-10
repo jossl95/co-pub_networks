@@ -1,0 +1,23 @@
+---
+title: "Data Preparation Gender"
+author: 
+  - name: "Jos Slabbekoorn"
+  - name: "Jochem Tolsma"
+  - name: "Bas Hofstra"
+  - name: "Roza Meuleman"
+
+date: today
+
+---
+
+## Getting Started
+
+```{r}
+# clear the global environment
+rm(list = ls())
+gc()
+```
+
+```{r}
+source("src/code/process_names.r")
+```

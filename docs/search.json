@@ -1,24 +1,31 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Scientific Co-Publishing Networks",
+    "objectID": "src/docs/content/process_gender.html",
+    "href": "src/docs/content/process_gender.html",
+    "title": "Processing Gender",
     "section": "",
-    "text": "Note\n\n\n\nProject Description goes here"
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  603960 32.3    1367700 73.1         NA   715800 38.3\nVcells 1110345  8.5    8388608 64.0      16384  2012047 15.4"
+  },
+  {
+    "objectID": "src/docs/content/process_gender.html#getting-started",
+    "href": "src/docs/content/process_gender.html#getting-started",
+    "title": "Processing Gender",
+    "section": "",
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  603960 32.3    1367700 73.1         NA   715800 38.3\nVcells 1110345  8.5    8388608 64.0      16384  2012047 15.4"
   },
   {
     "objectID": "src/docs/content/create_scholars.html",
     "href": "src/docs/content/create_scholars.html",
     "title": "Data Preparation Scholars",
     "section": "",
-    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605228 32.4    1371322 73.3         NA   715800 38.3\nVcells 1118586  8.6    8388608 64.0      16384  2012047 15.4\n\n\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n\n# load and activate packages\nfpackage.check(c(\n  'tidyverse', 'readxl', 'renv', 'stringr', \n  'janitor', 'lubridate'\n))"
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605234 32.4    1371340 73.3         NA   715800 38.3\nVcells 1118684  8.6    8388608 64.0      16384  2012047 15.4\n\n\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n\n# load and activate packages\nfpackage.check(c(\n  'tidyverse', 'readxl', 'renv', 'stringr', \n  'janitor', 'lubridate'\n))"
   },
   {
     "objectID": "src/docs/content/create_scholars.html#getting-started",
     "href": "src/docs/content/create_scholars.html#getting-started",
     "title": "Data Preparation Scholars",
     "section": "",
-    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605228 32.4    1371322 73.3         NA   715800 38.3\nVcells 1118586  8.6    8388608 64.0      16384  2012047 15.4\n\n\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n\n# load and activate packages\nfpackage.check(c(\n  'tidyverse', 'readxl', 'renv', 'stringr', \n  'janitor', 'lubridate'\n))"
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605234 32.4    1371340 73.3         NA   715800 38.3\nVcells 1118684  8.6    8388608 64.0      16384  2012047 15.4\n\n\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n\n# load and activate packages\nfpackage.check(c(\n  'tidyverse', 'readxl', 'renv', 'stringr', \n  'janitor', 'lubridate'\n))"
   },
   {
     "objectID": "src/docs/content/create_scholars.html#defining-functions",
@@ -33,5 +40,26 @@
     "title": "Data Preparation Scholars",
     "section": "Execution",
     "text": "Execution\n\n# identified scholarid files\nsource = file.path(\"data\", \"raw_data\")\nfiles = list.files(source, pattern = \"scholarid.xlsx\")\n\n# load and process data\ndata = fread(files, source) |&gt; \n  fix_scholar_names() |&gt;\n  clean_universities() |&gt;\n  fix_email_adresses() |&gt;\n  fix_google_scholar_id() |&gt;\n  select(-specialisatie, -notitie, -additional, -checked) |&gt;\n  arrange(discipline, date, naam, university) |&gt;\n  clean_functie()\n\n`summarise()` has grouped output by 'naam'. You can override using the\n`.groups` argument.\nJoining with `by = join_by(date, naam)`\n\n# save data\nsaveRDS(data, \"mtcars.rds\")\n\n\ndata |&gt; head()\n\n# A tibble: 6 × 8\n  discipline    date       naam      universiteit university email_adres functie\n  &lt;chr&gt;         &lt;date&gt;     &lt;chr&gt;     &lt;chr&gt;        &lt;list&gt;     &lt;chr&gt;       &lt;chr&gt;  \n1 Politicologie 2022-12-19 A.J.G.M.… VU           &lt;chr [1]&gt;  a.j.g.m.va… Associ…\n2 Politicologie 2022-12-19 Abbey St… UvA          &lt;chr [1]&gt;  a.a.steele… Associ…\n3 Politicologie 2022-12-19 Adina Ak… Leiden       &lt;chr [1]&gt;  a.akbik@fs… Assist…\n4 Politicologie 2022-12-19 Agha Bay… Leiden       &lt;chr [1]&gt;  a.g.bayram… Lectur…\n5 Politicologie 2022-12-19 Alana Ca… VU           &lt;chr [1]&gt;  a.castrode… PhD Ca…\n6 Politicologie 2022-12-19 Aleksand… Leiden       &lt;chr [1]&gt;  a.khokhlov… PhD Ca…\n# ℹ 1 more variable: google_scholar_id &lt;chr&gt;"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Scientific Co-Publishing Networks",
+    "section": "",
+    "text": "Note\n\n\n\nProject Description goes here"
+  },
+  {
+    "objectID": "src/docs/content/process_names.html",
+    "href": "src/docs/content/process_names.html",
+    "title": "Data Preparation Gender",
+    "section": "",
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  603993 32.3    1367794 73.1         NA   715800 38.3\nVcells 1110442  8.5    8388608 64.0      16384  2012047 15.4\n\n\n\nsource(\"src/code/process_names.r\")\n\nLoading required package: tidyverse\n\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.4     ✔ readr     2.1.5\n✔ forcats   1.0.0     ✔ stringr   1.5.2\n✔ ggplot2   3.5.2     ✔ tibble    3.3.0\n✔ lubridate 1.9.4     ✔ tidyr     1.3.1\n✔ purrr     1.1.0     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\nLoading required package: readxl\n\n\n[1] \"SAVING: ./data/processed/20251010names.Rds\""
+  },
+  {
+    "objectID": "src/docs/content/process_names.html#getting-started",
+    "href": "src/docs/content/process_names.html#getting-started",
+    "title": "Data Preparation Gender",
+    "section": "",
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  603993 32.3    1367794 73.1         NA   715800 38.3\nVcells 1110442  8.5    8388608 64.0      16384  2012047 15.4\n\n\n\nsource(\"src/code/process_names.r\")\n\nLoading required package: tidyverse\n\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.4     ✔ readr     2.1.5\n✔ forcats   1.0.0     ✔ stringr   1.5.2\n✔ ggplot2   3.5.2     ✔ tibble    3.3.0\n✔ lubridate 1.9.4     ✔ tidyr     1.3.1\n✔ purrr     1.1.0     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\nLoading required package: readxl\n\n\n[1] \"SAVING: ./data/processed/20251010names.Rds\""
   }
 ]

@@ -13,7 +13,10 @@ website:
         menu:
         - href: src/docs/content/create_scholars.qmd
           text: Create Scholars
-
+        - href: src/docs/content/process_names.qmd
+          text: Process Names
+        - href: src/docs/content/process_gender.qmd
+          text: Process Gender
 
 format:
   html:

@@ -1,7 +1,7 @@
-source("src/utils/custom_functions.r")
-
 rm(list = ls())
 gc()
+
+source("src/utils/custom_functions.r")
 
 # load and activate packages
 fpackage.check(c(

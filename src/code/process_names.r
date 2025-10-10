@@ -1,3 +1,6 @@
+rm(list = ls())
+gc()
+
 source("src/utils/custom_functions.r")
 
 # load and activate packages
@@ -125,8 +128,7 @@ names = data |>
   patch_names() |>
   extract_maiden_name()
 
-
-
-
-
-
+fsaveRDS(
+  names, 
+  'names'
+)
