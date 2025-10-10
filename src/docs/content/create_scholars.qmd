@@ -5,10 +5,401 @@ author:
   - name: "Jochem Tolsma"
   - name: "Bas Hofstra"
   - name: "Roza Meuleman"
+
+date: today
+
 ---
 
 ## Getting Started
 
 ```{r}
+# clear the global environment
+rm(list = ls())
+gc()
+```
+```{r}
+#| warning: false
+#| output: false
 
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# load and activate packages
+fpackage.check(c(
+  'tidyverse', 'readxl', 'renv', 'stringr', 
+  'janitor', 'lubridate'
+))
+```
+
+
+## Defining Functions
+
+### Loading in Raw Data
+
+```{r}
+# define tailored functions
+read_spreadsheet = function(filepath, sheet){  
+  readxl::read_excel(filepath, sheet = sheet) 
+}
+
+harmonize_columns = function(data, discipline, date){
+  data = data |>
+    clean_names() |>
+    mutate(
+      discipline = discipline,
+      date = date
+    ) |>
+    relocate(c(discipline, date), .before = 1)
+}
+
+fread = function(
+    files, 
+    source,
+    disciplines = c( "Politicologie", "Sociologie"),
+    language = 'nl'
+  ){
+  # read in both sheets from excel files
+  hold = c()
+  for (file in files){
+    filepath = file.path(source, file)
+    date = ymd(str_split(file, pattern = "_")[[1]][1])
+
+    # each file contains two sheets, for each discipline
+    # read in both sheets and combine these data
+    disciplines = c( "Politicologie", "Sociologie")
+    chunks = c()
+    for (discipline in disciplines){
+      chunk = read_spreadsheet(filepath, discipline) |>
+        harmonize_columns(discipline, date)
+
+      chunks[[discipline]] = chunk
+    }
+
+    hold[[file]] =  bind_rows(chunks)
+  }
+
+  data = bind_rows(hold)
+
+  if (!language %in% c('nl', 'en')) stop("language should be nl or en")
+  # implement rename function for english column namesac
+  
+
+  return(data)
+}
+```
+
+### Fix Scholar Names
+
+
+```{r}
+fix_scholar_names = function(data){
+  # fix the particles in the names
+  particles = c("van", "de", "den", "der", "te", "ten", "ter")
+  pattern = regex(
+    paste0("(?<=\\s)(", paste(particles, collapse = "|"), ")(?=\\s)"),
+    ignore_case = TRUE
+  )
+
+  data |>
+    mutate(
+      # replace capitalized particles
+      naam = str_replace_all(naam, pattern, ~ tolower(.x)),
+
+      # replace typos and mistakes in names
+      naam = case_when(
+        naam == "Andrea Forstrer"      ~ "Andrea Forster",
+        naam == "AJGM van Montfort"    ~ "A.J.G.M. van Montfort",
+        naam == "FP Wagenaar"          ~ "F.P. Wagenaar",
+        naam == "JP Presley"           ~ "J.P. Presley",
+        naam == "JS Timmer"            ~ "J.S. Timmer",
+        naam == "ilya Lavrov"          ~ "Ilya Lavrov",
+        naam == "p. Vila Soler"        ~ "P. Vila Soler",
+        naam == "Z Dong"               ~ "Z. Dong",
+        naam == "Renae  Loh"           ~ "Renae Loh",
+        naam == "Paulina Pankowski"    ~ "Paulina Pankowska",
+        naam == "M.M Cuperus"          ~ "M.M. Cuperus",
+        naam == "Lea Kroner"           ~ "Lea Kröner",
+        naam == "L Slot"               ~ "L. Slot",
+        naam == "Jan Willen Duyvendak" ~ "Jan Willem Duyvendak",
+        .default = naam
+      )
+    )
+}
+```
+
+### Fixing Google Scholar ID
+
+```{r}
+fix_google_scholar_id = function(data, .direction='updown'){
+  data |>
+    arrange(naam, date) |>
+    group_by(naam) |>
+    # fill missing values with available information
+    fill(google_scholar_id, .direction = .direction) |>  
+    ungroup() |>
+    arrange(universiteit, date)
+}
+```
+
+### Fixing Email Addresses
+
+
+```{r}
+fix_email_adresses = function(data, .direction = "updown"){
+  # practical email regex (case-insensitive), supports subdomains
+  email_pattern = regex(
+    "\\b[[:alnum:]._%+-]+@[[:alnum:]-]+(?:\\.[[:alnum:]-]+)+\\b", 
+    ignore_case = TRUE
+  )
+
+  # clean email variable
+  data |>
+    mutate(
+      email_adres = str_extract(
+        email_adres, email_pattern
+        ) |> tolower()
+    ) |>
+    group_by(universiteit, naam) |>
+    # fill 
+    fill(email_adres, .direction = "updown") |>
+    ungroup()|>
+    arrange(universiteit, date)
+}
+```
+
+### Fixing Universities
+
+```{r}
+clean_universities = function(data){
+  universities = c("EUR", "RU", "RUG", "UU", "VU", "UvA", "UvT", "LU")
+  pat   = regex("\\b(EUR|RU|RUG|UU|VU|UvA|UvT|Leiden)\\b", ignore_case = TRUE)
+  canon = setNames(universities, universities)
+
+  # clean universities
+  uni = data |>
+    # split university strings on '\s' , '/', '\.', and '?'
+    mutate(
+      universiteit = str_split(universiteit, "/+|\\?+"),
+    ) |>
+    unnest_longer(universiteit) |>
+    # clean the university labels
+    mutate(
+      universiteit = str_replace(str_squish(universiteit), 'Leiden uni', 'Leiden'),
+      university = str_replace(universiteit, pat, \(m) canon[str_to_lower(m)]),
+      universiteit = case_when(
+        (is.na(university) & str_detect(email_adres, 'essb.eur.nl')) ~ 'EUR',
+        (is.na(university) & str_detect(email_adres, 'vu.nl'))  ~ 'VU',
+        (is.na(university) & str_detect(email_adres, 'uva.nl'))  ~  'UVA',
+        (is.na(university) & str_detect(email_adres, 'leidenuni'))  ~  'Leiden',
+        (is.na(university) & str_detect(email_adres, 'ru.nl'))  ~  'RU',
+        (is.na(university) & str_detect(email_adres, 'rug.nl'))  ~  'RUG',
+        (is.na(university) & str_detect(email_adres, 'tilburguni'))  ~  'UvT',
+        (is.na(university) & str_detect(email_adres, 'uu.nl'))  ~  'UU',
+        .default = university
+      ),
+      university = ifelse("" == university, NA_character_, university)
+    ) |>
+    distinct(.keep_all=TRUE) |>
+    group_by(naam, date) |> 
+    summarise(university = list(unlist(university))) |>
+    ungroup()
+
+  data |>
+    left_join(uni) |>
+    relocate(university, .after=universiteit)
+}
+```
+
+### Clean `functie`
+
+
+```{r}
+parse_job_titles = function(data){
+  data |>
+    select(date, naam, functie) |>
+    mutate(
+      is_visiting = case_when(                               # <1>
+        str_detect(str_to_lower(functie), 'gast') ~ TRUE,    # <1>
+        str_detect(str_to_lower(functie), 'visit') ~ TRUE,   # <1>
+        is.na(functie) ~ NA,                                 # <1>
+        .default = FALSE                                     # <1>
+      ),
+      is_external = case_when(
+        str_detect(str_to_lower(functie), 'external') ~ TRUE,
+        str_detect(str_to_lower(functie), 'buiten') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_associate_professor = case_when(
+        str_detect(str_to_lower(functie), 'hoofddocent') ~ TRUE,
+        str_detect(str_to_lower(functie), 'associate ') ~ TRUE,
+        str_detect(str_to_lower(functie), 'uhd') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_assistant_professor = case_when(
+        is_associate_professor ~ FALSE,
+        str_detect(str_to_lower(functie), 'universitair docent') ~ TRUE,
+        str_detect(str_to_lower(functie), 'assistant ') ~ TRUE, 
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_postdoc = case_when(
+        str_detect(str_to_lower(functie), 'postdoc') ~ TRUE,
+        str_detect(str_to_lower(functie), 'doctoral') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_senior = case_when(
+        str_detect(str_to_lower(functie), 'senior') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_junior = case_when(
+        str_detect(str_to_lower(functie), 'junior') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_lecturer = case_when(
+        is_associate_professor ~ FALSE, 
+        is_assistant_professor ~ FALSE, 
+        str_detect(str_to_lower(functie), 'lecturer') ~ TRUE,
+        str_detect(str_to_lower(functie), 'docent') ~ TRUE,
+        str_detect(str_to_lower(functie), 'teacher') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_researcher = case_when(
+        is_associate_professor ~ FALSE, 
+        is_assistant_professor ~ FALSE,
+        is_postdoc ~ FALSE, 
+        str_detect(str_to_lower(functie), 'onderzoeker') ~ TRUE,
+        str_detect(str_to_lower(functie), 'research') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_phd = case_when(
+        str_detect(str_to_lower(functie), 'phd') ~ TRUE,
+        str_detect(str_to_lower(functie), 'promovend') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_professor = case_when(
+        is_associate_professor ~ FALSE, 
+        is_assistant_professor ~ FALSE,
+        is_postdoc ~ FALSE, 
+        str_detect(str_to_lower(functie), 'hoogleraar') ~ TRUE,
+        str_detect(str_to_lower(functie), 'professor') ~ TRUE,
+        str_detect(str_to_lower(functie), 'proffessor') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_emeritus = case_when(
+        is_professor & str_detect(str_to_lower(functie), 'emiri') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_endowed = case_when(
+        is_professor & str_detect(str_to_lower(functie), 'bijzon') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_staff = case_when(
+        # make sure that people with other positions are not falsely
+        # been configured to be a staff member.
+        is_associate_professor ~ FALSE, 
+        is_assistant_professor ~ FALSE,
+        is_lecturer ~ FALSE,
+        is_postdoc ~ FALSE,
+        is_professor ~ FALSE,
+        # staff members have wildly varying job titles.
+        str_detect(str_to_lower(functie), 'advisor') ~ TRUE,
+        str_detect(str_to_lower(functie), 'secretary') ~ TRUE,
+        str_detect(str_to_lower(functie), 'assistent') ~ TRUE,
+        str_detect(str_to_lower(functie), 'medewerk') ~ TRUE,
+        str_detect(str_to_lower(functie), 'market') ~ TRUE,
+        str_detect(str_to_lower(functie), 'managing') ~ TRUE,
+        str_detect(str_to_lower(functie), 'manager') ~ TRUE,
+        str_detect(str_to_lower(functie), 'coordinator') ~ TRUE,
+        str_detect(str_to_lower(functie), 'director') ~ TRUE,
+        str_detect(str_to_lower(functie), 'directeur') ~ TRUE,
+      ),
+      is_fellow = case_when(
+        str_detect(str_to_lower(functie), 'fellow') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      )
+    )
+}
+```
+1. Identifiy visiting scholars
+
+```{r}
+construct_positions = function(data) {
+  data |>
+    mutate(
+      # make flags for people with one of the following distinctions
+      visiting = ifelse(is_visiting, 'Visiting', NA_character_),
+      external = ifelse(is_external, 'External', NA_character_),
+      senior = ifelse(is_senior, 'Senior', NA_character_),
+      junior = ifelse(is_junior, 'Junior', NA_character_),
+      emeritus = ifelse(is_emeritus, 'Emeritus', NA_character_),
+      endowed = ifelse(is_endowed, 'Endowed', NA_character_),
+      # create a basic positions variable, excluding distinctions
+      position = case_when(
+        is_professor ~ "Full Professor",
+        is_associate_professor ~ "Associate Professor",
+        is_assistant_professor ~ "Assistant Professor",
+        is_postdoc ~ "Postdoctoral Researcher",
+        is_phd ~ "PhD Candidate",
+        is_lecturer ~ "Lecturer",
+        is_researcher ~ "Researcher",
+        is_staff ~ "Staff",
+        .default = NA_character_
+      ),
+      fellow = ifelse(is_fellow, 'Fellow', NA_character_)
+    ) |>
+    select(!starts_with('is_')) |>
+    unite('position2', visiting:fellow, na.rm=TRUE, remove=FALSE)
+}
+
+clean_functie = function(data, .what='complete'){
+  test = data |> 
+    parse_job_titles() |>
+    construct_positions()
+
+  if (.what == 'complete'){
+    data['functie'] = test$position
+  } else if (.what == 'simplified'){
+    data['functie'] = test$position2
+  }
+
+  return(data)
+}
+```
+
+## Execution
+
+```{r}
+# identified scholarid files
+source = file.path("data", "raw_data")
+files = list.files(source, pattern = "scholarid.xlsx")
+
+# load and process data
+data = fread(files, source) |> 
+  fix_scholar_names() |>
+  clean_universities() |>
+  fix_email_adresses() |>
+  fix_google_scholar_id() |>
+  select(-specialisatie, -notitie, -additional, -universiteit, -checked) |>
+  arrange(discipline, date, naam, university) |>
+  clean_functie()
+
+# save data
+fsave(data, 'scholarid.Rdata')
+```
+
+
+```{r}
+data |> head()
 ```

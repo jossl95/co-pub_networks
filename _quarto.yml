@@ -1,6 +1,7 @@
 project:
   type: website
   output-dir: docs
+  execute-dir: project
 
 website:
   title: "Networks"
@@ -19,6 +20,8 @@ format:
     theme: cosmo
     css: src/docs/styles.css
     toc: true
+    code-line-numbers: true
+    code-annotations: true
 
 
 

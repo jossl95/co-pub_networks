@@ -1,9 +1,15 @@
-library(tidyverse) #groundhog
-library(readxl) #renv
+library(tidyverse)
+library(readxl)
+library(renv)
 library(janitor)
 library(lubridate)
-source(file.path("utils", 'google_scholar.R'))
+source("src/utils/custom_functions.R")
 
+# clear the global environment
+clear_environment()
+
+
+# define tailored functions
 read_spreadsheet = function(filepath, sheet){  
   readxl::read_excel(filepath, sheet = sheet) 
 }
@@ -121,53 +127,43 @@ fix_email_adresses = function(data, .direction = "updown"){
 }
 
 clean_universities = function(data){
-  universities = c("EUR", "RU", "RUG", "UU", "VU", "UvA", "UvT")
-  pat   = regex("\\b(EUR|RU|RUG|UU|VU|UvA|UvT)\\b", ignore_case = TRUE)
+  universities = c("EUR", "RU", "RUG", "UU", "VU", "UvA", "UvT", "LU")
+  pat   = regex("\\b(EUR|RU|RUG|UU|VU|UvA|UvT|Leiden)\\b", ignore_case = TRUE)
   canon = setNames(universities, universities)
 
   # clean universities
-  data |>
+  uni = data |>
     # split university strings on '\s' , '/', '\.', and '?'
     mutate(
-      universiteit = str_split(universiteit, "/+|\\.+|\\?+")
+      universiteit = str_split(universiteit, "/+|\\?+"),
     ) |>
     unnest_longer(universiteit) |>
     # clean the university labels
     mutate(
-      universiteit = str_replace(universiteit, pat, \(m) canon[str_to_lower(m)]),
+      universiteit = str_replace(str_squish(universiteit), 'Leiden uni', 'Leiden'),
+      university = str_replace(universiteit, pat, \(m) canon[str_to_lower(m)]),
       universiteit = case_when(
-        (is.na(universiteit) & str_detect(email_adres, 'essb.eur.nl')) ~ 'EUR',
-        (is.na(universiteit) & str_detect(email_adres, 'vu.nl'))  ~ 'VU',
-        (is.na(universiteit) & str_detect(email_adres, 'uva.nl'))  ~  'UVA',
-        (is.na(universiteit) & str_detect(email_adres, 'leidenuni'))  ~  'Leiden',
-        (is.na(universiteit) & str_detect(email_adres, 'ru.nl'))  ~  'RU',
-        (is.na(universiteit) & str_detect(email_adres, 'rug.nl'))  ~  'RUG',
-        (is.na(universiteit) & str_detect(email_adres, 'tilburguni'))  ~  'UvT',
-        (is.na(universiteit) & str_detect(email_adres, 'uu.nl'))  ~  'UU',
-        .default = str_squish(universiteit)
+        (is.na(university) & str_detect(email_adres, 'essb.eur.nl')) ~ 'EUR',
+        (is.na(university) & str_detect(email_adres, 'vu.nl'))  ~ 'VU',
+        (is.na(university) & str_detect(email_adres, 'uva.nl'))  ~  'UVA',
+        (is.na(university) & str_detect(email_adres, 'leidenuni'))  ~  'Leiden',
+        (is.na(university) & str_detect(email_adres, 'ru.nl'))  ~  'RU',
+        (is.na(university) & str_detect(email_adres, 'rug.nl'))  ~  'RUG',
+        (is.na(university) & str_detect(email_adres, 'tilburguni'))  ~  'UvT',
+        (is.na(university) & str_detect(email_adres, 'uu.nl'))  ~  'UU',
+        .default = university
       ),
-      universiteit = ifelse("" == universiteit, NA_character_, universiteit)
+      university = ifelse("" == university, NA_character_, university)
     ) |>
-    distinct(.keep_all=TRUE)
+    distinct(.keep_all=TRUE) |>
+    group_by(naam, date) |> 
+    summarise(university = list(unlist(university))) |>
+    ungroup()
+
+  data |>
+    left_join(uni) |>
+    relocate(university, .after=universiteit)
 }  
-
-source = file.path("data", "raw_data")
-files = list.files(source, pattern = "scholarid.xlsx")
-data = fread(files, source) |> 
-  fix_scholar_names() |>
-  clean_universities() |>
-  fix_email_adresses() |>
-  fix_google_scholar_id() |>
-  select(-specialisatie, -notitie, -additional) |>
-  arrange(discipline, date, naam, universiteit)
-
-#! TODO: implement an scaper to fetch google_scholar_ids
-#  - It seems like scholar package is not up to date anymore
-#  - loading the url directly via rvest and httr also fails.
-#  - i experimented a little in python with the scholarly package
-#    In no cases does this lead to a working implementation for google_scholar_ids
-
-
 
 parse_job_titles = function(data){
   data |>
@@ -176,8 +172,12 @@ parse_job_titles = function(data){
       is_visiting = case_when(
         str_detect(str_to_lower(functie), 'gast') ~ TRUE,
         str_detect(str_to_lower(functie), 'visit') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
+      ),
+      is_external = case_when(
         str_detect(str_to_lower(functie), 'external') ~ TRUE,
-        str_detect(str_to_lower(functie), 'buiten') ~ TRUE,      # twijfel
+        str_detect(str_to_lower(functie), 'buiten') ~ TRUE,
         is.na(functie) ~ NA,
         .default = FALSE
       ),
@@ -274,17 +274,21 @@ parse_job_titles = function(data){
         str_detect(str_to_lower(functie), 'coordinator') ~ TRUE,
         str_detect(str_to_lower(functie), 'director') ~ TRUE,
         str_detect(str_to_lower(functie), 'directeur') ~ TRUE,
+      ),
+      is_fellow = case_when(
+        str_detect(str_to_lower(functie), 'fellow') ~ TRUE,
+        is.na(functie) ~ NA,
+        .default = FALSE
       )
     )
 }
-
-
 
 construct_positions = function(data) {
   data |>
     mutate(
       # make flags for people with one of the following distinctions
       visiting = ifelse(is_visiting, 'Visiting', NA_character_),
+      external = ifelse(is_external, 'External', NA_character_),
       senior = ifelse(is_senior, 'Senior', NA_character_),
       junior = ifelse(is_junior, 'Junior', NA_character_),
       emeritus = ifelse(is_emeritus, 'Emeritus', NA_character_),
@@ -300,25 +304,39 @@ construct_positions = function(data) {
         is_researcher ~ "Researcher",
         is_staff ~ "Staff",
         .default = NA_character_
-      )
+      ),
+      fellow = ifelse(is_fellow, 'Fellow', NA_character_)
     ) |>
     select(!starts_with('is_')) |>
-    # combine the distinctions and positions
-    unite('position2', visiting:position, na.rm=TRUE, remove=FALSE)
+    unite('position2', visiting:fellow, na.rm=TRUE, remove=FALSE)
 }
 
-# dit is mogelijk ook een mooie extra wet. rev.
+clean_functie = function(data, .what='complete'){
+  test = data |> 
+    parse_job_titles() |>
+    construct_positions()
+
+  if (.what == 'complete'){
+    data['functie'] = test$position
+  } else if (.what == 'simplified'){
+    data['functie'] = test$position2
+  }
+
+  return(data)
+}
+
+# E1.09
+
+source = file.path("data", "raw_data")
+files = list.files(source, pattern = "scholarid.xlsx")
+data = fread(files, source) |> 
+  fix_scholar_names() |>
+  clean_universities() |>
+  fix_email_adresses() |>
+  fix_google_scholar_id() |>
+  select(-specialisatie, -notitie, -additional, -universiteit, -checked) |>
+  arrange(discipline, date, naam, university) |>
+  clean_functie()
 
 
-test = data |> 
-  parse_job_titles() |>
-  construct_positions()
-
-data['position'] = test$position
-data['position2'] = test$position2
-
-# This is a lot of code, but the logic works to harmonize
-# the various jobtitles that have been collected. 
-# some points to consider:
-# - where to allocate "fellow",
-# 
+fsave(data, 'scholarid.Rdata')
