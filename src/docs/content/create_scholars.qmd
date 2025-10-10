@@ -1,5 +1,5 @@
 ---
-title: "Data preparation"
+title: "Data Preparation Scholars"
 author: "Jos Slabbekoorn"
 ---
 
