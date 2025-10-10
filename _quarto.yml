@@ -1,6 +1,6 @@
 project:
   type: website
-  output-dir: _site
+  output-dir: docs
 
 website:
   title: "Networks"
@@ -10,14 +10,14 @@ website:
         text: Home
       - text: Documentation
         menu:
-        - href: docs/content/create_scholars.qmd
+        - href: src/docs/content/create_scholars.qmd
           text: Create Scholars
 
 
 format:
   html:
     theme: cosmo
-    css: docs/styles.css
+    css: src/docs/styles.css
     toc: true
 
 
