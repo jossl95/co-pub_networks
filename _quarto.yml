@@ -20,8 +20,8 @@ website:
         - href: src/docs/content/process_ethnicity.qmd
           text: Process Ethnicity
 
-execute:
-  freeze: true
+# execute:
+#   freeze: true
 
 format:
   html:
