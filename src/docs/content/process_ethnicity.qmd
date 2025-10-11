@@ -302,6 +302,9 @@ ethnicity = ethnicity_cache |>
         "|(graafschap)|(stad)|(deel)|(Friesland)"
       )
     ),
+    has_particle = str_detect(
+      last_name, regex("^(van|de)")
+    ),
     origin2 = ifelse(isTRUE(regional), NA_character_, origin2),
     origin3 = origin3 |>
       str_remove("D(i)?e(ze)? (familie)?(achter)?(beroeps)?naam") |>
@@ -327,9 +330,17 @@ ethnicity = ethnicity |>
     ),
     origin = case_when(
       is.na(origin) & !is.na(count) & !is.na(info) ~ "Dutch",
+      has_particle ~ "Dutch",
       .default = origin
+    ),
+    dutch = case_when(
+      origin == 'Dutch' ~ TRUE,
+      .default = FALSE
     )
-  )
+  ) |>
+  select(last_name, origin, dutch, name_count)
+
+fsaveRDS(ethnicity, 'ethnicity')
 ```
 
 ## Problems:

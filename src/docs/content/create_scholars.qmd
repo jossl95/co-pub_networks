@@ -437,5 +437,5 @@ data = fread(files, source) |>
   clean_functie()
 
 # save data
-fsave(data, 'scholarid')
+fsaveRDS(data, 'scholarid')
 ```
