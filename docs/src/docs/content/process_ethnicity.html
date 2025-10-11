@@ -6,8 +6,13 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Jos Slabbekoorn">
+<meta name="author" content="Jochem Tolsma">
+<meta name="author" content="Bas Hofstra">
+<meta name="author" content="Roza Meuleman">
+<meta name="dcterms.date" content="2025-10-11">
 
-<title>process_ethnicity – Networks</title>
+<title>Data Preparation Ethnicity – Networks</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +24,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -126,17 +165,391 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
+  <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a>
+  <ul class="collapse">
+  <li><a href="#scraper-configuration" id="toc-scraper-configuration" class="nav-link" data-scroll-target="#scraper-configuration">Scraper Configuration</a></li>
+  <li><a href="#configure-url-and-extracters" id="toc-configure-url-and-extracters" class="nav-link" data-scroll-target="#configure-url-and-extracters">Configure URL and Extracters</a></li>
+  <li><a href="#tidy-scrape-wrappers" id="toc-tidy-scrape-wrappers" class="nav-link" data-scroll-target="#tidy-scrape-wrappers">Tidy Scrape Wrappers</a></li>
+  </ul></li>
+  <li><a href="#application" id="toc-application" class="nav-link" data-scroll-target="#application">Application</a></li>
+  <li><a href="#problems" id="toc-problems" class="nav-link" data-scroll-target="#problems">Problems:</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Data Preparation Ethnicity</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Authors</div>
+    <div class="quarto-title-meta-contents">
+             <p>Jos Slabbekoorn </p>
+             <p>Jochem Tolsma </p>
+             <p>Bas Hofstra </p>
+             <p>Roza Meuleman </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 11, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
 
 
+</header>
 
+
+<section id="getting-started" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># clear the global environment</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
+Ncells  605180 32.4    1371185 73.3         NA   715800 38.3
+Vcells 1118246  8.6    8388608 64.0      16384  2012043 15.4</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># load custom functions</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co"># load and activate packages</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="fu">fpackage.check</span>(<span class="fu">c</span>(</span>
+<span id="cb3-6"><a href="#cb3-6"></a>  <span class="st">'tidyverse'</span>, <span class="st">'readxl'</span>,  <span class="st">'stringr'</span>, </span>
+<span id="cb3-7"><a href="#cb3-7"></a>  <span class="st">'lubridate'</span>, <span class="st">'httr2'</span>, <span class="st">'rvest'</span>, <span class="st">'xml2'</span>,</span>
+<span id="cb3-8"><a href="#cb3-8"></a>  <span class="st">"purrr"</span>, <span class="st">"RCurl"</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="functions" class="level2">
+<h2 class="anchored" data-anchor-id="functions">Functions</h2>
+<section id="scraper-configuration" class="level3">
+<h3 class="anchored" data-anchor-id="scraper-configuration">Scraper Configuration</h3>
+<p>This function builds a resilient GET request to a target page and returns a uniform result object instead of throwing on transport errors.</p>
+<ul>
+<li><strong>Success check.</strong> <code>is_ok()</code> flags responses with HTTP status in the 200–299 range.</li>
+<li><strong>Browser-like request.</strong> <code>request_last_name()</code> constructs an <code>httr2</code> request with a Mac Chrome user agent, Dutch/English Accept-Language, and broad Accept headers to mimic a real browser and reduce blocking.</li>
+<li><strong>Connection settings.</strong> It sets a 30-second timeout and (deliberately) disables SSL peer verification to cope with misconfigured certificates on legacy servers.</li>
+<li><strong>Retry policy.</strong> On transient errors (HTTP 429 or 5xx), it retries up to 4 times with jittered exponential backoff <code>(runif(0.5–1.2) × 2^(try−1))</code>, which spreads load and avoids thundering herds.</li>
+<li><strong>Politeness delay.</strong> If a global pause is set, it sleeps <code>pause + U(0, 0.4)</code> seconds before firing the request to throttle scraping.</li>
+<li><strong>Error handling.</strong> The actual HTTP call is wrapped in <code>tryCatch()</code>. Instead of stopping, it returns a structured list:
+<ul>
+<li><strong>ok (logical)</strong> – success per <code>is_ok()</code></li>
+<li><strong>status (integer)</strong> – HTTP status or <code>NA</code> on transport error</li>
+<li><strong>url (character)</strong> – the requested URL</li>
+<li><strong>resp (httr2 response)</strong> – raw response on success, NULL on error</li>
+<li><strong>error (condition)</strong> – the caught error on failure</li>
+</ul></li>
+</ul>
+<p>This design lets downstream code branch cleanly on <code>res$ok</code> and inspect <code>res$status</code> or <code>res$error</code> without breaking the pipeline.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>is_ok <span class="ot">=</span> <span class="cf">function</span>(resp) <span class="fu">resp_status</span>(resp) <span class="sc">&gt;=</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span> <span class="fu">resp_status</span>(resp) <span class="sc">&lt;</span> <span class="dv">300</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a>request_last_name <span class="ot">=</span> <span class="cf">function</span>(base_url){</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  <span class="co"># configure user agent</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>  ua <span class="ot">=</span> <span class="fu">paste</span>(</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="st">"Mozilla/5.0 (Macintosh; Intel Mac OS X 15_5)"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7"></a>    <span class="st">"AppleWebKit/537.36 (KHTML, like Gecko)"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8"></a>    <span class="st">"Chrome/129.0.0.0 Safari/537.36"</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>  )</span>
+<span id="cb4-10"><a href="#cb4-10"></a></span>
+<span id="cb4-11"><a href="#cb4-11"></a>  req <span class="ot">=</span> <span class="fu">request</span>(base_url) <span class="sc">|&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a>    <span class="fu">req_user_agent</span>(ua) <span class="sc">|&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>    <span class="co"># disable SSL verification</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a>    <span class="fu">req_options</span>(<span class="at">ssl_verifypeer =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a>    <span class="fu">req_timeout</span>(<span class="dv">30</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-16"><a href="#cb4-16"></a>    <span class="fu">req_headers</span>(</span>
+<span id="cb4-17"><a href="#cb4-17"></a>      <span class="st">"Accept"</span> <span class="ot">=</span> <span class="st">"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"</span>,</span>
+<span id="cb4-18"><a href="#cb4-18"></a>      <span class="st">"Accept-Language"</span> <span class="ot">=</span> <span class="st">"nl,en;q=0.8"</span></span>
+<span id="cb4-19"><a href="#cb4-19"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a>    <span class="fu">req_retry</span>(</span>
+<span id="cb4-21"><a href="#cb4-21"></a>      <span class="at">max_tries =</span> <span class="dv">4</span>,</span>
+<span id="cb4-22"><a href="#cb4-22"></a>      <span class="at">backoff =</span> <span class="sc">~</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>) <span class="sc">*</span> (<span class="dv">2</span> <span class="sc">^</span> (.x <span class="sc">-</span> <span class="dv">1</span>)),  <span class="co"># jittered exponential</span></span>
+<span id="cb4-23"><a href="#cb4-23"></a>      <span class="at">is_transient =</span> <span class="cf">function</span>(resp) {</span>
+<span id="cb4-24"><a href="#cb4-24"></a>        code <span class="ot">&lt;-</span> <span class="fu">resp_status</span>(resp)</span>
+<span id="cb4-25"><a href="#cb4-25"></a>        <span class="fu">isTRUE</span>(code <span class="sc">==</span> <span class="dv">429</span>L <span class="sc">||</span> (code <span class="sc">&gt;=</span> <span class="dv">500</span>L <span class="sc">&amp;</span> code <span class="sc">&lt;</span> <span class="dv">600</span>L))</span>
+<span id="cb4-26"><a href="#cb4-26"></a>      }</span>
+<span id="cb4-27"><a href="#cb4-27"></a>    )</span>
+<span id="cb4-28"><a href="#cb4-28"></a></span>
+<span id="cb4-29"><a href="#cb4-29"></a>  <span class="co"># polite pause + jitter</span></span>
+<span id="cb4-30"><a href="#cb4-30"></a>  <span class="cf">if</span> (pause <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">Sys.sleep</span>(pause <span class="sc">+</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">0.4</span>))</span>
+<span id="cb4-31"><a href="#cb4-31"></a></span>
+<span id="cb4-32"><a href="#cb4-32"></a>  <span class="co"># CRITICAL: don't throw on transport errors</span></span>
+<span id="cb4-33"><a href="#cb4-33"></a>  resp <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(</span>
+<span id="cb4-34"><a href="#cb4-34"></a>    <span class="fu">req_perform</span>(req),</span>
+<span id="cb4-35"><a href="#cb4-35"></a>    <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb4-36"><a href="#cb4-36"></a>      <span class="fu">attr</span>(e, <span class="st">"nvb_url"</span>) <span class="ot">&lt;-</span> url</span>
+<span id="cb4-37"><a href="#cb4-37"></a>      e</span>
+<span id="cb4-38"><a href="#cb4-38"></a>    }</span>
+<span id="cb4-39"><a href="#cb4-39"></a>  )</span>
+<span id="cb4-40"><a href="#cb4-40"></a></span>
+<span id="cb4-41"><a href="#cb4-41"></a>  <span class="co"># Return a uniform list the caller can inspect</span></span>
+<span id="cb4-42"><a href="#cb4-42"></a>  <span class="cf">if</span> (<span class="fu">inherits</span>(resp, <span class="st">"error"</span>)) {</span>
+<span id="cb4-43"><a href="#cb4-43"></a>    res <span class="ot">=</span> <span class="fu">list</span>(<span class="at">ok =</span> <span class="cn">FALSE</span>, <span class="at">status =</span> <span class="cn">NA_integer_</span>, <span class="at">url =</span> url, <span class="at">resp =</span> <span class="cn">NULL</span>, <span class="at">error =</span> resp)</span>
+<span id="cb4-44"><a href="#cb4-44"></a>  } <span class="cf">else</span> {</span>
+<span id="cb4-45"><a href="#cb4-45"></a>    res <span class="ot">=</span> <span class="fu">list</span>(<span class="at">ok =</span> <span class="fu">is_ok</span>(resp), <span class="at">status =</span> <span class="fu">resp_status</span>(resp), <span class="at">url =</span> url, <span class="at">resp =</span> resp, <span class="at">error =</span> <span class="cn">NULL</span>)</span>
+<span id="cb4-46"><a href="#cb4-46"></a>  }</span>
+<span id="cb4-47"><a href="#cb4-47"></a>  <span class="fu">return</span>(res)</span>
+<span id="cb4-48"><a href="#cb4-48"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="configure-url-and-extracters" class="level3">
+<h3 class="anchored" data-anchor-id="configure-url-and-extracters">Configure URL and Extracters</h3>
+<section id="format_url-build-a-query-url-for-cbg-familienamen" class="level4">
+<h4 class="anchored" data-anchor-id="format_url-build-a-query-url-for-cbg-familienamen"><code>format_url()</code> – Build a query URL for CBG Familienamen</h4>
+<p>Takes a name and constructs a browser-ready URL for the CBG surnames site, encoding spaces as + and adding query parameters for multiple name fields. Optional <code>.what = "info"</code> appends the path to the analysis/etymology page. Returns the full URL string.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>format_url <span class="ot">=</span> <span class="cf">function</span>(</span>
+<span id="cb5-2"><a href="#cb5-2"></a>    name,</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="at">base =</span> <span class="st">"https://www.cbgfamilienamen.nl/nfb/detail_naam.php?"</span>,</span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="at">.what =</span> <span class="st">"base"</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>  ){</span>
+<span id="cb5-6"><a href="#cb5-6"></a>  <span class="co"># format_name for URL</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>  formatted_name <span class="ot">=</span> name <span class="sc">|&gt;</span> </span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="fu">URLencode</span>(<span class="at">reserved =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>    <span class="fu">str_replace_all</span>(<span class="at">pattern =</span> <span class="st">"%20"</span>, <span class="st">'+'</span>)</span>
+<span id="cb5-10"><a href="#cb5-10"></a></span>
+<span id="cb5-11"><a href="#cb5-11"></a>  <span class="co"># configure url</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a>  url <span class="ot">=</span> <span class="fu">paste0</span>(</span>
+<span id="cb5-13"><a href="#cb5-13"></a>    base,</span>
+<span id="cb5-14"><a href="#cb5-14"></a>    <span class="st">"gba_naam="</span>, formatted_name,</span>
+<span id="cb5-15"><a href="#cb5-15"></a>    <span class="st">"&amp;gba_lcnaam="</span>, <span class="fu">tolower</span>(formatted_name),</span>
+<span id="cb5-16"><a href="#cb5-16"></a>    <span class="st">"&amp;nfd_naam="</span>, formatted_name</span>
+<span id="cb5-17"><a href="#cb5-17"></a>  )</span>
+<span id="cb5-18"><a href="#cb5-18"></a></span>
+<span id="cb5-19"><a href="#cb5-19"></a>  <span class="cf">if</span> (.what <span class="sc">==</span> <span class="st">'info'</span>){</span>
+<span id="cb5-20"><a href="#cb5-20"></a>    url <span class="ot">=</span> <span class="fu">paste0</span>(url, <span class="st">"&amp;info=analyse+en+verklaring"</span>)</span>
+<span id="cb5-21"><a href="#cb5-21"></a>  }</span>
+<span id="cb5-22"><a href="#cb5-22"></a>  </span>
+<span id="cb5-23"><a href="#cb5-23"></a>  <span class="fu">return</span>(url)</span>
+<span id="cb5-24"><a href="#cb5-24"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="extract_info-parse-analysisetymology-text-from-response" class="level4">
+<h4 class="anchored" data-anchor-id="extract_info-parse-analysisetymology-text-from-response"><code>extract_info()</code> – Parse analysis/etymology text from response</h4>
+<p>Given a response wrapper <code>r</code> (with <code>r$resp</code> from <code>httr2</code>), reads the HTML body and extracts the “kenmerken/verklaring” section. It splits the page text, trims boilerplate until the © footer, and returns a single “;”-separated string with the extracted info (or “” if not found).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>extract_info <span class="ot">=</span> <span class="cf">function</span>(r){</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  html <span class="ot">=</span> <span class="fu">read_html</span>(<span class="fu">resp_body_string</span>(r<span class="sc">$</span>resp))</span>
+<span id="cb6-3"><a href="#cb6-3"></a>  text <span class="ot">=</span> html <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="fu">html_element</span>(<span class="st">"body"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>    <span class="fu">html_text</span>()</span>
+<span id="cb6-6"><a href="#cb6-6"></a></span>
+<span id="cb6-7"><a href="#cb6-7"></a>  info <span class="ot">=</span> <span class="fu">c</span>(<span class="st">""</span>)</span>
+<span id="cb6-8"><a href="#cb6-8"></a>  <span class="cf">if</span> (<span class="fu">str_detect</span>(text, <span class="fu">regex</span>(<span class="st">'kenmerken:|verklaring:'</span>))){</span>
+<span id="cb6-9"><a href="#cb6-9"></a>    parts <span class="ot">=</span> <span class="fu">str_split_fixed</span>(text, <span class="at">pattern=</span><span class="fu">regex</span>(<span class="st">'kenmerken:|verklaring:'</span>), <span class="dv">2</span>)[<span class="dv">2</span>] <span class="sc">|&gt;</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a>      <span class="fu">str_split</span>(<span class="at">pattern =</span> <span class="fu">regex</span>(<span class="st">"[</span><span class="sc">\\</span><span class="st">n|</span><span class="sc">\\</span><span class="st">t|</span><span class="sc">\\</span><span class="st">s]{3,20}"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a>      <span class="fu">unlist</span>()</span>
+<span id="cb6-12"><a href="#cb6-12"></a></span>
+<span id="cb6-13"><a href="#cb6-13"></a>    idx <span class="ot">=</span> <span class="fu">which</span>(<span class="fu">grepl</span>(<span class="fu">regex</span>(<span class="st">"©"</span>), parts))</span>
+<span id="cb6-14"><a href="#cb6-14"></a></span>
+<span id="cb6-15"><a href="#cb6-15"></a>    <span class="cf">if</span> (<span class="fu">length</span>(idx) <span class="sc">&gt;=</span> <span class="dv">1</span>) {</span>
+<span id="cb6-16"><a href="#cb6-16"></a>      info <span class="ot">=</span> parts[<span class="fu">seq_len</span>(idx[<span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb6-17"><a href="#cb6-17"></a>      info <span class="ot">=</span> <span class="fu">as.vector</span>(info[<span class="fu">nzchar</span>(info)])</span>
+<span id="cb6-18"><a href="#cb6-18"></a>    }</span>
+<span id="cb6-19"><a href="#cb6-19"></a>  }</span>
+<span id="cb6-20"><a href="#cb6-20"></a></span>
+<span id="cb6-21"><a href="#cb6-21"></a>  <span class="co"># drop empty strings</span></span>
+<span id="cb6-22"><a href="#cb6-22"></a>  <span class="co"># info = info[nzchar(info)]</span></span>
+<span id="cb6-23"><a href="#cb6-23"></a>  <span class="fu">return</span>(<span class="fu">paste</span>(<span class="fu">unname</span>(info), <span class="at">collapse =</span> <span class="st">"; "</span>))</span>
+<span id="cb6-24"><a href="#cb6-24"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="extract_count-retrieve-occurrence-count-from-tables" class="level4">
+<h4 class="anchored" data-anchor-id="extract_count-retrieve-occurrence-count-from-tables"><code>extract_count()</code> – Retrieve occurrence count from tables</h4>
+<p>Parses all HTML tables from <code>r$resp</code> and searches for the table layout containing the national count. If found, pulls the value at row 2, column 2 (per the site’s structure) and returns it as an integer; throws an error if no tables are present and returns <code>NA</code> when the expected layout is missing.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>extract_count <span class="ot">=</span> <span class="cf">function</span>(r){</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="co"># extract all tables on the page</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>  html <span class="ot">=</span> <span class="fu">read_html</span>(<span class="fu">resp_body_string</span>(r<span class="sc">$</span>resp))</span>
+<span id="cb7-4"><a href="#cb7-4"></a>  tables <span class="ot">=</span> <span class="fu">html_table</span>(html, <span class="at">header=</span><span class="cn">FALSE</span>)</span>
+<span id="cb7-5"><a href="#cb7-5"></a></span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="co"># select the first table if a table if found</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>  <span class="cf">if</span> (<span class="fu">length</span>(tables) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">"No tables were found"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8"></a>  </span>
+<span id="cb7-9"><a href="#cb7-9"></a>  <span class="co"># set count value</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>  count <span class="ot">=</span> <span class="cn">NA_integer_</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>  <span class="cf">if</span> (<span class="fu">length</span>(tables) <span class="sc">&gt;=</span> <span class="dv">4</span>) {</span>
+<span id="cb7-12"><a href="#cb7-12"></a>    <span class="cf">for</span> (tab <span class="cf">in</span> tables){</span>
+<span id="cb7-13"><a href="#cb7-13"></a>      i <span class="ot">=</span> <span class="fu">nrow</span>(tab)</span>
+<span id="cb7-14"><a href="#cb7-14"></a>      <span class="cf">if</span> (i <span class="sc">&gt;=</span> <span class="dv">5</span>){</span>
+<span id="cb7-15"><a href="#cb7-15"></a>        count <span class="ot">=</span> tab[<span class="dv">2</span>,<span class="dv">2</span>] <span class="sc">|&gt;</span> <span class="fu">pull</span>()</span>
+<span id="cb7-16"><a href="#cb7-16"></a>      }</span>
+<span id="cb7-17"><a href="#cb7-17"></a>    }</span>
+<span id="cb7-18"><a href="#cb7-18"></a>  }</span>
+<span id="cb7-19"><a href="#cb7-19"></a></span>
+<span id="cb7-20"><a href="#cb7-20"></a>  <span class="fu">return</span>(count)</span>
+<span id="cb7-21"><a href="#cb7-21"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="tidy-scrape-wrappers" class="level3">
+<h3 class="anchored" data-anchor-id="tidy-scrape-wrappers">Tidy Scrape Wrappers</h3>
+<p>These utilities wrap the earlier extractors and assemble a tidy result for a single surname. - <code>safe_count()</code> / <code>safe_info()</code> wrap <code>extract_count()</code> and <code>extract_info()</code> in <code>tryCatch()</code>, returning a default (<code>NA_integer_</code> / <code>NA_character_</code>) on any error or warning. This guarantees downstream code receives a value even when pages are missing or malformed. - <code>get_name_row()</code> takes a name and performs up to two requests: 1. Builds the base URL with <code>format_url(name)</code> and fetches it via <code>request_last_name()</code>. If the HTTP result is ok, it parses the national occurrence count with <code>safe_count()</code>; otherwise it records <code>NA</code>. 2. Only if a non-missing count was obtained, it builds the “info” URL (<code>.what = "info"</code>) and requests it, then extracts the analysis/etymology info with <code>safe_info()</code> (again only when both requests succeeded).</p>
+<p>Both <code>count</code> and <code>info</code> are coerced to character for consistency. The function returns a one-row tibble with <code>last_name</code>, <code>name_count</code>, and <code>info</code>, providing a compact, fault-tolerant record for each queried surname.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>safe_count <span class="ot">=</span> <span class="cf">function</span>(r, <span class="at">default =</span> <span class="cn">NA_integer_</span>) {</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">tryCatch</span>(<span class="fu">extract_count</span>(r),</span>
+<span id="cb8-3"><a href="#cb8-3"></a>           <span class="at">error =</span> <span class="cf">function</span>(e) default,</span>
+<span id="cb8-4"><a href="#cb8-4"></a>           <span class="at">warning =</span> <span class="cf">function</span>(w) default)</span>
+<span id="cb8-5"><a href="#cb8-5"></a>}</span>
+<span id="cb8-6"><a href="#cb8-6"></a></span>
+<span id="cb8-7"><a href="#cb8-7"></a>safe_info <span class="ot">=</span> <span class="cf">function</span>(r, <span class="at">default =</span> <span class="cn">NA_character_</span>) {</span>
+<span id="cb8-8"><a href="#cb8-8"></a>  <span class="fu">tryCatch</span>(<span class="fu">extract_info</span>(r),</span>
+<span id="cb8-9"><a href="#cb8-9"></a>           <span class="at">error =</span> <span class="cf">function</span>(e) default,</span>
+<span id="cb8-10"><a href="#cb8-10"></a>           <span class="at">warning =</span> <span class="cf">function</span>(w) default)</span>
+<span id="cb8-11"><a href="#cb8-11"></a>}</span>
+<span id="cb8-12"><a href="#cb8-12"></a></span>
+<span id="cb8-13"><a href="#cb8-13"></a>get_name_row <span class="ot">=</span> <span class="cf">function</span>(name, <span class="at">count=</span><span class="cn">NA_character_</span>, <span class="at">info=</span><span class="cn">NA_character_</span>){</span>
+<span id="cb8-14"><a href="#cb8-14"></a>  <span class="co"># scrape the count information</span></span>
+<span id="cb8-15"><a href="#cb8-15"></a>  r1 <span class="ot">=</span> <span class="fu">format_url</span>(name) <span class="sc">|&gt;</span></span>
+<span id="cb8-16"><a href="#cb8-16"></a>    <span class="fu">request_last_name</span>() </span>
+<span id="cb8-17"><a href="#cb8-17"></a></span>
+<span id="cb8-18"><a href="#cb8-18"></a>  count <span class="ot">=</span> <span class="cf">if</span> (<span class="fu">isTRUE</span>(r1<span class="sc">$</span>ok)) <span class="fu">safe_count</span>(r1) <span class="cf">else</span> <span class="cn">NA_character_</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a>  count <span class="ot">=</span> <span class="fu">as.character</span>(count)</span>
+<span id="cb8-20"><a href="#cb8-20"></a></span>
+<span id="cb8-21"><a href="#cb8-21"></a>  <span class="co"># scrape info if the first scrape yielded success</span></span>
+<span id="cb8-22"><a href="#cb8-22"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(count)){</span>
+<span id="cb8-23"><a href="#cb8-23"></a>  r2 <span class="ot">=</span> <span class="fu">format_url</span>(name, <span class="at">.what=</span><span class="st">"info"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-24"><a href="#cb8-24"></a>    <span class="fu">request_last_name</span>()</span>
+<span id="cb8-25"><a href="#cb8-25"></a></span>
+<span id="cb8-26"><a href="#cb8-26"></a>  info <span class="ot">=</span> <span class="cf">if</span> (<span class="fu">isTRUE</span>(r2<span class="sc">$</span>ok) <span class="sc">&amp;&amp;</span> <span class="fu">isTRUE</span>(r1<span class="sc">$</span>ok)) <span class="fu">safe_info</span>(r2) <span class="cf">else</span> <span class="cn">NA_character_</span></span>
+<span id="cb8-27"><a href="#cb8-27"></a>  info <span class="ot">=</span> <span class="fu">as.character</span>(info)</span>
+<span id="cb8-28"><a href="#cb8-28"></a>  }</span>
+<span id="cb8-29"><a href="#cb8-29"></a></span>
+<span id="cb8-30"><a href="#cb8-30"></a></span>
+<span id="cb8-31"><a href="#cb8-31"></a>  <span class="fu">as_tibble</span>(<span class="fu">list</span>(</span>
+<span id="cb8-32"><a href="#cb8-32"></a>    <span class="at">last_name =</span> name, </span>
+<span id="cb8-33"><a href="#cb8-33"></a>    <span class="at">name_count =</span> count,</span>
+<span id="cb8-34"><a href="#cb8-34"></a>    <span class="at">info =</span> info</span>
+<span id="cb8-35"><a href="#cb8-35"></a>  ))</span>
+<span id="cb8-36"><a href="#cb8-36"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="application" class="level2">
+<h2 class="anchored" data-anchor-id="application">Application</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'processed'</span>)</span>
+<span id="cb9-2"><a href="#cb9-2"></a>file <span class="ot">=</span> <span class="fu">list.files</span>(dir, <span class="at">pattern =</span> <span class="st">'names.Rds'</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb9-3"><a href="#cb9-3"></a>names <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(dir, file))</span>
+<span id="cb9-4"><a href="#cb9-4"></a></span>
+<span id="cb9-5"><a href="#cb9-5"></a>last_names <span class="ot">=</span> names <span class="sc">|&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a>  <span class="fu">distinct</span>(particle, last_name) <span class="sc">|&gt;</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>  <span class="fu">unite</span>(last_name, particle<span class="sc">:</span>last_name, <span class="at">sep=</span><span class="st">" "</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(last_name), last_name <span class="sc">!=</span> <span class="st">""</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a>  <span class="fu">pull</span>(last_name) <span class="sc">|&gt;</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a>  <span class="fu">sort</span>()</span>
+<span id="cb9-11"><a href="#cb9-11"></a></span>
+<span id="cb9-12"><a href="#cb9-12"></a>ethnicity_cache <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'cbg_cache.Rds'</span>))</span>
+<span id="cb9-13"><a href="#cb9-13"></a></span>
+<span id="cb9-14"><a href="#cb9-14"></a>hold <span class="ot">=</span> <span class="fu">c</span>()</span>
+<span id="cb9-15"><a href="#cb9-15"></a><span class="cf">for</span> (name <span class="cf">in</span> last_names){</span>
+<span id="cb9-16"><a href="#cb9-16"></a>  <span class="cf">if</span> (<span class="sc">!</span>name <span class="sc">%in%</span> ethnicity_cache<span class="sc">$</span>last_name){</span>
+<span id="cb9-17"><a href="#cb9-17"></a>    hold[[name]] <span class="ot">=</span> <span class="fu">get_name_row</span>(name)</span>
+<span id="cb9-18"><a href="#cb9-18"></a>  }</span>
+<span id="cb9-19"><a href="#cb9-19"></a>}</span>
+<span id="cb9-20"><a href="#cb9-20"></a></span>
+<span id="cb9-21"><a href="#cb9-21"></a>ethnicity_cache <span class="ot">=</span> <span class="fu">bind_rows</span>(ethnicity_cache, <span class="fu">bind_rows</span>(hold))</span>
+<span id="cb9-22"><a href="#cb9-22"></a><span class="fu">saveRDS</span>(ethnicity_cache,  <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'cbg_cache.Rds'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>ethnicity <span class="ot">=</span> ethnicity_cache <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb10-3"><a href="#cb10-3"></a>    <span class="at">origin1 =</span> <span class="fu">str_extract_all</span>(info, <span class="fu">regex</span>(<span class="st">"[:upper:]([:lower:]{2,}) naam"</span>)),</span>
+<span id="cb10-4"><a href="#cb10-4"></a>    <span class="at">origin2 =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb10-5"><a href="#cb10-5"></a>      <span class="fu">str_detect</span>(info, <span class="st">"afkomstig uit"</span>),</span>
+<span id="cb10-6"><a href="#cb10-6"></a>      <span class="fu">str_remove</span>(info, <span class="st">".*afkomstig uit"</span>),</span>
+<span id="cb10-7"><a href="#cb10-7"></a>      <span class="cn">NA_character_</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a>    ),</span>
+<span id="cb10-9"><a href="#cb10-9"></a>    <span class="at">origin3 =</span> <span class="fu">str_extract</span>(</span>
+<span id="cb10-10"><a href="#cb10-10"></a>      info, <span class="st">"[:upper:]([:lower:]{2,}) (achter)?(familie)?(beroeps)?naam"</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a>    )</span>
+<span id="cb10-12"><a href="#cb10-12"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a>  <span class="co"># clean origin information</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb10-15"><a href="#cb10-15"></a>    <span class="co"># Exclude Jewish people form Origin information</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a>    <span class="at">origin1 =</span> <span class="fu">str_remove</span>(origin1, <span class="st">"Joodse naam"</span>),</span>
+<span id="cb10-17"><a href="#cb10-17"></a>    <span class="co"># Only s</span></span>
+<span id="cb10-18"><a href="#cb10-18"></a>    <span class="at">origin2 =</span> <span class="fu">str_remove</span>(origin2, <span class="st">"</span><span class="sc">\\</span><span class="st">..*"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-19"><a href="#cb10-19"></a>      <span class="fu">str_remove</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">;.*"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-20"><a href="#cb10-20"></a>      <span class="fu">str_remove</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">(.*"</span>),</span>
+<span id="cb10-21"><a href="#cb10-21"></a>    <span class="at">regional =</span> <span class="fu">str_detect</span>(</span>
+<span id="cb10-22"><a href="#cb10-22"></a>      origin2, <span class="fu">paste0</span>(</span>
+<span id="cb10-23"><a href="#cb10-23"></a>        <span class="st">"(dorp)|(plaats)|(gemeente)"</span>,</span>
+<span id="cb10-24"><a href="#cb10-24"></a>        <span class="st">"|(graafschap)|(stad)|(deel)|(Friesland)"</span></span>
+<span id="cb10-25"><a href="#cb10-25"></a>      )</span>
+<span id="cb10-26"><a href="#cb10-26"></a>    ),</span>
+<span id="cb10-27"><a href="#cb10-27"></a>    <span class="at">origin2 =</span> <span class="fu">ifelse</span>(<span class="fu">isTRUE</span>(regional), <span class="cn">NA_character_</span>, origin2),</span>
+<span id="cb10-28"><a href="#cb10-28"></a>    <span class="at">origin3 =</span> origin3 <span class="sc">|&gt;</span></span>
+<span id="cb10-29"><a href="#cb10-29"></a>      <span class="fu">str_remove</span>(<span class="st">"D(i)?e(ze)? (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-30"><a href="#cb10-30"></a>      <span class="fu">str_remove</span>(<span class="st">"Een (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-31"><a href="#cb10-31"></a>      <span class="fu">str_remove</span>(<span class="st">"Zijn (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-32"><a href="#cb10-32"></a>      <span class="fu">str_remove</span>(<span class="st">"Als (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-33"><a href="#cb10-33"></a>      <span class="fu">str_remove</span>(<span class="st">"Joodse (familie)?(achter)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-34"><a href="#cb10-34"></a>      <span class="fu">str_remove</span>(<span class="st">"Bijbelse (familie)?(achter)?naam"</span>),</span>
+<span id="cb10-35"><a href="#cb10-35"></a>    <span class="at">origin4 =</span> <span class="fu">str_detect</span>(info, <span class="st">"andere taal"</span>)</span>
+<span id="cb10-36"><a href="#cb10-36"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb10-37"><a href="#cb10-37"></a>  <span class="fu">select</span>(<span class="sc">-</span>regional)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There was 1 warning in `mutate()`.
+ℹ In argument: `origin1 = str_remove(origin1, "Joodse naam")`.
+Caused by warning in `stri_replace_first_regex()`:
+! argument is not an atomic vector; coercing</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>ethnicity <span class="ot">=</span> ethnicity <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-3"><a href="#cb12-3"></a>    <span class="at">origin =</span> <span class="fu">case_when</span>(</span>
+<span id="cb12-4"><a href="#cb12-4"></a>      origin1 <span class="sc">==</span> <span class="st">'character(0)'</span> <span class="sc">~</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb12-5"><a href="#cb12-5"></a>      <span class="fu">is.na</span>(origin1) <span class="sc">&amp;</span> <span class="fu">is.na</span>(origin2) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(origin4) <span class="sc">~</span> origin3,</span>
+<span id="cb12-6"><a href="#cb12-6"></a>      <span class="fu">is.na</span>(origin1) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(origin4) <span class="sc">~</span> origin2,</span>
+<span id="cb12-7"><a href="#cb12-7"></a>      <span class="at">.default =</span> origin3</span>
+<span id="cb12-8"><a href="#cb12-8"></a>    ),</span>
+<span id="cb12-9"><a href="#cb12-9"></a>    <span class="at">origin =</span> <span class="fu">case_when</span>(</span>
+<span id="cb12-10"><a href="#cb12-10"></a>      <span class="fu">is.na</span>(origin) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(count) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(info) <span class="sc">~</span> <span class="st">"Dutch"</span>,</span>
+<span id="cb12-11"><a href="#cb12-11"></a>      <span class="at">.default =</span> origin</span>
+<span id="cb12-12"><a href="#cb12-12"></a>    )</span>
+<span id="cb12-13"><a href="#cb12-13"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There was 1 warning in `mutate()`.
+ℹ In argument: `origin = case_when(...)`.
+Caused by warning in `is.na()`:
+! is.na() applied to non-(list or vector) of type 'closure'</code></pre>
+</div>
+</div>
+</section>
+<section id="problems" class="level2">
+<h2 class="anchored" data-anchor-id="problems">Problems:</h2>
+<ul>
+<li>compound names “van” + “de”, “van de” do not yield results.</li>
+</ul>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

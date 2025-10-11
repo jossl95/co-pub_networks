@@ -419,7 +419,7 @@ clean_functie = function(data, .what='complete'){
 }
 ```
 
-## Execution
+## Application
 
 ```{r}
 # identified scholarid files

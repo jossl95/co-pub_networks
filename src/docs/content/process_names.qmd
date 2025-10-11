@@ -1,5 +1,5 @@
 ---
-title: "Data Preparation Gender"
+title: "Data Preparation Names"
 author: 
   - name: "Jos Slabbekoorn"
   - name: "Jochem Tolsma"

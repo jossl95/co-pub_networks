@@ -10,7 +10,7 @@
 <meta name="author" content="Jochem Tolsma">
 <meta name="author" content="Bas Hofstra">
 <meta name="author" content="Roza Meuleman">
-<meta name="dcterms.date" content="2025-10-10">
+<meta name="dcterms.date" content="2025-10-11">
 
 <title>Data Preparation Scholars – Networks</title>
 <style>
@@ -180,7 +180,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#fixing-universities" id="toc-fixing-universities" class="nav-link" data-scroll-target="#fixing-universities">Fixing Universities</a></li>
   <li><a href="#clean-functie" id="toc-clean-functie" class="nav-link" data-scroll-target="#clean-functie">Clean <code>functie</code></a></li>
   </ul></li>
-  <li><a href="#execution" id="toc-execution" class="nav-link" data-scroll-target="#execution">Execution</a></li>
+  <li><a href="#application" id="toc-application" class="nav-link" data-scroll-target="#application">Application</a></li>
   </ul>
 </nav>
     </div>
@@ -209,7 +209,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 10, 2025</p>
+      <p class="date">October 11, 2025</p>
     </div>
   </div>
   
@@ -229,8 +229,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-Ncells  605246 32.4    1371384 73.3         NA   715780 38.3
-Vcells 1121826  8.6    8388608 64.0      16384  2011085 15.4</code></pre>
+Ncells  605246 32.4    1371374 73.3         NA   715800 38.3
+Vcells 1121838  8.6    8388608 64.0      16384  2012043 15.4</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -625,8 +625,8 @@ Vcells 1121826  8.6    8388608 64.0      16384  2011085 15.4</code></pre>
 </div>
 </section>
 </section>
-<section id="execution" class="level2">
-<h2 class="anchored" data-anchor-id="execution">Execution</h2>
+<section id="application" class="level2">
+<h2 class="anchored" data-anchor-id="application">Application</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># identified scholarid files</span></span>
 <span id="cb11-2"><a href="#cb11-2"></a>source <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">"data"</span>, <span class="st">"raw_data"</span>)</span>
@@ -649,7 +649,7 @@ Joining with `by = join_by(date, naam)`</code></pre>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># save data</span></span>
 <span id="cb13-2"><a href="#cb13-2"></a><span class="fu">fsave</span>(data, <span class="st">'scholarid'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "SAVING: ./data/processed/20251010scholarid"</code></pre>
+<pre><code>[1] "SAVING: ./data/processed/20251011scholarid"</code></pre>
 </div>
 </div>
 
