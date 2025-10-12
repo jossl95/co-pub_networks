@@ -50,4 +50,9 @@ freadRDS  <- function(fileName){
     readRDS(fileName)
 }
 
+fload <- function(filename) {
+    load(filename)
+    get(ls()[ls() != "filename"])
+}
+
 # colorize <- function(x, color) {sprintf("<span style='color: %s;'>%s</span>", color, x) }

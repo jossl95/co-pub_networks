@@ -57,7 +57,7 @@ This design lets downstream code branch cleanly on `res$ok` and inspect `res$sta
 ```{r}
 is_ok = function(resp) resp_status(resp) >= 200 && resp_status(resp) < 300
 
-request_last_name = function(base_url){
+request_last_name = function(base_url, pause=0.5){
   # configure user agent
   ua = paste(
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_5)",

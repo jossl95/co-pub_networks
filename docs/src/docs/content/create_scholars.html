@@ -10,7 +10,7 @@
 <meta name="author" content="Jochem Tolsma">
 <meta name="author" content="Bas Hofstra">
 <meta name="author" content="Roza Meuleman">
-<meta name="dcterms.date" content="2025-10-11">
+<meta name="dcterms.date" content="2025-10-12">
 
 <title>Data Preparation Scholars – Networks</title>
 <style>
@@ -105,6 +105,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
 
 <link rel="stylesheet" href="../../../src/docs/styles.css">
@@ -151,6 +153,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li>
     <a class="dropdown-item" href="../../../src/docs/content/process_ethnicity.html">
  <span class="dropdown-text">Process Ethnicity</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../src/docs/content/scrape_authorid.html">
+ <span class="dropdown-text">Scrape Author ID using <code>openalexr</code></span></a>
   </li>  
     </ul>
   </li>
@@ -209,7 +215,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 11, 2025</p>
+      <p class="date">October 12, 2025</p>
     </div>
   </div>
   
@@ -229,8 +235,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-Ncells  605243 32.4    1371365 73.3         NA   715800 38.3
-Vcells 1121822  8.6    8388608 64.0      16384  2012043 15.4</code></pre>
+Ncells  605252 32.4    1371391 73.3         NA   715800 38.3
+Vcells 1121916  8.6    8388608 64.0      16384  2012043 15.4</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -647,9 +653,9 @@ Vcells 1121822  8.6    8388608 64.0      16384  2012043 15.4</code></pre>
 Joining with `by = join_by(date, naam)`</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># save data</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a><span class="fu">fsave</span>(data, <span class="st">'scholarid'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="fu">fsaveRDS</span>(data, <span class="st">'scholarid'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "SAVING: ./data/processed/20251011scholarid"</code></pre>
+<pre><code>[1] "SAVING: ./data/processed/20251012scholarid.Rds"</code></pre>
 </div>
 </div>
 

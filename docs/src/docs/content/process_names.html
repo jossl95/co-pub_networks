@@ -10,7 +10,7 @@
 <meta name="author" content="Jochem Tolsma">
 <meta name="author" content="Bas Hofstra">
 <meta name="author" content="Roza Meuleman">
-<meta name="dcterms.date" content="2025-10-11">
+<meta name="dcterms.date" content="2025-10-12">
 
 <title>Data Preparation Names – Networks</title>
 <style>
@@ -105,6 +105,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
 
 <link rel="stylesheet" href="../../../src/docs/styles.css">
@@ -151,6 +153,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li>
     <a class="dropdown-item" href="../../../src/docs/content/process_ethnicity.html">
  <span class="dropdown-text">Process Ethnicity</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../src/docs/content/scrape_authorid.html">
+ <span class="dropdown-text">Scrape Author ID using <code>openalexr</code></span></a>
   </li>  
     </ul>
   </li>
@@ -207,7 +213,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 11, 2025</p>
+      <p class="date">October 12, 2025</p>
     </div>
   </div>
   
@@ -338,64 +344,60 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">readRDS</span>(<span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'name_corrections.Rds'</span>)) <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 4
-  naam                         first_name particle last_name          
-  &lt;chr&gt;                        &lt;chr&gt;      &lt;chr&gt;    &lt;chr&gt;              
-1 Marjolein Broese van Groenou Marjolein  &lt;NA&gt;     Broese-van Groenou 
-2 Albornoz Barra Gonzalo       Alborno    &lt;NA&gt;     Barra Gonzalo      
-3 Amina op de Weegh            Amina      op de    Weegh              
-4 Amina Op de Weegh            Amina      Op de    Weegh              
-5 Ana Maria Torres Chedraui    Ana Maria  &lt;NA&gt;     Torres Chedraui    
-6 Ana Mishkovska Kajevska      Ana        &lt;NA&gt;     Mishkovska Kajevska</code></pre>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["naam"],"name":[1],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["particle"],"name":[3],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"Marjolein Broese van Groenou","2":"Marjolein","3":"NA","4":"Broese-van Groenou"},{"1":"Albornoz Barra Gonzalo","2":"Alborno","3":"NA","4":"Barra Gonzalo"},{"1":"Amina op de Weegh","2":"Amina","3":"op de","4":"Weegh"},{"1":"Amina Op de Weegh","2":"Amina","3":"Op de","4":"Weegh"},{"1":"Ana Maria Torres Chedraui","2":"Ana Maria","3":"NA","4":"Torres Chedraui"},{"1":"Ana Mishkovska Kajevska","2":"Ana","3":"NA","4":"Mishkovska Kajevska"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 </section>
 <section id="extract-maiden-name" class="level3">
 <h3 class="anchored" data-anchor-id="extract-maiden-name">Extract Maiden Name</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>extract_maiden_name <span class="ot">=</span> <span class="cf">function</span>(names){</span>
-<span id="cb8-2"><a href="#cb8-2"></a>  <span class="co"># split last names</span></span>
-<span id="cb8-3"><a href="#cb8-3"></a>  last_name_splits <span class="ot">=</span> <span class="fu">str_split</span>(names<span class="sc">$</span>last_name, <span class="st">'-'</span>, <span class="at">simplify =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-4"><a href="#cb8-4"></a></span>
-<span id="cb8-5"><a href="#cb8-5"></a>  <span class="co"># add splits to names dataframe</span></span>
-<span id="cb8-6"><a href="#cb8-6"></a>  names[<span class="st">'last_name'</span>] <span class="ot">=</span> last_name_splits[,<span class="dv">1</span>]</span>
-<span id="cb8-7"><a href="#cb8-7"></a>  names[<span class="st">'maiden_name'</span>] <span class="ot">=</span> <span class="fu">ifelse</span>(</span>
-<span id="cb8-8"><a href="#cb8-8"></a>    last_name_splits[,<span class="dv">2</span>] <span class="sc">==</span> <span class="st">''</span>,</span>
-<span id="cb8-9"><a href="#cb8-9"></a>    <span class="cn">NA_character_</span>,</span>
-<span id="cb8-10"><a href="#cb8-10"></a>    last_name_splits[,<span class="dv">2</span>]</span>
-<span id="cb8-11"><a href="#cb8-11"></a>  )</span>
-<span id="cb8-12"><a href="#cb8-12"></a></span>
-<span id="cb8-13"><a href="#cb8-13"></a>  <span class="fu">return</span>(names)</span>
-<span id="cb8-14"><a href="#cb8-14"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>extract_maiden_name <span class="ot">=</span> <span class="cf">function</span>(names){</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="co"># split last names</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>  last_name_splits <span class="ot">=</span> <span class="fu">str_split</span>(names<span class="sc">$</span>last_name, <span class="st">'-'</span>, <span class="at">simplify =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="co"># add splits to names dataframe</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>  names[<span class="st">'last_name'</span>] <span class="ot">=</span> last_name_splits[,<span class="dv">1</span>]</span>
+<span id="cb7-7"><a href="#cb7-7"></a>  names[<span class="st">'maiden_name'</span>] <span class="ot">=</span> <span class="fu">ifelse</span>(</span>
+<span id="cb7-8"><a href="#cb7-8"></a>    last_name_splits[,<span class="dv">2</span>] <span class="sc">==</span> <span class="st">''</span>,</span>
+<span id="cb7-9"><a href="#cb7-9"></a>    <span class="cn">NA_character_</span>,</span>
+<span id="cb7-10"><a href="#cb7-10"></a>    last_name_splits[,<span class="dv">2</span>]</span>
+<span id="cb7-11"><a href="#cb7-11"></a>  )</span>
+<span id="cb7-12"><a href="#cb7-12"></a></span>
+<span id="cb7-13"><a href="#cb7-13"></a>  <span class="fu">return</span>(names)</span>
+<span id="cb7-14"><a href="#cb7-14"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
 <section id="application" class="level2">
 <h2 class="anchored" data-anchor-id="application">Application</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># load data </span></span>
-<span id="cb9-2"><a href="#cb9-2"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">"data"</span>, <span class="st">"processed"</span>)</span>
-<span id="cb9-3"><a href="#cb9-3"></a>file <span class="ot">=</span> <span class="fu">list.files</span>(dir, <span class="at">pattern =</span> <span class="st">"scholarid.Rds"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb9-4"><a href="#cb9-4"></a></span>
-<span id="cb9-5"><a href="#cb9-5"></a>data <span class="ot">=</span> <span class="fu">freadRDS</span>(file) </span>
-<span id="cb9-6"><a href="#cb9-6"></a></span>
-<span id="cb9-7"><a href="#cb9-7"></a>names <span class="ot">=</span> data <span class="sc">|&gt;</span></span>
-<span id="cb9-8"><a href="#cb9-8"></a>  <span class="fu">select</span>(naam) <span class="sc">|&gt;</span></span>
-<span id="cb9-9"><a href="#cb9-9"></a>  <span class="fu">arrange</span>(naam) <span class="sc">|&gt;</span></span>
-<span id="cb9-10"><a href="#cb9-10"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span></span>
-<span id="cb9-11"><a href="#cb9-11"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span></span>
-<span id="cb9-12"><a href="#cb9-12"></a>  <span class="fu">parse_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb9-13"><a href="#cb9-13"></a>  <span class="fu">extract_initials</span>() <span class="sc">|&gt;</span></span>
-<span id="cb9-14"><a href="#cb9-14"></a>  <span class="fu">patch_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb9-15"><a href="#cb9-15"></a>  <span class="fu">extract_maiden_name</span>()</span>
-<span id="cb9-16"><a href="#cb9-16"></a></span>
-<span id="cb9-17"><a href="#cb9-17"></a><span class="fu">fsaveRDS</span>(</span>
-<span id="cb9-18"><a href="#cb9-18"></a>  names, </span>
-<span id="cb9-19"><a href="#cb9-19"></a>  <span class="st">'names'</span></span>
-<span id="cb9-20"><a href="#cb9-20"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># load data </span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">"data"</span>, <span class="st">"processed"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3"></a>file <span class="ot">=</span> <span class="fu">list.files</span>(dir, <span class="at">pattern =</span> <span class="st">"scholarid.Rds"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-4"><a href="#cb8-4"></a></span>
+<span id="cb8-5"><a href="#cb8-5"></a>data <span class="ot">=</span> <span class="fu">freadRDS</span>(file) </span>
+<span id="cb8-6"><a href="#cb8-6"></a></span>
+<span id="cb8-7"><a href="#cb8-7"></a>names <span class="ot">=</span> data <span class="sc">|&gt;</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>  <span class="fu">select</span>(naam) <span class="sc">|&gt;</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a>  <span class="fu">arrange</span>(naam) <span class="sc">|&gt;</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>  <span class="fu">parse_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-13"><a href="#cb8-13"></a>  <span class="fu">extract_initials</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a>  <span class="fu">patch_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-15"><a href="#cb8-15"></a>  <span class="fu">extract_maiden_name</span>()</span>
+<span id="cb8-16"><a href="#cb8-16"></a></span>
+<span id="cb8-17"><a href="#cb8-17"></a><span class="fu">fsaveRDS</span>(</span>
+<span id="cb8-18"><a href="#cb8-18"></a>  names, </span>
+<span id="cb8-19"><a href="#cb8-19"></a>  <span class="st">'names'</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "SAVING: ./data/processed/20251011names.Rds"</code></pre>
+<pre><code>[1] "SAVING: ./data/processed/20251012names.Rds"</code></pre>
 </div>
 </div>
 

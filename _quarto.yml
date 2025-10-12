@@ -19,6 +19,8 @@ website:
           text: Process Gender
         - href: src/docs/content/process_ethnicity.qmd
           text: Process Ethnicity
+        - href: src/docs/content/scrape_authorid.qmd
+          text: Scrape Author ID using `openalexr`
 
 # execute:
 #   freeze: true
@@ -30,6 +32,7 @@ format:
     toc: true
     code-line-numbers: true
     code-annotations: true
+    df-print: paged
 
 
 

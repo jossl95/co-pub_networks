@@ -1,0 +1,335 @@
+---
+title: "Data Preparation OpenAlex"
+author: 
+  - name: "Jos Slabbekoorn"
+  - name: "Jochem Tolsma"
+  - name: "Bas Hofstra"
+  - name: "Roza Meuleman"
+
+date: today
+
+execute: 
+  eval: false
+
+---
+
+:::{.callout-tip}
+rough first working code for the collection of scholar_ids using openalexr
+
+I optimized the algorithm to not just select the top case, but allows for
+multiple ids (in rows) per person, in the decision rules i use:
+- semantic similarity
+- matches of university_id and institution_id
+:::
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# clear the global environment
+rm(list = ls())
+gc()
+```
+
+```{r}
+#| warning: false
+#| output: false
+source("src/utils/custom_functions.r")
+
+# load and activate packages
+fpackage.check(c(
+  'tidyverse', 'readxl',  'stringr', 
+  'lubridate', 'openalexR', 'rvest', 'jsonlite'
+))
+
+options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
+```
+
+
+```{r}
+dir = file.path('data', 'processed')
+file = list.files(dir, pattern = 'names.Rds')
+names = freadRDS(file.path(dir, file))
+
+
+file = list.files(dir, pattern = 'scholarid.Rds')
+scholar = freadRDS(file.path(dir, file)) |>
+  select(naam, university) |>
+  distinct(.keep_all = TRUE) |>
+  unnest_longer(university) |>
+  left_join(names) |>
+  unite(
+    initials:last_name, 
+    col=name, sep = ' ', 
+    na.rm=TRUE, remove=FALSE) |>
+  unite(
+    c(name, maiden_name), 
+    col=name2, sep = '-', 
+    na.rm=TRUE, remove=FALSE)
+```
+
+```{r}
+oa_fetch_institution = function(institution, pause=0.5){
+  if (pause > 0) Sys.sleep(pause)
+  oa_fetch(
+    entity = "institutions",
+    search=institution,
+    mailto = "jos.slabbekoorn@ru.nl"
+  )$id[1]
+}
+
+hold = c()
+for (institution in institutions){
+  id = oa_fetch_institution(institution)
+  hold[[institution]] = tibble::tibble(
+    university_name = institution,
+    university_url = id, 
+    university_id = str_remove(id, 'https://openalex.org/')
+  )
+}
+
+institutions = bind_rows(hold)
+scholar = scholar |>
+  left_join(institutions)
+```
+
+```{r}
+# library(dplyr)
+library(stringdist)
+library(stringi)
+
+normalize_name = function(x) {
+  x = as.character(x)
+
+  # mark Cyrillic
+  has_cyr = stri_detect_charclass(x, "\\p{Script=Cyrillic}")
+
+  # transliterate only Cyrillic -> Latin
+  x[has_cyr] = stri_trans_general(x[has_cyr], "Cyrillic-Latin")
+
+  # strip accents for all, lowercase, trim, squish
+  x = stri_trans_general(x, "Latin-ASCII")
+  x = tolower(x)
+  x = str_squish(x)
+  trimws(x)
+}
+
+add_query_similarity = function(data){
+  data |>
+    mutate(
+      dn = normalize_name(display_name),
+      qn = normalize_name(query_name),
+      query_similarity   = 1 - stringdist(dn, qn, method = "jw")
+    ) |>  # Jaro–Winkler
+    select(-dn, -qn)
+}
+
+
+```
+
+```{r}
+oa_fetch_scholar = function(
+    scholar_name, 
+    university_ids,
+    pause = 0.5
+  ){
+  # fetch oa scholar information for all name id pairs
+  hold = list()
+  for (id in university_ids){
+    if (pause > 0) Sys.sleep(pause)
+    
+    hold[[id]] = tryCatch(
+      oa_fetch(
+        entity = 'author',
+        search = scholar_name,
+        affiliations.institution.id = id
+      ),
+      error = function(e) NULL,
+      warning = function(w) NULL
+    )
+  }
+  res = bind_rows(hold)
+  # combine the results and drop duplicates
+  if (ncol(res) > 2){
+    res = res |> 
+      distinct(.keep_all = TRUE) |>
+      mutate(query_name = scholar_name) |>
+      add_query_similarity() |>
+      arrange(-query_similarity) |>
+      head(8)
+  }
+
+  return(res)
+}
+
+```
+
+```{r}
+scholar = scholar |>
+  mutate(
+    university_name = university |>
+      str_replace("(Uni |uni)", "University ") |>
+      str_replace('(UU)', 'Utrecht University') |>
+      str_replace('(UCU)', 'Utrecht University') |>
+      str_replace('(Leiden|Leiden University)', 'Leiden University') |>
+      str_replace('(RUG)', 'Rijksuniversiteit Groningen') |>
+      str_replace('(RU)', 'Radboud University Nijmegen') |>
+      str_replace('(UvA|Uva)', 'Universiteit van Amsterdam') |>
+      str_replace('(VU)', 'Vrije Universiteit Amsterdam') |>
+      str_replace('(EUR)', 'Erasmus Universiteit Rotterdam') |>
+      str_replace('(UvT|Tilburg|Uvt)', 'Universiteit van Tilburg') |>
+      str_replace('(TU Delft)', 'Technische Universiteit Delft') |>
+      str_replace('(WUR)', 'Wageningen University & Research') |>
+      str_replace('(Universita degli studi di Milano)', 'University of Milan') |>
+      str_replace('(Politie)', NA_character_) |>
+      str_replace('(UvH)', NA_character_) |>
+      str_replace('(UvG)', NA_character_)
+  ) |>
+  filter(!is.na(university_name))
+
+institutions = scholar$university_name |> unique()
+
+```
+```{r}
+scholar_name = 'Amy Verdun'
+id = "I121797337"
+res = oa_fetch_scholar(scholar_name, id)
+```
+
+```{r}
+
+scholars = scholar$name |> unique()
+
+hold = list()
+for (scholar_name in scholars) {
+  tab = scholar |> 
+    filter(name == scholar_name) |>
+    select(name:university_id)
+
+  university_ids = as.list(na.omit(tab$university_id))
+  if (length(university_ids) > 0){
+    hold[[scholar_name]] = oa_fetch_scholar(scholar_name, university_ids)
+  }
+}
+
+
+```
+
+
+### clean institutions data
+```{r}
+hold2 = list()
+
+for (name_ in names(hold)){
+  if (is.na(name_) || !nzchar(trimws(name_))) next
+  tab = hold[[name_]] 
+
+  print(name_)
+  # if there is a table, than update the table
+  if (nrow(tab) >= 1){
+    tab = tab |>
+    filter(query_name == name_) |>
+    distinct(.keep_all = TRUE) |>
+    mutate(
+      last_known_institutions = map(
+        last_known_institutions,
+        ~ .x |>
+          distinct(.keep_all = TRUE) |>
+          mutate(
+            institution_id   = str_remove(id, "^https://openalex.org/"),
+            institution_name = display_name
+          ) |>
+          select(id, institution_id, institution_name, country_code)
+      ),
+      institution_ids = map(last_known_institutions, ~ .x |> pull(institution_id) |> unique())
+    )
+  }
+
+  hold2[[name_]] = tab
+}
+
+# hold2
+```
+
+
+# sanity checks for institution_ids
+```{r}
+hold3 = list()
+for (name_ in names(hold2)){
+  tab = hold2[[name_]]
+
+  university_ids = scholar |> 
+    filter(name == name_) |>
+    select(university_id) |> 
+    pull()
+
+  # for valid tables, match the institution ids with university ids
+  if (nrow(tab)> 0){
+    # ensure we have a list-column of character vectors (no NULLs)
+    ids_list = map(tab$institution_ids, ~ if (is.null(.x)) character(0) else as.character(.x))
+
+    # for each row, return indices of rows (excluding self) sharing any institution_id
+    matching_rows = map2(ids_list, seq_along(ids_list), \(ids, i){
+      if (length(ids) == 0) return(integer(0))
+      hits = which(map_lgl(ids_list, ~ length(intersect(ids, .x)) > 0))
+      hits[hits != i]
+    })
+
+    tab = tab |>
+      mutate(
+        # any match between this row's institutions and this scholar's uni_ids?
+        institution_matched = map_lgl(institution_ids, ~ {
+          x = .x; if (is.null(x)) x = character(0)
+          any(as.character(x) %in% university_ids)
+        }),
+        # vector of row numbers with overlapping institution_ids (across all other rows)
+        has_multiple_records = matching_rows
+      ) |>
+      ## TEMPORARY
+      ## recalculate similarity optimized workflow negating cyrilic text
+      add_query_similarity() |>
+
+      ## decision rule which rows to keep
+      mutate(
+        keep = case_when(
+          query_similarity == 1.0 ~ TRUE,
+          !institution_matched & query_similarity >= 0.60 ~ TRUE,
+          institution_matched & query_similarity >= 0.64 ~ TRUE,
+          display_name == 'Younes Zoughlami' ~ FALSE,
+          display_name == 'Thijs W. de Vos' ~ FALSE,
+          display_name == 'Kees van Kersbergen' ~ FALSE,
+          display_name == 'René W. van der Hulst' ~ FALSE,
+          display_name == 'Younes Zeboudj' ~ FALSE,
+          display_name == 'Younes Saramifar' ~ FALSE,
+          display_name == 'van Dijk' ~ FALSE,
+          display_name == 'Stephanie Maas' ~ FALSE,
+          display_name == 'A.J.J. Nijhuis' ~ FALSE,
+          .default = FALSE
+        )
+      ) |>
+      filter(keep)
+  }
+  
+  hold3[[name_]] = tab 
+}
+
+```
+
+```{r}
+fsaveRDS(hold, 'oa_scholars', location = "./data/raw_data/")
+```
+
+```{r}
+dir = file.path('data', 'raw_data')
+file = list.files(dir, pattern = 'scholars.Rds')[1]
+freadRDS(file.path(dir, file ))
+```
+
+
+:::{.callout-tip}
+Below application Add Inspection secion to show
+how many cases were succesfully scraped
+how many cases were dropped due to insufficient match
+count how many authors have more than 1 author id
+:::
