@@ -9,21 +9,24 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - text: Documentation
+      - text: Data Processing
         menu:
-        - href: src/docs/content/create_scholars.qmd
-          text: Create Scholars
-        - href: src/docs/content/process_names.qmd
-          text: Process Names
-        - href: src/docs/content/process_gender.qmd
-          text: Process Gender
-        - href: src/docs/content/process_ethnicity.qmd
-          text: Process Ethnicity
-        - href: src/docs/content/scrape_authorid.qmd
-          text: Scrape Author ID using `openalexr`
+          - href: src/docs/content/create_scholars.qmd
+            text: Create Scholars
+          - href: src/docs/content/process_names.qmd
+            text: Process Names
+          - href: src/docs/content/process_gender.qmd
+            text: Process Gender
+          - href: src/docs/content/process_ethnicity.qmd
+            text: Process Ethnicity
+      - text: Data Scraping
+        menu:
+          - href: src/docs/content/scrape_authorid.qmd
+            text: Scrape Author ID using `openalexr`
+        
 
-# execute:
-#   freeze: true
+execute:
+  freeze: true
 
 format:
   html:
