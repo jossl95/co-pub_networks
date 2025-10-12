@@ -1,13 +1,6 @@
 ---
 title: "Data Preparation Ethnicity"
-author: 
-  - name: "Jos Slabbekoorn"
-  - name: "Jochem Tolsma"
-  - name: "Bas Hofstra"
-  - name: "Roza Meuleman"
-
 date: today
-
 ---
 
 ## Getting Started

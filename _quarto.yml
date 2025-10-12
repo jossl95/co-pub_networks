@@ -4,11 +4,11 @@ project:
   execute-dir: project
 
 website:
-  title: "Networks"
+  title: Networks
   navbar:
     left:
-      - href: index.qmd
-        text: Home
+      # - href: index.qmd
+      #   text: Home
       - text: Data Processing
         menu:
           - href: src/docs/content/create_scholars.qmd
@@ -23,10 +23,14 @@ website:
         menu:
           - href: src/docs/content/scrape_authorid.qmd
             text: Scrape Author ID using `openalexr`
+    right:
+      - icon: github
+        href: https://github.com/jossl95/co-pub_networks/tree/main
+        aria-label: GitHub
+  
         
-
-execute:
-  freeze: true
+# execute:
+#   freeze: true
 
 format:
   html:

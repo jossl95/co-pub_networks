@@ -1,5 +1,16 @@
 ---
 title: "Scientific Co-Publishing Networks"
+# author: 
+#   - name: "Jos Slabbekoorn"
+#     orcid: 0000-0001-8419-5703
+#     email: jos.slabbekoorn@ru.nl
+#   - name: "Jochem Tolsma"
+#     orcid: 0000-0002-4411-6932
+#   - name: "Bas Hofstra"
+#     orcid: 0000-0002-9052-956X
+#   - name: "Roza Meuleman"
+#     orcid: 0000-0002-4486-253X
+
 ---
 
 :::{.callout-note}

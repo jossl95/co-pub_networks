@@ -1,16 +1,9 @@
 ---
-title: "Data Preparation OpenAlex"
-author: 
-  - name: "Jos Slabbekoorn"
-  - name: "Jochem Tolsma"
-  - name: "Bas Hofstra"
-  - name: "Roza Meuleman"
-
+title: "Data Preparation OpenAlex-ID"
 date: today
 
 execute: 
   eval: false
-
 ---
 
 :::{.callout-tip}
@@ -196,6 +189,11 @@ scholar_name = 'Amy Verdun'
 id = "I121797337"
 res = oa_fetch_scholar(scholar_name, id)
 ```
+
+:::{.callout-warning}
+THIS EXECUTION TAKES AGES ~ 1 hour
+:::
+
 
 ```{r}
 

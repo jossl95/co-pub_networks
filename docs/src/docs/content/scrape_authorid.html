@@ -6,13 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Jos Slabbekoorn">
-<meta name="author" content="Jochem Tolsma">
-<meta name="author" content="Bas Hofstra">
-<meta name="author" content="Roza Meuleman">
 <meta name="dcterms.date" content="2025-10-12">
 
-<title>Data Preparation OpenAlex – Networks</title>
+<title>Data Preparation OpenAlex-ID – Networks</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -129,10 +125,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../../../index.html"> 
-<span class="menu-text">Home</span></a>
-  </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-data-processing" role="link" data-bs-toggle="dropdown" aria-expanded="false">
  <span class="menu-text">Data Processing</span>
@@ -168,6 +160,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </ul>
   </li>
 </ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jossl95/co-pub_networks/tree/main"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
@@ -196,22 +195,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Data Preparation OpenAlex</h1>
+<h1 class="title">Data Preparation OpenAlex-ID</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Authors</div>
-    <div class="quarto-title-meta-contents">
-             <p>Jos Slabbekoorn </p>
-             <p>Jochem Tolsma </p>
-             <p>Bas Hofstra </p>
-             <p>Roza Meuleman </p>
-          </div>
-  </div>
     
     <div>
     <div class="quarto-title-meta-heading">Published</div>
@@ -400,6 +390,19 @@ Tip
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>scholar_name <span class="ot">=</span> <span class="st">'Amy Verdun'</span></span>
 <span id="cb8-2"><a href="#cb8-2"></a>id <span class="ot">=</span> <span class="st">"I121797337"</span></span>
 <span id="cb8-3"><a href="#cb8-3"></a>res <span class="ot">=</span> <span class="fu">oa_fetch_scholar</span>(scholar_name, id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>THIS EXECUTION TAKES AGES ~ 1 hour</p>
+</div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>scholars <span class="ot">=</span> scholar<span class="sc">$</span>name <span class="sc">|&gt;</span> <span class="fu">unique</span>()</span>
