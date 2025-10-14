@@ -1,5 +1,5 @@
 ---
-title: "Data Preparation Scholars"
+title: "Data Processing Scholars"
 date: today
 ---
 

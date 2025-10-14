@@ -118,6 +118,9 @@ add_query_similarity = function(data){
     select(-dn, -qn)
 }
 
+# dubbel check op achternaam
+# als daar voor nog wat voor staat komt dat overeen met de voornaam
+# als de voornaam, komt dit overeen met initalen
 
 ```
 
@@ -150,7 +153,7 @@ oa_fetch_scholar = function(
       mutate(query_name = scholar_name) |>
       add_query_similarity() |>
       arrange(-query_similarity) |>
-      head(8)
+      head(15)
   }
 
   return(res)
@@ -321,7 +324,7 @@ fsaveRDS(hold, 'oa_scholars', location = "./data/raw_data/")
 ```{r}
 dir = file.path('data', 'raw_data')
 file = list.files(dir, pattern = 'scholars.Rds')[1]
-freadRDS(file.path(dir, file ))
+data = freadRDS(file.path(dir, file ))
 ```
 
 

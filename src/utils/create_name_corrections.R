@@ -41,6 +41,7 @@ corrections <- tibble::tribble(
   "Juliana Chueri Barbosa Correa",  "Juliana",   NA_character_, "Chueri Barbosa Correa",
   "Kalima Carrigan Chavez",         "Kalima",    NA_character_, "Carrigan Chavez",
   "Katia Aviles Quiroz",            "Katia",     NA_character_, "Aviles Quiroz",
+  "Kisubi Mbasalaki",               "Phoebe",    NA_character_, "Kisubi Mbasalaki",
   "Laura Vargas Llona",             "Laura",     NA_character_, "Vargas Llona",
   "Manoela Carpenedo Rodrigues",    "Manoela",   NA_character_, "Carpenedo Rodrigues",
   "Manuel Cabal Lopez",             "Manuel",    NA_character_, "Cabal Lopez",
@@ -61,8 +62,10 @@ corrections <- tibble::tribble(
   "Sonja Evaldsson Mellstrom",      "Sonja",     NA_character_, "Evaldsson Mellstrom",
   "Suzanne Klein Schaarsberg",      "Suzanne",   NA_character_, "Klein Schaarsberg",
   "Tabasum Westra-van Till",        "Tabasum",   NA_character_, "Westra-van Till",
+  "Guangye Qiao-Franco",            "Quangyu",   NA_character_, "Qiao-Franco",
   "Victor Bouemar Dinocheau",       "Victor",    NA_character_, "Bouemar Dinocheau",
-  "Weverthon Barbosa Machado",      "Weverthon", NA_character_, "Barbosa Machado"
+  "Weverthon Barbosa Machado",      "Weverthon", NA_character_, "Barbosa Machado",
+
 )
 
 saveRDS(corrections, file.path('data', 'utils', 'name_corrections.Rds'))

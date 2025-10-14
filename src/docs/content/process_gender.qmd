@@ -1,5 +1,5 @@
 ---
-title: "Data Preparation Gender"
+title: "Data Processing Gender"
 date: today
 ---
 
@@ -227,6 +227,50 @@ clean_gender = function(data){
 }
 ```
 
+### Patch Missing Gender
+```{r}
+patch_missing_gender = function(data){
+  female_names = c(
+    "Alaxandra",   "Alinson",     "Avyanthi",
+    "Brunilda",    "Busisiwe",    "Diliara",      
+    "Dolivė",      "Echo",        "Guangyu",
+    # mistake in name, has been patched with _create_name_corrections
+    "Guangye", 
+    "Gul-i-Hina",  "Haebin",      "Haisu",
+    # Phoebe Kisibi Mbasalaki was incorrectly coded, has been patched with _create_name_corrections 
+    "Kisubi",      "Pheobe",
+    "Liubov",      "Madalina",    "Majolijn",    
+    "Mansoureh",   "Nankyung",    "Nilmawati",   
+    "Nodira",      "Noyonika",    "Radostina",   
+    "Rojika",      "Rozenmarijn", "Sayoni",
+    "Seonoki",     "Shelliann",   "Shiming",     
+    "Siggie",      "Siztine",     "Sungmi",      
+    "Talinta",     "Teana",       "Xingna",
+    "Yuliia",      "Zhiyi"
+  )
+
+  male_names = c(
+    "Alborno",     "Chenchen",    "Chendi",
+    "Chunglin",    "Chuyu",       "Diliara",
+    "Gjovalin",    "Kirils",      "Kyohee",
+    "Madhud",      "Quichen",     "Soeren",
+    "Teana",       "Tanzhe",     "Vishwesh",
+    "Weverthon"
+  )
+
+  data |>
+    mutate(
+      gender = case_when(
+        !is.na(gender) ~ gender,
+        first_name %in% female_names ~ 'female',
+        first_name %in% male_names ~ 'male',
+        .default = gender
+      )
+    )
+}
+
+```
+
 ## Application
 ```{r}
 
@@ -259,6 +303,11 @@ saveRDS(
 
 gender |> 
   clean_gender() |>
+  patch_missing_gender() |>
   fsaveRDS('gender')
 
+```
+
+```{r}
+s = freadRDS(file.path('data', 'processed', '20251012scholarid.Rds'))
 ```
