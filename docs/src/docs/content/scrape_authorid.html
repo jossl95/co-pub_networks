@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-10-12">
+<meta name="dcterms.date" content="2025-10-14">
 
 <title>Data Preparation OpenAlex-ID – Networks</title>
 <style>
@@ -206,7 +206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 12, 2025</p>
+      <p class="date">October 14, 2025</p>
     </div>
   </div>
   
@@ -324,7 +324,11 @@ Tip
 <span id="cb5-26"><a href="#cb5-26"></a>      <span class="at">query_similarity   =</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">stringdist</span>(dn, qn, <span class="at">method =</span> <span class="st">"jw"</span>)</span>
 <span id="cb5-27"><a href="#cb5-27"></a>    ) <span class="sc">|&gt;</span>  <span class="co"># Jaro–Winkler</span></span>
 <span id="cb5-28"><a href="#cb5-28"></a>    <span class="fu">select</span>(<span class="sc">-</span>dn, <span class="sc">-</span>qn)</span>
-<span id="cb5-29"><a href="#cb5-29"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-29"><a href="#cb5-29"></a>}</span>
+<span id="cb5-30"><a href="#cb5-30"></a></span>
+<span id="cb5-31"><a href="#cb5-31"></a><span class="co"># dubbel check op achternaam</span></span>
+<span id="cb5-32"><a href="#cb5-32"></a><span class="co"># als daar voor nog wat voor staat komt dat overeen met de voornaam</span></span>
+<span id="cb5-33"><a href="#cb5-33"></a><span class="co"># als de voornaam, komt dit overeen met initalen</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>oa_fetch_scholar <span class="ot">=</span> <span class="cf">function</span>(</span>
@@ -355,7 +359,7 @@ Tip
 <span id="cb6-26"><a href="#cb6-26"></a>      <span class="fu">mutate</span>(<span class="at">query_name =</span> scholar_name) <span class="sc">|&gt;</span></span>
 <span id="cb6-27"><a href="#cb6-27"></a>      <span class="fu">add_query_similarity</span>() <span class="sc">|&gt;</span></span>
 <span id="cb6-28"><a href="#cb6-28"></a>      <span class="fu">arrange</span>(<span class="sc">-</span>query_similarity) <span class="sc">|&gt;</span></span>
-<span id="cb6-29"><a href="#cb6-29"></a>      <span class="fu">head</span>(<span class="dv">8</span>)</span>
+<span id="cb6-29"><a href="#cb6-29"></a>      <span class="fu">head</span>(<span class="dv">15</span>)</span>
 <span id="cb6-30"><a href="#cb6-30"></a>  }</span>
 <span id="cb6-31"><a href="#cb6-31"></a></span>
 <span id="cb6-32"><a href="#cb6-32"></a>  <span class="fu">return</span>(res)</span>
@@ -524,7 +528,7 @@ Warning
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'raw_data'</span>)</span>
 <span id="cb13-2"><a href="#cb13-2"></a>file <span class="ot">=</span> <span class="fu">list.files</span>(dir, <span class="at">pattern =</span> <span class="st">'scholars.Rds'</span>)[<span class="dv">1</span>]</span>
-<span id="cb13-3"><a href="#cb13-3"></a><span class="fu">freadRDS</span>(<span class="fu">file.path</span>(dir, file ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-3"><a href="#cb13-3"></a>data <span class="ot">=</span> <span class="fu">freadRDS</span>(<span class="fu">file.path</span>(dir, file ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
