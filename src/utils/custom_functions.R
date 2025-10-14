@@ -55,4 +55,20 @@ fload <- function(filename) {
     get(ls()[ls() != "filename"])
 }
 
+
+normalize_name = function(x) {
+  x = as.character(x)
+
+  # mark Cyrillic
+  has_cyr = stri_detect_charclass(x, "\\p{Script=Cyrillic}")
+
+  # transliterate only Cyrillic -> Latin
+  x[has_cyr] = stri_trans_general(x[has_cyr], "Cyrillic-Latin")
+
+  # strip accents for all, lowercase, trim, squish
+  x = stri_trans_general(x, "Latin-ASCII")
+  x = tolower(x)
+  x = str_squish(x)
+  trimws(x)
+}
 # colorize <- function(x, color) {sprintf("<span style='color: %s;'>%s</span>", color, x) }

@@ -22,7 +22,7 @@ source("src/utils/custom_functions.r")
 fpackage.check(c(
   'tidyverse', 'readxl',  'stringr', 
   'lubridate', 'httr2', 'rvest', 'xml2',
-  "purrr", "RCurl"
+  "purrr", "RCurl", "fuzzyjoin", "stringi"
 ))
 
 ```
@@ -239,37 +239,36 @@ get_name_row = function(name, count=NA_character_, info=NA_character_){
 }
 ```
 
-## Application
 
 
 ```{r}
-dir = file.path('data', 'processed')
-file = list.files(dir, pattern = 'names.Rds')[[1]]
-names = readRDS(file.path(dir, file))
+#| warning: false
 
-last_names = names |>
-  distinct(particle, last_name) |>
-  unite(last_name, particle:last_name, sep=" ", na.rm=TRUE) |>
-  filter(!is.na(last_name), last_name != "") |>
-  pull(last_name) |>
-  sort()
+add_origin5 = function(ethnicity){
+  ethnicity_patch = readxl::read_excel(
+      file.path('data', 'utils', 'origin_patch.xlsx')
+    ) |>
+    mutate(last_name_norm = normalize_name(last_name))
 
-ethnicity_cache = readRDS(file.path('data', 'utils', 'cbg_cache.Rds'))
-
-hold = c()
-for (name in last_names){
-  if (!name %in% ethnicity_cache$last_name){
-    hold[[name]] = get_name_row(name)
-  }
+  ethnicity |>
+    mutate(last_name_norm = normalize_name(last_name)) |>
+    fuzzyjoin::stringdist_left_join(
+      ethnicity_patch,
+      by = "last_name_norm",
+      max_dist = 0.5
+    ) |>
+    rename(
+      "last_name" = "last_name.x",
+      "origin5" = "origin"
+    ) |>
+    select(
+      -last_name_norm.x, -count, 
+      -last_name_norm.y, -last_name.y,
+    )
 }
 
-ethnicity_cache = bind_rows(ethnicity_cache, bind_rows(hold))
-saveRDS(ethnicity_cache,  file.path('data', 'utils', 'cbg_cache.Rds'))
-```
-
-
-```{r}
-ethnicity = ethnicity_cache |>
+add_origin = function(data) {
+  ethnicity_cache |>
   mutate(
     origin1 = str_extract_all(info, regex("[:upper:]([:lower:]{2,}) naam")),
     origin2 = ifelse(
@@ -296,7 +295,7 @@ ethnicity = ethnicity_cache |>
       )
     ),
     has_particle = str_detect(
-      last_name, regex("^(van|de)")
+      last_name, regex("^(van |de )")
     ),
     origin2 = ifelse(isTRUE(regional), NA_character_, origin2),
     origin3 = origin3 |>
@@ -309,33 +308,78 @@ ethnicity = ethnicity_cache |>
     origin4 = str_detect(info, "andere taal")
   ) |>
   select(-regional)
+}
+
 ```
 
+```{r}
+clean_ethnicity = function(data){
+  data |>
+    mutate(
+      origin1 = ifelse(origin1 == 'character(0)', NA_character_, origin1),
+      origin = case_when(
+        length(origin1) > 1 ~ origin3,
+        .default = origin1
+      ),
+      origin = coalesce(origin, origin5),
+      origin = case_when(
+        is.na(origin) & !is.na(count) & !is.na(info) ~ "Nederlandse naam",
+        has_particle ~ "Nederlandse naam",
+        .default = origin
+      ),
+      dutch = case_when(
+        origin == 'Nederlandse naam' ~ TRUE,
+        .default = FALSE
+      ),
+      origin = str_remove(origin, regex("\\ .*"))
+    ) |>
+    select(last_name, origin, dutch, name_count)
+}
+
+```
+
+## Application
+```{r}
+dir = file.path('data', 'processed')
+file = list.files(dir, pattern = 'names.Rds')[[1]]
+names = readRDS(file.path(dir, file))
+
+last_names = names |>
+  distinct(particle, last_name) |>
+  unite(last_name, particle:last_name, sep=" ", na.rm=TRUE) |>
+  filter(!is.na(last_name), last_name != "") |>
+  pull(last_name) |>
+  sort()
+
+ethnicity_cache = readRDS(file.path('data', 'utils', 'cbg_cache.Rds'))
+
+hold = c()
+for (name in last_names){
+  if (!name %in% ethnicity_cache$last_name){
+    hold[[name]] = get_name_row(name)
+  }
+}
+
+ethnicity_cache = bind_rows(ethnicity_cache, bind_rows(hold))
+saveRDS(ethnicity_cache,  file.path('data', 'utils', 'cbg_cache.Rds'))
+```
 
 ```{r}
-ethnicity = ethnicity |>
-  mutate(
-    origin = case_when(
-      origin1 == 'character(0)' ~ NA_character_,
-      is.na(origin1) & is.na(origin2) & !is.na(origin4) ~ origin3,
-      is.na(origin1) & !is.na(origin4) ~ origin2,
-      .default = origin3
-    ),
-    origin = case_when(
-      is.na(origin) & !is.na(count) & !is.na(info) ~ "Dutch",
-      has_particle ~ "Dutch",
-      .default = origin
-    ),
-    dutch = case_when(
-      origin == 'Dutch' ~ TRUE,
-      .default = FALSE
-    )
-  ) |>
-  select(last_name, origin, dutch, name_count)
+#| warning: false
+
+ethnicity = ethnicity_cache |>
+  add_origin() |>
+  add_origin5() |>
+  clean_ethnicity()
+
 
 fsaveRDS(ethnicity, 'ethnicity')
 ```
 
-## Problems:
+:::{.callout-note}
+A considerable amount of people do not have an ethnicity yet. 
+an option could be to use genderizeR API to infer ethnicity.
+:::
 
-- compound names "van" + "de", "van de" do not yield results.
+
+
