@@ -308,6 +308,3 @@ gender |>
 
 ```
 
-```{r}
-s = freadRDS(file.path('data', 'processed', '20251012scholarid.Rds'))
-```
