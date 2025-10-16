@@ -23,6 +23,10 @@ website:
         menu:
           - href: src/docs/content/scrape_authorid.qmd
             text: Scrape Author ID using `openalexr`
+          - href: src/docs/content/scrape_works.qmd
+            text: Scrape Works using `openalexr`
+          - href: src/docs/content/combine_data.qmd
+            text: Combine Scrape data
     right:
       - icon: github
         href: https://github.com/jossl95/co-pub_networks/tree/main

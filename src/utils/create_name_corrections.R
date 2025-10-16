@@ -11,7 +11,7 @@ corrections <- tibble::tribble(
   "Marjolein Broese van Groenou",   "Marjolein", NA_character_, "Broese-van Groenou",
   "Albornoz Barra Gonzalo",         "Alborno",   NA_character_, "Barra Gonzalo",
   "Amina op de Weegh",              "Amina",     "op de",       "Weegh",
-  "Amina Op de Weegh",              "Amina",     "Op de",       "Weegh",
+  "Amina Op de Weegh",              "Amina",     "op de",       "Weegh",
   "Ana Maria Torres Chedraui",      "Ana Maria", NA_character_, "Torres Chedraui",
   "Ana Mishkovska Kajevska",        "Ana",       NA_character_, "Mishkovska Kajevska",
   "Aris Agoglossakis Foley",        "Aris",      NA_character_, "Agoglossakis Foley",

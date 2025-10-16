@@ -185,7 +185,7 @@ clean_universities = function(data){
   uni = data |>
     # split university strings on '\s' , '/', '\.', and '?'
     mutate(
-      universiteit = str_split(universiteit, "/+|\\?+"),
+      universiteit = str_split(universiteit, "/+|\\?+|\\."),
     ) |>
     unnest_longer(universiteit) |>
     # clean the university labels

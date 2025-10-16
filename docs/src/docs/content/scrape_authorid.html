@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-10-14">
+<meta name="dcterms.date" content="2025-10-16">
 
 <title>Data Preparation OpenAlex-ID – Networks</title>
 <style>
@@ -157,6 +157,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../../../src/docs/content/scrape_authorid.html">
  <span class="dropdown-text">Scrape Author ID using <code>openalexr</code></span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../../src/docs/content/scrape_works.html">
+ <span class="dropdown-text">Scrape Works using <code>openalexr</code></span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../src/docs/content/combine_data.html">
+ <span class="dropdown-text">Combine Scrape data</span></a>
+  </li>  
     </ul>
   </li>
 </ul>
@@ -206,7 +214,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 14, 2025</p>
+      <p class="date">October 16, 2025</p>
     </div>
   </div>
   
@@ -245,10 +253,11 @@ Tip
 <span id="cb2-3"><a href="#cb2-3"></a><span class="co"># load and activate packages</span></span>
 <span id="cb2-4"><a href="#cb2-4"></a><span class="fu">fpackage.check</span>(<span class="fu">c</span>(</span>
 <span id="cb2-5"><a href="#cb2-5"></a>  <span class="st">'tidyverse'</span>, <span class="st">'readxl'</span>,  <span class="st">'stringr'</span>, </span>
-<span id="cb2-6"><a href="#cb2-6"></a>  <span class="st">'lubridate'</span>, <span class="st">'openalexR'</span>, <span class="st">'rvest'</span>, <span class="st">'jsonlite'</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a>))</span>
-<span id="cb2-8"><a href="#cb2-8"></a></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="fu">options</span>(<span class="at">openalexR.mailto =</span> <span class="st">"jos.slabbekoorn@ru.nl"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-6"><a href="#cb2-6"></a>  <span class="st">'lubridate'</span>, <span class="st">'openalexR'</span>, <span class="st">'rvest'</span>, <span class="st">'jsonlite'</span>,</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="st">'cli'</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a>))</span>
+<span id="cb2-9"><a href="#cb2-9"></a></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="fu">options</span>(<span class="at">openalexR.mailto =</span> <span class="st">"jos.slabbekoorn@ru.nl"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'processed'</span>)</span>
@@ -260,288 +269,354 @@ Tip
 <span id="cb3-7"><a href="#cb3-7"></a>scholar <span class="ot">=</span> <span class="fu">freadRDS</span>(<span class="fu">file.path</span>(dir, file)) <span class="sc">|&gt;</span></span>
 <span id="cb3-8"><a href="#cb3-8"></a>  <span class="fu">select</span>(naam, university) <span class="sc">|&gt;</span></span>
 <span id="cb3-9"><a href="#cb3-9"></a>  <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-10"><a href="#cb3-10"></a>  <span class="fu">unnest_longer</span>(university) <span class="sc">|&gt;</span></span>
-<span id="cb3-11"><a href="#cb3-11"></a>  <span class="fu">left_join</span>(names) <span class="sc">|&gt;</span></span>
-<span id="cb3-12"><a href="#cb3-12"></a>  <span class="fu">unite</span>(</span>
-<span id="cb3-13"><a href="#cb3-13"></a>    initials<span class="sc">:</span>last_name, </span>
-<span id="cb3-14"><a href="#cb3-14"></a>    <span class="at">col=</span>name, <span class="at">sep =</span> <span class="st">' '</span>, </span>
-<span id="cb3-15"><a href="#cb3-15"></a>    <span class="at">na.rm=</span><span class="cn">TRUE</span>, <span class="at">remove=</span><span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-16"><a href="#cb3-16"></a>  <span class="fu">unite</span>(</span>
-<span id="cb3-17"><a href="#cb3-17"></a>    <span class="fu">c</span>(name, maiden_name), </span>
-<span id="cb3-18"><a href="#cb3-18"></a>    <span class="at">col=</span>name2, <span class="at">sep =</span> <span class="st">'-'</span>, </span>
-<span id="cb3-19"><a href="#cb3-19"></a>    <span class="at">na.rm=</span><span class="cn">TRUE</span>, <span class="at">remove=</span><span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-10"><a href="#cb3-10"></a>  <span class="fu">unnest_longer</span>(university) </span>
+<span id="cb3-11"><a href="#cb3-11"></a>  <span class="co"># |&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>  <span class="co"># left_join(names) |&gt;</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a>  <span class="co"># unite(</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a>  <span class="co">#   initials:last_name, </span></span>
+<span id="cb3-15"><a href="#cb3-15"></a>  <span class="co">#   col=name, sep = ' ', </span></span>
+<span id="cb3-16"><a href="#cb3-16"></a>  <span class="co">#   na.rm=TRUE, remove=FALSE) |&gt;</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a>  <span class="co"># unite(</span></span>
+<span id="cb3-18"><a href="#cb3-18"></a>  <span class="co">#   c(name, maiden_name), </span></span>
+<span id="cb3-19"><a href="#cb3-19"></a>  <span class="co">#   col=name2, sep = '-', </span></span>
+<span id="cb3-20"><a href="#cb3-20"></a>  <span class="co">#   na.rm=TRUE, remove=FALSE)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>oa_fetch_institution <span class="ot">=</span> <span class="cf">function</span>(institution, <span class="at">pause=</span><span class="fl">0.5</span>){</span>
-<span id="cb4-2"><a href="#cb4-2"></a>  <span class="cf">if</span> (pause <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">Sys.sleep</span>(pause)</span>
-<span id="cb4-3"><a href="#cb4-3"></a>  <span class="fu">oa_fetch</span>(</span>
-<span id="cb4-4"><a href="#cb4-4"></a>    <span class="at">entity =</span> <span class="st">"institutions"</span>,</span>
-<span id="cb4-5"><a href="#cb4-5"></a>    <span class="at">search=</span>institution,</span>
-<span id="cb4-6"><a href="#cb4-6"></a>    <span class="at">mailto =</span> <span class="st">"jos.slabbekoorn@ru.nl"</span></span>
-<span id="cb4-7"><a href="#cb4-7"></a>  )<span class="sc">$</span>id[<span class="dv">1</span>]</span>
-<span id="cb4-8"><a href="#cb4-8"></a>}</span>
-<span id="cb4-9"><a href="#cb4-9"></a></span>
-<span id="cb4-10"><a href="#cb4-10"></a>hold <span class="ot">=</span> <span class="fu">c</span>()</span>
-<span id="cb4-11"><a href="#cb4-11"></a><span class="cf">for</span> (institution <span class="cf">in</span> institutions){</span>
-<span id="cb4-12"><a href="#cb4-12"></a>  id <span class="ot">=</span> <span class="fu">oa_fetch_institution</span>(institution)</span>
-<span id="cb4-13"><a href="#cb4-13"></a>  hold[[institution]] <span class="ot">=</span> tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb4-14"><a href="#cb4-14"></a>    <span class="at">university_name =</span> institution,</span>
-<span id="cb4-15"><a href="#cb4-15"></a>    <span class="at">university_url =</span> id, </span>
-<span id="cb4-16"><a href="#cb4-16"></a>    <span class="at">university_id =</span> <span class="fu">str_remove</span>(id, <span class="st">'https://openalex.org/'</span>)</span>
-<span id="cb4-17"><a href="#cb4-17"></a>  )</span>
-<span id="cb4-18"><a href="#cb4-18"></a>}</span>
-<span id="cb4-19"><a href="#cb4-19"></a></span>
-<span id="cb4-20"><a href="#cb4-20"></a>institutions <span class="ot">=</span> <span class="fu">bind_rows</span>(hold)</span>
-<span id="cb4-21"><a href="#cb4-21"></a>scholar <span class="ot">=</span> scholar <span class="sc">|&gt;</span></span>
-<span id="cb4-22"><a href="#cb4-22"></a>  <span class="fu">left_join</span>(institutions)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>scholar <span class="ot">=</span> scholar <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="at">university =</span> university <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>      <span class="fu">str_replace</span>(<span class="st">"(Uni |uni)"</span>, <span class="st">"University "</span>),</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="at">university_name =</span> <span class="fu">case_when</span>(</span>
+<span id="cb4-6"><a href="#cb4-6"></a>      <span class="fu">str_detect</span>(university, <span class="st">"VU"</span>) <span class="sc">~</span> <span class="st">"Free University Amsterdam"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7"></a>      <span class="fu">str_detect</span>(university, <span class="st">"(UvA|Uva)"</span>) <span class="sc">~</span> <span class="st">"University of Amsterdam"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8"></a>      <span class="fu">str_detect</span>(university, <span class="st">"Leiden"</span>) <span class="sc">~</span> <span class="st">"Leiden University"</span>,</span>
+<span id="cb4-9"><a href="#cb4-9"></a>      university <span class="sc">==</span> <span class="st">'RU'</span> <span class="sc">~</span> <span class="st">"Radboud University Nijmegen"</span>,</span>
+<span id="cb4-10"><a href="#cb4-10"></a>      <span class="fu">str_detect</span>(university, <span class="st">"(UU|UCU)"</span>) <span class="sc">~</span> <span class="st">"Utrecht University"</span>,</span>
+<span id="cb4-11"><a href="#cb4-11"></a>      university <span class="sc">==</span> <span class="st">'EUR'</span> <span class="sc">~</span> <span class="st">"Erasmus University Rotterdam"</span>,</span>
+<span id="cb4-12"><a href="#cb4-12"></a>      <span class="fu">str_detect</span>(university, <span class="st">'(RUG|UvG)'</span>) <span class="sc">~</span> <span class="st">"University of Groningen"</span>,</span>
+<span id="cb4-13"><a href="#cb4-13"></a>      <span class="fu">str_detect</span>(university, <span class="st">'(UvT|Uvt|Tilburg)'</span>) <span class="sc">~</span> <span class="st">"University of Tilburg"</span>,</span>
+<span id="cb4-14"><a href="#cb4-14"></a>      <span class="fu">str_detect</span>(university, <span class="st">'WUR'</span>) <span class="sc">~</span> <span class="st">"Wageningen University &amp; Research"</span>,</span>
+<span id="cb4-15"><a href="#cb4-15"></a>      university <span class="sc">==</span> <span class="st">'Uni Gothenburg'</span> <span class="sc">~</span> <span class="st">"University of Gothenburg"</span>,</span>
+<span id="cb4-16"><a href="#cb4-16"></a>      university <span class="sc">==</span> <span class="st">'TU Delft'</span> <span class="sc">~</span> <span class="st">"Technical University Delft"</span>,</span>
+<span id="cb4-17"><a href="#cb4-17"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Milano'</span>) <span class="sc">~</span> <span class="st">'University of Milan'</span>,</span>
+<span id="cb4-18"><a href="#cb4-18"></a>      <span class="co"># fix for mistake in affilation for Sabine Mokry,</span></span>
+<span id="cb4-19"><a href="#cb4-19"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Berlijn'</span>) <span class="sc">~</span> <span class="st">'University of Hamburg'</span>,</span>
+<span id="cb4-20"><a href="#cb4-20"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Trento'</span>) <span class="sc">~</span> <span class="st">'University of Trento'</span>,</span>
+<span id="cb4-21"><a href="#cb4-21"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Stockholm'</span>) <span class="sc">~</span> <span class="st">'Stockholm University'</span>,</span>
+<span id="cb4-22"><a href="#cb4-22"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Gent'</span>) <span class="sc">~</span> <span class="st">"Universiteit Gent"</span>,</span>
+<span id="cb4-23"><a href="#cb4-23"></a>      university <span class="sc">==</span> <span class="st">"Politie"</span> <span class="sc">~</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb4-24"><a href="#cb4-24"></a>      university <span class="sc">==</span> <span class="st">"UvH"</span> <span class="sc">~</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb4-25"><a href="#cb4-25"></a>      <span class="at">.default =</span> university</span>
+<span id="cb4-26"><a href="#cb4-26"></a>    ),</span>
+<span id="cb4-27"><a href="#cb4-27"></a>    <span class="at">university_name2 =</span> <span class="fu">case_when</span>(</span>
+<span id="cb4-28"><a href="#cb4-28"></a>      <span class="fu">str_detect</span>(university, <span class="st">"VU"</span>) <span class="sc">~</span> <span class="st">"Vrije Universiteit Amsterdam"</span>,</span>
+<span id="cb4-29"><a href="#cb4-29"></a>      <span class="fu">str_detect</span>(university, <span class="st">"(UvA|Uva)"</span>) <span class="sc">~</span> <span class="st">"Universiteit van Amsterdam"</span>,</span>
+<span id="cb4-30"><a href="#cb4-30"></a>      <span class="fu">str_detect</span>(university, <span class="st">"Leiden"</span>) <span class="sc">~</span> <span class="st">"Leiden Universiteit"</span>,</span>
+<span id="cb4-31"><a href="#cb4-31"></a>      university <span class="sc">==</span> <span class="st">'RU'</span> <span class="sc">~</span> <span class="st">"Radboud Universiteit Nijmegen"</span>,</span>
+<span id="cb4-32"><a href="#cb4-32"></a>      <span class="fu">str_detect</span>(university, <span class="st">"(UU|UCU)"</span>) <span class="sc">~</span> <span class="st">"Universiteit Utrecht"</span>,</span>
+<span id="cb4-33"><a href="#cb4-33"></a>      university <span class="sc">==</span> <span class="st">'EUR'</span> <span class="sc">~</span> <span class="st">"Erasmus Universiteit Rotterdam"</span>,</span>
+<span id="cb4-34"><a href="#cb4-34"></a>      <span class="fu">str_detect</span>(university, <span class="st">'(RUG|UvG)'</span>) <span class="sc">~</span> <span class="st">"Rijksuniversiteit Groningen"</span>,</span>
+<span id="cb4-35"><a href="#cb4-35"></a>      <span class="fu">str_detect</span>(university, <span class="st">'(UvT|Uvt|Tilburg)'</span>) <span class="sc">~</span> <span class="st">"Universiteit van Tilburg"</span>,</span>
+<span id="cb4-36"><a href="#cb4-36"></a>      <span class="fu">str_detect</span>(university, <span class="st">'WUR'</span>) <span class="sc">~</span> <span class="st">"Wageningen University &amp; Research"</span>,</span>
+<span id="cb4-37"><a href="#cb4-37"></a>      university <span class="sc">==</span> <span class="st">'Uni Gothenburg'</span> <span class="sc">~</span> <span class="st">"Universiteit van Gothenburg"</span>,</span>
+<span id="cb4-38"><a href="#cb4-38"></a>      university <span class="sc">==</span> <span class="st">'TU Delft'</span> <span class="sc">~</span> <span class="st">"Technische Universiteit Delft"</span>,</span>
+<span id="cb4-39"><a href="#cb4-39"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Milano'</span>) <span class="sc">~</span> <span class="st">'Università degli Studi di Milano Statale'</span>,</span>
+<span id="cb4-40"><a href="#cb4-40"></a>      <span class="co"># fix for mistake in affilation for Sabine Mokry,</span></span>
+<span id="cb4-41"><a href="#cb4-41"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Berlijn'</span>) <span class="sc">~</span> <span class="st">'Universität Hamburg'</span>,</span>
+<span id="cb4-42"><a href="#cb4-42"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Trento'</span>) <span class="sc">~</span> <span class="st">'Università degli Studi di Trento'</span>,</span>
+<span id="cb4-43"><a href="#cb4-43"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Cologne'</span>) <span class="sc">~</span> <span class="st">'Universität zu Köln'</span>,</span>
+<span id="cb4-44"><a href="#cb4-44"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Stockholm'</span>) <span class="sc">~</span> <span class="st">'Stockholms Universitet'</span>,</span>
+<span id="cb4-45"><a href="#cb4-45"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Bocconi'</span>) <span class="sc">~</span> <span class="st">"Università Bocconi"</span>,</span>
+<span id="cb4-46"><a href="#cb4-46"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Koc'</span>) <span class="sc">~</span> <span class="st">"Koç Üniversitesi"</span>,</span>
+<span id="cb4-47"><a href="#cb4-47"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Gent'</span>) <span class="sc">~</span> <span class="st">"Ghent University"</span>,</span>
+<span id="cb4-48"><a href="#cb4-48"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Gothenburg'</span>) <span class="sc">~</span> <span class="st">"Göteborgs universitet"</span>,</span>
+<span id="cb4-49"><a href="#cb4-49"></a>      <span class="fu">str_detect</span>(university, <span class="st">"Turku"</span>) <span class="sc">~</span> <span class="st">"Turun Yliopisto"</span>,</span>
+<span id="cb4-50"><a href="#cb4-50"></a>      <span class="fu">str_detect</span>(university, <span class="st">'Lausane'</span>) <span class="sc">~</span> <span class="st">"Université de Lausanne"</span>,</span>
+<span id="cb4-51"><a href="#cb4-51"></a>      <span class="fu">str_detect</span>(university, <span class="st">"Leipzig"</span>) <span class="sc">~</span> <span class="st">"Universität Leipzig"</span>,</span>
+<span id="cb4-52"><a href="#cb4-52"></a>      <span class="fu">str_detect</span>(university, <span class="st">"Linköping"</span>) <span class="sc">~</span> <span class="st">"Linköpings universitet"</span>,</span>
+<span id="cb4-53"><a href="#cb4-53"></a>      <span class="at">.default =</span> <span class="cn">NA_character_</span></span>
+<span id="cb4-54"><a href="#cb4-54"></a>    )</span>
+<span id="cb4-55"><a href="#cb4-55"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb4-56"><a href="#cb4-56"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-57"><a href="#cb4-57"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb4-58"><a href="#cb4-58"></a>    <span class="at">cols =</span> university_name<span class="sc">:</span>university_name2, </span>
+<span id="cb4-59"><a href="#cb4-59"></a>    <span class="at">names_to =</span> <span class="st">"var"</span>,</span>
+<span id="cb4-60"><a href="#cb4-60"></a>    <span class="at">values_to =</span> <span class="st">"university_name"</span></span>
+<span id="cb4-61"><a href="#cb4-61"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb4-62"><a href="#cb4-62"></a>  <span class="fu">select</span>(<span class="sc">-</span>var)</span>
+<span id="cb4-63"><a href="#cb4-63"></a></span>
+<span id="cb4-64"><a href="#cb4-64"></a></span>
+<span id="cb4-65"><a href="#cb4-65"></a>institutions <span class="ot">=</span> scholar<span class="sc">$</span>university_name <span class="sc">|&gt;</span> <span class="fu">unique</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># library(dplyr)</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="fu">library</span>(stringdist)</span>
-<span id="cb5-3"><a href="#cb5-3"></a><span class="fu">library</span>(stringi)</span>
-<span id="cb5-4"><a href="#cb5-4"></a></span>
-<span id="cb5-5"><a href="#cb5-5"></a>normalize_name <span class="ot">=</span> <span class="cf">function</span>(x) {</span>
-<span id="cb5-6"><a href="#cb5-6"></a>  x <span class="ot">=</span> <span class="fu">as.character</span>(x)</span>
-<span id="cb5-7"><a href="#cb5-7"></a></span>
-<span id="cb5-8"><a href="#cb5-8"></a>  <span class="co"># mark Cyrillic</span></span>
-<span id="cb5-9"><a href="#cb5-9"></a>  has_cyr <span class="ot">=</span> <span class="fu">stri_detect_charclass</span>(x, <span class="st">"</span><span class="sc">\\</span><span class="st">p{Script=Cyrillic}"</span>)</span>
-<span id="cb5-10"><a href="#cb5-10"></a></span>
-<span id="cb5-11"><a href="#cb5-11"></a>  <span class="co"># transliterate only Cyrillic -&gt; Latin</span></span>
-<span id="cb5-12"><a href="#cb5-12"></a>  x[has_cyr] <span class="ot">=</span> <span class="fu">stri_trans_general</span>(x[has_cyr], <span class="st">"Cyrillic-Latin"</span>)</span>
-<span id="cb5-13"><a href="#cb5-13"></a></span>
-<span id="cb5-14"><a href="#cb5-14"></a>  <span class="co"># strip accents for all, lowercase, trim, squish</span></span>
-<span id="cb5-15"><a href="#cb5-15"></a>  x <span class="ot">=</span> <span class="fu">stri_trans_general</span>(x, <span class="st">"Latin-ASCII"</span>)</span>
-<span id="cb5-16"><a href="#cb5-16"></a>  x <span class="ot">=</span> <span class="fu">tolower</span>(x)</span>
-<span id="cb5-17"><a href="#cb5-17"></a>  x <span class="ot">=</span> <span class="fu">str_squish</span>(x)</span>
-<span id="cb5-18"><a href="#cb5-18"></a>  <span class="fu">trimws</span>(x)</span>
-<span id="cb5-19"><a href="#cb5-19"></a>}</span>
-<span id="cb5-20"><a href="#cb5-20"></a></span>
-<span id="cb5-21"><a href="#cb5-21"></a>add_query_similarity <span class="ot">=</span> <span class="cf">function</span>(data){</span>
-<span id="cb5-22"><a href="#cb5-22"></a>  data <span class="sc">|&gt;</span></span>
-<span id="cb5-23"><a href="#cb5-23"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb5-24"><a href="#cb5-24"></a>      <span class="at">dn =</span> <span class="fu">normalize_name</span>(display_name),</span>
-<span id="cb5-25"><a href="#cb5-25"></a>      <span class="at">qn =</span> <span class="fu">normalize_name</span>(query_name),</span>
-<span id="cb5-26"><a href="#cb5-26"></a>      <span class="at">query_similarity   =</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">stringdist</span>(dn, qn, <span class="at">method =</span> <span class="st">"jw"</span>)</span>
-<span id="cb5-27"><a href="#cb5-27"></a>    ) <span class="sc">|&gt;</span>  <span class="co"># Jaro–Winkler</span></span>
-<span id="cb5-28"><a href="#cb5-28"></a>    <span class="fu">select</span>(<span class="sc">-</span>dn, <span class="sc">-</span>qn)</span>
-<span id="cb5-29"><a href="#cb5-29"></a>}</span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># scholar = scholar |&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="co">#   mutate(</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="co">#     university_name = university |&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="co">#       str_replace("(Uni |uni)", "University ") |&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="co">#       str_replace('(UU)', 'Utrecht University') |&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="co">#       str_replace('(UCU)', 'Utrecht University') |&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co">#       str_replace('(Leiden|Leiden University)', 'Leiden University') |&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="co">#       str_replace('(RUG)', 'University of Groningen') |&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="co">#       str_replace('(RU)', 'Radboud University Nijmegen') |&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="co">#       str_replace('(UvA|Uva)', 'University of Amsterdam') |&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="co">#       str_replace('(VU)', 'Free University Amsterdam') |&gt;</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="co">#       str_replace('(EUR)', 'Erasmus University Rotterdam') |&gt;</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="co">#       str_replace('(UvT|Tilburg|Uvt)', 'University of Tilburg') |&gt;</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a><span class="co">#       str_replace('(TU Delft)', 'Technical University Delft') |&gt;</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a><span class="co">#       str_replace('(WUR)', 'Wageningen University &amp; Research') |&gt;</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a><span class="co">#       str_replace('(Universita degli studi di Milano)', 'University of Milan') |&gt;</span></span>
+<span id="cb5-17"><a href="#cb5-17"></a><span class="co">#       str_replace('(Politie)', NA_character_) |&gt;</span></span>
+<span id="cb5-18"><a href="#cb5-18"></a><span class="co">#       str_replace('(UvH)', NA_character_) |&gt;</span></span>
+<span id="cb5-19"><a href="#cb5-19"></a><span class="co">#       str_replace('(UvG)', "University of Groningen") |&gt;</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a><span class="co">#       # fixing mistake for Sabine Mokry</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a><span class="co">#       str_replace('University Berlijn', "University of Hamburg") |&gt;</span></span>
+<span id="cb5-22"><a href="#cb5-22"></a><span class="co">#       str_replace('Trento University', "University of Trento") |&gt;</span></span>
+<span id="cb5-23"><a href="#cb5-23"></a>      </span>
+<span id="cb5-24"><a href="#cb5-24"></a><span class="co">#   ) |&gt;</span></span>
+<span id="cb5-25"><a href="#cb5-25"></a><span class="co">#   filter(!is.na(university_name))</span></span>
+<span id="cb5-26"><a href="#cb5-26"></a></span>
+<span id="cb5-27"><a href="#cb5-27"></a><span class="co"># # institutions = c(</span></span>
+<span id="cb5-28"><a href="#cb5-28"></a><span class="co"># #   scholar$university_name |&gt; unique(),</span></span>
+<span id="cb5-29"><a href="#cb5-29"></a><span class="co"># # )</span></span>
 <span id="cb5-30"><a href="#cb5-30"></a></span>
-<span id="cb5-31"><a href="#cb5-31"></a><span class="co"># dubbel check op achternaam</span></span>
-<span id="cb5-32"><a href="#cb5-32"></a><span class="co"># als daar voor nog wat voor staat komt dat overeen met de voornaam</span></span>
-<span id="cb5-33"><a href="#cb5-33"></a><span class="co"># als de voornaam, komt dit overeen met initalen</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-31"><a href="#cb5-31"></a><span class="co"># institutions = scholar$university_name |&gt; unique()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>oa_fetch_scholar <span class="ot">=</span> <span class="cf">function</span>(</span>
-<span id="cb6-2"><a href="#cb6-2"></a>    scholar_name, </span>
-<span id="cb6-3"><a href="#cb6-3"></a>    university_ids,</span>
-<span id="cb6-4"><a href="#cb6-4"></a>    <span class="at">pause =</span> <span class="fl">0.5</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a>  ){</span>
-<span id="cb6-6"><a href="#cb6-6"></a>  <span class="co"># fetch oa scholar information for all name id pairs</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a>  hold <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb6-8"><a href="#cb6-8"></a>  <span class="cf">for</span> (id <span class="cf">in</span> university_ids){</span>
-<span id="cb6-9"><a href="#cb6-9"></a>    <span class="cf">if</span> (pause <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">Sys.sleep</span>(pause)</span>
-<span id="cb6-10"><a href="#cb6-10"></a>    </span>
-<span id="cb6-11"><a href="#cb6-11"></a>    hold[[id]] <span class="ot">=</span> <span class="fu">tryCatch</span>(</span>
-<span id="cb6-12"><a href="#cb6-12"></a>      <span class="fu">oa_fetch</span>(</span>
-<span id="cb6-13"><a href="#cb6-13"></a>        <span class="at">entity =</span> <span class="st">'author'</span>,</span>
-<span id="cb6-14"><a href="#cb6-14"></a>        <span class="at">search =</span> scholar_name,</span>
-<span id="cb6-15"><a href="#cb6-15"></a>        <span class="at">affiliations.institution.id =</span> id</span>
-<span id="cb6-16"><a href="#cb6-16"></a>      ),</span>
-<span id="cb6-17"><a href="#cb6-17"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NULL</span>,</span>
-<span id="cb6-18"><a href="#cb6-18"></a>      <span class="at">warning =</span> <span class="cf">function</span>(w) <span class="cn">NULL</span></span>
-<span id="cb6-19"><a href="#cb6-19"></a>    )</span>
-<span id="cb6-20"><a href="#cb6-20"></a>  }</span>
-<span id="cb6-21"><a href="#cb6-21"></a>  res <span class="ot">=</span> <span class="fu">bind_rows</span>(hold)</span>
-<span id="cb6-22"><a href="#cb6-22"></a>  <span class="co"># combine the results and drop duplicates</span></span>
-<span id="cb6-23"><a href="#cb6-23"></a>  <span class="cf">if</span> (<span class="fu">ncol</span>(res) <span class="sc">&gt;</span> <span class="dv">2</span>){</span>
-<span id="cb6-24"><a href="#cb6-24"></a>    res <span class="ot">=</span> res <span class="sc">|&gt;</span> </span>
-<span id="cb6-25"><a href="#cb6-25"></a>      <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-26"><a href="#cb6-26"></a>      <span class="fu">mutate</span>(<span class="at">query_name =</span> scholar_name) <span class="sc">|&gt;</span></span>
-<span id="cb6-27"><a href="#cb6-27"></a>      <span class="fu">add_query_similarity</span>() <span class="sc">|&gt;</span></span>
-<span id="cb6-28"><a href="#cb6-28"></a>      <span class="fu">arrange</span>(<span class="sc">-</span>query_similarity) <span class="sc">|&gt;</span></span>
-<span id="cb6-29"><a href="#cb6-29"></a>      <span class="fu">head</span>(<span class="dv">15</span>)</span>
-<span id="cb6-30"><a href="#cb6-30"></a>  }</span>
-<span id="cb6-31"><a href="#cb6-31"></a></span>
-<span id="cb6-32"><a href="#cb6-32"></a>  <span class="fu">return</span>(res)</span>
-<span id="cb6-33"><a href="#cb6-33"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>oa_fetch_institution <span class="ot">=</span> <span class="cf">function</span>(institution, <span class="at">pause=</span><span class="dv">0</span>){</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="cf">if</span> (pause <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">Sys.sleep</span>(pause)</span>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">oa_fetch</span>(</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="at">entity =</span> <span class="st">"institutions"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    <span class="at">search=</span>institution,</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    <span class="at">mailto =</span> <span class="st">"jos.slabbekoorn@ru.nl"</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>  )<span class="sc">$</span>id[<span class="dv">1</span>]</span>
+<span id="cb6-8"><a href="#cb6-8"></a>}</span>
+<span id="cb6-9"><a href="#cb6-9"></a></span>
+<span id="cb6-10"><a href="#cb6-10"></a>hold <span class="ot">=</span> <span class="fu">c</span>()</span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="cf">for</span> (institution <span class="cf">in</span> institutions){</span>
+<span id="cb6-12"><a href="#cb6-12"></a>  id <span class="ot">=</span> <span class="fu">oa_fetch_institution</span>(institution)</span>
+<span id="cb6-13"><a href="#cb6-13"></a>  hold[[institution]] <span class="ot">=</span> tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb6-14"><a href="#cb6-14"></a>    <span class="at">university_name =</span> institution,</span>
+<span id="cb6-15"><a href="#cb6-15"></a>    <span class="at">university_url =</span> id, </span>
+<span id="cb6-16"><a href="#cb6-16"></a>    <span class="at">university_id =</span> <span class="fu">str_remove</span>(id, <span class="st">'https://openalex.org/'</span>)</span>
+<span id="cb6-17"><a href="#cb6-17"></a>  )</span>
+<span id="cb6-18"><a href="#cb6-18"></a>}</span>
+<span id="cb6-19"><a href="#cb6-19"></a></span>
+<span id="cb6-20"><a href="#cb6-20"></a>institutions <span class="ot">=</span> <span class="fu">bind_rows</span>(hold) <span class="sc">|&gt;</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a>  <span class="fu">drop_na</span>()</span>
+<span id="cb6-22"><a href="#cb6-22"></a>scholar <span class="ot">=</span> scholar <span class="sc">|&gt;</span></span>
+<span id="cb6-23"><a href="#cb6-23"></a>  <span class="fu">left_join</span>(institutions) <span class="sc">|&gt;</span></span>
+<span id="cb6-24"><a href="#cb6-24"></a>  <span class="fu">distinct</span>(naam, university_id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>scholar <span class="ot">=</span> scholar <span class="sc">|&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb7-3"><a href="#cb7-3"></a>    <span class="at">university_name =</span> university <span class="sc">|&gt;</span></span>
-<span id="cb7-4"><a href="#cb7-4"></a>      <span class="fu">str_replace</span>(<span class="st">"(Uni |uni)"</span>, <span class="st">"University "</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a>      <span class="fu">str_replace</span>(<span class="st">'(UU)'</span>, <span class="st">'Utrecht University'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a>      <span class="fu">str_replace</span>(<span class="st">'(UCU)'</span>, <span class="st">'Utrecht University'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-7"><a href="#cb7-7"></a>      <span class="fu">str_replace</span>(<span class="st">'(Leiden|Leiden University)'</span>, <span class="st">'Leiden University'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-8"><a href="#cb7-8"></a>      <span class="fu">str_replace</span>(<span class="st">'(RUG)'</span>, <span class="st">'Rijksuniversiteit Groningen'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-9"><a href="#cb7-9"></a>      <span class="fu">str_replace</span>(<span class="st">'(RU)'</span>, <span class="st">'Radboud University Nijmegen'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-10"><a href="#cb7-10"></a>      <span class="fu">str_replace</span>(<span class="st">'(UvA|Uva)'</span>, <span class="st">'Universiteit van Amsterdam'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-11"><a href="#cb7-11"></a>      <span class="fu">str_replace</span>(<span class="st">'(VU)'</span>, <span class="st">'Vrije Universiteit Amsterdam'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-12"><a href="#cb7-12"></a>      <span class="fu">str_replace</span>(<span class="st">'(EUR)'</span>, <span class="st">'Erasmus Universiteit Rotterdam'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-13"><a href="#cb7-13"></a>      <span class="fu">str_replace</span>(<span class="st">'(UvT|Tilburg|Uvt)'</span>, <span class="st">'Universiteit van Tilburg'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-14"><a href="#cb7-14"></a>      <span class="fu">str_replace</span>(<span class="st">'(TU Delft)'</span>, <span class="st">'Technische Universiteit Delft'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-15"><a href="#cb7-15"></a>      <span class="fu">str_replace</span>(<span class="st">'(WUR)'</span>, <span class="st">'Wageningen University &amp; Research'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-16"><a href="#cb7-16"></a>      <span class="fu">str_replace</span>(<span class="st">'(Universita degli studi di Milano)'</span>, <span class="st">'University of Milan'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-17"><a href="#cb7-17"></a>      <span class="fu">str_replace</span>(<span class="st">'(Politie)'</span>, <span class="cn">NA_character_</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-18"><a href="#cb7-18"></a>      <span class="fu">str_replace</span>(<span class="st">'(UvH)'</span>, <span class="cn">NA_character_</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-19"><a href="#cb7-19"></a>      <span class="fu">str_replace</span>(<span class="st">'(UvG)'</span>, <span class="cn">NA_character_</span>)</span>
-<span id="cb7-20"><a href="#cb7-20"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb7-21"><a href="#cb7-21"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(university_name))</span>
-<span id="cb7-22"><a href="#cb7-22"></a></span>
-<span id="cb7-23"><a href="#cb7-23"></a>institutions <span class="ot">=</span> scholar<span class="sc">$</span>university_name <span class="sc">|&gt;</span> <span class="fu">unique</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># library(dplyr)</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="fu">library</span>(stringdist)</span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="fu">library</span>(stringi)</span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a>normalize_name <span class="ot">=</span> <span class="cf">function</span>(x) {</span>
+<span id="cb7-6"><a href="#cb7-6"></a>  x <span class="ot">=</span> <span class="fu">as.character</span>(x)</span>
+<span id="cb7-7"><a href="#cb7-7"></a></span>
+<span id="cb7-8"><a href="#cb7-8"></a>  <span class="co"># mark Cyrillic</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a>  has_cyr <span class="ot">=</span> <span class="fu">stri_detect_charclass</span>(x, <span class="st">"</span><span class="sc">\\</span><span class="st">p{Script=Cyrillic}"</span>)</span>
+<span id="cb7-10"><a href="#cb7-10"></a></span>
+<span id="cb7-11"><a href="#cb7-11"></a>  <span class="co"># transliterate only Cyrillic -&gt; Latin</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a>  x[has_cyr] <span class="ot">=</span> <span class="fu">stri_trans_general</span>(x[has_cyr], <span class="st">"Cyrillic-Latin"</span>)</span>
+<span id="cb7-13"><a href="#cb7-13"></a></span>
+<span id="cb7-14"><a href="#cb7-14"></a>  <span class="co"># strip accents for all, lowercase, trim, squish</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a>  x <span class="ot">=</span> <span class="fu">stri_trans_general</span>(x, <span class="st">"Latin-ASCII"</span>)</span>
+<span id="cb7-16"><a href="#cb7-16"></a>  x <span class="ot">=</span> <span class="fu">tolower</span>(x)</span>
+<span id="cb7-17"><a href="#cb7-17"></a>  x <span class="ot">=</span> <span class="fu">str_squish</span>(x)</span>
+<span id="cb7-18"><a href="#cb7-18"></a>  <span class="fu">trimws</span>(x)</span>
+<span id="cb7-19"><a href="#cb7-19"></a>}</span>
+<span id="cb7-20"><a href="#cb7-20"></a></span>
+<span id="cb7-21"><a href="#cb7-21"></a>add_query_similarity <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb7-22"><a href="#cb7-22"></a>  data <span class="sc">|&gt;</span></span>
+<span id="cb7-23"><a href="#cb7-23"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb7-24"><a href="#cb7-24"></a>      <span class="at">dn =</span> <span class="fu">normalize_name</span>(display_name),</span>
+<span id="cb7-25"><a href="#cb7-25"></a>      <span class="at">qn =</span> <span class="fu">normalize_name</span>(query_name),</span>
+<span id="cb7-26"><a href="#cb7-26"></a>      <span class="at">query_similarity   =</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">stringdist</span>(dn, qn, <span class="at">method =</span> <span class="st">"jw"</span>)</span>
+<span id="cb7-27"><a href="#cb7-27"></a>    ) <span class="sc">|&gt;</span>  <span class="co"># Jaro–Winkler</span></span>
+<span id="cb7-28"><a href="#cb7-28"></a>    <span class="fu">select</span>(<span class="sc">-</span>dn, <span class="sc">-</span>qn)</span>
+<span id="cb7-29"><a href="#cb7-29"></a>}</span>
+<span id="cb7-30"><a href="#cb7-30"></a></span>
+<span id="cb7-31"><a href="#cb7-31"></a><span class="co"># dubbel check op achternaam</span></span>
+<span id="cb7-32"><a href="#cb7-32"></a><span class="co"># als daar voor nog wat voor staat komt dat overeen met de voornaam</span></span>
+<span id="cb7-33"><a href="#cb7-33"></a><span class="co"># als de voornaam, komt dit overeen met initalen</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>scholar_name <span class="ot">=</span> <span class="st">'Amy Verdun'</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a>id <span class="ot">=</span> <span class="st">"I121797337"</span></span>
-<span id="cb8-3"><a href="#cb8-3"></a>res <span class="ot">=</span> <span class="fu">oa_fetch_scholar</span>(scholar_name, id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Warning
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>THIS EXECUTION TAKES AGES ~ 1 hour</p>
-</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>oa_fetch_scholar <span class="ot">=</span> <span class="cf">function</span>(</span>
+<span id="cb8-2"><a href="#cb8-2"></a>    scholar_name, </span>
+<span id="cb8-3"><a href="#cb8-3"></a>    university_ids,</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="at">pause =</span> <span class="dv">0</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a>  ){</span>
+<span id="cb8-6"><a href="#cb8-6"></a>  <span class="co"># fetch oa scholar information for all name id pairs</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>  hold <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb8-8"><a href="#cb8-8"></a>  <span class="cf">for</span> (id <span class="cf">in</span> university_ids){</span>
+<span id="cb8-9"><a href="#cb8-9"></a>    <span class="cf">if</span> (pause <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">Sys.sleep</span>(pause)</span>
+<span id="cb8-10"><a href="#cb8-10"></a>    </span>
+<span id="cb8-11"><a href="#cb8-11"></a>    hold[[id]] <span class="ot">=</span> <span class="fu">tryCatch</span>(</span>
+<span id="cb8-12"><a href="#cb8-12"></a>      <span class="fu">oa_fetch</span>(</span>
+<span id="cb8-13"><a href="#cb8-13"></a>        <span class="at">entity =</span> <span class="st">'author'</span>,</span>
+<span id="cb8-14"><a href="#cb8-14"></a>        <span class="at">search =</span> scholar_name,</span>
+<span id="cb8-15"><a href="#cb8-15"></a>        <span class="at">affiliations.institution.id =</span> id,</span>
+<span id="cb8-16"><a href="#cb8-16"></a>        <span class="at">mailto =</span> <span class="st">"jos.slabbekoorn@ru.nl"</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>      ),</span>
+<span id="cb8-18"><a href="#cb8-18"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NULL</span>,</span>
+<span id="cb8-19"><a href="#cb8-19"></a>      <span class="at">warning =</span> <span class="cf">function</span>(w) <span class="cn">NULL</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a>    )</span>
+<span id="cb8-21"><a href="#cb8-21"></a>  }</span>
+<span id="cb8-22"><a href="#cb8-22"></a>  res <span class="ot">=</span> <span class="fu">bind_rows</span>(hold)</span>
+<span id="cb8-23"><a href="#cb8-23"></a>  <span class="co"># combine the results and drop duplicates</span></span>
+<span id="cb8-24"><a href="#cb8-24"></a>  <span class="cf">if</span> (<span class="fu">ncol</span>(res) <span class="sc">&gt;</span> <span class="dv">2</span>){</span>
+<span id="cb8-25"><a href="#cb8-25"></a>    res <span class="ot">=</span> res <span class="sc">|&gt;</span> </span>
+<span id="cb8-26"><a href="#cb8-26"></a>      <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-27"><a href="#cb8-27"></a>      <span class="fu">mutate</span>(<span class="at">query_name =</span> scholar_name) <span class="sc">|&gt;</span></span>
+<span id="cb8-28"><a href="#cb8-28"></a>      <span class="fu">add_query_similarity</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-29"><a href="#cb8-29"></a>      <span class="fu">arrange</span>(<span class="sc">-</span>query_similarity) <span class="sc">|&gt;</span></span>
+<span id="cb8-30"><a href="#cb8-30"></a>      <span class="fu">head</span>(<span class="dv">15</span>)</span>
+<span id="cb8-31"><a href="#cb8-31"></a>  }</span>
+<span id="cb8-32"><a href="#cb8-32"></a></span>
+<span id="cb8-33"><a href="#cb8-33"></a>  <span class="fu">return</span>(res)</span>
+<span id="cb8-34"><a href="#cb8-34"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>scholars <span class="ot">=</span> scholar<span class="sc">$</span>name <span class="sc">|&gt;</span> <span class="fu">unique</span>()</span>
-<span id="cb9-2"><a href="#cb9-2"></a></span>
-<span id="cb9-3"><a href="#cb9-3"></a>hold <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb9-4"><a href="#cb9-4"></a><span class="cf">for</span> (scholar_name <span class="cf">in</span> scholars) {</span>
-<span id="cb9-5"><a href="#cb9-5"></a>  tab <span class="ot">=</span> scholar <span class="sc">|&gt;</span> </span>
-<span id="cb9-6"><a href="#cb9-6"></a>    <span class="fu">filter</span>(name <span class="sc">==</span> scholar_name) <span class="sc">|&gt;</span></span>
-<span id="cb9-7"><a href="#cb9-7"></a>    <span class="fu">select</span>(name<span class="sc">:</span>university_id)</span>
-<span id="cb9-8"><a href="#cb9-8"></a></span>
-<span id="cb9-9"><a href="#cb9-9"></a>  university_ids <span class="ot">=</span> <span class="fu">as.list</span>(<span class="fu">na.omit</span>(tab<span class="sc">$</span>university_id))</span>
-<span id="cb9-10"><a href="#cb9-10"></a>  <span class="cf">if</span> (<span class="fu">length</span>(university_ids) <span class="sc">&gt;</span> <span class="dv">0</span>){</span>
-<span id="cb9-11"><a href="#cb9-11"></a>    hold[[scholar_name]] <span class="ot">=</span> <span class="fu">oa_fetch_scholar</span>(scholar_name, university_ids)</span>
-<span id="cb9-12"><a href="#cb9-12"></a>  }</span>
-<span id="cb9-13"><a href="#cb9-13"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>scholar_name <span class="ot">=</span> <span class="st">'Amy Verdun'</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>id <span class="ot">=</span> <span class="st">"I121797337"</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a>res <span class="ot">=</span> <span class="fu">oa_fetch_scholar</span>(scholar_name, id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">library</span>(cli)</span>
+<span id="cb10-2"><a href="#cb10-2"></a>scholars <span class="ot">=</span> scholar<span class="sc">$</span>naam <span class="sc">|&gt;</span> <span class="fu">unique</span>()</span>
+<span id="cb10-3"><a href="#cb10-3"></a></span>
+<span id="cb10-4"><a href="#cb10-4"></a>scrape_scholars <span class="ot">=</span> <span class="cf">function</span>(scholars){</span>
+<span id="cb10-5"><a href="#cb10-5"></a>  <span class="co"># configure loop</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>  k <span class="ot">=</span> <span class="fu">length</span>(scholars)</span>
+<span id="cb10-7"><a href="#cb10-7"></a>  hold <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb10-8"><a href="#cb10-8"></a></span>
+<span id="cb10-9"><a href="#cb10-9"></a>  <span class="co"># loop over all scholars</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a>  <span class="fu">cli_alert</span>(<span class="st">"Starting now, at {Sys.time()}"</span>)</span>
+<span id="cb10-11"><a href="#cb10-11"></a>  <span class="fu">cli_progress_bar</span>(<span class="st">"Scraping Scholars"</span>, <span class="at">total =</span> k, <span class="at">clear =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb10-12"><a href="#cb10-12"></a>  <span class="cf">for</span> (scholar_name <span class="cf">in</span> scholars) {</span>
+<span id="cb10-13"><a href="#cb10-13"></a>    tab <span class="ot">=</span> scholar <span class="sc">|&gt;</span> </span>
+<span id="cb10-14"><a href="#cb10-14"></a>      <span class="fu">filter</span>(naam <span class="sc">==</span> scholar_name) <span class="sc">|&gt;</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a>      <span class="fu">select</span>(naam<span class="sc">:</span>university_id)</span>
+<span id="cb10-16"><a href="#cb10-16"></a></span>
+<span id="cb10-17"><a href="#cb10-17"></a>    university_ids <span class="ot">=</span> <span class="fu">as.list</span>(<span class="fu">na.omit</span>(tab<span class="sc">$</span>university_id))</span>
+<span id="cb10-18"><a href="#cb10-18"></a>    <span class="cf">if</span> (<span class="fu">length</span>(university_ids) <span class="sc">&gt;</span> <span class="dv">0</span>){</span>
+<span id="cb10-19"><a href="#cb10-19"></a>      hold[[scholar_name]] <span class="ot">=</span> <span class="fu">oa_fetch_scholar</span>(scholar_name, university_ids)</span>
+<span id="cb10-20"><a href="#cb10-20"></a>    }</span>
+<span id="cb10-21"><a href="#cb10-21"></a>    <span class="fu">cli_progress_update</span>()</span>
+<span id="cb10-22"><a href="#cb10-22"></a>  }</span>
+<span id="cb10-23"><a href="#cb10-23"></a></span>
+<span id="cb10-24"><a href="#cb10-24"></a>  <span class="fu">return</span>(hold)</span>
+<span id="cb10-25"><a href="#cb10-25"></a>}</span>
+<span id="cb10-26"><a href="#cb10-26"></a></span>
+<span id="cb10-27"><a href="#cb10-27"></a></span>
+<span id="cb10-28"><a href="#cb10-28"></a>hold <span class="ot">=</span> <span class="fu">scrape_scholars</span>(scholars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="clean-institutions-data" class="level3">
 <h3 class="anchored" data-anchor-id="clean-institutions-data">clean institutions data</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>hold2 <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb10-2"><a href="#cb10-2"></a></span>
-<span id="cb10-3"><a href="#cb10-3"></a><span class="cf">for</span> (name_ <span class="cf">in</span> <span class="fu">names</span>(hold)){</span>
-<span id="cb10-4"><a href="#cb10-4"></a>  <span class="cf">if</span> (<span class="fu">is.na</span>(name_) <span class="sc">||</span> <span class="sc">!</span><span class="fu">nzchar</span>(<span class="fu">trimws</span>(name_))) <span class="cf">next</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a>  tab <span class="ot">=</span> hold[[name_]] </span>
-<span id="cb10-6"><a href="#cb10-6"></a></span>
-<span id="cb10-7"><a href="#cb10-7"></a>  <span class="fu">print</span>(name_)</span>
-<span id="cb10-8"><a href="#cb10-8"></a>  <span class="co"># if there is a table, than update the table</span></span>
-<span id="cb10-9"><a href="#cb10-9"></a>  <span class="cf">if</span> (<span class="fu">nrow</span>(tab) <span class="sc">&gt;=</span> <span class="dv">1</span>){</span>
-<span id="cb10-10"><a href="#cb10-10"></a>    tab <span class="ot">=</span> tab <span class="sc">|&gt;</span></span>
-<span id="cb10-11"><a href="#cb10-11"></a>    <span class="fu">filter</span>(query_name <span class="sc">==</span> name_) <span class="sc">|&gt;</span></span>
-<span id="cb10-12"><a href="#cb10-12"></a>    <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-13"><a href="#cb10-13"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb10-14"><a href="#cb10-14"></a>      <span class="at">last_known_institutions =</span> <span class="fu">map</span>(</span>
-<span id="cb10-15"><a href="#cb10-15"></a>        last_known_institutions,</span>
-<span id="cb10-16"><a href="#cb10-16"></a>        <span class="sc">~</span> .x <span class="sc">|&gt;</span></span>
-<span id="cb10-17"><a href="#cb10-17"></a>          <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-18"><a href="#cb10-18"></a>          <span class="fu">mutate</span>(</span>
-<span id="cb10-19"><a href="#cb10-19"></a>            <span class="at">institution_id   =</span> <span class="fu">str_remove</span>(id, <span class="st">"^https://openalex.org/"</span>),</span>
-<span id="cb10-20"><a href="#cb10-20"></a>            <span class="at">institution_name =</span> display_name</span>
-<span id="cb10-21"><a href="#cb10-21"></a>          ) <span class="sc">|&gt;</span></span>
-<span id="cb10-22"><a href="#cb10-22"></a>          <span class="fu">select</span>(id, institution_id, institution_name, country_code)</span>
-<span id="cb10-23"><a href="#cb10-23"></a>      ),</span>
-<span id="cb10-24"><a href="#cb10-24"></a>      <span class="at">institution_ids =</span> <span class="fu">map</span>(last_known_institutions, <span class="sc">~</span> .x <span class="sc">|&gt;</span> <span class="fu">pull</span>(institution_id) <span class="sc">|&gt;</span> <span class="fu">unique</span>())</span>
-<span id="cb10-25"><a href="#cb10-25"></a>    )</span>
-<span id="cb10-26"><a href="#cb10-26"></a>  }</span>
-<span id="cb10-27"><a href="#cb10-27"></a></span>
-<span id="cb10-28"><a href="#cb10-28"></a>  hold2[[name_]] <span class="ot">=</span> tab</span>
-<span id="cb10-29"><a href="#cb10-29"></a>}</span>
-<span id="cb10-30"><a href="#cb10-30"></a></span>
-<span id="cb10-31"><a href="#cb10-31"></a><span class="co"># hold2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>hold2 <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb11-2"><a href="#cb11-2"></a></span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="cf">for</span> (name_ <span class="cf">in</span> <span class="fu">names</span>(hold)){</span>
+<span id="cb11-4"><a href="#cb11-4"></a>  <span class="cf">if</span> (<span class="fu">is.na</span>(name_) <span class="sc">||</span> <span class="sc">!</span><span class="fu">nzchar</span>(<span class="fu">trimws</span>(name_))) <span class="cf">next</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>  tab <span class="ot">=</span> hold[[name_]] </span>
+<span id="cb11-6"><a href="#cb11-6"></a></span>
+<span id="cb11-7"><a href="#cb11-7"></a>  <span class="co"># if there is a table, than update the table</span></span>
+<span id="cb11-8"><a href="#cb11-8"></a>  <span class="cf">if</span> (<span class="fu">nrow</span>(tab) <span class="sc">&gt;=</span> <span class="dv">1</span>){</span>
+<span id="cb11-9"><a href="#cb11-9"></a>    tab <span class="ot">=</span> tab <span class="sc">|&gt;</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a>    <span class="fu">filter</span>(query_name <span class="sc">==</span> name_) <span class="sc">|&gt;</span></span>
+<span id="cb11-11"><a href="#cb11-11"></a>    <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-12"><a href="#cb11-12"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb11-13"><a href="#cb11-13"></a>      <span class="at">last_known_institutions =</span> <span class="fu">map</span>(</span>
+<span id="cb11-14"><a href="#cb11-14"></a>        last_known_institutions,</span>
+<span id="cb11-15"><a href="#cb11-15"></a>        <span class="sc">~</span> .x <span class="sc">|&gt;</span></span>
+<span id="cb11-16"><a href="#cb11-16"></a>          <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-17"><a href="#cb11-17"></a>          <span class="fu">mutate</span>(</span>
+<span id="cb11-18"><a href="#cb11-18"></a>            <span class="at">institution_id   =</span> <span class="fu">str_remove</span>(id, <span class="st">"^https://openalex.org/"</span>),</span>
+<span id="cb11-19"><a href="#cb11-19"></a>            <span class="at">institution_name =</span> display_name</span>
+<span id="cb11-20"><a href="#cb11-20"></a>          ) <span class="sc">|&gt;</span></span>
+<span id="cb11-21"><a href="#cb11-21"></a>          <span class="fu">select</span>(id, institution_id, institution_name, country_code)</span>
+<span id="cb11-22"><a href="#cb11-22"></a>      ),</span>
+<span id="cb11-23"><a href="#cb11-23"></a>      <span class="at">institution_ids =</span> <span class="fu">map</span>(last_known_institutions, <span class="sc">~</span> .x <span class="sc">|&gt;</span> <span class="fu">pull</span>(institution_id) <span class="sc">|&gt;</span> <span class="fu">unique</span>())</span>
+<span id="cb11-24"><a href="#cb11-24"></a>    )</span>
+<span id="cb11-25"><a href="#cb11-25"></a>  }</span>
+<span id="cb11-26"><a href="#cb11-26"></a></span>
+<span id="cb11-27"><a href="#cb11-27"></a>  hold2[[name_]] <span class="ot">=</span> tab</span>
+<span id="cb11-28"><a href="#cb11-28"></a>}</span>
+<span id="cb11-29"><a href="#cb11-29"></a></span>
+<span id="cb11-30"><a href="#cb11-30"></a><span class="co"># hold2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
 <section id="sanity-checks-for-institution_ids" class="level1">
 <h1>sanity checks for institution_ids</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>hold3 <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb11-2"><a href="#cb11-2"></a><span class="cf">for</span> (name_ <span class="cf">in</span> <span class="fu">names</span>(hold2)){</span>
-<span id="cb11-3"><a href="#cb11-3"></a>  tab <span class="ot">=</span> hold2[[name_]]</span>
-<span id="cb11-4"><a href="#cb11-4"></a></span>
-<span id="cb11-5"><a href="#cb11-5"></a>  university_ids <span class="ot">=</span> scholar <span class="sc">|&gt;</span> </span>
-<span id="cb11-6"><a href="#cb11-6"></a>    <span class="fu">filter</span>(name <span class="sc">==</span> name_) <span class="sc">|&gt;</span></span>
-<span id="cb11-7"><a href="#cb11-7"></a>    <span class="fu">select</span>(university_id) <span class="sc">|&gt;</span> </span>
-<span id="cb11-8"><a href="#cb11-8"></a>    <span class="fu">pull</span>()</span>
-<span id="cb11-9"><a href="#cb11-9"></a></span>
-<span id="cb11-10"><a href="#cb11-10"></a>  <span class="co"># for valid tables, match the institution ids with university ids</span></span>
-<span id="cb11-11"><a href="#cb11-11"></a>  <span class="cf">if</span> (<span class="fu">nrow</span>(tab)<span class="sc">&gt;</span> <span class="dv">0</span>){</span>
-<span id="cb11-12"><a href="#cb11-12"></a>    <span class="co"># ensure we have a list-column of character vectors (no NULLs)</span></span>
-<span id="cb11-13"><a href="#cb11-13"></a>    ids_list <span class="ot">=</span> <span class="fu">map</span>(tab<span class="sc">$</span>institution_ids, <span class="sc">~</span> <span class="cf">if</span> (<span class="fu">is.null</span>(.x)) <span class="fu">character</span>(<span class="dv">0</span>) <span class="cf">else</span> <span class="fu">as.character</span>(.x))</span>
-<span id="cb11-14"><a href="#cb11-14"></a></span>
-<span id="cb11-15"><a href="#cb11-15"></a>    <span class="co"># for each row, return indices of rows (excluding self) sharing any institution_id</span></span>
-<span id="cb11-16"><a href="#cb11-16"></a>    matching_rows <span class="ot">=</span> <span class="fu">map2</span>(ids_list, <span class="fu">seq_along</span>(ids_list), \(ids, i){</span>
-<span id="cb11-17"><a href="#cb11-17"></a>      <span class="cf">if</span> (<span class="fu">length</span>(ids) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="fu">integer</span>(<span class="dv">0</span>))</span>
-<span id="cb11-18"><a href="#cb11-18"></a>      hits <span class="ot">=</span> <span class="fu">which</span>(<span class="fu">map_lgl</span>(ids_list, <span class="sc">~</span> <span class="fu">length</span>(<span class="fu">intersect</span>(ids, .x)) <span class="sc">&gt;</span> <span class="dv">0</span>))</span>
-<span id="cb11-19"><a href="#cb11-19"></a>      hits[hits <span class="sc">!=</span> i]</span>
-<span id="cb11-20"><a href="#cb11-20"></a>    })</span>
-<span id="cb11-21"><a href="#cb11-21"></a></span>
-<span id="cb11-22"><a href="#cb11-22"></a>    tab <span class="ot">=</span> tab <span class="sc">|&gt;</span></span>
-<span id="cb11-23"><a href="#cb11-23"></a>      <span class="fu">mutate</span>(</span>
-<span id="cb11-24"><a href="#cb11-24"></a>        <span class="co"># any match between this row's institutions and this scholar's uni_ids?</span></span>
-<span id="cb11-25"><a href="#cb11-25"></a>        <span class="at">institution_matched =</span> <span class="fu">map_lgl</span>(institution_ids, <span class="sc">~</span> {</span>
-<span id="cb11-26"><a href="#cb11-26"></a>          x <span class="ot">=</span> .x; <span class="cf">if</span> (<span class="fu">is.null</span>(x)) x <span class="ot">=</span> <span class="fu">character</span>(<span class="dv">0</span>)</span>
-<span id="cb11-27"><a href="#cb11-27"></a>          <span class="fu">any</span>(<span class="fu">as.character</span>(x) <span class="sc">%in%</span> university_ids)</span>
-<span id="cb11-28"><a href="#cb11-28"></a>        }),</span>
-<span id="cb11-29"><a href="#cb11-29"></a>        <span class="co"># vector of row numbers with overlapping institution_ids (across all other rows)</span></span>
-<span id="cb11-30"><a href="#cb11-30"></a>        <span class="at">has_multiple_records =</span> matching_rows</span>
-<span id="cb11-31"><a href="#cb11-31"></a>      ) <span class="sc">|&gt;</span></span>
-<span id="cb11-32"><a href="#cb11-32"></a>      <span class="do">## TEMPORARY</span></span>
-<span id="cb11-33"><a href="#cb11-33"></a>      <span class="do">## recalculate similarity optimized workflow negating cyrilic text</span></span>
-<span id="cb11-34"><a href="#cb11-34"></a>      <span class="fu">add_query_similarity</span>() <span class="sc">|&gt;</span></span>
-<span id="cb11-35"><a href="#cb11-35"></a></span>
-<span id="cb11-36"><a href="#cb11-36"></a>      <span class="do">## decision rule which rows to keep</span></span>
-<span id="cb11-37"><a href="#cb11-37"></a>      <span class="fu">mutate</span>(</span>
-<span id="cb11-38"><a href="#cb11-38"></a>        <span class="at">keep =</span> <span class="fu">case_when</span>(</span>
-<span id="cb11-39"><a href="#cb11-39"></a>          query_similarity <span class="sc">==</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="cn">TRUE</span>,</span>
-<span id="cb11-40"><a href="#cb11-40"></a>          <span class="sc">!</span>institution_matched <span class="sc">&amp;</span> query_similarity <span class="sc">&gt;=</span> <span class="fl">0.60</span> <span class="sc">~</span> <span class="cn">TRUE</span>,</span>
-<span id="cb11-41"><a href="#cb11-41"></a>          institution_matched <span class="sc">&amp;</span> query_similarity <span class="sc">&gt;=</span> <span class="fl">0.64</span> <span class="sc">~</span> <span class="cn">TRUE</span>,</span>
-<span id="cb11-42"><a href="#cb11-42"></a>          display_name <span class="sc">==</span> <span class="st">'Younes Zoughlami'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
-<span id="cb11-43"><a href="#cb11-43"></a>          display_name <span class="sc">==</span> <span class="st">'Thijs W. de Vos'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
-<span id="cb11-44"><a href="#cb11-44"></a>          display_name <span class="sc">==</span> <span class="st">'Kees van Kersbergen'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
-<span id="cb11-45"><a href="#cb11-45"></a>          display_name <span class="sc">==</span> <span class="st">'René W. van der Hulst'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
-<span id="cb11-46"><a href="#cb11-46"></a>          display_name <span class="sc">==</span> <span class="st">'Younes Zeboudj'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
-<span id="cb11-47"><a href="#cb11-47"></a>          display_name <span class="sc">==</span> <span class="st">'Younes Saramifar'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
-<span id="cb11-48"><a href="#cb11-48"></a>          display_name <span class="sc">==</span> <span class="st">'van Dijk'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
-<span id="cb11-49"><a href="#cb11-49"></a>          display_name <span class="sc">==</span> <span class="st">'Stephanie Maas'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
-<span id="cb11-50"><a href="#cb11-50"></a>          display_name <span class="sc">==</span> <span class="st">'A.J.J. Nijhuis'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
-<span id="cb11-51"><a href="#cb11-51"></a>          <span class="at">.default =</span> <span class="cn">FALSE</span></span>
-<span id="cb11-52"><a href="#cb11-52"></a>        )</span>
-<span id="cb11-53"><a href="#cb11-53"></a>      ) <span class="sc">|&gt;</span></span>
-<span id="cb11-54"><a href="#cb11-54"></a>      <span class="fu">filter</span>(keep)</span>
-<span id="cb11-55"><a href="#cb11-55"></a>  }</span>
-<span id="cb11-56"><a href="#cb11-56"></a>  </span>
-<span id="cb11-57"><a href="#cb11-57"></a>  hold3[[name_]] <span class="ot">=</span> tab </span>
-<span id="cb11-58"><a href="#cb11-58"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>hold3 <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="cf">for</span> (name_ <span class="cf">in</span> <span class="fu">names</span>(hold2)){</span>
+<span id="cb12-3"><a href="#cb12-3"></a>  tab <span class="ot">=</span> hold2[[name_]]</span>
+<span id="cb12-4"><a href="#cb12-4"></a></span>
+<span id="cb12-5"><a href="#cb12-5"></a>  university_ids <span class="ot">=</span> scholar <span class="sc">|&gt;</span> </span>
+<span id="cb12-6"><a href="#cb12-6"></a>    <span class="fu">filter</span>(naam <span class="sc">==</span> name_) <span class="sc">|&gt;</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a>    <span class="fu">select</span>(university_id) <span class="sc">|&gt;</span> </span>
+<span id="cb12-8"><a href="#cb12-8"></a>    <span class="fu">pull</span>()</span>
+<span id="cb12-9"><a href="#cb12-9"></a></span>
+<span id="cb12-10"><a href="#cb12-10"></a>  <span class="co"># for valid tables, match the institution ids with university ids</span></span>
+<span id="cb12-11"><a href="#cb12-11"></a>  <span class="cf">if</span> (<span class="fu">nrow</span>(tab)<span class="sc">&gt;</span> <span class="dv">0</span>){</span>
+<span id="cb12-12"><a href="#cb12-12"></a>    <span class="co"># ensure we have a list-column of character vectors (no NULLs)</span></span>
+<span id="cb12-13"><a href="#cb12-13"></a>    ids_list <span class="ot">=</span> <span class="fu">map</span>(tab<span class="sc">$</span>institution_ids, <span class="sc">~</span> <span class="cf">if</span> (<span class="fu">is.null</span>(.x)) <span class="fu">character</span>(<span class="dv">0</span>) <span class="cf">else</span> <span class="fu">as.character</span>(.x))</span>
+<span id="cb12-14"><a href="#cb12-14"></a></span>
+<span id="cb12-15"><a href="#cb12-15"></a>    <span class="co"># for each row, return indices of rows (excluding self) sharing any institution_id</span></span>
+<span id="cb12-16"><a href="#cb12-16"></a>    matching_rows <span class="ot">=</span> <span class="fu">map2</span>(ids_list, <span class="fu">seq_along</span>(ids_list), \(ids, i){</span>
+<span id="cb12-17"><a href="#cb12-17"></a>      <span class="cf">if</span> (<span class="fu">length</span>(ids) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="fu">integer</span>(<span class="dv">0</span>))</span>
+<span id="cb12-18"><a href="#cb12-18"></a>      hits <span class="ot">=</span> <span class="fu">which</span>(<span class="fu">map_lgl</span>(ids_list, <span class="sc">~</span> <span class="fu">length</span>(<span class="fu">intersect</span>(ids, .x)) <span class="sc">&gt;</span> <span class="dv">0</span>))</span>
+<span id="cb12-19"><a href="#cb12-19"></a>      hits[hits <span class="sc">!=</span> i]</span>
+<span id="cb12-20"><a href="#cb12-20"></a>    })</span>
+<span id="cb12-21"><a href="#cb12-21"></a></span>
+<span id="cb12-22"><a href="#cb12-22"></a>    tab <span class="ot">=</span> tab <span class="sc">|&gt;</span></span>
+<span id="cb12-23"><a href="#cb12-23"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb12-24"><a href="#cb12-24"></a>        <span class="co"># any match between this row's institutions and this scholar's uni_ids?</span></span>
+<span id="cb12-25"><a href="#cb12-25"></a>        <span class="at">institution_matched =</span> <span class="fu">map_lgl</span>(institution_ids, <span class="sc">~</span> {</span>
+<span id="cb12-26"><a href="#cb12-26"></a>          x <span class="ot">=</span> .x; <span class="cf">if</span> (<span class="fu">is.null</span>(x)) x <span class="ot">=</span> <span class="fu">character</span>(<span class="dv">0</span>)</span>
+<span id="cb12-27"><a href="#cb12-27"></a>          <span class="fu">any</span>(<span class="fu">as.character</span>(x) <span class="sc">%in%</span> university_ids)</span>
+<span id="cb12-28"><a href="#cb12-28"></a>        }),</span>
+<span id="cb12-29"><a href="#cb12-29"></a>        <span class="co"># vector of row numbers with overlapping institution_ids (across all other rows)</span></span>
+<span id="cb12-30"><a href="#cb12-30"></a>        <span class="at">has_multiple_records =</span> matching_rows</span>
+<span id="cb12-31"><a href="#cb12-31"></a>      ) <span class="sc">|&gt;</span></span>
+<span id="cb12-32"><a href="#cb12-32"></a>      <span class="do">## decision rule which rows to keep</span></span>
+<span id="cb12-33"><a href="#cb12-33"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb12-34"><a href="#cb12-34"></a>        <span class="at">keep =</span> <span class="fu">case_when</span>(</span>
+<span id="cb12-35"><a href="#cb12-35"></a>          query_similarity <span class="sc">==</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="cn">TRUE</span>,</span>
+<span id="cb12-36"><a href="#cb12-36"></a>          <span class="sc">!</span>institution_matched <span class="sc">&amp;</span> query_similarity <span class="sc">&gt;=</span> <span class="fl">0.60</span> <span class="sc">~</span> <span class="cn">TRUE</span>,</span>
+<span id="cb12-37"><a href="#cb12-37"></a>          institution_matched <span class="sc">&amp;</span> query_similarity <span class="sc">&gt;=</span> <span class="fl">0.45</span> <span class="sc">~</span> <span class="cn">TRUE</span>,</span>
+<span id="cb12-38"><a href="#cb12-38"></a>          display_name <span class="sc">==</span> <span class="st">'Thijs W. de Vos'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
+<span id="cb12-39"><a href="#cb12-39"></a>          display_name <span class="sc">==</span> <span class="st">'Kees van Kersbergen'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
+<span id="cb12-40"><a href="#cb12-40"></a>          display_name <span class="sc">==</span> <span class="st">'René W. van der Hulst'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
+<span id="cb12-41"><a href="#cb12-41"></a>          display_name <span class="sc">==</span> <span class="st">'Younes Zoughlami'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
+<span id="cb12-42"><a href="#cb12-42"></a>          display_name <span class="sc">==</span> <span class="st">'Younes Zeboudj'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
+<span id="cb12-43"><a href="#cb12-43"></a>          display_name <span class="sc">==</span> <span class="st">'Younes Saramifar'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
+<span id="cb12-44"><a href="#cb12-44"></a>          display_name <span class="sc">==</span> <span class="st">'van Dijk'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
+<span id="cb12-45"><a href="#cb12-45"></a>          display_name <span class="sc">==</span> <span class="st">'Stephanie Maas'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
+<span id="cb12-46"><a href="#cb12-46"></a>          display_name <span class="sc">==</span> <span class="st">'A.J.J. Nijhuis'</span> <span class="sc">~</span> <span class="cn">FALSE</span>,</span>
+<span id="cb12-47"><a href="#cb12-47"></a>          <span class="at">.default =</span> <span class="cn">FALSE</span></span>
+<span id="cb12-48"><a href="#cb12-48"></a>        ),</span>
+<span id="cb12-49"><a href="#cb12-49"></a>        <span class="at">orcid =</span> <span class="fu">as.character</span>(orcid)</span>
+<span id="cb12-50"><a href="#cb12-50"></a>      ) <span class="sc">|&gt;</span></span>
+<span id="cb12-51"><a href="#cb12-51"></a>      <span class="fu">filter</span>(keep) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>counts_by_year)</span>
+<span id="cb12-52"><a href="#cb12-52"></a>  }</span>
+<span id="cb12-53"><a href="#cb12-53"></a>  </span>
+<span id="cb12-54"><a href="#cb12-54"></a>  hold3[[name_]] <span class="ot">=</span> tab </span>
+<span id="cb12-55"><a href="#cb12-55"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">fsaveRDS</span>(hold, <span class="st">'oa_scholars'</span>, <span class="at">location =</span> <span class="st">"./data/raw_data/"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">fsaveRDS</span>(hold3, <span class="st">'oascholars'</span>, <span class="at">location =</span> <span class="st">"./data/raw_data/"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'raw_data'</span>)</span>
-<span id="cb13-2"><a href="#cb13-2"></a>file <span class="ot">=</span> <span class="fu">list.files</span>(dir, <span class="at">pattern =</span> <span class="st">'scholars.Rds'</span>)[<span class="dv">1</span>]</span>
-<span id="cb13-3"><a href="#cb13-3"></a>data <span class="ot">=</span> <span class="fu">freadRDS</span>(<span class="fu">file.path</span>(dir, file ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Tip
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Below application Add Inspection secion to show how many cases were succesfully scraped how many cases were dropped due to insufficient match count how many authors have more than 1 author id</p>
-</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'raw_data'</span>)</span>
+<span id="cb14-2"><a href="#cb14-2"></a>file <span class="ot">=</span> <span class="fu">list.files</span>(dir, <span class="at">pattern =</span> <span class="st">'oascholars.Rds'</span>)[<span class="dv">1</span>]</span>
+<span id="cb14-3"><a href="#cb14-3"></a>data <span class="ot">=</span> <span class="fu">freadRDS</span>(<span class="fu">file.path</span>(dir, file ))</span>
+<span id="cb14-4"><a href="#cb14-4"></a></span>
+<span id="cb14-5"><a href="#cb14-5"></a>data <span class="ot">=</span> <span class="fu">bind_rows</span>(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 

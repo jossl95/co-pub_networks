@@ -1,0 +1,140 @@
+
+---
+title: "Data Preparation OpenAlex-ID"
+date: today
+
+execute: 
+  eval: false
+---
+
+:::{.callout-tip}
+rough first working code for the collection of scholar_ids using openalexr
+
+I optimized the algorithm to not just select the top case, but allows for
+multiple ids (in rows) per person, in the decision rules i use:
+- semantic similarity
+- matches of university_id and institution_id
+:::
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# clear the global environment
+rm(list = ls())
+gc()
+```
+
+```{r}
+#| warning: false
+#| output: false
+source("src/utils/custom_functions.r")
+
+# load and activate packages
+fpackage.check(c(
+  'tidyverse', 'readxl',  'stringr', 
+  'lubridate', 'openalexR', 'rvest', 'jsonlite',
+  'cli'
+))
+
+options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
+```
+
+
+```{r}
+dir = file.path('data', 'processed')
+files = list.files(dir)
+data = list(
+    scholars = readRDS(file.path(dir, files[str_detect(files, 'scholarid')])),
+    ethnicity = readRDS(file.path(dir, files[str_detect(files, 'ethnicity')])),
+    gender = readRDS(file.path(dir, files[str_detect(files, 'gender')])),
+    names = readRDS(file.path(dir, files[str_detect(files, 'names')])),
+    id = readRDS(file.path('data', 'raw_data', '20251015oascholars.Rds')),
+    works = readRDS(file.path('data', 'raw_data', '20251016oaworks.Rds'))
+)
+
+
+# scholars = fread(file.)
+```
+
+
+```{r}
+dem = data[['scholars']] |>
+    mutate(
+        year = as.integer(year(date) - 2000)
+    ) |>
+    arrange(naam, date) |>
+    select(-university, -date, -google_scholar_id) |>
+    pivot_wider(
+        names_from  = year,
+        values_from = c(email_adres, universiteit, functie, discipline),
+        names_glue  = "{.value}.{year}",
+        values_fill = NA,
+        values_fn = list(
+        email_adres   = ~ if (all(is.na(.x))) NA_character_ else str_c(unique(na.omit(.x)), collapse = "; "),
+        universiteit  = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x)),
+        functie       = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x)),
+        discipline    = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x))
+        )
+    ) |>
+    select(
+        naam, ends_with('22'), ends_with('24'), ends_with('25')
+    )
+```
+
+
+```{r}
+# add ids
+dems = data$id |>
+    bind_rows() |>
+    arrange(query_name, works_count) |>
+    select(query_name, id) |>
+    # select the row with the most works
+    distinct(query_name, .keep_all = TRUE) |>
+    # merge in demographics
+    rename(naam = query_name) |>
+    right_join(dem) |>
+    # merge in names
+    left_join(data$names) |>
+    relocate(initials:maiden_name, .after=id) |>
+    # merge in gender
+    left_join(data$gender |> select(-count, -prob)) |>
+    relocate(gender, .after=maiden_name) |>
+    # merge in ethnicity
+    left_join(data$ethnicity |> select(-name_count)) |>
+    relocate(origin:dutch, .after=gender) |>
+    distinct(naam, id, .keep_all=TRUE) |>
+    mutate(has_oa_id = !is.na(id))
+
+```
+
+
+```{r}
+
+ids = na.omit(unique(dems$id))
+works = list()
+for (id in ids){
+    works[[id]] = data$works[[id]]
+}
+
+```
+
+
+```{r}
+author_list = list()
+df_scholars = bind_rows(data$id)
+for (id_ in ids){
+    tab = df_scholars |> filter(id == id_)
+    author_list[[id_]] = tab
+}
+```
+
+
+```{r}
+scholars = list(
+    demographics=dems, 
+    scholars_oa = author_list,
+    works = works
+)
+```

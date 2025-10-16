@@ -33,12 +33,12 @@ source("src/utils/custom_functions.r")
 # load and activate packages
 fpackage.check(c(
   'tidyverse', 'readxl',  'stringr', 
-  'lubridate', 'openalexR', 'rvest', 'jsonlite'
+  'lubridate', 'openalexR', 'rvest', 'jsonlite',
+  'cli'
 ))
 
 options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
 ```
-
 
 ```{r}
 dir = file.path('data', 'processed')
@@ -50,20 +50,125 @@ file = list.files(dir, pattern = 'scholarid.Rds')
 scholar = freadRDS(file.path(dir, file)) |>
   select(naam, university) |>
   distinct(.keep_all = TRUE) |>
-  unnest_longer(university) |>
-  left_join(names) |>
-  unite(
-    initials:last_name, 
-    col=name, sep = ' ', 
-    na.rm=TRUE, remove=FALSE) |>
-  unite(
-    c(name, maiden_name), 
-    col=name2, sep = '-', 
-    na.rm=TRUE, remove=FALSE)
+  unnest_longer(university) 
+  # |>
+  # left_join(names) |>
+  # unite(
+  #   initials:last_name, 
+  #   col=name, sep = ' ', 
+  #   na.rm=TRUE, remove=FALSE) |>
+  # unite(
+  #   c(name, maiden_name), 
+  #   col=name2, sep = '-', 
+  #   na.rm=TRUE, remove=FALSE)
 ```
 
 ```{r}
-oa_fetch_institution = function(institution, pause=0.5){
+scholar = scholar |>
+  mutate(
+    university = university |>
+      str_replace("(Uni |uni)", "University "),
+    university_name = case_when(
+      str_detect(university, "VU") ~ "Free University Amsterdam",
+      str_detect(university, "(UvA|Uva)") ~ "University of Amsterdam",
+      str_detect(university, "Leiden") ~ "Leiden University",
+      university == 'RU' ~ "Radboud University Nijmegen",
+      str_detect(university, "(UU|UCU)") ~ "Utrecht University",
+      university == 'EUR' ~ "Erasmus University Rotterdam",
+      str_detect(university, '(RUG|UvG)') ~ "University of Groningen",
+      str_detect(university, '(UvT|Uvt|Tilburg)') ~ "University of Tilburg",
+      str_detect(university, 'WUR') ~ "Wageningen University & Research",
+      university == 'Uni Gothenburg' ~ "University of Gothenburg",
+      university == 'TU Delft' ~ "Technical University Delft",
+      str_detect(university, 'Milano') ~ 'University of Milan',
+      # fix for mistake in affilation for Sabine Mokry,
+      str_detect(university, 'Berlijn') ~ 'University of Hamburg',
+      str_detect(university, 'Trento') ~ 'University of Trento',
+      str_detect(university, 'Stockholm') ~ 'Stockholm University',
+      str_detect(university, 'Gent') ~ "Universiteit Gent",
+      university == "Politie" ~ NA_character_,
+      university == "UvH" ~ NA_character_,
+      .default = university
+    ),
+    university_name2 = case_when(
+      str_detect(university, "VU") ~ "Vrije Universiteit Amsterdam",
+      str_detect(university, "(UvA|Uva)") ~ "Universiteit van Amsterdam",
+      str_detect(university, "Leiden") ~ "Leiden Universiteit",
+      university == 'RU' ~ "Radboud Universiteit Nijmegen",
+      str_detect(university, "(UU|UCU)") ~ "Universiteit Utrecht",
+      university == 'EUR' ~ "Erasmus Universiteit Rotterdam",
+      str_detect(university, '(RUG|UvG)') ~ "Rijksuniversiteit Groningen",
+      str_detect(university, '(UvT|Uvt|Tilburg)') ~ "Universiteit van Tilburg",
+      str_detect(university, 'WUR') ~ "Wageningen University & Research",
+      university == 'Uni Gothenburg' ~ "Universiteit van Gothenburg",
+      university == 'TU Delft' ~ "Technische Universiteit Delft",
+      str_detect(university, 'Milano') ~ 'Università degli Studi di Milano Statale',
+      # fix for mistake in affilation for Sabine Mokry,
+      str_detect(university, 'Berlijn') ~ 'Universität Hamburg',
+      str_detect(university, 'Trento') ~ 'Università degli Studi di Trento',
+      str_detect(university, 'Cologne') ~ 'Universität zu Köln',
+      str_detect(university, 'Stockholm') ~ 'Stockholms Universitet',
+      str_detect(university, 'Bocconi') ~ "Università Bocconi",
+      str_detect(university, 'Koc') ~ "Koç Üniversitesi",
+      str_detect(university, 'Gent') ~ "Ghent University",
+      str_detect(university, 'Gothenburg') ~ "Göteborgs universitet",
+      str_detect(university, "Turku") ~ "Turun Yliopisto",
+      str_detect(university, 'Lausane') ~ "Université de Lausanne",
+      str_detect(university, "Leipzig") ~ "Universität Leipzig",
+      str_detect(university, "Linköping") ~ "Linköpings universitet",
+      .default = NA_character_
+    )
+  ) |>
+  drop_na() |>
+  pivot_longer(
+    cols = university_name:university_name2, 
+    names_to = "var",
+    values_to = "university_name"
+  ) |>
+  select(-var)
+
+
+institutions = scholar$university_name |> unique()
+```
+
+```{r}
+# scholar = scholar |>
+#   mutate(
+#     university_name = university |>
+#       str_replace("(Uni |uni)", "University ") |>
+#       str_replace('(UU)', 'Utrecht University') |>
+#       str_replace('(UCU)', 'Utrecht University') |>
+#       str_replace('(Leiden|Leiden University)', 'Leiden University') |>
+#       str_replace('(RUG)', 'University of Groningen') |>
+#       str_replace('(RU)', 'Radboud University Nijmegen') |>
+#       str_replace('(UvA|Uva)', 'University of Amsterdam') |>
+#       str_replace('(VU)', 'Free University Amsterdam') |>
+#       str_replace('(EUR)', 'Erasmus University Rotterdam') |>
+#       str_replace('(UvT|Tilburg|Uvt)', 'University of Tilburg') |>
+#       str_replace('(TU Delft)', 'Technical University Delft') |>
+#       str_replace('(WUR)', 'Wageningen University & Research') |>
+#       str_replace('(Universita degli studi di Milano)', 'University of Milan') |>
+#       str_replace('(Politie)', NA_character_) |>
+#       str_replace('(UvH)', NA_character_) |>
+#       str_replace('(UvG)', "University of Groningen") |>
+#       # fixing mistake for Sabine Mokry
+#       str_replace('University Berlijn', "University of Hamburg") |>
+#       str_replace('Trento University', "University of Trento") |>
+      
+#   ) |>
+#   filter(!is.na(university_name))
+
+# # institutions = c(
+# #   scholar$university_name |> unique(),
+# # )
+
+# institutions = scholar$university_name |> unique()
+```
+
+
+
+```{r}
+oa_fetch_institution = function(institution, pause=0){
   if (pause > 0) Sys.sleep(pause)
   oa_fetch(
     entity = "institutions",
@@ -82,9 +187,11 @@ for (institution in institutions){
   )
 }
 
-institutions = bind_rows(hold)
+institutions = bind_rows(hold) |>
+  drop_na()
 scholar = scholar |>
-  left_join(institutions)
+  left_join(institutions) |>
+  distinct(naam, university_id, .keep_all = TRUE)
 ```
 
 ```{r}
@@ -128,7 +235,7 @@ add_query_similarity = function(data){
 oa_fetch_scholar = function(
     scholar_name, 
     university_ids,
-    pause = 0.5
+    pause = 0
   ){
   # fetch oa scholar information for all name id pairs
   hold = list()
@@ -139,7 +246,8 @@ oa_fetch_scholar = function(
       oa_fetch(
         entity = 'author',
         search = scholar_name,
-        affiliations.institution.id = id
+        affiliations.institution.id = id,
+        mailto = "jos.slabbekoorn@ru.nl"
       ),
       error = function(e) NULL,
       warning = function(w) NULL
@@ -161,59 +269,43 @@ oa_fetch_scholar = function(
 
 ```
 
-```{r}
-scholar = scholar |>
-  mutate(
-    university_name = university |>
-      str_replace("(Uni |uni)", "University ") |>
-      str_replace('(UU)', 'Utrecht University') |>
-      str_replace('(UCU)', 'Utrecht University') |>
-      str_replace('(Leiden|Leiden University)', 'Leiden University') |>
-      str_replace('(RUG)', 'Rijksuniversiteit Groningen') |>
-      str_replace('(RU)', 'Radboud University Nijmegen') |>
-      str_replace('(UvA|Uva)', 'Universiteit van Amsterdam') |>
-      str_replace('(VU)', 'Vrije Universiteit Amsterdam') |>
-      str_replace('(EUR)', 'Erasmus Universiteit Rotterdam') |>
-      str_replace('(UvT|Tilburg|Uvt)', 'Universiteit van Tilburg') |>
-      str_replace('(TU Delft)', 'Technische Universiteit Delft') |>
-      str_replace('(WUR)', 'Wageningen University & Research') |>
-      str_replace('(Universita degli studi di Milano)', 'University of Milan') |>
-      str_replace('(Politie)', NA_character_) |>
-      str_replace('(UvH)', NA_character_) |>
-      str_replace('(UvG)', NA_character_)
-  ) |>
-  filter(!is.na(university_name))
 
-institutions = scholar$university_name |> unique()
-
-```
 ```{r}
 scholar_name = 'Amy Verdun'
 id = "I121797337"
 res = oa_fetch_scholar(scholar_name, id)
 ```
 
-:::{.callout-warning}
-THIS EXECUTION TAKES AGES ~ 1 hour
-:::
-
 
 ```{r}
+library(cli)
+scholars = scholar$naam |> unique()
 
-scholars = scholar$name |> unique()
+scrape_scholars = function(scholars){
+  # configure loop
+  k = length(scholars)
+  hold = list()
 
-hold = list()
-for (scholar_name in scholars) {
-  tab = scholar |> 
-    filter(name == scholar_name) |>
-    select(name:university_id)
+  # loop over all scholars
+  cli_alert("Starting now, at {Sys.time()}")
+  cli_progress_bar("Scraping Scholars", total = k, clear = FALSE)
+  for (scholar_name in scholars) {
+    tab = scholar |> 
+      filter(naam == scholar_name) |>
+      select(naam:university_id)
 
-  university_ids = as.list(na.omit(tab$university_id))
-  if (length(university_ids) > 0){
-    hold[[scholar_name]] = oa_fetch_scholar(scholar_name, university_ids)
+    university_ids = as.list(na.omit(tab$university_id))
+    if (length(university_ids) > 0){
+      hold[[scholar_name]] = oa_fetch_scholar(scholar_name, university_ids)
+    }
+    cli_progress_update()
   }
+
+  return(hold)
 }
 
+
+hold = scrape_scholars(scholars)
 
 ```
 
@@ -226,7 +318,6 @@ for (name_ in names(hold)){
   if (is.na(name_) || !nzchar(trimws(name_))) next
   tab = hold[[name_]] 
 
-  print(name_)
   # if there is a table, than update the table
   if (nrow(tab) >= 1){
     tab = tab |>
@@ -261,7 +352,7 @@ for (name_ in names(hold2)){
   tab = hold2[[name_]]
 
   university_ids = scholar |> 
-    filter(name == name_) |>
+    filter(naam == name_) |>
     select(university_id) |> 
     pull()
 
@@ -287,29 +378,26 @@ for (name_ in names(hold2)){
         # vector of row numbers with overlapping institution_ids (across all other rows)
         has_multiple_records = matching_rows
       ) |>
-      ## TEMPORARY
-      ## recalculate similarity optimized workflow negating cyrilic text
-      add_query_similarity() |>
-
       ## decision rule which rows to keep
       mutate(
         keep = case_when(
           query_similarity == 1.0 ~ TRUE,
           !institution_matched & query_similarity >= 0.60 ~ TRUE,
-          institution_matched & query_similarity >= 0.64 ~ TRUE,
-          display_name == 'Younes Zoughlami' ~ FALSE,
+          institution_matched & query_similarity >= 0.45 ~ TRUE,
           display_name == 'Thijs W. de Vos' ~ FALSE,
           display_name == 'Kees van Kersbergen' ~ FALSE,
           display_name == 'René W. van der Hulst' ~ FALSE,
+          display_name == 'Younes Zoughlami' ~ FALSE,
           display_name == 'Younes Zeboudj' ~ FALSE,
           display_name == 'Younes Saramifar' ~ FALSE,
           display_name == 'van Dijk' ~ FALSE,
           display_name == 'Stephanie Maas' ~ FALSE,
           display_name == 'A.J.J. Nijhuis' ~ FALSE,
           .default = FALSE
-        )
+        ),
+        orcid = as.character(orcid)
       ) |>
-      filter(keep)
+      filter(keep) |> select(-counts_by_year)
   }
   
   hold3[[name_]] = tab 
@@ -318,19 +406,14 @@ for (name_ in names(hold2)){
 ```
 
 ```{r}
-fsaveRDS(hold, 'oa_scholars', location = "./data/raw_data/")
+fsaveRDS(hold3, 'oascholars', location = "./data/raw_data/")
 ```
 
 ```{r}
 dir = file.path('data', 'raw_data')
-file = list.files(dir, pattern = 'scholars.Rds')[1]
+file = list.files(dir, pattern = 'oascholars.Rds')[1]
 data = freadRDS(file.path(dir, file ))
+
+data = bind_rows(data)
 ```
 
-
-:::{.callout-tip}
-Below application Add Inspection secion to show
-how many cases were succesfully scraped
-how many cases were dropped due to insufficient match
-count how many authors have more than 1 author id
-:::
