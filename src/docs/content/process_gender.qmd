@@ -233,7 +233,7 @@ patch_missing_gender = function(data){
   female_names = c(
     "Alaxandra",   "Alinson",     "Avyanthi",
     "Brunilda",    "Busisiwe",    "Diliara",      
-    "Dolivė",      "Echo",        "Guangyu",
+    "Dolive",      "Echo",        "Guangyu",
     # mistake in name, has been patched with _create_name_corrections
     "Guangye", 
     "Gul-i-Hina",  "Haebin",      "Haisu",
@@ -308,3 +308,10 @@ gender |>
 
 ```
 
+
+```{r}
+library("genderizeR")
+gender_cache = tibble()
+
+
+```

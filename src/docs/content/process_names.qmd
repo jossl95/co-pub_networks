@@ -21,7 +21,7 @@ source("src/utils/custom_functions.r")
 # load and activate packages
 fpackage.check(c(
   'tidyverse', 'readxl',  'stringr', 
-  'lubridate'
+  'lubridate', 'stringi'
 ))
 ```
 
@@ -37,7 +37,7 @@ parse_names = function(names){
     "'t","’t",
     "von","von der","von den",
     "la","le","du","del","della","di","da","dos","das","de la","de los","de las",
-    "zu","zum","zur"
+    "zu","zum","zur", "op de"
   )
 
   # Normalization helper for matching
@@ -45,7 +45,8 @@ parse_names = function(names){
     x |>
       str_squish() |>
       str_replace_all("’", "'") |>
-      str_to_lower()
+      str_to_lower() |>
+      stri_trans_general("Latin-ASCII")
     }
 
   p_norm <- .normalize(particles)
@@ -82,14 +83,14 @@ parse_names = function(names){
         ),
 
         particle = pmap_chr(
-          list(tokens_raw, tokens_norm, particle_idx, n),
-          function(tok_raw, tok_norm, p_i, n_tok) {
-            if (is.na(p_i)) return(NA_character_)
-            # output particle in lowercase, canonicalised apostrophes
-            out <- paste(tok_norm[p_i:(n_tok-1)], collapse = " ")
-            out
-          }
-        ),
+            list(tokens_raw, tokens_norm, particle_idx, n),
+            function(tok_raw, tok_norm, p_i, n_tok) {
+              if (is.na(p_i)) return(NA_character_)
+              # output particle in lowercase, canonicalised apostrophes
+              out <- paste(tok_norm[p_i:(n_tok-1)], collapse = " ")
+              out
+            }
+          ) |> str_to_lower(),
 
         last_name = pmap_chr(
           list(tokens_raw, n),
@@ -151,6 +152,22 @@ extract_maiden_name = function(names){
 }
 ```
 
+```{r}
+format_names = function(data){
+  data |>
+    mutate(
+      initials = initials |> stri_trans_general("Latin-ASCII"),
+      first_name = first_name |> stri_trans_general("Latin-ASCII"),
+      particle = particle |> str_to_lower() |> stri_trans_general("Latin-ASCII"),
+      last_name = last_name |> stri_trans_general("Latin-ASCII"),
+      maiden_name = maiden_name |> stri_trans_general("Latin-ASCII")
+    ) |> 
+    unite("clean_name", initials:last_name, na.rm=TRUE, sep=" ", remove=FALSE) |>
+    unite("clean_name_full", clean_name, maiden_name, na.rm=TRUE, sep="-", remove=FALSE)
+}
+
+```
+
 ## Application
 
 ```{r}
@@ -169,10 +186,13 @@ names = data |>
   parse_names() |>
   extract_initials() |>
   patch_names() |>
-  extract_maiden_name()
+  extract_maiden_name() |>
+  format_names()
 
 fsaveRDS(
   names, 
   'names'
 )
 ```
+
+

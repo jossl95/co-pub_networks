@@ -105,7 +105,10 @@ dems = data$id |>
     left_join(data$ethnicity |> select(-name_count)) |>
     relocate(origin:dutch, .after=gender) |>
     distinct(naam, id, .keep_all=TRUE) |>
-    mutate(has_oa_id = !is.na(id))
+    mutate(has_oa_id = !is.na(id)) |>
+    drop_na(id) |>
+    distinct(id, .keep_all=TRUE)
+    
 
 ```
 
@@ -137,4 +140,9 @@ scholars = list(
     scholars_oa = author_list,
     works = works
 )
+```
+
+
+```{r}
+save(scholars, file = file.path('data', 'processed', '20251017scholars.Rds'))
 ```
