@@ -22,7 +22,7 @@ source("src/utils/custom_functions.r")
 fpackage.check(c(
   'tidyverse', 'readxl',  'stringr', 
   'lubridate', 'httr2', 'rvest', 'xml2',
-  "purrr"
+  "purrr", "genderizeR", "dotenv"
 ))
 
 ```
@@ -208,22 +208,22 @@ patch_gender_on_splits = function(gender){
 ### Clean Gender Information
 ```{r}
 clean_gender = function(data){
-  gender |>
-  mutate(
-    gender = ifelse(
-      probability_male >= 0.5,
-      'male','female'
-    ),
-    count = ifelse(
-      gender == 'male',
-      male_count, female_count
-    ),
-    prob = ifelse(
-      gender == 'male',
-      probability_male, 1 - probability_male
-    )
-  ) |>
-  select(first_name, gender, prob, count)
+  data |>
+    mutate(
+      gender = ifelse(
+        probability_male >= 0.5,
+        'male','female'
+      ),
+      count = ifelse(
+        gender == 'male',
+        male_count, female_count
+      ),
+      prob = ifelse(
+        gender == 'male',
+        probability_male, 1 - probability_male
+      )
+    ) |>
+    select(first_name, gender, prob, count)
 }
 ```
 
@@ -271,47 +271,133 @@ patch_missing_gender = function(data){
 
 ```
 
+
+```{r}
+
+genderize_names = function(idx) {
+  # load cached gender information
+  gender_cache = readRDS(file.path('data', 'utils', "genderizer_cache.Rds"))
+
+  # load api key from secrets file
+  dotenv::load_dot_env()
+  APIKEY <- Sys.getenv("GENDERIZE_API_KEY")
+
+  # select uncached names
+  idx =  idx |>
+    filter(!term %in% gender_cache$name)
+
+  # select first_names
+  first_names = idx$term |> na.omit() |> unique()
+  first_names = first_names
+
+  # fetch gender results
+  hold = c()
+  for (name in first_names){
+    resp = genderizeAPI(name, apikey = APIKEY)
+    hold[[name]] = resp$response
+  }
+
+  # combine cache with results and put new cache results
+  res = bind_rows(gender_cache, bind_rows(hold)) |>
+    distinct(.keep_all = TRUE)
+  saveRDS(res, file.path('data', 'utils', "genderizer_cache.Rds"))
+
+  return(res)
+}
+
+```
+
+
+```{r}
+scrape_gender = function(idx) {
+  # load gender cache
+  gender_cache = readRDS(file.path("data", "utils", "nvb_gender.Rds")) |> 
+    drop_na()
+
+  first_names = idx |> pull(first_name) |> unique() |> na.omit()
+
+  # scrape gender results
+  res = purrr::map_dfr(
+      first_names, 
+      get_gender_row, 
+      gender = gender_cache
+    ) |>
+    patch_gender_on_splits() 
+
+  # put gender scrape results
+  saveRDS(res |> drop_na(), file.path('data', 'utils', "nvb_gender.Rds"))
+
+  # clean gender results
+  res = res |> 
+    clean_gender() |>
+    patch_missing_gender()
+
+  return(res)
+}
+
+
+```
+
+```{r}
+
+harmonize_gender = function(gender) {
+  gender |>
+    select(
+      first_name, term, starts_with('gender'), 
+      starts_with('count'), starts_with('prob')
+    ) |>
+    distinct(first_name, term, .keep_all=TRUE) |>
+    mutate(
+      has_multiple = str_detect(first_name, '( |-)'),
+      has_mismatch = gender.x != gender.y
+    ) |>
+    drop_na(first_name) |>
+    filter(!(has_multiple & has_mismatch & str_detect(term, '.'))) |>
+    mutate(
+      gender = case_when(
+        is.na(gender.y) ~ gender.x,
+        .default = gender.y
+      ),
+      prob = case_when(
+        is.na(probability) ~ prob,
+        .default = probability
+      ),
+      count = case_when(
+        is.na(count.y) ~ count.x,
+        .default = count.y
+      )
+    ) |>
+    group_by(first_name) |>
+    summarise(
+      gender = first(gender),
+      prob = mean(prob), 
+      count = sum(count)
+    )
+}
+
+
+```
+
 ## Application
+
 ```{r}
 
 dir = file.path('data', 'processed')
 file = list.files(dir, pattern = 'names.Rds')[[1]]
 names = readRDS(file.path(dir, file))
 
-first_names = names |>
-  distinct(first_name) |>
-  filter(!is.na(first_name), first_name != "") |>
-  pull(first_name)
-
-gender_cache = readRDS(file.path("data", "utils", "nvb_gender.Rds")) |> 
-  # select(-status) |>
-  tidyr::drop_na()
-
-gender = purrr::map_dfr(
-    first_names, 
-    get_gender_row, 
-    gender = gender_cache
+idx = names |>
+  mutate(term = first_name |> 
+    str_to_lower() |> 
+    str_split('( |-)')
   ) |>
-  patch_gender_on_splits() 
-  # |>
-  # select(-status)
+  unnest_longer(term)
+res = scrape_gender(idx)
+res2 = genderize_names(idx)
 
-saveRDS(
-  gender |> drop_na(),
-  file.path('data', 'utils', "nvb_gender.Rds")
-)
-
-gender |> 
-  clean_gender() |>
-  patch_missing_gender() |>
-  fsaveRDS('gender')
-
+gender = idx |>
+  left_join(res) |>
+  left_join(res2, by=join_by(term == name), suffix = c(".x", ".y"))
 ```
 
 
-```{r}
-library("genderizeR")
-gender_cache = tibble()
-
-
-```

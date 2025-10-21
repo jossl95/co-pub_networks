@@ -65,7 +65,37 @@ corrections <- tibble::tribble(
   "Guangye Qiao-Franco",            "Quangyu",   NA_character_, "Qiao-Franco",
   "Victor Bouemar Dinocheau",       "Victor",    NA_character_, "Bouemar Dinocheau",
   "Weverthon Barbosa Machado",      "Weverthon", NA_character_, "Barbosa Machado",
-
+  "Andrea Friedmann Rozenbaum",     "Andrea",    NA_character_, "Friedmann Rozenbaum",
+  "Daniela Torres Alatorre",        "Daniela",   NA_character_, "Torres Alatorre",
+  "Devrim Kabasakal Badamchi-",     "Devrim",    NA_character_, "Kabasakal Badamchi",
+  "Diana Davila Gordillo",          "Diana",     NA_character_, "Davila Gordillo",
+  "Elissa el Khawli",               "Elissa",   "el",           "Khawli",
+  "Gökçe Sanul Diner",              "Gökçe",     NA_character_, "Sanul Diner",
+  "Mariana Riquito Pereira",        "Mariana",   NA_character_, "Riquito Pereira",
+  "Melissa González Loyola",        "Melissa",   NA_character_, "González Loyola",
+  "Metin Unal Tekin",               "Metin",     NA_character_, "Unal Tekin",
+  # correct name for people with initials
+  "A.J.G.M. van Montfort",          "André",     "van",           "Montfort",
+  "A. Scheuer",                     "Alisha",    NA_character_, "Scheuer",
+  "A.B. Bieleman",                  "Bert",      NA_character_, "Bieleman",
+  "A.J.D. de Lacey",                "Alex",      "de",          "Lacey",
+  "C.J. Brennan",                   "Christopher",NA_character_,"Brennan",
+  "D. Karaagac",                    "Dilara",    NA_character_, "Karaagac",
+  "E.R. Spruijt",                   "Rosanne",   NA_character_, "Spruijt",
+  "F. Goedkoop",                    "Fleur",     NA_character_, "Goedkoop",
+  "F.M. van Nuenen",                "Floor",     "van",         "Nuenen",
+  "F.P. Wagenaar",                  "Pieter",    NA_character_, "Wagenaar",
+  "J.P. Presley",                   "Jonathan",  NA_character_, "Presley",
+  "J.S. Timmer",                    "Jaap",      NA_character_, "Timmer",
+  "L. Zijlstra",                    "Lieuwe",    NA_character_, "Zijlstra",
+  "P. Marceta",                     "Peter",     NA_character_, "Marceta",
+  "P. Vila Soler",                  "Pau",       NA_character_, "Vila Soler",
+  "R. Lu",                          "Rae",       NA_character_, "Lu",
+  "R. Vulcano",                     "Rossella",  NA_character_, "Vulcano",
+  "T. Nowak",                       "Tobias",    NA_character_, "Nowak",
+  "Y.C. (Joyce) Pang",              "Joyce",     NA_character_, "Pang",
+  "Z. Dong",                        "Zhe",       NA_character_, "Dong",
+  "Z.E. Pardoel",                   "Zinzi",     NA_character_, "Pardoel"
 )
 
 saveRDS(corrections, file.path('data', 'utils', 'name_corrections.Rds'))
