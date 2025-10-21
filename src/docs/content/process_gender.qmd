@@ -283,8 +283,7 @@ genderize_names = function(idx) {
   APIKEY <- Sys.getenv("GENDERIZE_API_KEY")
 
   # select uncached names
-  idx =  idx |>
-    filter(!term %in% gender_cache$name)
+  idx =  idx |> filter(!term %in% gender_cache$name)
 
   # select first_names
   first_names = idx$term |> na.omit() |> unique()
@@ -397,7 +396,10 @@ res2 = genderize_names(idx)
 
 gender = idx |>
   left_join(res) |>
-  left_join(res2, by=join_by(term == name), suffix = c(".x", ".y"))
+  left_join(res2, by=join_by(term == name), suffix = c(".x", ".y")) |>
+  harmonize_gender()
+
+fsaveRDS(gender, "gender")
 ```
 
 

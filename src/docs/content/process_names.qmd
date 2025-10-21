@@ -163,7 +163,21 @@ format_names = function(data){
       maiden_name = maiden_name |> stri_trans_general("Latin-ASCII")
     ) |> 
     unite("clean_name", initials:last_name, na.rm=TRUE, sep=" ", remove=FALSE) |>
-    unite("clean_name_full", clean_name, maiden_name, na.rm=TRUE, sep="-", remove=FALSE)
+    unite("clean_name_full", clean_name, maiden_name, na.rm=TRUE, sep="-", remove=FALSE) |>
+    mutate(
+      temp = str_remove(clean_name, paste0(initials, " ")),
+      temp_full = str_remove(clean_name_full, paste0(initials, " ")),
+      clean_name = case_when(
+        !is.na(initials) & !is.na(first_name) ~ temp,
+        .default=clean_name
+      ),
+      clean_name_full = case_when(
+        !is.na(initials) & !is.na(first_name) ~ temp_full,
+        .default=clean_name_full
+      ),
+    ) |>
+    select(-starts_with("temp"))
+    
 }
 
 ```
