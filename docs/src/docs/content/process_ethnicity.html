@@ -237,8 +237,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-Ncells  605262 32.4    1371420 73.3         NA   715800 38.3
-Vcells 1119043  8.6    8388608 64.0      16384  2012047 15.4</code></pre>
+Ncells  605439 32.4    1371932 73.3         NA   715785 38.3
+Vcells 1121343  8.6    8388608 64.0      16384  2012131 15.4</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -249,8 +249,9 @@ Vcells 1119043  8.6    8388608 64.0      16384  2012047 15.4</code></pre>
 <span id="cb3-5"><a href="#cb3-5"></a><span class="fu">fpackage.check</span>(<span class="fu">c</span>(</span>
 <span id="cb3-6"><a href="#cb3-6"></a>  <span class="st">'tidyverse'</span>, <span class="st">'readxl'</span>,  <span class="st">'stringr'</span>, </span>
 <span id="cb3-7"><a href="#cb3-7"></a>  <span class="st">'lubridate'</span>, <span class="st">'httr2'</span>, <span class="st">'rvest'</span>, <span class="st">'xml2'</span>,</span>
-<span id="cb3-8"><a href="#cb3-8"></a>  <span class="st">"purrr"</span>, <span class="st">"RCurl"</span>, <span class="st">"fuzzyjoin"</span>, <span class="st">"stringi"</span></span>
-<span id="cb3-9"><a href="#cb3-9"></a>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-8"><a href="#cb3-8"></a>  <span class="st">"purrr"</span>, <span class="st">"RCurl"</span>, <span class="st">"fuzzyjoin"</span>, <span class="st">"stringi"</span>,</span>
+<span id="cb3-9"><a href="#cb3-9"></a>  <span class="st">"DemografixeR"</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="functions" class="level2">
@@ -482,46 +483,46 @@ Vcells 1119043  8.6    8388608 64.0      16384  2012047 15.4</code></pre>
 <span id="cb9-22"><a href="#cb9-22"></a>}</span>
 <span id="cb9-23"><a href="#cb9-23"></a></span>
 <span id="cb9-24"><a href="#cb9-24"></a>add_origin <span class="ot">=</span> <span class="cf">function</span>(data) {</span>
-<span id="cb9-25"><a href="#cb9-25"></a>  ethnicity_cache <span class="sc">|&gt;</span></span>
-<span id="cb9-26"><a href="#cb9-26"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb9-27"><a href="#cb9-27"></a>    <span class="at">origin1 =</span> <span class="fu">str_extract_all</span>(info, <span class="fu">regex</span>(<span class="st">"[:upper:]([:lower:]{2,}) naam"</span>)),</span>
-<span id="cb9-28"><a href="#cb9-28"></a>    <span class="at">origin2 =</span> <span class="fu">ifelse</span>(</span>
-<span id="cb9-29"><a href="#cb9-29"></a>      <span class="fu">str_detect</span>(info, <span class="st">"afkomstig uit"</span>),</span>
-<span id="cb9-30"><a href="#cb9-30"></a>      <span class="fu">str_remove</span>(info, <span class="st">".*afkomstig uit"</span>),</span>
-<span id="cb9-31"><a href="#cb9-31"></a>      <span class="cn">NA_character_</span></span>
-<span id="cb9-32"><a href="#cb9-32"></a>    ),</span>
-<span id="cb9-33"><a href="#cb9-33"></a>    <span class="at">origin3 =</span> <span class="fu">str_extract</span>(</span>
-<span id="cb9-34"><a href="#cb9-34"></a>      info, <span class="st">"[:upper:]([:lower:]{2,}) (achter)?(familie)?(beroeps)?naam"</span></span>
-<span id="cb9-35"><a href="#cb9-35"></a>    )</span>
-<span id="cb9-36"><a href="#cb9-36"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb9-37"><a href="#cb9-37"></a>  <span class="co"># clean origin information</span></span>
-<span id="cb9-38"><a href="#cb9-38"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb9-39"><a href="#cb9-39"></a>    <span class="co"># Exclude Jewish people form Origin information</span></span>
-<span id="cb9-40"><a href="#cb9-40"></a>    <span class="at">origin1 =</span> <span class="fu">str_remove</span>(origin1, <span class="st">"Joodse naam"</span>),</span>
-<span id="cb9-41"><a href="#cb9-41"></a>    <span class="co"># Only s</span></span>
-<span id="cb9-42"><a href="#cb9-42"></a>    <span class="at">origin2 =</span> <span class="fu">str_remove</span>(origin2, <span class="st">"</span><span class="sc">\\</span><span class="st">..*"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-43"><a href="#cb9-43"></a>      <span class="fu">str_remove</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">;.*"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-44"><a href="#cb9-44"></a>      <span class="fu">str_remove</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">(.*"</span>),</span>
-<span id="cb9-45"><a href="#cb9-45"></a>    <span class="at">regional =</span> <span class="fu">str_detect</span>(</span>
-<span id="cb9-46"><a href="#cb9-46"></a>      origin2, <span class="fu">paste0</span>(</span>
-<span id="cb9-47"><a href="#cb9-47"></a>        <span class="st">"(dorp)|(plaats)|(gemeente)"</span>,</span>
-<span id="cb9-48"><a href="#cb9-48"></a>        <span class="st">"|(graafschap)|(stad)|(deel)|(Friesland)"</span></span>
-<span id="cb9-49"><a href="#cb9-49"></a>      )</span>
-<span id="cb9-50"><a href="#cb9-50"></a>    ),</span>
-<span id="cb9-51"><a href="#cb9-51"></a>    <span class="at">has_particle =</span> <span class="fu">str_detect</span>(</span>
-<span id="cb9-52"><a href="#cb9-52"></a>      last_name, <span class="fu">regex</span>(<span class="st">"^(van |de )"</span>)</span>
-<span id="cb9-53"><a href="#cb9-53"></a>    ),</span>
-<span id="cb9-54"><a href="#cb9-54"></a>    <span class="at">origin2 =</span> <span class="fu">ifelse</span>(<span class="fu">isTRUE</span>(regional), <span class="cn">NA_character_</span>, origin2),</span>
-<span id="cb9-55"><a href="#cb9-55"></a>    <span class="at">origin3 =</span> origin3 <span class="sc">|&gt;</span></span>
-<span id="cb9-56"><a href="#cb9-56"></a>      <span class="fu">str_remove</span>(<span class="st">"D(i)?e(ze)? (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-57"><a href="#cb9-57"></a>      <span class="fu">str_remove</span>(<span class="st">"Een (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-58"><a href="#cb9-58"></a>      <span class="fu">str_remove</span>(<span class="st">"Zijn (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-59"><a href="#cb9-59"></a>      <span class="fu">str_remove</span>(<span class="st">"Als (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-60"><a href="#cb9-60"></a>      <span class="fu">str_remove</span>(<span class="st">"Joodse (familie)?(achter)?naam"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-61"><a href="#cb9-61"></a>      <span class="fu">str_remove</span>(<span class="st">"Bijbelse (familie)?(achter)?naam"</span>),</span>
-<span id="cb9-62"><a href="#cb9-62"></a>    <span class="at">origin4 =</span> <span class="fu">str_detect</span>(info, <span class="st">"andere taal"</span>)</span>
-<span id="cb9-63"><a href="#cb9-63"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb9-64"><a href="#cb9-64"></a>  <span class="fu">select</span>(<span class="sc">-</span>regional)</span>
+<span id="cb9-25"><a href="#cb9-25"></a>  data <span class="sc">|&gt;</span></span>
+<span id="cb9-26"><a href="#cb9-26"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb9-27"><a href="#cb9-27"></a>      <span class="at">origin1 =</span> <span class="fu">str_extract_all</span>(info, <span class="fu">regex</span>(<span class="st">"[:upper:]([:lower:]{2,}) naam"</span>)),</span>
+<span id="cb9-28"><a href="#cb9-28"></a>      <span class="at">origin2 =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb9-29"><a href="#cb9-29"></a>        <span class="fu">str_detect</span>(info, <span class="st">"afkomstig uit"</span>),</span>
+<span id="cb9-30"><a href="#cb9-30"></a>        <span class="fu">str_remove</span>(info, <span class="st">".*afkomstig uit"</span>),</span>
+<span id="cb9-31"><a href="#cb9-31"></a>        <span class="cn">NA_character_</span></span>
+<span id="cb9-32"><a href="#cb9-32"></a>      ),</span>
+<span id="cb9-33"><a href="#cb9-33"></a>      <span class="at">origin3 =</span> <span class="fu">str_extract</span>(</span>
+<span id="cb9-34"><a href="#cb9-34"></a>        info, <span class="st">"[:upper:]([:lower:]{2,}) (achter)?(familie)?(beroeps)?naam"</span></span>
+<span id="cb9-35"><a href="#cb9-35"></a>      )</span>
+<span id="cb9-36"><a href="#cb9-36"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb9-37"><a href="#cb9-37"></a>    <span class="co"># clean origin information</span></span>
+<span id="cb9-38"><a href="#cb9-38"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb9-39"><a href="#cb9-39"></a>      <span class="co"># Exclude Jewish people form Origin information</span></span>
+<span id="cb9-40"><a href="#cb9-40"></a>      <span class="at">origin1 =</span> <span class="fu">str_remove</span>(origin1, <span class="st">"Joodse naam"</span>),</span>
+<span id="cb9-41"><a href="#cb9-41"></a>      <span class="co"># Only s</span></span>
+<span id="cb9-42"><a href="#cb9-42"></a>      <span class="at">origin2 =</span> <span class="fu">str_remove</span>(origin2, <span class="st">"</span><span class="sc">\\</span><span class="st">..*"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-43"><a href="#cb9-43"></a>        <span class="fu">str_remove</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">;.*"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-44"><a href="#cb9-44"></a>        <span class="fu">str_remove</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">(.*"</span>),</span>
+<span id="cb9-45"><a href="#cb9-45"></a>      <span class="at">regional =</span> <span class="fu">str_detect</span>(</span>
+<span id="cb9-46"><a href="#cb9-46"></a>        origin2, <span class="fu">paste0</span>(</span>
+<span id="cb9-47"><a href="#cb9-47"></a>          <span class="st">"(dorp)|(plaats)|(gemeente)"</span>,</span>
+<span id="cb9-48"><a href="#cb9-48"></a>          <span class="st">"|(graafschap)|(stad)|(deel)|(Friesland)"</span></span>
+<span id="cb9-49"><a href="#cb9-49"></a>        )</span>
+<span id="cb9-50"><a href="#cb9-50"></a>      ),</span>
+<span id="cb9-51"><a href="#cb9-51"></a>      <span class="at">has_particle =</span> <span class="fu">str_detect</span>(</span>
+<span id="cb9-52"><a href="#cb9-52"></a>        last_name, <span class="fu">regex</span>(<span class="st">"^(van |de )"</span>)</span>
+<span id="cb9-53"><a href="#cb9-53"></a>      ),</span>
+<span id="cb9-54"><a href="#cb9-54"></a>      <span class="at">origin2 =</span> <span class="fu">ifelse</span>(<span class="fu">isTRUE</span>(regional), <span class="cn">NA_character_</span>, origin2),</span>
+<span id="cb9-55"><a href="#cb9-55"></a>      <span class="at">origin3 =</span> origin3 <span class="sc">|&gt;</span></span>
+<span id="cb9-56"><a href="#cb9-56"></a>        <span class="fu">str_remove</span>(<span class="st">"D(i)?e(ze)? (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-57"><a href="#cb9-57"></a>        <span class="fu">str_remove</span>(<span class="st">"Een (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-58"><a href="#cb9-58"></a>        <span class="fu">str_remove</span>(<span class="st">"Zijn (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-59"><a href="#cb9-59"></a>        <span class="fu">str_remove</span>(<span class="st">"Als (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-60"><a href="#cb9-60"></a>        <span class="fu">str_remove</span>(<span class="st">"Joodse (familie)?(achter)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-61"><a href="#cb9-61"></a>        <span class="fu">str_remove</span>(<span class="st">"Bijbelse (familie)?(achter)?naam"</span>),</span>
+<span id="cb9-62"><a href="#cb9-62"></a>      <span class="at">origin4 =</span> <span class="fu">str_detect</span>(info, <span class="st">"andere taal"</span>)</span>
+<span id="cb9-63"><a href="#cb9-63"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb9-64"><a href="#cb9-64"></a>    <span class="fu">select</span>(<span class="sc">-</span>regional)</span>
 <span id="cb9-65"><a href="#cb9-65"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
@@ -534,71 +535,189 @@ Vcells 1119043  8.6    8388608 64.0      16384  2012047 15.4</code></pre>
 <span id="cb10-7"><a href="#cb10-7"></a>        <span class="at">.default =</span> origin1</span>
 <span id="cb10-8"><a href="#cb10-8"></a>      ),</span>
 <span id="cb10-9"><a href="#cb10-9"></a>      <span class="at">origin =</span> <span class="fu">coalesce</span>(origin, origin5),</span>
-<span id="cb10-10"><a href="#cb10-10"></a>      <span class="at">origin =</span> <span class="fu">case_when</span>(</span>
-<span id="cb10-11"><a href="#cb10-11"></a>        <span class="fu">is.na</span>(origin) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(count) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(info) <span class="sc">~</span> <span class="st">"Nederlandse naam"</span>,</span>
-<span id="cb10-12"><a href="#cb10-12"></a>        has_particle <span class="sc">~</span> <span class="st">"Nederlandse naam"</span>,</span>
-<span id="cb10-13"><a href="#cb10-13"></a>        <span class="at">.default =</span> origin</span>
-<span id="cb10-14"><a href="#cb10-14"></a>      ),</span>
-<span id="cb10-15"><a href="#cb10-15"></a>      <span class="at">dutch =</span> <span class="fu">case_when</span>(</span>
-<span id="cb10-16"><a href="#cb10-16"></a>        origin <span class="sc">==</span> <span class="st">'Nederlandse naam'</span> <span class="sc">~</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-17"><a href="#cb10-17"></a>        <span class="at">.default =</span> <span class="cn">FALSE</span></span>
-<span id="cb10-18"><a href="#cb10-18"></a>      ),</span>
-<span id="cb10-19"><a href="#cb10-19"></a>      <span class="at">origin =</span> <span class="fu">str_remove</span>(origin, <span class="fu">regex</span>(<span class="st">"</span><span class="sc">\\</span><span class="st"> .*"</span>))</span>
-<span id="cb10-20"><a href="#cb10-20"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb10-21"><a href="#cb10-21"></a>    <span class="fu">select</span>(last_name, origin, dutch, name_count)</span>
-<span id="cb10-22"><a href="#cb10-22"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-10"><a href="#cb10-10"></a>      <span class="co"># origin = case_when(</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a>      <span class="co">#   is.na(origin) &amp; !is.na(count) &amp; !is.na(info) ~ "Nederlandse naam",</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a>      <span class="co">#   has_particle ~ "Nederlandse naam",</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a>      <span class="co">#   .default = origin</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a>      <span class="co"># ),</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a>      <span class="at">origin =</span> <span class="fu">str_remove</span>(origin, <span class="fu">regex</span>(<span class="st">"</span><span class="sc">\\</span><span class="st"> .*"</span>)),</span>
+<span id="cb10-16"><a href="#cb10-16"></a>      <span class="at">origin =</span> <span class="fu">case_when</span>(</span>
+<span id="cb10-17"><a href="#cb10-17"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Christelijk"</span>) <span class="sc">~</span> <span class="st">"Nederlandse"</span>,</span>
+<span id="cb10-18"><a href="#cb10-18"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Friese"</span>) <span class="sc">~</span> <span class="st">"Nederlandse"</span>,</span>
+<span id="cb10-19"><a href="#cb10-19"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Tilburgse"</span>) <span class="sc">~</span> <span class="st">"Nederlandse"</span>,</span>
+<span id="cb10-20"><a href="#cb10-20"></a>        origin <span class="sc">==</span>  <span class="st">""</span> <span class="sc">~</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb10-21"><a href="#cb10-21"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Waalse"</span>) <span class="sc">~</span> <span class="st">"Belgische"</span>,</span>
+<span id="cb10-22"><a href="#cb10-22"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Catalaanse"</span>) <span class="sc">~</span> <span class="st">"Spaanse"</span>, </span>
+<span id="cb10-23"><a href="#cb10-23"></a>        <span class="at">.default =</span> origin</span>
+<span id="cb10-24"><a href="#cb10-24"></a>      )</span>
+<span id="cb10-25"><a href="#cb10-25"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb10-26"><a href="#cb10-26"></a>    <span class="fu">select</span>(last_name, origin, name_count)</span>
+<span id="cb10-27"><a href="#cb10-27"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(<span class="st">'DemografixeR'</span>)</span>
+<span id="cb11-2"><a href="#cb11-2"></a></span>
+<span id="cb11-3"><a href="#cb11-3"></a>nationalize_name <span class="ot">=</span> <span class="cf">function</span>(idx) {</span>
+<span id="cb11-4"><a href="#cb11-4"></a>  origin_cache <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">"origin_cache.Rds"</span>))</span>
+<span id="cb11-5"><a href="#cb11-5"></a></span>
+<span id="cb11-6"><a href="#cb11-6"></a>  <span class="co"># load api key from secrets file</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a>  dotenv<span class="sc">::</span><span class="fu">load_dot_env</span>()</span>
+<span id="cb11-8"><a href="#cb11-8"></a>  APIKEY <span class="ot">&lt;-</span> <span class="fu">Sys.getenv</span>(<span class="st">"GENDERIZE_API_KEY"</span>)</span>
+<span id="cb11-9"><a href="#cb11-9"></a></span>
+<span id="cb11-10"><a href="#cb11-10"></a>  <span class="co"># select uncached names</span></span>
+<span id="cb11-11"><a href="#cb11-11"></a>  idx <span class="ot">=</span>  idx <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span>search_name <span class="sc">%in%</span> origin_cache<span class="sc">$</span>name)</span>
+<span id="cb11-12"><a href="#cb11-12"></a></span>
+<span id="cb11-13"><a href="#cb11-13"></a>  <span class="co"># select last_names</span></span>
+<span id="cb11-14"><a href="#cb11-14"></a>  last_names <span class="ot">=</span> idx<span class="sc">$</span>search_name <span class="sc">|&gt;</span> <span class="fu">na.omit</span>() <span class="sc">|&gt;</span> <span class="fu">unique</span>() <span class="sc">|&gt;</span> <span class="fu">sort</span>()</span>
+<span id="cb11-15"><a href="#cb11-15"></a>  <span class="co"># last_names = last_names[12:22]</span></span>
+<span id="cb11-16"><a href="#cb11-16"></a></span>
+<span id="cb11-17"><a href="#cb11-17"></a>  <span class="co"># fetch nationality results</span></span>
+<span id="cb11-18"><a href="#cb11-18"></a>  hold <span class="ot">=</span> <span class="fu">c</span>()</span>
+<span id="cb11-19"><a href="#cb11-19"></a>  <span class="cf">for</span> (name <span class="cf">in</span> last_names){</span>
+<span id="cb11-20"><a href="#cb11-20"></a>    resp <span class="ot">=</span> <span class="fu">nationalize</span>(name, <span class="at">sliced=</span><span class="cn">FALSE</span>, <span class="at">apikey =</span> APIKEY, <span class="at">simplify =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb11-21"><a href="#cb11-21"></a>    hold[[name]] <span class="ot">=</span> resp </span>
+<span id="cb11-22"><a href="#cb11-22"></a>  }</span>
+<span id="cb11-23"><a href="#cb11-23"></a></span>
+<span id="cb11-24"><a href="#cb11-24"></a>  <span class="co"># combine cache with results and put new cache results</span></span>
+<span id="cb11-25"><a href="#cb11-25"></a>  origin <span class="ot">=</span> <span class="fu">bind_rows</span>(origin_cache, <span class="fu">bind_rows</span>(hold)) <span class="sc">|&gt;</span> </span>
+<span id="cb11-26"><a href="#cb11-26"></a>    <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-27"><a href="#cb11-27"></a></span>
+<span id="cb11-28"><a href="#cb11-28"></a>  <span class="cf">if</span> (<span class="st">"country"</span> <span class="sc">%in%</span> <span class="fu">colnames</span>(origin)) origin <span class="ot">=</span> origin <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>country)</span>
+<span id="cb11-29"><a href="#cb11-29"></a></span>
+<span id="cb11-30"><a href="#cb11-30"></a>  <span class="fu">saveRDS</span>(origin, <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">"origin_cache.Rds"</span>))</span>
+<span id="cb11-31"><a href="#cb11-31"></a></span>
+<span id="cb11-32"><a href="#cb11-32"></a>  <span class="fu">return</span>(origin)</span>
+<span id="cb11-33"><a href="#cb11-33"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># o = res |&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="co">#   mutate(too_uncertain = probability &lt; 0.05)</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a></span>
+<span id="cb12-4"><a href="#cb12-4"></a>select_best_match <span class="ot">=</span> <span class="cf">function</span>(res){</span>
+<span id="cb12-5"><a href="#cb12-5"></a>  </span>
+<span id="cb12-6"><a href="#cb12-6"></a></span>
+<span id="cb12-7"><a href="#cb12-7"></a>  res <span class="sc">|&gt;</span> </span>
+<span id="cb12-8"><a href="#cb12-8"></a>    <span class="fu">rename</span>(<span class="st">"last_name"</span> <span class="ot">=</span> <span class="st">"name"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>    <span class="co"># get the best match</span></span>
+<span id="cb12-10"><a href="#cb12-10"></a>    <span class="fu">group_by</span>(last_name) <span class="sc">|&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11"></a>    <span class="fu">slice</span>(<span class="dv">1</span>) </span>
+<span id="cb12-12"><a href="#cb12-12"></a>    <span class="co"># |&gt;</span></span>
+<span id="cb12-13"><a href="#cb12-13"></a>    <span class="co"># add country label for inspection</span></span>
+<span id="cb12-14"><a href="#cb12-14"></a>    <span class="co"># left_join(</span></span>
+<span id="cb12-15"><a href="#cb12-15"></a>    <span class="co">#   iso |&gt; select(alpha_2, country_name),</span></span>
+<span id="cb12-16"><a href="#cb12-16"></a>    <span class="co">#   by=join_by(country_id==alpha_2)</span></span>
+<span id="cb12-17"><a href="#cb12-17"></a>    <span class="co"># )</span></span>
+<span id="cb12-18"><a href="#cb12-18"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>name_to_origin <span class="ot">=</span> <span class="cf">function</span>(idx) {</span>
+<span id="cb13-2"><a href="#cb13-2"></a>  ethnicity_cache <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'cbg_cache.Rds'</span>))</span>
+<span id="cb13-3"><a href="#cb13-3"></a></span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="co"># select uncached names</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a>  idx <span class="ot">=</span>  idx <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span>search_name <span class="sc">%in%</span> ethnicity_cache<span class="sc">$</span>last_name)</span>
+<span id="cb13-6"><a href="#cb13-6"></a></span>
+<span id="cb13-7"><a href="#cb13-7"></a>  <span class="co"># select last_names</span></span>
+<span id="cb13-8"><a href="#cb13-8"></a>  last_names <span class="ot">=</span> idx<span class="sc">$</span>search_name <span class="sc">|&gt;</span> <span class="fu">na.omit</span>() <span class="sc">|&gt;</span> <span class="fu">unique</span>() <span class="sc">|&gt;</span> <span class="fu">sort</span>()</span>
+<span id="cb13-9"><a href="#cb13-9"></a></span>
+<span id="cb13-10"><a href="#cb13-10"></a>  hold <span class="ot">=</span> <span class="fu">c</span>()</span>
+<span id="cb13-11"><a href="#cb13-11"></a>  <span class="cf">for</span> (name <span class="cf">in</span> last_names){</span>
+<span id="cb13-12"><a href="#cb13-12"></a>    <span class="cf">if</span> (<span class="sc">!</span>name <span class="sc">%in%</span> ethnicity_cache<span class="sc">$</span>last_name){</span>
+<span id="cb13-13"><a href="#cb13-13"></a>      hold[[name]] <span class="ot">=</span> <span class="fu">get_name_row</span>(name)</span>
+<span id="cb13-14"><a href="#cb13-14"></a>    }</span>
+<span id="cb13-15"><a href="#cb13-15"></a>  }</span>
+<span id="cb13-16"><a href="#cb13-16"></a></span>
+<span id="cb13-17"><a href="#cb13-17"></a>  res <span class="ot">=</span> <span class="fu">bind_rows</span>(ethnicity_cache, <span class="fu">bind_rows</span>(hold))</span>
+<span id="cb13-18"><a href="#cb13-18"></a>  <span class="fu">saveRDS</span>(res,  <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'cbg_cache.Rds'</span>))</span>
+<span id="cb13-19"><a href="#cb13-19"></a></span>
+<span id="cb13-20"><a href="#cb13-20"></a>  <span class="fu">return</span>(res)</span>
+<span id="cb13-21"><a href="#cb13-21"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>harmonize_ethnicity <span class="ot">=</span> <span class="cf">function</span>(origin) {</span>
+<span id="cb14-2"><a href="#cb14-2"></a>  iso <span class="ot">=</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(<span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'iso3611_codes.xlsx'</span>))</span>
+<span id="cb14-3"><a href="#cb14-3"></a></span>
+<span id="cb14-4"><a href="#cb14-4"></a>  origin <span class="ot">=</span> origin <span class="sc">|&gt;</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb14-6"><a href="#cb14-6"></a>      <span class="at">name_count =</span> name_count <span class="sc">|&gt;</span> <span class="fu">str_replace</span>(<span class="st">'&lt; 5'</span>, <span class="st">'5'</span>) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>(),</span>
+<span id="cb14-7"><a href="#cb14-7"></a>      <span class="at">name_count =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(name_count), <span class="dv">0</span>, name_count),</span>
+<span id="cb14-8"><a href="#cb14-8"></a>      <span class="at">ethnicity =</span> <span class="fu">case_when</span>(</span>
+<span id="cb14-9"><a href="#cb14-9"></a>        <span class="fu">str_detect</span>(origin, <span class="st">'Nederlandse'</span>) <span class="sc">&amp;</span> (name_count <span class="sc">&gt;</span> <span class="dv">200</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-10"><a href="#cb14-10"></a>        <span class="fu">str_detect</span>(origin, <span class="st">'Chinese'</span>) <span class="sc">&amp;</span> (name_count <span class="sc">&gt;</span> <span class="dv">200</span>) <span class="sc">~</span> <span class="st">"CN"</span>,</span>
+<span id="cb14-11"><a href="#cb14-11"></a>        <span class="fu">str_detect</span>(origin, <span class="st">'Duitse'</span>) <span class="sc">&amp;</span> (name_count <span class="sc">&gt;</span> <span class="dv">200</span>) <span class="sc">~</span> <span class="st">"DE"</span>,</span>
+<span id="cb14-12"><a href="#cb14-12"></a>        <span class="fu">str_detect</span>(origin, <span class="st">'Marokkaanse'</span>) <span class="sc">&amp;</span> (name_count <span class="sc">&gt;</span> <span class="dv">200</span>) <span class="sc">~</span> <span class="st">"MA"</span>,</span>
+<span id="cb14-13"><a href="#cb14-13"></a>        <span class="fu">str_detect</span>(origin, <span class="st">'Turkse'</span>) <span class="sc">&amp;</span> (name_count <span class="sc">&gt;</span> <span class="dv">200</span>) <span class="sc">~</span> <span class="st">"TR"</span>,</span>
+<span id="cb14-14"><a href="#cb14-14"></a>        <span class="at">.default =</span> country_id</span>
+<span id="cb14-15"><a href="#cb14-15"></a>      ),</span>
+<span id="cb14-16"><a href="#cb14-16"></a>      <span class="at">ethnicity =</span> <span class="fu">case_when</span>(</span>
+<span id="cb14-17"><a href="#cb14-17"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">'Wachter'</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-18"><a href="#cb14-18"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">'Das'</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-19"><a href="#cb14-19"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Metinsoy"</span>) <span class="sc">~</span> <span class="st">"TR"</span>,</span>
+<span id="cb14-20"><a href="#cb14-20"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Wagner"</span>) <span class="sc">~</span> <span class="st">"TR"</span>,</span>
+<span id="cb14-21"><a href="#cb14-21"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Mos"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-22"><a href="#cb14-22"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Vlieg"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-23"><a href="#cb14-23"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Knigge"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-24"><a href="#cb14-24"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Bol"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-25"><a href="#cb14-25"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Deen"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-26"><a href="#cb14-26"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Vrooman"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-27"><a href="#cb14-27"></a>        <span class="at">.default =</span> ethnicity</span>
+<span id="cb14-28"><a href="#cb14-28"></a>      ),</span>
+<span id="cb14-29"><a href="#cb14-29"></a>      <span class="at">count =</span> <span class="fu">case_when</span>(</span>
+<span id="cb14-30"><a href="#cb14-30"></a>        country_id <span class="sc">!=</span> ethnicity <span class="sc">~</span> <span class="cn">NA</span>,</span>
+<span id="cb14-31"><a href="#cb14-31"></a>        <span class="at">.default =</span> count</span>
+<span id="cb14-32"><a href="#cb14-32"></a>      ),</span>
+<span id="cb14-33"><a href="#cb14-33"></a>      <span class="at">probability =</span> <span class="fu">case_when</span>(</span>
+<span id="cb14-34"><a href="#cb14-34"></a>        country_id <span class="sc">!=</span> ethnicity <span class="sc">~</span> <span class="cn">NA</span>,</span>
+<span id="cb14-35"><a href="#cb14-35"></a>        <span class="at">.default =</span> probability</span>
+<span id="cb14-36"><a href="#cb14-36"></a>      )</span>
+<span id="cb14-37"><a href="#cb14-37"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb14-38"><a href="#cb14-38"></a>    <span class="fu">select</span>(last_name, ethnicity, count, probability) <span class="sc">|&gt;</span></span>
+<span id="cb14-39"><a href="#cb14-39"></a>    <span class="fu">distinct</span>(last_name, ethnicity, <span class="at">.keep_all=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-40"><a href="#cb14-40"></a>    <span class="fu">left_join</span>(</span>
+<span id="cb14-41"><a href="#cb14-41"></a>      iso <span class="sc">|&gt;</span> <span class="fu">select</span>(alpha_2, country_name),</span>
+<span id="cb14-42"><a href="#cb14-42"></a>      <span class="at">by =</span> <span class="fu">join_by</span>(ethnicity <span class="sc">==</span> alpha_2)</span>
+<span id="cb14-43"><a href="#cb14-43"></a>    )</span>
+<span id="cb14-44"><a href="#cb14-44"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
 <section id="application" class="level2">
 <h2 class="anchored" data-anchor-id="application">Application</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'processed'</span>)</span>
-<span id="cb11-2"><a href="#cb11-2"></a>file <span class="ot">=</span> <span class="fu">list.files</span>(dir, <span class="at">pattern =</span> <span class="st">'names.Rds'</span>)[[<span class="dv">1</span>]]</span>
-<span id="cb11-3"><a href="#cb11-3"></a>names <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(dir, file))</span>
-<span id="cb11-4"><a href="#cb11-4"></a></span>
-<span id="cb11-5"><a href="#cb11-5"></a>last_names <span class="ot">=</span> names <span class="sc">|&gt;</span></span>
-<span id="cb11-6"><a href="#cb11-6"></a>  <span class="fu">distinct</span>(particle, last_name) <span class="sc">|&gt;</span></span>
-<span id="cb11-7"><a href="#cb11-7"></a>  <span class="fu">unite</span>(last_name, particle<span class="sc">:</span>last_name, <span class="at">sep=</span><span class="st">" "</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb11-8"><a href="#cb11-8"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(last_name), last_name <span class="sc">!=</span> <span class="st">""</span>) <span class="sc">|&gt;</span></span>
-<span id="cb11-9"><a href="#cb11-9"></a>  <span class="fu">pull</span>(last_name) <span class="sc">|&gt;</span></span>
-<span id="cb11-10"><a href="#cb11-10"></a>  <span class="fu">sort</span>()</span>
-<span id="cb11-11"><a href="#cb11-11"></a></span>
-<span id="cb11-12"><a href="#cb11-12"></a>ethnicity_cache <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'cbg_cache.Rds'</span>))</span>
-<span id="cb11-13"><a href="#cb11-13"></a></span>
-<span id="cb11-14"><a href="#cb11-14"></a>hold <span class="ot">=</span> <span class="fu">c</span>()</span>
-<span id="cb11-15"><a href="#cb11-15"></a><span class="cf">for</span> (name <span class="cf">in</span> last_names){</span>
-<span id="cb11-16"><a href="#cb11-16"></a>  <span class="cf">if</span> (<span class="sc">!</span>name <span class="sc">%in%</span> ethnicity_cache<span class="sc">$</span>last_name){</span>
-<span id="cb11-17"><a href="#cb11-17"></a>    hold[[name]] <span class="ot">=</span> <span class="fu">get_name_row</span>(name)</span>
-<span id="cb11-18"><a href="#cb11-18"></a>  }</span>
-<span id="cb11-19"><a href="#cb11-19"></a>}</span>
-<span id="cb11-20"><a href="#cb11-20"></a></span>
-<span id="cb11-21"><a href="#cb11-21"></a>ethnicity_cache <span class="ot">=</span> <span class="fu">bind_rows</span>(ethnicity_cache, <span class="fu">bind_rows</span>(hold))</span>
-<span id="cb11-22"><a href="#cb11-22"></a><span class="fu">saveRDS</span>(ethnicity_cache,  <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'cbg_cache.Rds'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'processed'</span>)</span>
+<span id="cb15-2"><a href="#cb15-2"></a>file <span class="ot">=</span> <span class="fu">list.files</span>(dir, <span class="at">pattern =</span> <span class="st">'names.Rds'</span>)</span>
+<span id="cb15-3"><a href="#cb15-3"></a>names <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(dir, file[<span class="fu">length</span>(file)]))</span>
+<span id="cb15-4"><a href="#cb15-4"></a></span>
+<span id="cb15-5"><a href="#cb15-5"></a><span class="co"># create an name index</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a>idx <span class="ot">=</span> names <span class="sc">|&gt;</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a>  <span class="fu">distinct</span>(particle, last_name, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a>  <span class="fu">unite</span>(search_name, particle<span class="sc">:</span>last_name, <span class="at">sep=</span><span class="st">" "</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>, <span class="at">remove =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-9"><a href="#cb15-9"></a>  <span class="fu">unite</span>(search_name_full, particle<span class="sc">:</span>maiden_name, <span class="at">sep=</span><span class="st">" "</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>, <span class="at">remove =</span> <span class="cn">FALSE</span>) </span>
+<span id="cb15-10"><a href="#cb15-10"></a></span>
+<span id="cb15-11"><a href="#cb15-11"></a><span class="co"># scrape using nationalizer</span></span>
+<span id="cb15-12"><a href="#cb15-12"></a>res <span class="ot">=</span> <span class="fu">nationalize_name</span>(idx) <span class="sc">|&gt;</span></span>
+<span id="cb15-13"><a href="#cb15-13"></a>  <span class="fu">select_best_match</span>()</span>
+<span id="cb15-14"><a href="#cb15-14"></a></span>
+<span id="cb15-15"><a href="#cb15-15"></a><span class="co"># scrape using family name database</span></span>
+<span id="cb15-16"><a href="#cb15-16"></a>res2 <span class="ot">=</span> <span class="fu">name_to_origin</span>(idx)<span class="sc">|&gt;</span> </span>
+<span id="cb15-17"><a href="#cb15-17"></a>  <span class="fu">add_origin</span>() <span class="sc">|&gt;</span></span>
+<span id="cb15-18"><a href="#cb15-18"></a>  <span class="fu">add_origin5</span>() <span class="sc">|&gt;</span></span>
+<span id="cb15-19"><a href="#cb15-19"></a>  <span class="fu">clean_ethnicity</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There was 1 warning in `mutate()`.
+ℹ In argument: `origin1 = str_remove(origin1, "Joodse naam")`.
+Caused by warning in `stri_replace_first_regex()`:
+! argument is not an atomic vector; coercing</code></pre>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>ethnicity <span class="ot">=</span> ethnicity_cache <span class="sc">|&gt;</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">add_origin</span>() <span class="sc">|&gt;</span></span>
-<span id="cb12-3"><a href="#cb12-3"></a>  <span class="fu">add_origin5</span>() <span class="sc">|&gt;</span></span>
-<span id="cb12-4"><a href="#cb12-4"></a>  <span class="fu">clean_ethnicity</span>()</span>
-<span id="cb12-5"><a href="#cb12-5"></a></span>
-<span id="cb12-6"><a href="#cb12-6"></a></span>
-<span id="cb12-7"><a href="#cb12-7"></a><span class="fu">fsaveRDS</span>(ethnicity, <span class="st">'ethnicity'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># combine scraped information</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a>origin <span class="ot">=</span> idx <span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a>  <span class="fu">left_join</span>(res, <span class="at">by=</span><span class="fu">join_by</span>(search_name<span class="sc">==</span>last_name)) <span class="sc">|&gt;</span></span>
+<span id="cb17-4"><a href="#cb17-4"></a>  <span class="fu">left_join</span>(res2, <span class="at">by=</span><span class="fu">join_by</span>(search_name<span class="sc">==</span>last_name)) <span class="sc">|&gt;</span></span>
+<span id="cb17-5"><a href="#cb17-5"></a>  <span class="fu">select</span>(last_name, search_name, type<span class="sc">:</span>name_count) <span class="sc">|&gt;</span></span>
+<span id="cb17-6"><a href="#cb17-6"></a>  <span class="fu">harmonize_ethnicity</span>()</span>
+<span id="cb17-7"><a href="#cb17-7"></a></span>
+<span id="cb17-8"><a href="#cb17-8"></a><span class="fu">fsaveRDS</span>(origin, <span class="st">'ethnicity'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "SAVING: ./data/processed/20251014ethnicity.Rds"</code></pre>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>A considerable amount of people do not have an ethnicity yet. an option could be to use genderizeR API to infer ethnicity.</p>
+<pre><code>[1] "SAVING: ./data/processed/20251021ethnicity.Rds"</code></pre>
 </div>
 </div>
 
