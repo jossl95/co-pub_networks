@@ -1,0 +1,172 @@
+---
+title: "Create patch for institutions"
+date: today
+
+---
+
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# clear the global environment
+rm(list = ls())
+gc()
+```
+
+```{r}
+#| warning: false
+#| output: false
+source("src/utils/custom_functions.r")
+
+# load and activate packages
+fpackage.check(c(
+  'tidyverse', 'readxl',  'stringr', 
+  'lubridate', 'openalexR', 'rvest', 'jsonlite',
+  'cli'
+))
+
+options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
+```
+
+
+```{r}
+dir = file.path('data', 'processed')
+file = list.files(dir, pattern = 'names.Rds')
+names = freadRDS(file.path(dir, file[length(file)]))
+
+
+file = list.files(dir, pattern = 'scholarid.Rds')
+scholar = freadRDS(file.path(dir, file)) |>
+  select(naam, university) |>
+  distinct(.keep_all = TRUE) |>
+  unnest_longer(university) 
+```
+
+
+```{r}
+dir = file.path('data', 'raw_data')
+file = list.files(dir, pattern='oaworks')
+pubs = bind_rows(freadRDS(file.path(dir, file[length(file)])))
+
+file = list.files(dir, pattern='oascholars')
+dems = bind_rows(freadRDS(file.path(dir, file[length(file)]))) |>
+  select(id, last_known_institutions)
+```
+
+
+```{r}
+unnest_authors <- function(pubs) {
+  pubs |>
+    # 1) Make sure each element of `authorships` is a tibble (handles NULLs/lists)
+    mutate(
+      authorships = map(authorships, ~
+        if (is.null(.x)) tibble()
+        else if (is.data.frame(.x)) as_tibble(.x)
+        else tibble::as_tibble(.x)
+      )
+    ) |>
+    # 2) One row per author record (keeps pubs with 0 authors via keep_empty)
+    unnest(authorships, keep_empty = TRUE, names_sep = "_") |>
+    # 3) Make sure each element of `affiliations` is a tibble (handles NULLs/lists)
+    mutate(
+      authorships_affiliations = map(authorships_affiliations, ~
+        if (is.null(.x)) tibble()
+        else if (is.data.frame(.x)) as_tibble(.x)
+        else tibble::as_tibble(.x)
+      )
+    ) |>
+    # 4) One row per author record (keeps pubs with 0 authors via keep_empty)
+    unnest(authorships_affiliations, keep_empty = TRUE, names_sep = "_")  |>
+    # 3) Make sure each element of `affiliations` is a tibble (handles NULLs/lists)
+    mutate(
+      last_known_institutions = map(last_known_institutions, ~
+        if (is.null(.x)) tibble()
+        else if (is.data.frame(.x)) as_tibble(.x)
+        else tibble::as_tibble(.x)
+      )
+    ) |>
+    # 4) One row per author record (keeps pubs with 0 authors via keep_empty)
+    unnest(last_known_institutions, keep_empty = TRUE, names_sep = "_")
+}
+
+# pubs_authors <- unnest_authors(pubs, dems) |>
+#   filter(author_id == authorships_id) |>
+#   filter(authorhships_affiliations)
+
+```
+
+```{r}
+
+
+
+pubs_authors = pubs |>
+  left_join(dems, by = join_by(author_id == id)) |>
+  unnest_authors()|>
+  filter(author_id == authorships_id) |>
+  filter(
+    is.na(authorships_affiliations_id) |
+    authorships_affiliations_id == last_known_institutions_id
+  )
+
+```
+
+
+```{r}
+
+universities = c(
+    "https://openalex.org/I865915315", "https://openalex.org/I887064364",
+    "https://openalex.org/I121797337", "https://openalex.org/I145872427", 
+    "https://openalex.org/I193662353", "https://openalex.org/I913958620", 
+    "https://openalex.org/I193700539", "https://openalex.org/I169381384", 
+    "https://openalex.org/I913481162"
+)
+
+dates = pubs_authors |>
+    distinct(
+      authorships_display_name, authorships_id, authorships_affiliations_id, 
+      authorships_affiliations_display_name, publication_date,
+      .keep_all=TRUE
+    ) |>
+    filter(authorships_affiliations_id %in% universities) |>
+    arrange(publication_date) |>
+    group_by(authorships_id, authorships_affiliations_display_name, authorships_affiliations_id) |>
+    summarize(
+        authorships_display_name = first(authorships_display_name),
+        first_date = first(publication_date) ,
+        last_date = last(publication_date)
+    ) |>
+    mutate(
+      first_date = first_date %m-% months(18),
+      last_date = last_date %m+% months(6)
+    )
+```
+
+
+```{r}
+timepoints <- c("2019-09-01", "2022-12-19", "2024-04-19", "2025-10-02")
+tp <- ymd(timepoints)
+
+d = dates |>
+  tidyr::expand_grid(timepoint = tp) |>
+  arrange(timepoint) |>
+  mutate(
+    in_range = between(timepoint, first_date, last_date),
+    year = as.integer(year(timepoint) - 2000) 
+  ) |>
+  filter(in_range) |>
+  distinct(authorships_display_name, authorships_id, authorships_display_name, authorships_affiliations_display_name, year) |>
+  pivot_wider(
+    id_cols = c(authorships_display_name, authorships_id),
+    names_from = year,
+    names_prefix = 'affiliation_',
+    values_from = authorships_affiliations_display_name,
+    values_fn = list(authorships_affiliations_display_name = \(x) list(sort(unique(na.omit(x)))))
+  ) |>
+  arrange(authorships_display_name)
+
+fsaveRDS(d, 'institutions_patch')
+
+```
+

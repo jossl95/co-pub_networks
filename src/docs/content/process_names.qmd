@@ -182,6 +182,33 @@ format_names = function(data){
 
 ```
 
+```{r}
+add_uid = function(names){
+  # configure sqids
+  settings <- sqids::sqids_options(min_length = 10)
+  unique_names = names$clean_name |> unique()
+
+  # generate a id for all names
+  lookup = list()
+  for (i in 1:length(unique_names)){
+    name = unique_names[[i]]
+    id = sqids::encode(i * 25, settings)
+    lookup[[i]] = tibble(
+      clean_name = name,
+      uid = id
+    )
+  }
+
+  lookup = bind_rows(lookup)
+  saveRDS(lookup, file.path('data', 'utils', 'uid_key.Rds'))
+
+  names |>
+    left_join(lookup) |>
+    relocate(uid, .before=1)
+}
+
+```
+
 ## Application
 
 ```{r}
@@ -201,7 +228,8 @@ names = data |>
   extract_initials() |>
   patch_names() |>
   extract_maiden_name() |>
-  format_names()
+  format_names() |>
+  add_uid()
 
 fsaveRDS(
   names, 
@@ -210,3 +238,8 @@ fsaveRDS(
 ```
 
 
+
+
+```{r}
+
+```

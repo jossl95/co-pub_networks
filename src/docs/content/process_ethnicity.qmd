@@ -459,6 +459,10 @@ harmonize_ethnicity = function(origin) {
         str_detect(search_name, "Bol") ~ "NL",
         str_detect(search_name, "Deen") ~ "NL",
         str_detect(search_name, "Vrooman") ~ "NL",
+        str_detect(search_name, "Verdun") ~ "NL",
+        str_detect(search_name, "Merlo") ~ "NL",
+        str_detect(search_name, "Phillips") ~ "BR",
+
         .default = ethnicity
       ),
       count = case_when(
@@ -470,8 +474,8 @@ harmonize_ethnicity = function(origin) {
         .default = probability
       )
     ) |>
-    select(last_name, ethnicity, count, probability) |>
-    distinct(last_name, ethnicity, .keep_all=TRUE) |>
+    select(uid, search_name, ethnicity, count, probability) |>
+    distinct(uid, search_name, ethnicity, .keep_all=TRUE) |>
     left_join(
       iso |> select(alpha_2, country_name),
       by = join_by(ethnicity == alpha_2)
@@ -506,7 +510,7 @@ res2 = name_to_origin(idx)|>
 origin = idx |>
   left_join(res, by=join_by(search_name==last_name)) |>
   left_join(res2, by=join_by(search_name==last_name)) |>
-  select(last_name, search_name, type:name_count) |>
+  select(uid, last_name, search_name, type:name_count) |>
   harmonize_ethnicity()
 
 fsaveRDS(origin, 'ethnicity')

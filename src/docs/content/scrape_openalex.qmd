@@ -1,0 +1,492 @@
+---
+title: "Data Preparation OpenAlex-ID"
+date: today
+
+execute: 
+  eval: false
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# clear the global environment
+rm(list = ls())
+gc()
+```
+
+```{r}
+#| warning: false
+#| output: false
+source("src/utils/custom_functions.r")
+
+# load and activate packages
+fpackage.check(c(
+  'tidyverse', 'readxl',  'stringr', 
+  'lubridate', 'openalexR', 'rvest', 'jsonlite',
+  'cli', 'stringi', 'stringdist'
+))
+
+options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
+```
+
+## Functions
+
+```{r}
+normalize_university_names = function(df){
+  # 1) Pattern → c(english, native) (use ^...$ to force exact matches)
+   lookup = list(
+    "VU"                = c("Free University Amsterdam", 
+                            "Vrije Universiteit Amsterdam"),
+    "(UvA|Uva)"         = c("University of Amsterdam", 
+                            "Universiteit van Amsterdam"),
+    "Leiden"            = c("Leiden University",
+                            "Leiden Universiteit"),
+    # this pattern matches with “RU”, “(RU)”, “RU,”, etc., and excludes “RUG”.
+    "\\bRU\\b"          = c("Radboud University Nijmegen",
+                            "Radboud Universiteit Nijmegen"),
+    "(UU|UCU)"          = c("Utrecht University", 
+                            "Universiteit Utrecht"),
+    "^EUR$"             = c("Erasmus University Rotterdam", 
+                            "Erasmus Universiteit Rotterdam"),
+    "(RUG|UvG)"         = c("University of Groningen", 
+                            "Rijksuniversiteit Groningen"),
+    "(UvT|Uvt|Tilburg)" = c("University of Tilburg", 
+                            "Universiteit van Tilburg"),
+    "WUR"               = c("Wageningen University & Research", 
+                            "Wageningen University & Research"),
+    "^TU Delft$"        = c("Technical University Delft", 
+                            "Technische Universiteit Delft"),
+    "Milano"            = c("University of Milan", 
+                            "Università degli Studi di Milano Statale"),
+    "Berlijn"           = c("University of Hamburg",
+                            "Universität Hamburg"),
+    "Trento"            = c("University of Trento",
+                            "Università degli Studi di Trento"),
+    "Stockholm"         = c("Stockholm University", 
+                            "Stockholms Universitet"),
+    "Gent"              = c("Ghent University", 
+                            "Universiteit Gent"),
+    # Only native names (leave EN as-is)
+    "Gothenburg"        = c(NA, "Göteborgs universitet"),
+    "Cologne"           = c(NA, "Universität zu Köln"),
+    "Koc"               = c(NA, "Koç Üniversitesi"),
+    "Turku"             = c(NA, "Turun Yliopisto"),
+    "Lausane"           = c(NA, "Université de Lausanne"),
+    "Leipzig"           = c(NA, "Universität Leipzig"),
+    "Linköping"         = c(NA, "Linköpings universitet"),
+    # Explicit NAs
+    "^Politie$"         = c(NA, NA),
+    "^UvH$"             = c(NA, NA)
+  )
+
+  # 2) set the default values for university_names
+  df = df |>
+    mutate(
+      university = map_chr(university, ~ {
+          if (is.null(.x) || length(.x) == 0) return(NA_character_)
+          as.character(.x[[1]])
+        }),
+      university       = str_replace(university, "(Uni |uni)", "University "),
+      university_name  = university,             # default EN → original
+      university_name2 = NA_character_           # default native → NA
+    )
+
+  # 3) replace the university name when the pattern is detected in university
+  for (pat in names(lookup)) {
+    vals = lookup[[pat]]
+    idx  = str_detect(df$university, pat)
+
+    if (!is.na(vals[1])) {
+      df$university_name[idx & df$university_name == df$university] = vals[1]
+    }
+    if (!is.na(vals[2])) {
+      df$university_name2[idx & is.na(df$university_name2)] = vals[2]
+    }
+  }
+
+  # 4) stack the values of the two university_name variables
+  df = df |>
+    pivot_longer(
+      cols = c(university_name, university_name2),
+      names_to = "var",
+      values_to = "university_name"
+    ) |>
+    select(uid, naam, clean_name, university, university_name)
+
+  return(df)
+}
+
+```
+
+```{r}
+oa_fetch_institutions = function(institutions, pause=0){
+  k = length(institutions)
+  hold = list()
+
+  cli_alert("Starting now, at {Sys.time()}")
+  cli_progress_bar("Scraping institutions", total = k, clear = FALSE)
+  # 1) iterate over all institutionsinstitutions
+  for (institution in institutions){
+    # sleep if a pause time is set
+    if (pause > 0) Sys.sleep(pause)
+
+    # 2) fetch result for all institutions
+    res = tryCatch(
+      oa_fetch(
+          entity = "institutions", search=institution
+        ),
+      error = function(e) NULL,
+      warning = function(w) NULL
+    )
+
+    cli_progress_update()
+    
+
+    # 3) for cases with a valid result rename colums
+    if (is.null(res) || !is_tibble(res)) next
+    res = res |> rename(
+      "institution_id" = "id",
+      "institution_name" = "display_name"
+    )
+
+    # 4.1) single result hitsare directly stored
+    if (nrow(res) == 1L) {
+      hold[[institution]] <- res
+      next
+    }
+
+    # 4.2) multiple result hits are processed and checked the institution_name 
+    #      matches the OpenAlex display_name for institutions
+    pat = paste0("^", institution, "$")
+    idx = str_detect(res$institution_name, pat)
+
+    if (sum(idx, na.rm = TRUE) == 0L) {
+      hold[[institution]] = res
+      next
+    }
+
+    if (sum(idx, na.rm = TRUE) == 1L) {
+      hold[[institution]] = res[idx,]
+      next
+    }
+
+    # if multiple matches exist with only select the first (most relevant) one
+    if (sum(idx, na.rm = TRUE) > 1L) {
+      hold[[institution]] = res[idx,][1, ]
+    }
+  }
+
+  # combine the fetched data and harmonize this data
+  out = bind_rows(hold) |> 
+    distinct(institution_id, .keep_all=TRUE) |>
+    select(institution_name, institution_id) |>
+    mutate(
+      institution_url = institution_id,
+      institution_id = str_remove(institution_id, 'https://openalex.org/')
+    )
+
+  return(out)
+}
+
+```
+
+```{r}
+
+add_institution_id = function(df){
+  # create a vector all the unique university names
+  institutions = df$university_name |> unique() |> na.omit()
+  institutions = oa_fetch_institutions(institutions)
+
+  # merge the institutions data with df and harmonize the data
+  out = df |>
+    rename(
+      "institution_name" = "university_name",
+      "institution" = "university"
+    ) |>
+    left_join(institutions) |>
+    filter(!is.na(institution_id)) |>
+    distinct(uid, institution_id, .keep_all=TRUE)
+
+  return(out)
+}
+```
+
+```{r}
+normalize_name = function(x) {
+  x = as.character(x)
+
+  # mark Cyrillic
+  has_cyr = stri_detect_charclass(x, "\\p{Script=Cyrillic}")
+
+  # transliterate only Cyrillic -> Latin
+  x[has_cyr] = stri_trans_general(x[has_cyr], "Cyrillic-Latin")
+
+  # strip accents for all, lowercase, trim, squish
+  x = stri_trans_general(x, "Latin-ASCII")
+  x = tolower(x)
+  x = str_squish(x)
+  trimws(x)
+}
+
+add_query_similarity = function(data){
+  data |>
+    mutate(
+      dn = normalize_name(display_name),
+      qn = normalize_name(query_name),
+      query_similarity   = 1 - stringdist(dn, qn, method = "jw")
+    ) |>  # Jaro–Winkler
+    select(-dn, -qn)
+}
+```
+
+```{r}
+
+oa_fetch_authors = function(df, pause = 0){
+  # configure iterator and other looping variables
+  uids = df$uid |> unique() |> na.omit()
+  k = length(uids)
+  hold = list()
+
+  cli_alert("Starting now, at {Sys.time()}")
+  cli_progress_bar("Scraping authors", total = k, clear = FALSE)
+  for (id in uids) {
+    # extract information for each author
+    tab = df |> filter(uid ==  id)
+    if (nrow(tab) == 0) stop("invalid result:\n", tab)
+
+    # pull the required information
+    clean_name = tab |> distinct(clean_name) |> pull()
+    institution_ids = tab |> distinct(institution_id) |> pull()
+
+    if (length(institution_ids) == 0L) next 
+    # skip cases without any institutions
+    # TODO: rework code to include cases without institution.
+    # TODO: implement fetch for cases without institutions
+
+    res = tryCatch(
+      oa_fetch(
+        entity = 'author',
+        search = clean_name,
+        affiliations.institution.id = institution_ids,
+      ),
+      error = function(e) NULL,
+      warning = function(w) NULL
+    )
+    cli_progress_update()
+
+    # skip institution if invalid result
+    if (is.null(res) || !is_tibble(res) || (nrow(res) == 0)) next
+
+    # harmonize and expand the data
+    hold[[id]] = res |> rename('author_id' = 'id') |>
+      distinct(author_id, .keep_all = TRUE) |>
+      mutate(
+        uid = id,
+        query_name = clean_name,
+        .before = 1
+      ) |>
+      add_query_similarity() |>
+      arrange(-relevance_score)
+    
+  }
+  return(hold)
+}
+
+```
+
+```{r}
+unnest_institutions = function(data){
+  hold = data
+  for (id in names(data)) {
+    # extract information for each author and skip if invalid
+    tab = data[[id]]
+    if (is.null(tab) || !is_tibble(tab) || !(nrow(tab) > 0)) next
+
+    # clean authors data and unnests institution information
+    hold[[id]] = tab |>
+      filter(uid == id) |>
+      distinct(uid, author_id, .keep_all=TRUE) |>
+      mutate(
+        # unpacks the dataframes found in last_known_institutions
+        last_known_institutions = map(
+          last_known_institutions,
+          ~ .x |>
+            distinct(.keep_all = TRUE) |>
+            mutate(
+              institution_id   = str_remove(id, "^https://openalex.org/"),
+              institution_name = display_name
+            ) |>
+            select(id, institution_id, institution_name, country_code)
+        ),
+        # unnests the institution_ids
+        institution_ids = map(
+          last_known_institutions, 
+          ~ .x |> pull(institution_id) |> unique()
+        )    
+      )
+  }
+  return(hold)
+}
+```
+
+```{r}
+
+match_institutions = function(data, df){
+  hold = data
+  for(id in names(data)){
+    # extract information for each author and skip if invalid
+    tab = data[[id]]
+    if (is.null(tab) || !is_tibble(tab) || !(nrow(tab) > 0)) next
+
+    # create a list of institution_ids per author and skip if invalid
+    institutions = df |>
+      filter(uid == id) |>
+      pull(institution_id) |>
+      unique()
+    if ((length(institutions) < 1)) next
+
+    #... 
+    hold[[id]] = tab |>
+      mutate(
+        # indicates whether there is a match in institution_id between OpenAlex
+        # and the original dataframe
+        institution_match = map_lgl(
+          institution_ids, 
+          ~ {x = .x; if (is.null(x)) x = character(0)
+            any(as.character(x) %in% institutions)}
+          ),
+        keep = case_when(
+            query_similarity == 1.0 ~ TRUE,
+            !institution_match & query_similarity >= 0.60 ~ TRUE,
+            institution_match & query_similarity >= 0.45 ~ TRUE,
+            .default = FALSE
+          ),
+        keep = case_when(
+            display_name == 'Thijs W. de Vos' ~ FALSE,
+            display_name == 'Kees van Kersbergen' ~ FALSE,
+            display_name == 'René W. van der Hulst' ~ FALSE,
+            display_name == 'Younes Zoughlami' ~ FALSE,
+            display_name == 'Younes Zeboudj' ~ FALSE,
+            display_name == 'Younes Saramifar' ~ FALSE,
+            display_name == 'van Dijk' ~ FALSE,
+            display_name == 'Stephanie Maas' ~ FALSE,
+            display_name == 'A.J.J. Nijhuis' ~ FALSE,
+            (query_name == 'Meindert Fennema') & (display_name == 'Wouter van der Brug') ~ FALSE,
+            .default = keep
+          ),
+        orcid = as.character(orcid)
+      ) |>
+      filter(keep)
+  }
+  return(hold)
+}
+```
+
+```{r}
+oa_fetch_works = function(data, pause = 0){
+  # configure iterator and other looping variables
+  k = length(data)
+  hold = list()
+
+  cli_alert("Starting now, at {Sys.time()}")
+  cli_progress_bar("Scraping works", total = k, clear = FALSE)
+  for (id in names(data)){
+    cli_progress_update()
+    # extract information for each author and skip if invalid
+    tab = data[[id]]
+    if (is.null(tab) || !is_tibble(tab) || !(nrow(tab) > 0)) next
+
+    oa_ids = tab |> 
+      mutate(author_id = str_remove(author_id, 'https://openalex.org/')) |>
+      distinct(author_id) |> pull()
+    if (is.null(oa_ids) || (length(oa_ids) < 1)) next
+
+    subhold = list()
+    for (oa_id in oa_ids){
+      res = tryCatch(
+        oa_fetch(
+            entity = 'works',
+            author.id = oa_id
+        ),
+        error = function(e) NULL,
+        warning = function(w) NULL
+      )
+
+      if (is.null(res) || !is_tibble(res) || (nrow(res) == 0)) next
+
+      subhold[[oa_id]] = res |>
+        rename("work_id" = "id") |>
+        mutate(
+          uid = id,
+          author_id = oa_id,
+          .before = 1
+        ) 
+    }
+    
+
+    if (length(subhold) == 0) {
+      hold[[id]] = tibble()
+      next
+    }
+
+    hold[[id]] = bind_rows(subhold) |>
+      distinct(work_id, .keep_all = TRUE)
+
+    
+  }
+  return(hold)
+}
+```
+
+## Application
+
+```{r}
+# load the most recent names data
+dir = file.path('data', 'processed')
+file = list.files(dir, pattern = 'names.Rds')
+names = freadRDS(file.path(dir, file[length(file)])) 
+
+# load the most resent scholarid data
+dir = file.path('data', 'processed')
+file = list.files(dir, pattern = 'scholarid.Rds')
+ids = freadRDS(file.path(dir, file[length(file)])) 
+
+# Combine names and scholarid data and reshape to create a table with
+# a row per author university pair
+df = ids |>
+  left_join(names) |>
+  distinct(uid, university, .keep_all = TRUE) |>
+  unnest_longer(university) |>
+  normalize_university_names() |>
+  add_institution_id()
+
+```
+
+```{r}
+# create a authors table
+authors = df |>
+  oa_fetch_authors() |> 
+  unnest_institutions() |>
+  match_institutions(df)
+
+fsaveRDS(authors, 'oaauthors', location = "./data/raw_data/")
+```
+
+```{r}
+a = bind_rows(authors)
+a |> head()
+```
+
+```{r}
+# create a works table
+works = oa_fetch_works(authors)
+fsaveRDS(works, 'oaworks', location = "./data/raw_data/")
+```
+
+
+```{r}
+w = bind_rows(works)
+w |> head()
+```

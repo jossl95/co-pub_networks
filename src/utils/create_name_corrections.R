@@ -95,7 +95,9 @@ corrections <- tibble::tribble(
   "T. Nowak",                       "Tobias",    NA_character_, "Nowak",
   "Y.C. (Joyce) Pang",              "Joyce",     NA_character_, "Pang",
   "Z. Dong",                        "Zhe",       NA_character_, "Dong",
-  "Z.E. Pardoel",                   "Zinzi",     NA_character_, "Pardoel"
+  "Z.E. Pardoel",                   "Zinzi",     NA_character_, "Pardoel",
+  "Frank Zwart",                    "Frank",     "de",          "Zwart",
+  "Caroline DeWilde",               "Caronline", NA_character_, "Dewilde"
 )
 
 saveRDS(corrections, file.path('data', 'utils', 'name_corrections.Rds'))

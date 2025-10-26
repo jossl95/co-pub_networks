@@ -6,15 +6,6 @@ execute:
   eval: false
 ---
 
-:::{.callout-tip}
-rough first working code for the collection of scholar_ids using openalexr
-
-I optimized the algorithm to not just select the top case, but allows for
-multiple ids (in rows) per person, in the decision rules i use:
-- semantic similarity
-- matches of university_id and institution_id
-:::
-
 ## Getting Started
 
 ```{r}
@@ -43,8 +34,7 @@ options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
 ```{r}
 dir = file.path('data', 'processed')
 file = list.files(dir, pattern = 'names.Rds')
-names = freadRDS(file.path(dir, file))
-
+names = freadRDS(file.path(dir, file[length(file)]))
 
 file = list.files(dir, pattern = 'scholarid.Rds')
 scholar = freadRDS(file.path(dir, file)) |>
@@ -103,7 +93,7 @@ scholar = scholar |>
       university == 'Uni Gothenburg' ~ "Universiteit van Gothenburg",
       university == 'TU Delft' ~ "Technische Universiteit Delft",
       str_detect(university, 'Milano') ~ 'Università degli Studi di Milano Statale',
-      # fix for mistake in affilation for Sabine Mokry,
+      # fix for mistake in affilation for Sabine Mokry Berlijn -> Hamburg,
       str_detect(university, 'Berlijn') ~ 'Universität Hamburg',
       str_detect(university, 'Trento') ~ 'Università degli Studi di Trento',
       str_detect(university, 'Cologne') ~ 'Universität zu Köln',
@@ -131,41 +121,6 @@ scholar = scholar |>
 institutions = scholar$university_name |> unique()
 ```
 
-```{r}
-# scholar = scholar |>
-#   mutate(
-#     university_name = university |>
-#       str_replace("(Uni |uni)", "University ") |>
-#       str_replace('(UU)', 'Utrecht University') |>
-#       str_replace('(UCU)', 'Utrecht University') |>
-#       str_replace('(Leiden|Leiden University)', 'Leiden University') |>
-#       str_replace('(RUG)', 'University of Groningen') |>
-#       str_replace('(RU)', 'Radboud University Nijmegen') |>
-#       str_replace('(UvA|Uva)', 'University of Amsterdam') |>
-#       str_replace('(VU)', 'Free University Amsterdam') |>
-#       str_replace('(EUR)', 'Erasmus University Rotterdam') |>
-#       str_replace('(UvT|Tilburg|Uvt)', 'University of Tilburg') |>
-#       str_replace('(TU Delft)', 'Technical University Delft') |>
-#       str_replace('(WUR)', 'Wageningen University & Research') |>
-#       str_replace('(Universita degli studi di Milano)', 'University of Milan') |>
-#       str_replace('(Politie)', NA_character_) |>
-#       str_replace('(UvH)', NA_character_) |>
-#       str_replace('(UvG)', "University of Groningen") |>
-#       # fixing mistake for Sabine Mokry
-#       str_replace('University Berlijn', "University of Hamburg") |>
-#       str_replace('Trento University', "University of Trento") |>
-      
-#   ) |>
-#   filter(!is.na(university_name))
-
-# # institutions = c(
-# #   scholar$university_name |> unique(),
-# # )
-
-# institutions = scholar$university_name |> unique()
-```
-
-
 
 ```{r}
 oa_fetch_institution = function(institution, pause=0){
@@ -180,19 +135,29 @@ oa_fetch_institution = function(institution, pause=0){
 hold = c()
 for (institution in institutions){
   id = oa_fetch_institution(institution)
-  hold[[institution]] = tibble::tibble(
-    university_name = institution,
-    university_url = id, 
-    university_id = str_remove(id, 'https://openalex.org/')
-  )
+
+  if(!is.null(id)){
+    hold[[institution]] = tibble::tibble(
+      university_name = institution,
+      university_url = id, 
+      university_id = str_remove(id, 'https://openalex.org/')
+    )
+  }
 }
 
-institutions = bind_rows(hold) |>
-  drop_na()
+institutions = bind_rows(hold) 
+
 scholar = scholar |>
   left_join(institutions) |>
-  distinct(naam, university_id, .keep_all = TRUE)
+  left_join(names |> select(uid, naam, clean_name)) |>
+  relocate(uid, .before = 1) |>
+  distinct(clean_name, university_id, .keep_all = TRUE)
 ```
+
+```{r}
+institutions
+```
+
 
 ```{r}
 # library(dplyr)
@@ -269,17 +234,10 @@ oa_fetch_scholar = function(
 
 ```
 
-
 ```{r}
-scholar_name = 'Amy Verdun'
-id = "I121797337"
-res = oa_fetch_scholar(scholar_name, id)
-```
-
-
-```{r}
+# adapt code to clean_name
 library(cli)
-scholars = scholar$naam |> unique()
+scholars = scholar$clean_name |> unique()
 
 scrape_scholars = function(scholars){
   # configure loop
@@ -291,12 +249,14 @@ scrape_scholars = function(scholars){
   cli_progress_bar("Scraping Scholars", total = k, clear = FALSE)
   for (scholar_name in scholars) {
     tab = scholar |> 
-      filter(naam == scholar_name) |>
-      select(naam:university_id)
+      filter(clean_name == scholar_name) |>
+      select(uid:university_id)
 
+    uid_ = tab |> pull(uid) |> unique()
     university_ids = as.list(na.omit(tab$university_id))
     if (length(university_ids) > 0){
-      hold[[scholar_name]] = oa_fetch_scholar(scholar_name, university_ids)
+      hold[[scholar_name]] = oa_fetch_scholar(scholar_name, university_ids) |>
+        mutate(uid = uid_, .before=1)
     }
     cli_progress_update()
   }
@@ -321,21 +281,21 @@ for (name_ in names(hold)){
   # if there is a table, than update the table
   if (nrow(tab) >= 1){
     tab = tab |>
-    filter(query_name == name_) |>
-    distinct(.keep_all = TRUE) |>
-    mutate(
-      last_known_institutions = map(
-        last_known_institutions,
-        ~ .x |>
-          distinct(.keep_all = TRUE) |>
-          mutate(
-            institution_id   = str_remove(id, "^https://openalex.org/"),
-            institution_name = display_name
-          ) |>
-          select(id, institution_id, institution_name, country_code)
-      ),
-      institution_ids = map(last_known_institutions, ~ .x |> pull(institution_id) |> unique())
-    )
+      filter(query_name == name_) |>
+      distinct(.keep_all = TRUE) |>
+      mutate(
+        last_known_institutions = map(
+          last_known_institutions,
+          ~ .x |>
+            distinct(.keep_all = TRUE) |>
+            mutate(
+              institution_id   = str_remove(id, "^https://openalex.org/"),
+              institution_name = display_name
+            ) |>
+            select(id, institution_id, institution_name, country_code)
+        ),
+        institution_ids = map(last_known_institutions, ~ .x |> pull(institution_id) |> unique())
+      )
   }
 
   hold2[[name_]] = tab
@@ -352,7 +312,7 @@ for (name_ in names(hold2)){
   tab = hold2[[name_]]
 
   university_ids = scholar |> 
-    filter(naam == name_) |>
+    filter(clean_name == name_) |>
     select(university_id) |> 
     pull()
 
@@ -393,7 +353,21 @@ for (name_ in names(hold2)){
           display_name == 'van Dijk' ~ FALSE,
           display_name == 'Stephanie Maas' ~ FALSE,
           display_name == 'A.J.J. Nijhuis' ~ FALSE,
+          (query_name == 'Meindert Fennema') & (display_name == 'Wouter van der Brug') ~ FALSE,
           .default = FALSE
+        ),
+        keep = case_when(
+          display_name == 'Thijs W. de Vos' ~ FALSE,
+          display_name == 'Kees van Kersbergen' ~ FALSE,
+          display_name == 'René W. van der Hulst' ~ FALSE,
+          display_name == 'Younes Zoughlami' ~ FALSE,
+          display_name == 'Younes Zeboudj' ~ FALSE,
+          display_name == 'Younes Saramifar' ~ FALSE,
+          display_name == 'van Dijk' ~ FALSE,
+          display_name == 'Stephanie Maas' ~ FALSE,
+          display_name == 'A.J.J. Nijhuis' ~ FALSE,
+          (query_name == 'Meindert Fennema') & (display_name == 'Wouter van der Brug') ~ FALSE,
+          .default = keep
         ),
         orcid = as.character(orcid)
       ) |>
@@ -409,11 +383,5 @@ for (name_ in names(hold2)){
 fsaveRDS(hold3, 'oascholars', location = "./data/raw_data/")
 ```
 
-```{r}
-dir = file.path('data', 'raw_data')
-file = list.files(dir, pattern = 'oascholars.Rds')[1]
-data = freadRDS(file.path(dir, file ))
 
-data = bind_rows(data)
-```
 

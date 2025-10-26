@@ -41,15 +41,8 @@ options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
 ```
 
 
-
 ```{r}
-old_file_ = "/Users/josslabbekoorn/Downloads/scholars_20240925.rda"
-old = load(old_file_)
-```
-
-
-```{r}
-file = file.path('data', 'raw_data', '20251015oascholars.Rds')
+file = file.path('data', 'raw_data', '20251022oascholars.Rds')
 scholars = freadRDS(file) |> bind_rows()
 ```
 
@@ -84,8 +77,8 @@ oa_fetch_works = function(scholars){
 
                 if (!is.null(res)){
                     res = res |>
-                        mutate(author_id = id_) |>
-                        relocate(author_id, .before=id)
+                        mutate(aid = id_) |>
+                        relocate(aid, .before=id)
                 }
                 works[[id_]] = res
             

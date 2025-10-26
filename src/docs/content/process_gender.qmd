@@ -382,8 +382,8 @@ harmonize_gender = function(gender) {
 ```{r}
 
 dir = file.path('data', 'processed')
-file = list.files(dir, pattern = 'names.Rds')[[1]]
-names = readRDS(file.path(dir, file))
+file = list.files(dir, pattern = 'names.Rds')
+names = readRDS(file.path(dir, file[length(file)]))
 
 idx = names |>
   mutate(term = first_name |> 
