@@ -2,6 +2,8 @@ project:
   type: website
   output-dir: docs
   execute-dir: project
+  post-render:
+    - src/utils/rename_old_datafiles.R
 
 website:
   title: Networks

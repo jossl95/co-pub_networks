@@ -22,7 +22,6 @@ library(stringr)
 library(janitor)
 library(lubridate)
 
-
 # load custom functions
 source("src/utils/custom_functions.r")
 .load_quarto_dependencies()

@@ -4,14 +4,14 @@
     "href": "src/docs/content/process_gender.html",
     "title": "Data Processing Gender",
     "section": "",
-    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605346 32.4    1371655 73.3         NA   715808 38.3\nVcells 1118171  8.6    8388608 64.0      16384  2012177 15.4\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(stringr)\nlibrary(lubridate)\nlibrary(httr2)\nlibrary(rvest)\nlibrary(xml2)\nlibrary(purrr)\nlibrary(genderizeR)\nlibrary(dotenv)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605350 32.4    1371670 73.3         NA   715802 38.3\nVcells 1118211  8.6    8388608 64.0      16384  2012236 15.4\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(stringr)\nlibrary(lubridate)\nlibrary(httr2)\nlibrary(rvest)\nlibrary(xml2)\nlibrary(purrr)\nlibrary(genderizeR)\nlibrary(dotenv)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
   },
   {
     "objectID": "src/docs/content/process_gender.html#getting-started",
     "href": "src/docs/content/process_gender.html#getting-started",
     "title": "Data Processing Gender",
     "section": "",
-    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605346 32.4    1371655 73.3         NA   715808 38.3\nVcells 1118171  8.6    8388608 64.0      16384  2012177 15.4\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(stringr)\nlibrary(lubridate)\nlibrary(httr2)\nlibrary(rvest)\nlibrary(xml2)\nlibrary(purrr)\nlibrary(genderizeR)\nlibrary(dotenv)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605350 32.4    1371670 73.3         NA   715802 38.3\nVcells 1118211  8.6    8388608 64.0      16384  2012236 15.4\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(stringr)\nlibrary(lubridate)\nlibrary(httr2)\nlibrary(rvest)\nlibrary(xml2)\nlibrary(purrr)\nlibrary(genderizeR)\nlibrary(dotenv)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
   },
   {
     "objectID": "src/docs/content/process_gender.html#functions",
@@ -109,14 +109,14 @@
     "href": "src/docs/content/create_scholars.html",
     "title": "Data Processing Scholars",
     "section": "",
-    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605289 32.4    1371492 73.3         NA   715808 38.3\nVcells 1122070  8.6    8388608 64.0      16384  2012177 15.4\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(renv)\nlibrary(stringr)\nlibrary(janitor)\nlibrary(lubridate)\n\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605293 32.4    1371507 73.3         NA   715802 38.3\nVcells 1122109  8.6    8388608 64.0      16384  2012236 15.4\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(renv)\nlibrary(stringr)\nlibrary(janitor)\nlibrary(lubridate)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
   },
   {
     "objectID": "src/docs/content/create_scholars.html#getting-started",
     "href": "src/docs/content/create_scholars.html#getting-started",
     "title": "Data Processing Scholars",
     "section": "",
-    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605289 32.4    1371492 73.3         NA   715808 38.3\nVcells 1122070  8.6    8388608 64.0      16384  2012177 15.4\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(renv)\nlibrary(stringr)\nlibrary(janitor)\nlibrary(lubridate)\n\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605293 32.4    1371507 73.3         NA   715802 38.3\nVcells 1122109  8.6    8388608 64.0      16384  2012236 15.4\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(renv)\nlibrary(stringr)\nlibrary(janitor)\nlibrary(lubridate)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
   },
   {
     "objectID": "src/docs/content/create_scholars.html#functions",
@@ -165,14 +165,14 @@
     "href": "src/docs/content/process_ethnicity.html",
     "title": "Data Processing Ethnicity",
     "section": "",
-    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605482 32.4    1372044 73.3         NA   715808 38.3\nVcells 1121549  8.6    8388608 64.0      16384  2012177 15.4\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(stringr)\nlibrary(lubridate)\nlibrary(httr2)\nlibrary(rvest)\nlibrary(xml2)\nlibrary(purrr)\nlibrary(RCurl)\nlibrary(fuzzyjoin)\nlibrary(stringi)\nlibrary(DemografixeR)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605486 32.4    1372058 73.3         NA   715802 38.3\nVcells 1121584  8.6    8388608 64.0      16384  2012236 15.4\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(stringr)\nlibrary(lubridate)\nlibrary(httr2)\nlibrary(rvest)\nlibrary(xml2)\nlibrary(purrr)\nlibrary(RCurl)\nlibrary(fuzzyjoin)\nlibrary(stringi)\nlibrary(DemografixeR)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
   },
   {
     "objectID": "src/docs/content/process_ethnicity.html#getting-started",
     "href": "src/docs/content/process_ethnicity.html#getting-started",
     "title": "Data Processing Ethnicity",
     "section": "",
-    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605482 32.4    1372044 73.3         NA   715808 38.3\nVcells 1121549  8.6    8388608 64.0      16384  2012177 15.4\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(stringr)\nlibrary(lubridate)\nlibrary(httr2)\nlibrary(rvest)\nlibrary(xml2)\nlibrary(purrr)\nlibrary(RCurl)\nlibrary(fuzzyjoin)\nlibrary(stringi)\nlibrary(DemografixeR)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  605486 32.4    1372058 73.3         NA   715802 38.3\nVcells 1121584  8.6    8388608 64.0      16384  2012236 15.4\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(stringr)\nlibrary(lubridate)\nlibrary(httr2)\nlibrary(rvest)\nlibrary(xml2)\nlibrary(purrr)\nlibrary(RCurl)\nlibrary(fuzzyjoin)\nlibrary(stringi)\nlibrary(DemografixeR)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
   },
   {
     "objectID": "src/docs/content/process_ethnicity.html#functions",

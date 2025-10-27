@@ -4,3 +4,8 @@
 .DS_Store
 .Rhistory
 .env
+
+# exclude old datafiles
+raw_data/old_*.Rds
+processed/old_*.Rds
+processed/old_*.Rda
