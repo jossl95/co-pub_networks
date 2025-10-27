@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-10-21">
+<meta name="dcterms.date" content="2025-10-27">
 
 <title>Data Processing Scholars – Networks</title>
 <style>
@@ -154,16 +154,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-data-scraping">    
         <li>
-    <a class="dropdown-item" href="../../../src/docs/content/scrape_authorid.html">
- <span class="dropdown-text">Scrape Author ID using <code>openalexr</code></span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../../src/docs/content/scrape_works.html">
- <span class="dropdown-text">Scrape Works using <code>openalexr</code></span></a>
+    <a class="dropdown-item" href="../../../src/docs/content/scrape_openalex.html">
+ <span class="dropdown-text">Scrape information from OpenAlex</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../../src/docs/content/combine_data.html">
- <span class="dropdown-text">Combine Scrape data</span></a>
+ <span class="dropdown-text">Combine OpenAlex data</span></a>
   </li>  
     </ul>
   </li>
@@ -220,7 +216,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 21, 2025</p>
+      <p class="date">October 27, 2025</p>
     </div>
   </div>
   
@@ -240,19 +236,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-Ncells  605262 32.4    1371427 73.3         NA   715785 38.3
-Vcells 1122026  8.6    8388608 64.0      16384  2012131 15.4</code></pre>
+Ncells  605289 32.4    1371492 73.3         NA   715808 38.3
+Vcells 1122070  8.6    8388608 64.0      16384  2012177 15.4</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># load custom functions</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
-<span id="cb3-3"><a href="#cb3-3"></a></span>
-<span id="cb3-4"><a href="#cb3-4"></a><span class="co"># load and activate packages</span></span>
-<span id="cb3-5"><a href="#cb3-5"></a><span class="fu">fpackage.check</span>(<span class="fu">c</span>(</span>
-<span id="cb3-6"><a href="#cb3-6"></a>  <span class="st">'tidyverse'</span>, <span class="st">'readxl'</span>, <span class="st">'renv'</span>, <span class="st">'stringr'</span>, </span>
-<span id="cb3-7"><a href="#cb3-7"></a>  <span class="st">'janitor'</span>, <span class="st">'lubridate'</span></span>
-<span id="cb3-8"><a href="#cb3-8"></a>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># load and activate packages</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="fu">library</span>(renv)</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb3-8"><a href="#cb3-8"></a></span>
+<span id="cb3-9"><a href="#cb3-9"></a></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="co"># load custom functions</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="fu">.load_quarto_dependencies</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="functions" class="level2">
@@ -416,30 +416,32 @@ Vcells 1122026  8.6    8388608 64.0      16384  2012131 15.4</code></pre>
 <span id="cb8-12"><a href="#cb8-12"></a>    <span class="fu">unnest_longer</span>(universiteit) <span class="sc">|&gt;</span></span>
 <span id="cb8-13"><a href="#cb8-13"></a>    <span class="co"># clean the university labels</span></span>
 <span id="cb8-14"><a href="#cb8-14"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb8-15"><a href="#cb8-15"></a>      <span class="at">universiteit =</span> <span class="fu">str_replace</span>(<span class="fu">str_squish</span>(universiteit), <span class="st">'Leiden uni'</span>, <span class="st">'Leiden'</span>),</span>
-<span id="cb8-16"><a href="#cb8-16"></a>      <span class="at">university =</span> <span class="fu">str_replace</span>(universiteit, pat, \(m) canon[<span class="fu">str_to_lower</span>(m)]),</span>
-<span id="cb8-17"><a href="#cb8-17"></a>      <span class="at">universiteit =</span> <span class="fu">case_when</span>(</span>
-<span id="cb8-18"><a href="#cb8-18"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'essb.eur.nl'</span>)) <span class="sc">~</span> <span class="st">'EUR'</span>,</span>
-<span id="cb8-19"><a href="#cb8-19"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'vu.nl'</span>))  <span class="sc">~</span> <span class="st">'VU'</span>,</span>
-<span id="cb8-20"><a href="#cb8-20"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'uva.nl'</span>))  <span class="sc">~</span>  <span class="st">'UVA'</span>,</span>
-<span id="cb8-21"><a href="#cb8-21"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'leidenuni'</span>))  <span class="sc">~</span>  <span class="st">'Leiden'</span>,</span>
-<span id="cb8-22"><a href="#cb8-22"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'ru.nl'</span>))  <span class="sc">~</span>  <span class="st">'RU'</span>,</span>
-<span id="cb8-23"><a href="#cb8-23"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'rug.nl'</span>))  <span class="sc">~</span>  <span class="st">'RUG'</span>,</span>
-<span id="cb8-24"><a href="#cb8-24"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'tilburguni'</span>))  <span class="sc">~</span>  <span class="st">'UvT'</span>,</span>
-<span id="cb8-25"><a href="#cb8-25"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'uu.nl'</span>))  <span class="sc">~</span>  <span class="st">'UU'</span>,</span>
-<span id="cb8-26"><a href="#cb8-26"></a>        <span class="at">.default =</span> university</span>
-<span id="cb8-27"><a href="#cb8-27"></a>      ),</span>
-<span id="cb8-28"><a href="#cb8-28"></a>      <span class="at">university =</span> <span class="fu">ifelse</span>(<span class="st">""</span> <span class="sc">==</span> university, <span class="cn">NA_character_</span>, university)</span>
-<span id="cb8-29"><a href="#cb8-29"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb8-30"><a href="#cb8-30"></a>    <span class="fu">distinct</span>(<span class="at">.keep_all=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-31"><a href="#cb8-31"></a>    <span class="fu">group_by</span>(naam, date) <span class="sc">|&gt;</span> </span>
-<span id="cb8-32"><a href="#cb8-32"></a>    <span class="fu">summarise</span>(<span class="at">university =</span> <span class="fu">list</span>(<span class="fu">unlist</span>(university))) <span class="sc">|&gt;</span></span>
-<span id="cb8-33"><a href="#cb8-33"></a>    <span class="fu">ungroup</span>()</span>
-<span id="cb8-34"><a href="#cb8-34"></a></span>
-<span id="cb8-35"><a href="#cb8-35"></a>  data <span class="sc">|&gt;</span></span>
-<span id="cb8-36"><a href="#cb8-36"></a>    <span class="fu">left_join</span>(uni) <span class="sc">|&gt;</span></span>
-<span id="cb8-37"><a href="#cb8-37"></a>    <span class="fu">relocate</span>(university, <span class="at">.after=</span>universiteit)</span>
-<span id="cb8-38"><a href="#cb8-38"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-15"><a href="#cb8-15"></a>      <span class="at">universiteit =</span> <span class="fu">str_replace</span>(</span>
+<span id="cb8-16"><a href="#cb8-16"></a>        <span class="fu">str_squish</span>(universiteit), <span class="st">'Leiden uni'</span>, <span class="st">'Leiden'</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>      ),</span>
+<span id="cb8-18"><a href="#cb8-18"></a>      <span class="at">university =</span> <span class="fu">str_replace</span>(universiteit, pat, \(m) canon[<span class="fu">str_to_lower</span>(m)]),</span>
+<span id="cb8-19"><a href="#cb8-19"></a>      <span class="at">universiteit =</span> <span class="fu">case_when</span>(</span>
+<span id="cb8-20"><a href="#cb8-20"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'essb.eur.nl'</span>)) <span class="sc">~</span> <span class="st">'EUR'</span>,</span>
+<span id="cb8-21"><a href="#cb8-21"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'vu.nl'</span>))  <span class="sc">~</span> <span class="st">'VU'</span>,</span>
+<span id="cb8-22"><a href="#cb8-22"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'uva.nl'</span>))  <span class="sc">~</span>  <span class="st">'UVA'</span>,</span>
+<span id="cb8-23"><a href="#cb8-23"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'leidenuni'</span>))  <span class="sc">~</span>  <span class="st">'Leiden'</span>,</span>
+<span id="cb8-24"><a href="#cb8-24"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'ru.nl'</span>))  <span class="sc">~</span>  <span class="st">'RU'</span>,</span>
+<span id="cb8-25"><a href="#cb8-25"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'rug.nl'</span>))  <span class="sc">~</span>  <span class="st">'RUG'</span>,</span>
+<span id="cb8-26"><a href="#cb8-26"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'tilburguni'</span>))  <span class="sc">~</span>  <span class="st">'UvT'</span>,</span>
+<span id="cb8-27"><a href="#cb8-27"></a>        (<span class="fu">is.na</span>(university) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(email_adres, <span class="st">'uu.nl'</span>))  <span class="sc">~</span>  <span class="st">'UU'</span>,</span>
+<span id="cb8-28"><a href="#cb8-28"></a>        <span class="at">.default =</span> university</span>
+<span id="cb8-29"><a href="#cb8-29"></a>      ),</span>
+<span id="cb8-30"><a href="#cb8-30"></a>      <span class="at">university =</span> <span class="fu">ifelse</span>(<span class="st">""</span> <span class="sc">==</span> university, <span class="cn">NA_character_</span>, university)</span>
+<span id="cb8-31"><a href="#cb8-31"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb8-32"><a href="#cb8-32"></a>    <span class="fu">distinct</span>(<span class="at">.keep_all=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-33"><a href="#cb8-33"></a>    <span class="fu">group_by</span>(naam, date) <span class="sc">|&gt;</span> </span>
+<span id="cb8-34"><a href="#cb8-34"></a>    <span class="fu">summarise</span>(<span class="at">university =</span> <span class="fu">list</span>(<span class="fu">unlist</span>(university))) <span class="sc">|&gt;</span></span>
+<span id="cb8-35"><a href="#cb8-35"></a>    <span class="fu">ungroup</span>()</span>
+<span id="cb8-36"><a href="#cb8-36"></a></span>
+<span id="cb8-37"><a href="#cb8-37"></a>  data <span class="sc">|&gt;</span></span>
+<span id="cb8-38"><a href="#cb8-38"></a>    <span class="fu">left_join</span>(uni) <span class="sc">|&gt;</span></span>
+<span id="cb8-39"><a href="#cb8-39"></a>    <span class="fu">relocate</span>(university, <span class="at">.after=</span>universiteit)</span>
+<span id="cb8-40"><a href="#cb8-40"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="clean-functie" class="level3">
@@ -660,7 +662,7 @@ Joining with `by = join_by(date, naam)`</code></pre>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># save data</span></span>
 <span id="cb13-2"><a href="#cb13-2"></a><span class="fu">fsaveRDS</span>(data, <span class="st">'scholarid'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "SAVING: ./data/processed/20251021scholarid.Rds"</code></pre>
+<pre><code>[1] "SAVING: ./data/processed/20251027scholarid.Rds"</code></pre>
 </div>
 </div>
 
