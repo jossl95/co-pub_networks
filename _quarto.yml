@@ -11,19 +11,19 @@ website:
     left:
       - text: Data Processing
         menu:
-          - href: src/docs/content/create_scholars.qmd
+          - href: src/code/create_scholars.qmd
             text: Create Scholars
-          - href: src/docs/content/process_names.qmd
+          - href: src/code/process_names.qmd
             text: Process Names
-          - href: src/docs/content/process_gender.qmd
+          - href: src/code/process_gender.qmd
             text: Process Gender
-          - href: src/docs/content/process_ethnicity.qmd
+          - href: src/code/process_ethnicity.qmd
             text: Process Ethnicity
       - text: Data Scraping
         menu:
-          - href: src/docs/content/scrape_openalex.qmd
+          - href: src/code/scrape_openalex.qmd
             text: Scrape information from OpenAlex
-          - href: src/docs/content/combine_data.qmd
+          - href: src/code/combine_data.qmd
             text: Combine OpenAlex data
     right:
       - icon: github
@@ -31,13 +31,13 @@ website:
         aria-label: GitHub
   
         
-# execute:
+# execute:d
 #   freeze: true
 
 format:
   html:
     theme: cosmo
-    css: src/docs/styles.css
+    css: src/code/styles.css
     toc: true
     code-line-numbers: true
     code-annotations: true

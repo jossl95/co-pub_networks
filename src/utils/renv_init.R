@@ -9,7 +9,7 @@ renv::settings$snapshot.type("implicit")
 renv::settings$use.cache(TRUE)
 
 # Scan ONLY your content dir
-deps <- renv::dependencies(path = "src/docs/content", progress = FALSE)
+deps <- renv::dependencies(path = "src", progress = FALSE)
 pkgs <- unique(c(na.omit(deps$Package), 'knitr', 'rmarkdown'))
 
 # ---- map non-CRAN packages to their remote specs ----
