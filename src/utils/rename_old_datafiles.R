@@ -1,16 +1,19 @@
+options(renv.config.auto.restore = TRUE)
+if (file.exists("renv/activate.R")) source("renv/activate.R")
 
+library(tidyverse)
 library(stringr)
 
 # Rename helper only renames files that when it needs to be renamed
 .safe_rename <- function(src_files, dst_files) {
-  idx = normalizePath(src_files, winslash = "/", mustWork = FALSE) !=
-        normalizePath(dst_files, winslash = "/", mustWork = FALSE)
+  idx = src_files != dst_files
+  if (sum(idx) == 0 ) return(invisible(NULL))
   
-  if (any(idx)){
-    ok = file.rename(src_files[idx], dst_files[idx])
+  for (i in sum(idx)){
+    ok = file.rename(src_files[idx][i], dst_files[idx][i])
     if (any(!ok)) warning(
       "Some renames failed: ",
-      paste(basename(src_files[idx][!ok]), collapse = ", ")
+      paste(basename(src_files[i][!ok]), collapse = ", ")
     )
   }
 }
@@ -29,14 +32,19 @@ enforce_latest_name = function(sub, key){
   if (!length(files)) return(invisible(NULL))
 
   # sort by date (and remove "old_" to sort basenames consistently)
-  base_files = files |>
-    stringr::str_replace('^old_', '') |>
-    sort()
-  src_files = file.path(target_dir, files)
+  f = tibble(
+    src = files,
+    old = ifelse(str_detect(files, 'old_'), 'old', NA_character_),
+    base = files |> stringr::str_replace('^old_', '')
+  ) |>
+  arrange(base) |>
+  mutate(
+    dst = paste0(if_else(row_number() < n(), "old_", ""), base)
+  )
 
   # add prefix to all but the last file
-  dst_files = c(paste0('old_',base_files[1:k-1]), base_files[k])
-  dst_files = file.path(target_dir, dst_files)
+  dst_files = file.path(target_dir, f |> pull(dst))
+  src_files = file.path(target_dir, f |> pull(src))
 
   # rename the files
   .safe_rename(src_files, dst_files)
