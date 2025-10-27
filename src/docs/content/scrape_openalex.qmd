@@ -19,14 +19,23 @@ gc()
 ```{r}
 #| warning: false
 #| output: false
-source("src/utils/custom_functions.r")
+
 
 # load and activate packages
-fpackage.check(c(
-  'tidyverse', 'readxl',  'stringr', 
-  'lubridate', 'openalexR', 'rvest', 'jsonlite',
-  'cli', 'stringi', 'stringdist'
-))
+library(tidyverse)
+library(readxl)
+library(stringr)
+library(lubridate)
+library(openalexR)
+library(rvest)
+library(jsonlite)
+library(cli)
+library(stringi)
+library(stringdist)
+
+# load custom functions
+source("src/utils/custom_functions.r")
+.load_quarto_dependencies()
 
 options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
 ```
@@ -373,7 +382,8 @@ match_institutions = function(data, df){
             display_name == 'van Dijk' ~ FALSE,
             display_name == 'Stephanie Maas' ~ FALSE,
             display_name == 'A.J.J. Nijhuis' ~ FALSE,
-            (query_name == 'Meindert Fennema') & (display_name == 'Wouter van der Brug') ~ FALSE,
+            (query_name == 'Meindert Fennema') 
+              & (display_name == 'Wouter van der Brug') ~ FALSE,
             .default = keep
           ),
         orcid = as.character(orcid)
@@ -396,12 +406,14 @@ oa_fetch_works = function(data, pause = 0){
     cli_progress_update()
     # extract information for each author and skip if invalid
     tab = data[[id]]
-    if (is.null(tab) || !is_tibble(tab) || !(nrow(tab) > 0)) next
+    if (any(!is_tibble(tab), is.null(tab), (nrow(tab) < 1))) next
+    if (nrow(tab) < 1) next
 
+    # extract a list of institution_ids 
     oa_ids = tab |> 
       mutate(author_id = str_remove(author_id, 'https://openalex.org/')) |>
       distinct(author_id) |> pull()
-    if (is.null(oa_ids) || (length(oa_ids) < 1)) next
+    if (any(is.null(oa_ids) || (length(oa_ids) < 1))) next
 
     subhold = list()
     for (oa_id in oa_ids){
@@ -414,7 +426,7 @@ oa_fetch_works = function(data, pause = 0){
         warning = function(w) NULL
       )
 
-      if (is.null(res) || !is_tibble(res) || (nrow(res) == 0)) next
+      if (any(!is_tibble(res), is.null(res), (nrow(res) < 1))) next
 
       subhold[[oa_id]] = res |>
         rename("work_id" = "id") |>
@@ -424,7 +436,6 @@ oa_fetch_works = function(data, pause = 0){
           .before = 1
         ) 
     }
-    
 
     if (length(subhold) == 0) {
       hold[[id]] = tibble()
@@ -432,8 +443,8 @@ oa_fetch_works = function(data, pause = 0){
     }
 
     hold[[id]] = bind_rows(subhold) |>
-      distinct(work_id, .keep_all = TRUE)
-
+      distinct(work_id, .keep_all = TRUE) |>
+      filter(uid == id)
     
   }
   return(hold)

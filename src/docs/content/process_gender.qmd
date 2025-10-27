@@ -15,16 +15,21 @@ gc()
 #| warning: false
 #| output: false
 
+# load and activate packages
+library(tidyverse)
+library(readxl)
+library(stringr)
+library(lubridate)
+library(httr2)
+library(rvest)
+library(xml2)
+library(purrr)
+library(genderizeR)
+library(dotenv)
+
 # load custom functions
 source("src/utils/custom_functions.r")
-
-# load and activate packages
-fpackage.check(c(
-  'tidyverse', 'readxl',  'stringr', 
-  'lubridate', 'httr2', 'rvest', 'xml2',
-  "purrr", "genderizeR", "dotenv"
-))
-
+.load_quarto_dependencies()
 ```
 
 ## Functions
@@ -53,7 +58,8 @@ request_gender = function(
     req_user_agent(ua) |>
     req_timeout(30) |>
     req_headers(
-      "Accept" = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept" = paste0("text/html,application/xhtml+xml,",
+                        "application/xml;q=0.9,*/*;q=0.8"),
       "Accept-Language" = "nl,en;q=0.8"
     ) |>
     # Retry on 429/5xx, and *also* on network hiccups:
@@ -80,10 +86,23 @@ request_gender = function(
 
   # Return a uniform list the caller can inspect
   if (inherits(resp, "error")) {
-    return(list(ok = FALSE, status = NA_integer_, url = url, resp = NULL, error = resp))
+    res = list(
+      ok = FALSE,
+      status = NA_integer_,
+      url = url,
+      resp = NULL,
+      error = resp
+    )
+  } else {
+    res = list(
+      ok = is_ok(resp),
+      status = resp_status(resp),
+      url = url,
+      resp = resp,
+      error = NULL
+    )
   }
-
-  list(ok = is_ok(resp), status = resp_status(resp), url = url, resp = resp, error = NULL)
+  return(res)
 }
 
 ```
@@ -237,7 +256,8 @@ patch_missing_gender = function(data){
     # mistake in name, has been patched with _create_name_corrections
     "Guangye", 
     "Gul-i-Hina",  "Haebin",      "Haisu",
-    # Phoebe Kisibi Mbasalaki was incorrectly coded, has been patched with _create_name_corrections 
+    # Phoebe Kisibi Mbasalaki was incorrectly coded, 
+    # has been patched with _create_name_corrections 
     "Kisubi",      "Pheobe",
     "Liubov",      "Madalina",    "Majolijn",    
     "Mansoureh",   "Nankyung",    "Nilmawati",   

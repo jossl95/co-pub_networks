@@ -29,14 +29,20 @@ gc()
 ```{r}
 #| warning: false
 #| output: false
-source("src/utils/custom_functions.r")
 
 # load and activate packages
-fpackage.check(c(
-  'tidyverse', 'readxl',  'stringr', 
-  'lubridate', 'openalexR', 'rvest', 'jsonlite',
-  'cli'
-))
+library(tidyverse)
+library(readxl)
+library(stringr)
+library(lubridate)
+library(openalexR)
+library(rvest)
+library(jsonlite)
+library(cli)
+
+# load custom functions 
+source("src/utils/custom_functions.r")
+.load_quarto_dependencies()
 
 options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
 ```

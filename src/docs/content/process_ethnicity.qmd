@@ -15,24 +15,31 @@ gc()
 #| warning: false
 #| output: false
 
+# load and activate packages
+library(tidyverse)
+library(readxl)
+library(stringr)
+library(lubridate)
+library(httr2)
+library(rvest)
+library(xml2)
+library(purrr)
+library(RCurl)
+library(fuzzyjoin)
+library(stringi)
+library(DemografixeR)
+
 # load custom functions
 source("src/utils/custom_functions.r")
-
-# load and activate packages
-fpackage.check(c(
-  'tidyverse', 'readxl',  'stringr', 
-  'lubridate', 'httr2', 'rvest', 'xml2',
-  "purrr", "RCurl", "fuzzyjoin", "stringi",
-  "DemografixeR"
-))
-
+.load_quarto_dependencies()
 ```
 
 ## Functions
 
 ### Scraper Configuration
 
-This function builds a resilient GET request to a target page and returns a uniform result object instead of throwing on transport errors.
+This function builds a resilient GET request to a target page and returns a 
+uniform result object instead of throwing on transport errors.
 
 - **Success check.** `is_ok()` flags responses with HTTP status in the 200–299 range.
 - **Browser-like request.** `request_last_name()` constructs an `httr2` request with a Mac Chrome user agent, Dutch/English Accept-Language, and broad Accept headers to mimic a real browser and reduce blocking.
@@ -65,7 +72,8 @@ request_last_name = function(base_url, pause=0.5){
     req_options(ssl_verifypeer = 0) |>
     req_timeout(30) |>
     req_headers(
-      "Accept" = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept" = paste0("text/html,application/xhtml+xml,",
+                        "application/xml;q=0.9,*/*;q=0.8"),
       "Accept-Language" = "nl,en;q=0.8"
     ) |>
     req_retry(
@@ -91,9 +99,21 @@ request_last_name = function(base_url, pause=0.5){
 
   # Return a uniform list the caller can inspect
   if (inherits(resp, "error")) {
-    res = list(ok = FALSE, status = NA_integer_, url = url, resp = NULL, error = resp)
+    res = list(
+      ok = FALSE,
+      status = NA_integer_,
+      url = url,
+      resp = NULL,
+      error = resp
+    )
   } else {
-    res = list(ok = is_ok(resp), status = resp_status(resp), url = url, resp = resp, error = NULL)
+    res = list(
+      ok = is_ok(resp),
+      status = resp_status(resp),
+      url = url,
+      resp = resp,
+      error = NULL
+    )
   }
   return(res)
 }

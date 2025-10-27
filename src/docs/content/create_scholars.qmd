@@ -14,15 +14,20 @@ gc()
 #| warning: false
 #| output: false
 
+# load and activate packages
+library(tidyverse)
+library(readxl)
+library(renv)
+library(stringr)
+library(janitor)
+library(lubridate)
+
+
 # load custom functions
 source("src/utils/custom_functions.r")
-
-# load and activate packages
-fpackage.check(c(
-  'tidyverse', 'readxl', 'renv', 'stringr', 
-  'janitor', 'lubridate'
-))
+.load_quarto_dependencies()
 ```
+
 
 
 ## Functions
@@ -190,7 +195,9 @@ clean_universities = function(data){
     unnest_longer(universiteit) |>
     # clean the university labels
     mutate(
-      universiteit = str_replace(str_squish(universiteit), 'Leiden uni', 'Leiden'),
+      universiteit = str_replace(
+        str_squish(universiteit), 'Leiden uni', 'Leiden'
+      ),
       university = str_replace(universiteit, pat, \(m) canon[str_to_lower(m)]),
       universiteit = case_when(
         (is.na(university) & str_detect(email_adres, 'essb.eur.nl')) ~ 'EUR',

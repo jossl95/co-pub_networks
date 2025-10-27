@@ -7,8 +7,6 @@ website:
   title: Networks
   navbar:
     left:
-      # - href: index.qmd
-      #   text: Home
       - text: Data Processing
         menu:
           - href: src/docs/content/create_scholars.qmd
@@ -21,12 +19,10 @@ website:
             text: Process Ethnicity
       - text: Data Scraping
         menu:
-          - href: src/docs/content/scrape_authorid.qmd
-            text: Scrape Author ID using `openalexr`
-          - href: src/docs/content/scrape_works.qmd
-            text: Scrape Works using `openalexr`
+          - href: src/docs/content/scrape_openalex.qmd
+            text: Scrape information from OpenAlex
           - href: src/docs/content/combine_data.qmd
-            text: Combine Scrape data
+            text: Combine OpenAlex data
     right:
       - icon: github
         href: https://github.com/jossl95/co-pub_networks/tree/main

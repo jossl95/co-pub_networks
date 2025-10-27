@@ -13,6 +13,18 @@ title: "Scientific Co-Publishing Networks"
 
 ---
 
+## Description
 :::{.callout-note}
 Project Description goes here
+:::
+
+## Manuscript
+:::{.callout-note}
+A reference to the manuscript pdf goes here.
+
+<!-- 
+```{=html}
+<embed src="<path_to_manuscript>.pdf" width="140px" height="210px" />
+``` 
+-->
 :::

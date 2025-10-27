@@ -1,58 +1,68 @@
-
-clear_environment <- function() {
-  # Clear the environment
-  rm(list = ls())
-  
-  # Run garbage collection to free up memory
-  gc()
+.load_quarto_dependencies = function(){
+  library(knitr)
+  library(rmarkdown)
 }
 
+# this function is deprecated for compatibility with the renv package
+
+# fpackage.check <- function(packages) {
+#   # Check for installed packages and install any that are missing
+#   lapply(packages, FUN = function(x) {
+#   if (!require(x, character.only = TRUE)) {
+#     install.packages(x, dependencies = TRUE)
+#     library(x, character.only = TRUE)
+#   }
+#   })
+# }
+
 fpackage.check <- function(packages) {
-    # Check for installed packages and install any that are missing
-    lapply(packages, FUN = function(x) {
-        if (!require(x, character.only = TRUE)) {
-            install.packages(x, dependencies = TRUE)
-            library(x, character.only = TRUE)
-        }
-    })
+  lifecycle::deprecate_warn(
+    when = "2025-10-27",
+    what = "fpackage.check()",
+    details = paste0("Use renv for package installation and library()",
+                     " for loading packages.")
+  )
+  message(
+    "⚠️ fpackage.check() is deprecated. Use renv + library() calls instead."
+  )
+  
+  invisible(TRUE)
 }
 
 fsave <- function(x, file, location = "./data/processed/", ...) {
-    # if directory does not exist, create it
-    if (!dir.exists(location))
-        dir.create(location)
-    
-    # create filename with date
-    datename <- substr(gsub("[:-]", "", Sys.time()), 1, 8)
-    totalname <- paste(location, datename, file, sep = "")
+  # if directory does not exist, create it
+  if (!dir.exists(location)) dir.create(location)
+  
+  # create filename with date
+  datename <- substr(gsub("[:-]", "", Sys.time()), 1, 8)
+  totalname <- paste(location, datename, file, sep = "")
 
-    # save file
-    print(paste("SAVING: ", totalname, sep = ""))
-    save(x, file = totalname)
+  # save file
+  print(paste("SAVING: ", totalname, sep = ""))
+  save(x, file = totalname)
 }
 
 fsaveRDS <- function(x, file, location = "./data/processed/", ...) {
-    # if directory does not exist, create it
-    if (!dir.exists(location))
-        dir.create(location)
-    
-    # create filename with date
-    datename <- substr(gsub("[:-]", "", Sys.time()), 1, 8)
-    totalname <- paste(location, datename, file, ".Rds", sep = "")
+  # if directory does not exist, create it
+  if (!dir.exists(location)) dir.create(location)
+  
+  # create filename with date
+  datename <- substr(gsub("[:-]", "", Sys.time()), 1, 8)
+  totalname <- paste(location, datename, file, ".Rds", sep = "")
 
-    # save file
-    print(paste("SAVING: ", totalname, sep = ""))
-    saveRDS(x, file = totalname)
+  # save file
+  print(paste("SAVING: ", totalname, sep = ""))
+  saveRDS(x, file = totalname)
 }
 
 freadRDS  <- function(fileName){
-    # load file and return object
-    readRDS(fileName)
+  # load file and return object
+  readRDS(fileName)
 }
 
 fload <- function(filename) {
-    load(filename)
-    get(ls()[ls() != "filename"])
+  load(filename)
+  get(ls()[ls() != "filename"])
 }
 
 

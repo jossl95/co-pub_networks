@@ -16,13 +16,18 @@ gc()
 ```{r}
 #| warning: false
 #| output: false
-source("src/utils/custom_functions.r")
 
 # load and activate packages
-fpackage.check(c(
-  'tidyverse', 'readxl',  'stringr', 
-  'lubridate', 'stringi'
-))
+library(tidyverse)
+library(readxl)
+library(stringr)
+library(lubridate)
+library(stringi)
+library(sqids)
+
+# load custom functions
+source("src/utils/custom_functions.r")
+.load_quarto_dependencies()
 ```
 
 ## Functions
@@ -36,7 +41,8 @@ parse_names = function(names){
     "van","van de","van den","van der","van 't","van ’t",
     "'t","’t",
     "von","von der","von den",
-    "la","le","du","del","della","di","da","dos","das","de la","de los","de las",
+    "la","le","du","del","della","di","da","dos",
+    "das","de la","de los","de las",
     "zu","zum","zur", "op de"
   )
 
@@ -78,7 +84,8 @@ parse_names = function(names){
           list(tokens_raw, particle_idx, n),
           function(tok, p_i, n_tok) {
             end_giv <- if (is.na(p_i)) n_tok - 1 else p_i - 1
-            if (end_giv <= 0) tok[1] else paste(tok[seq_len(end_giv)], collapse = " ")
+            if (end_giv <= 0) tok[1] 
+            else paste(tok[seq_len(end_giv)], collapse = " ")
           }
         ),
 
@@ -158,12 +165,16 @@ format_names = function(data){
     mutate(
       initials = initials |> stri_trans_general("Latin-ASCII"),
       first_name = first_name |> stri_trans_general("Latin-ASCII"),
-      particle = particle |> str_to_lower() |> stri_trans_general("Latin-ASCII"),
+      particle = particle |> 
+        str_to_lower() |>
+        stri_trans_general("Latin-ASCII"),
       last_name = last_name |> stri_trans_general("Latin-ASCII"),
       maiden_name = maiden_name |> stri_trans_general("Latin-ASCII")
     ) |> 
-    unite("clean_name", initials:last_name, na.rm=TRUE, sep=" ", remove=FALSE) |>
-    unite("clean_name_full", clean_name, maiden_name, na.rm=TRUE, sep="-", remove=FALSE) |>
+    unite("clean_name", 
+          initials:last_name, na.rm=TRUE, sep=" ", remove=FALSE) |>
+    unite("clean_name_full",
+          clean_name, maiden_name, na.rm=TRUE, sep="-", remove=FALSE) |>
     mutate(
       temp = str_remove(clean_name, paste0(initials, " ")),
       temp_full = str_remove(clean_name_full, paste0(initials, " ")),
@@ -217,7 +228,7 @@ add_uid = function(names){
 dir = file.path("data", "processed")
 file = list.files(dir, pattern = "scholarid.Rds", full.names = TRUE)
 
-data = freadRDS(file) 
+data = freadRDS(file[length(file)]) 
 
 names = data |>
   select(naam) |>
