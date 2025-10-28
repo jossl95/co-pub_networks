@@ -2,7 +2,7 @@
 /_extensions/
 /_freeze/
 .DS_Store
-*.DS_Store
+**/.DS_Store
 .Rhistory
 .env
 
