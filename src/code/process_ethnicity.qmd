@@ -386,8 +386,8 @@ nationalize_name = function(idx) {
   # last_names = last_names[12:22]
 
   # fetch nationality results
+  hold = c()
   if (eval_ok) {
-    hold = c()
     for (name in last_names){
       resp = nationalize(name, sliced=FALSE, apikey = APIKEY, simplify = FALSE)
       hold[[name]] = resp 

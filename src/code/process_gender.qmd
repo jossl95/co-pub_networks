@@ -312,8 +312,8 @@ genderize_names = function(idx) {
   first_names = first_names
 
   # fetch gender results
+  hold = c()
   if (eval_ok) {
-    hold = c()
     for (name in first_names){
       resp = genderizeAPI(name, apikey = APIKEY)
       hold[[name]] = resp$response
@@ -347,7 +347,7 @@ scrape_gender = function(idx) {
     ) |>
     patch_gender_on_splits()
   } else {
-    res = 
+    res =  gender_cache
   }
 
   # put gender scrape results
