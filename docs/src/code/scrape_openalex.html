@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-10-27">
+<meta name="dcterms.date" content="2025-10-28">
 
 <title>Data Preparation OpenAlex-ID – Networks</title>
 <style>
@@ -208,7 +208,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 27, 2025</p>
+      <p class="date">October 28, 2025</p>
     </div>
   </div>
   
@@ -649,23 +649,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="application">Application</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># load the most recent names data</span></span>
-<span id="cb11-2"><a href="#cb11-2"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'processed'</span>)</span>
-<span id="cb11-3"><a href="#cb11-3"></a>file <span class="ot">=</span> <span class="fu">list.files</span>(dir, <span class="at">pattern =</span> <span class="st">'names.Rds'</span>)</span>
-<span id="cb11-4"><a href="#cb11-4"></a>names <span class="ot">=</span> <span class="fu">freadRDS</span>(<span class="fu">file.path</span>(dir, file[<span class="fu">length</span>(file)])) </span>
-<span id="cb11-5"><a href="#cb11-5"></a></span>
-<span id="cb11-6"><a href="#cb11-6"></a><span class="co"># load the most resent scholarid data</span></span>
-<span id="cb11-7"><a href="#cb11-7"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'processed'</span>)</span>
-<span id="cb11-8"><a href="#cb11-8"></a>file <span class="ot">=</span> <span class="fu">list.files</span>(dir, <span class="at">pattern =</span> <span class="st">'scholarid.Rds'</span>)</span>
-<span id="cb11-9"><a href="#cb11-9"></a>ids <span class="ot">=</span> <span class="fu">freadRDS</span>(<span class="fu">file.path</span>(dir, file[<span class="fu">length</span>(file)])) </span>
-<span id="cb11-10"><a href="#cb11-10"></a></span>
-<span id="cb11-11"><a href="#cb11-11"></a><span class="co"># Combine names and scholarid data and reshape to create a table with</span></span>
-<span id="cb11-12"><a href="#cb11-12"></a><span class="co"># a row per author university pair</span></span>
-<span id="cb11-13"><a href="#cb11-13"></a>df <span class="ot">=</span> ids <span class="sc">|&gt;</span></span>
-<span id="cb11-14"><a href="#cb11-14"></a>  <span class="fu">left_join</span>(names) <span class="sc">|&gt;</span></span>
-<span id="cb11-15"><a href="#cb11-15"></a>  <span class="fu">distinct</span>(uid, university, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb11-16"><a href="#cb11-16"></a>  <span class="fu">unnest_longer</span>(university) <span class="sc">|&gt;</span></span>
-<span id="cb11-17"><a href="#cb11-17"></a>  <span class="fu">normalize_university_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb11-18"><a href="#cb11-18"></a>  <span class="fu">add_institution_id</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-2"><a href="#cb11-2"></a>names <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'names'</span>) </span>
+<span id="cb11-3"><a href="#cb11-3"></a>ids <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholarid'</span>) </span>
+<span id="cb11-4"><a href="#cb11-4"></a></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="co"># Combine names and scholarid data and reshape to create a table with</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a><span class="co"># a row per author university pair</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a>df <span class="ot">=</span> ids <span class="sc">|&gt;</span></span>
+<span id="cb11-8"><a href="#cb11-8"></a>  <span class="fu">left_join</span>(names) <span class="sc">|&gt;</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a>  <span class="fu">distinct</span>(uid, university, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a>  <span class="fu">unnest_longer</span>(university) <span class="sc">|&gt;</span></span>
+<span id="cb11-11"><a href="#cb11-11"></a>  <span class="fu">normalize_university_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb11-12"><a href="#cb11-12"></a>  <span class="fu">add_institution_id</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># create a authors table</span></span>
