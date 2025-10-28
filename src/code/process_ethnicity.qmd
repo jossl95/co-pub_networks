@@ -1,6 +1,9 @@
 ---
 title: "Data Processing Ethnicity"
 date: today
+
+params:
+  eval: false
 ---
 
 ## Getting Started
@@ -383,10 +386,12 @@ nationalize_name = function(idx) {
   # last_names = last_names[12:22]
 
   # fetch nationality results
-  hold = c()
-  for (name in last_names){
-    resp = nationalize(name, sliced=FALSE, apikey = APIKEY, simplify = FALSE)
-    hold[[name]] = resp 
+  if (eval_ok) {
+    hold = c()
+    for (name in last_names){
+      resp = nationalize(name, sliced=FALSE, apikey = APIKEY, simplify = FALSE)
+      hold[[name]] = resp 
+    }
   }
 
   # combine cache with results and put new cache results
@@ -408,8 +413,6 @@ nationalize_name = function(idx) {
 #   mutate(too_uncertain = probability < 0.05)
 
 select_best_match = function(res){
-  
-
   res |> 
     rename("last_name" = "name") |>
     # get the best match
@@ -506,9 +509,7 @@ harmonize_ethnicity = function(origin) {
 ## Application
 
 ```{r}
-dir = file.path('data', 'processed')
-file = list.files(dir, pattern = 'names.Rds')
-names = readRDS(file.path(dir, file[length(file)]))
+names = freadRDS2('names')
 
 # create an name index
 idx = names |>
