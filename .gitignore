@@ -2,8 +2,8 @@
 /**/.quarto
 **/*.quarto_ipynb
 /_extensions/
-/_freeze/
-_freeze/
+/_freeze/*
+!/_freeze/.gitkeep
 .DS_Store
 ./**/.DS_Store
 .Rhistory
