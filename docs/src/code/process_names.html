@@ -6,11 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<<<<<<< HEAD
 <meta name="dcterms.date" content="2025-11-01">
-=======
-<meta name="dcterms.date" content="2025-10-28">
->>>>>>> origin/main
 
 <title>Data Processing Names – Networks</title>
 <style>
@@ -223,11 +219,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-<<<<<<< HEAD
       <p class="date">November 1, 2025</p>
-=======
-      <p class="date">October 28, 2025</p>
->>>>>>> origin/main
     </div>
   </div>
   
@@ -454,11 +446,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="application" class="level2">
 <h2 class="anchored" data-anchor-id="application">Application</h2>
 <div class="cell">
-<<<<<<< HEAD
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholarid'</span>) </span>
-=======
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholarid'</span>) </span>
->>>>>>> origin/main
 <span id="cb10-2"><a href="#cb10-2"></a></span>
 <span id="cb10-3"><a href="#cb10-3"></a>names <span class="ot">=</span> data <span class="sc">|&gt;</span></span>
 <span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">select</span>(naam) <span class="sc">|&gt;</span></span>
@@ -470,11 +458,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-10"><a href="#cb10-10"></a>  <span class="fu">patch_names</span>() <span class="sc">|&gt;</span></span>
 <span id="cb10-11"><a href="#cb10-11"></a>  <span class="fu">extract_maiden_name</span>() <span class="sc">|&gt;</span></span>
 <span id="cb10-12"><a href="#cb10-12"></a>  <span class="fu">format_names</span>() <span class="sc">|&gt;</span></span>
-<<<<<<< HEAD
 <span id="cb10-13"><a href="#cb10-13"></a>  <span class="fu">add_uid</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-=======
-<span id="cb10-13"><a href="#cb10-13"></a>  <span class="fu">add_uid</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
->>>>>>> origin/main
 <div class="cell-output cell-output-stderr">
 <pre><code>Joining with `by = join_by(clean_name)`</code></pre>
 </div>
@@ -483,11 +467,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-3"><a href="#cb12-3"></a>  <span class="st">'names'</span></span>
 <span id="cb12-4"><a href="#cb12-4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<<<<<<< HEAD
 <pre><code>[1] "SAVING: ./data/processed/20251101names.Rds"</code></pre>
-=======
-<pre><code>[1] "SAVING: ./data/processed/20251028names.Rds"</code></pre>
->>>>>>> origin/main
 </div>
 </div>
 
