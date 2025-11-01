@@ -6,7 +6,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<<<<<<< HEAD
 <meta name="dcterms.date" content="2025-11-01">
+=======
+<meta name="dcterms.date" content="2025-10-28">
+>>>>>>> origin/main
 
 <title>Data Processing Ethnicity – Networks</title>
 <style>
@@ -218,7 +222,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
+<<<<<<< HEAD
       <p class="date">November 1, 2025</p>
+=======
+      <p class="date">October 28, 2025</p>
+>>>>>>> origin/main
     </div>
   </div>
   
@@ -238,8 +246,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
+<<<<<<< HEAD
 Ncells  606930 32.5    1376190 73.5         NA   715791 38.3
 Vcells 1124376  8.6    8388608 64.0      16384  2012307 15.4</code></pre>
+=======
+Ncells  606777 32.5    1375747 73.5         NA   715802 38.3
+Vcells 1124353  8.6    8388608 64.0      16384  2012240 15.4</code></pre>
+>>>>>>> origin/main
 </div>
 </div>
 <div class="cell">
@@ -606,7 +619,11 @@ Vcells 1124376  8.6    8388608 64.0      16384  2012307 15.4</code></pre>
 <span id="cb11-32"><a href="#cb11-32"></a>  <span class="fu">saveRDS</span>(origin, <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">"origin_cache.Rds"</span>))</span>
 <span id="cb11-33"><a href="#cb11-33"></a></span>
 <span id="cb11-34"><a href="#cb11-34"></a>  <span class="fu">return</span>(origin)</span>
+<<<<<<< HEAD
 <span id="cb11-35"><a href="#cb11-35"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+=======
+<span id="cb11-35"><a href="#cb11-35"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+>>>>>>> origin/main
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># o = res |&gt;</span></span>
@@ -624,7 +641,11 @@ Vcells 1124376  8.6    8388608 64.0      16384  2012307 15.4</code></pre>
 <span id="cb12-13"><a href="#cb12-13"></a>    <span class="co">#   iso |&gt; select(alpha_2, country_name),</span></span>
 <span id="cb12-14"><a href="#cb12-14"></a>    <span class="co">#   by=join_by(country_id==alpha_2)</span></span>
 <span id="cb12-15"><a href="#cb12-15"></a>    <span class="co"># )</span></span>
+<<<<<<< HEAD
 <span id="cb12-16"><a href="#cb12-16"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+=======
+<span id="cb12-16"><a href="#cb12-16"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+>>>>>>> origin/main
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>name_to_origin <span class="ot">=</span> <span class="cf">function</span>(idx) {</span>
@@ -704,7 +725,11 @@ Vcells 1124376  8.6    8388608 64.0      16384  2012307 15.4</code></pre>
 <section id="application" class="level2">
 <h2 class="anchored" data-anchor-id="application">Application</h2>
 <div class="cell">
+<<<<<<< HEAD
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>names <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'names'</span>)</span>
+=======
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>names <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'names'</span>)</span>
+>>>>>>> origin/main
 <span id="cb15-2"><a href="#cb15-2"></a></span>
 <span id="cb15-3"><a href="#cb15-3"></a><span class="co"># create an name index</span></span>
 <span id="cb15-4"><a href="#cb15-4"></a>idx <span class="ot">=</span> names <span class="sc">|&gt;</span></span>
@@ -720,7 +745,11 @@ Vcells 1124376  8.6    8388608 64.0      16384  2012307 15.4</code></pre>
 <span id="cb15-14"><a href="#cb15-14"></a>res2 <span class="ot">=</span> <span class="fu">name_to_origin</span>(idx)<span class="sc">|&gt;</span> </span>
 <span id="cb15-15"><a href="#cb15-15"></a>  <span class="fu">add_origin</span>() <span class="sc">|&gt;</span></span>
 <span id="cb15-16"><a href="#cb15-16"></a>  <span class="fu">add_origin5</span>() <span class="sc">|&gt;</span></span>
+<<<<<<< HEAD
 <span id="cb15-17"><a href="#cb15-17"></a>  <span class="fu">clean_ethnicity</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+=======
+<span id="cb15-17"><a href="#cb15-17"></a>  <span class="fu">clean_ethnicity</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+>>>>>>> origin/main
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: There was 1 warning in `mutate()`.
 ℹ In argument: `origin1 = str_remove(origin1, "Joodse naam")`.
@@ -736,7 +765,11 @@ Caused by warning in `stri_replace_first_regex()`:
 <span id="cb17-7"><a href="#cb17-7"></a></span>
 <span id="cb17-8"><a href="#cb17-8"></a><span class="fu">fsaveRDS</span>(origin, <span class="st">'ethnicity'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
+<<<<<<< HEAD
 <pre><code>[1] "SAVING: ./data/processed/20251101ethnicity.Rds"</code></pre>
+=======
+<pre><code>[1] "SAVING: ./data/processed/20251028ethnicity.Rds"</code></pre>
+>>>>>>> origin/main
 </div>
 </div>
 

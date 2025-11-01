@@ -6,7 +6,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<<<<<<< HEAD
 <meta name="dcterms.date" content="2025-11-01">
+=======
+<meta name="dcterms.date" content="2025-10-28">
+>>>>>>> origin/main
 
 <title>Create patch for institutions – Networks</title>
 <style>
@@ -211,7 +215,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
+<<<<<<< HEAD
       <p class="date">November 1, 2025</p>
+=======
+      <p class="date">October 28, 2025</p>
+>>>>>>> origin/main
     </div>
   </div>
   
@@ -248,6 +256,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-15"><a href="#cb2-15"></a><span class="fu">options</span>(<span class="at">openalexR.mailto =</span> <span class="st">"jos.slabbekoorn@ru.nl"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
+<<<<<<< HEAD
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>names <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'names'</span>)</span>
 <span id="cb3-2"><a href="#cb3-2"></a>scholar <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholarid'</span>) <span class="sc">|&gt;</span></span>
 <span id="cb3-3"><a href="#cb3-3"></a>  <span class="fu">select</span>(naam, university) <span class="sc">|&gt;</span></span>
@@ -259,6 +268,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-2"><a href="#cb4-2"></a>dems <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'oascholars'</span>, <span class="at">location =</span> <span class="st">'raw_data'</span>) <span class="sc">|&gt;</span></span>
 <span id="cb4-3"><a href="#cb4-3"></a>  <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">select</span>(id, last_known_institutions) <span class="sc">|&gt;</span></span>
 <span id="cb4-4"><a href="#cb4-4"></a>  <span class="fu">mutate</span>(<span class="at">id=</span> <span class="fu">str_remove</span>(id, <span class="st">'https://openalex.org/'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+=======
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>names <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'names'</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>scholar <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholarid'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>  <span class="fu">select</span>(naam, university) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>  <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>  <span class="fu">unnest_longer</span>(university) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>pubs <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'oaworks'</span>, <span class="at">location =</span> <span class="st">'raw_data'</span>) <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>()</span>
+<span id="cb4-2"><a href="#cb4-2"></a>dems <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'oascholars'</span>, <span class="at">location =</span> <span class="st">'raw_data'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">select</span>(id, last_known_institutions) <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>  <span class="fu">mutate</span>(<span class="at">id=</span> <span class="fu">str_remove</span>(id, <span class="st">'https://openalex.org/'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+>>>>>>> origin/main
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>unnest_authors <span class="ot">&lt;-</span> <span class="cf">function</span>(pubs) {</span>
@@ -299,7 +321,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-36"><a href="#cb5-36"></a><span class="co">#   filter(author_id == authorships_id) |&gt;</span></span>
 <span id="cb5-37"><a href="#cb5-37"></a><span class="co">#   filter(authorhships_affiliations)</span></span>
 <span id="cb5-38"><a href="#cb5-38"></a></span>
+<<<<<<< HEAD
 <span id="cb5-39"><a href="#cb5-39"></a>temp <span class="ot">=</span> </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+=======
+<span id="cb5-39"><a href="#cb5-39"></a>temp <span class="ot">=</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+>>>>>>> origin/main
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>pubs_authors <span class="ot">=</span> pubs <span class="sc">|&gt;</span></span>
@@ -310,7 +336,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-6"><a href="#cb6-6"></a>  <span class="fu">filter</span>(</span>
 <span id="cb6-7"><a href="#cb6-7"></a>    <span class="fu">is.na</span>(authorships_affiliations_id) <span class="sc">|</span></span>
 <span id="cb6-8"><a href="#cb6-8"></a>    authorships_affiliations_id <span class="sc">==</span> last_known_institutions_id</span>
+<<<<<<< HEAD
 <span id="cb6-9"><a href="#cb6-9"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+=======
+<span id="cb6-9"><a href="#cb6-9"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+>>>>>>> origin/main
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>universities <span class="ot">=</span> <span class="fu">c</span>(</span>

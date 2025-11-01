@@ -1,12 +1,16 @@
 /.quarto/
+/**/.quarto
+**/*.quarto_ipynb
 /_extensions/
 /_freeze/
 .DS_Store
 **/.DS_Store
 .Rhistory
 .env
+**/.gitignore
 
 # exclude old datafiles
 raw_data/old_*.Rds
 processed/old_*.Rds
 processed/old_*.Rda
+/.luarc.json
