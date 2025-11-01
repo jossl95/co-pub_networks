@@ -210,9 +210,3 @@ scholars = list(
 
 fsaveRDS(scholars, file="scholars", location = "./data/combined/")
 ```
-
-
-```{r}
-
-
-```

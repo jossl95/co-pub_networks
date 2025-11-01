@@ -170,4 +170,3 @@ d = dates |>
 fsaveRDS(d, 'institutions_patch')
 
 ```
-

@@ -423,5 +423,3 @@ gender = idx |>
 
 # fsaveRDS(gender, "gender")
 ```
-
-

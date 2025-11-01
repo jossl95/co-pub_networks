@@ -403,8 +403,6 @@ nationalize_name = function(idx) {
 
   return(origin)
 }
-
-
 ```
 
 ```{r}

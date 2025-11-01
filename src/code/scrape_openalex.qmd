@@ -20,7 +20,6 @@ gc()
 #| warning: false
 #| output: false
 
-
 # load and activate packages
 library(tidyverse)
 library(readxl)

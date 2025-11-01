@@ -27,8 +27,6 @@ source("src/utils/custom_functions.r")
 .load_quarto_dependencies()
 ```
 
-
-
 ## Functions
 
 ### Loading in Raw Data
