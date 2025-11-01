@@ -198,7 +198,8 @@ demographics = combine_demographics(data)
 
 works = parse_works(data, demographics) |> 
   add_uid_to_authorships(demographics) |> 
-  add_citations()
+  add_citations() |>
+  distinct(work_id, .keep_all = TRUE)
 
 scholars_list = parse_scholars(data, demographics)
 
