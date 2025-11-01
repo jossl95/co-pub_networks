@@ -1,6 +1,11 @@
 ## Introduction
 
 
+Other suggestions for titles:
+- The Collaboration Gradient: Seniority, Centrality, and Intersectional Sorting
+- Crossing Lines, Climbing Ladders: Intersectional Inequality in Co-Publishing Networks
+- Privileges in Print: Unequal Returns to Popularity Across Intersectional Strata
+
 
 **RQ1:** *Do scholars preferentially form new co-publishing ties within their intersectional stratum (gender × nationality × position), and is this within-stratum preference weaker when potential alters are high-status (central and/or senior)?*
 
