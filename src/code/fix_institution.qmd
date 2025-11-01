@@ -40,27 +40,20 @@ options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
 
 
 ```{r}
-dir = file.path('data', 'processed')
-file = list.files(dir, pattern = 'names.Rds')
-names = freadRDS(file.path(dir, file[length(file)]))
-
-
-file = list.files(dir, pattern = 'scholarid.Rds')
-scholar = freadRDS(file.path(dir, file)) |>
+names = freadRDS2('names')
+scholar = freadRDS2('scholarid') |>
   select(naam, university) |>
   distinct(.keep_all = TRUE) |>
   unnest_longer(university) 
 ```
 
 
-```{r}
-dir = file.path('data', 'raw_data')
-file = list.files(dir, pattern='oaworks')
-pubs = bind_rows(freadRDS(file.path(dir, file[length(file)])))
 
-file = list.files(dir, pattern='oascholars')
-dems = bind_rows(freadRDS(file.path(dir, file[length(file)]))) |>
-  select(id, last_known_institutions)
+```{r}
+pubs = freadRDS2('oaworks', location = 'raw_data') |> bind_rows()
+dems = freadRDS2('oascholars', location = 'raw_data') |>
+  bind_rows() |> select(id, last_known_institutions) |>
+  mutate(id= str_remove(id, 'https://openalex.org/'))
 ```
 
 
@@ -103,15 +96,15 @@ unnest_authors <- function(pubs) {
 #   filter(author_id == authorships_id) |>
 #   filter(authorhships_affiliations)
 
+temp = 
 ```
 
 ```{r}
 
-
-
 pubs_authors = pubs |>
   left_join(dems, by = join_by(author_id == id)) |>
-  unnest_authors()|>
+  unnest_authors() |>
+  mutate(authorships_id = str_remove(authorships_id,'https://openalex.org/')) |>
   filter(author_id == authorships_id) |>
   filter(
     is.na(authorships_affiliations_id) |

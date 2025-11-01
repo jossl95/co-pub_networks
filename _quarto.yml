@@ -2,6 +2,9 @@ project:
   type: website
   output-dir: docs
   execute-dir: project
+  render:
+    - index.qmd
+    - src/code/*.qmd
   post-render:
     - src/utils/rename_old_datafiles.R
 
@@ -31,7 +34,7 @@ website:
         aria-label: GitHub
   
         
-# execute:d
+# execute:
 #   freeze: true
 
 format:
@@ -42,6 +45,9 @@ format:
     code-line-numbers: true
     code-annotations: true
     df-print: paged
+
+excluded:
+  - papers/
 
 
 

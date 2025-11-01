@@ -1,6 +1,9 @@
 ---
 title: "Data Processing Gender"
 date: today
+
+params:
+  eval: false
 ---
 
 ## Getting Started
@@ -291,7 +294,6 @@ patch_missing_gender = function(data){
 
 ```
 
-
 ```{r}
 
 genderize_names = function(idx) {
@@ -311,9 +313,11 @@ genderize_names = function(idx) {
 
   # fetch gender results
   hold = c()
-  for (name in first_names){
-    resp = genderizeAPI(name, apikey = APIKEY)
-    hold[[name]] = resp$response
+  if (eval_ok) {
+    for (name in first_names){
+      resp = genderizeAPI(name, apikey = APIKEY)
+      hold[[name]] = resp$response
+    }
   }
 
   # combine cache with results and put new cache results
@@ -326,13 +330,13 @@ genderize_names = function(idx) {
 
 ```
 
-
 ```{r}
 scrape_gender = function(idx) {
   # load gender cache
   gender_cache = readRDS(file.path("data", "utils", "nvb_gender.Rds")) |> 
     drop_na()
 
+  if (eval_ok){
   first_names = idx |> pull(first_name) |> unique() |> na.omit()
 
   # scrape gender results
@@ -341,7 +345,10 @@ scrape_gender = function(idx) {
       get_gender_row, 
       gender = gender_cache
     ) |>
-    patch_gender_on_splits() 
+    patch_gender_on_splits()
+  } else {
+    res =  gender_cache
+  }
 
   # put gender scrape results
   saveRDS(res |> drop_na(), file.path('data', 'utils', "nvb_gender.Rds"))
@@ -393,17 +400,12 @@ harmonize_gender = function(gender) {
       count = sum(count)
     )
 }
-
-
 ```
 
 ## Application
 
 ```{r}
-
-dir = file.path('data', 'processed')
-file = list.files(dir, pattern = 'names.Rds')
-names = readRDS(file.path(dir, file[length(file)]))
+names = freadRDS2('names')
 
 idx = names |>
   mutate(term = first_name |> 
@@ -419,7 +421,7 @@ gender = idx |>
   left_join(res2, by=join_by(term == name), suffix = c(".x", ".y")) |>
   harmonize_gender()
 
-fsaveRDS(gender, "gender")
+# fsaveRDS(gender, "gender")
 ```
 
 

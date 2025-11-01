@@ -1,0 +1,31 @@
+---
+title: "Scientific Co-Publishing Networks"
+
+author: 
+  - name: "Jos Slabbekoorn"
+    orcid: 0000-0001-8419-5703
+    email: jos.slabbekoorn@ru.nl
+    affiliations: 
+      - id: RU
+        name: Radboud University Nijmegen
+        department: Sociology
+        country: The Netherlands
+  - name: "Jochem Tolsma"
+    orcid: 0000-0002-4411-6932
+    affiliations:
+      - id: RUG
+        name: University of Groningen
+        department: Sociology
+        country: The Netherlands
+      - ref: RU
+  - name: "Bas Hofstra"
+    orcid: 0000-0002-9052-956X
+    affiliations:
+      - ref: RU
+  - name: "Roza Meuleman"
+    orcid: 0000-0002-4486-253X
+    affiliations:
+      - ref: RU
+---
+
+{{< include paper1/introduction.qmd >}}

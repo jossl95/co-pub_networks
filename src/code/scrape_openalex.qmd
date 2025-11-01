@@ -455,14 +455,8 @@ oa_fetch_works = function(data, pause = 0){
 
 ```{r}
 # load the most recent names data
-dir = file.path('data', 'processed')
-file = list.files(dir, pattern = 'names.Rds')
-names = freadRDS(file.path(dir, file[length(file)])) 
-
-# load the most resent scholarid data
-dir = file.path('data', 'processed')
-file = list.files(dir, pattern = 'scholarid.Rds')
-ids = freadRDS(file.path(dir, file[length(file)])) 
+names = freadRDS2('names') 
+ids = freadRDS2('scholarid') 
 
 # Combine names and scholarid data and reshape to create a table with
 # a row per author university pair
@@ -501,3 +495,4 @@ fsaveRDS(works, 'oaworks', location = "./data/raw_data/")
 w = bind_rows(works)
 w |> head()
 ```
+

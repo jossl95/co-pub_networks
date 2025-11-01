@@ -223,12 +223,7 @@ add_uid = function(names){
 ## Application
 
 ```{r}
-
-# load data 
-dir = file.path("data", "processed")
-file = list.files(dir, pattern = "scholarid.Rds", full.names = TRUE)
-
-data = freadRDS(file[length(file)]) 
+data = freadRDS2('scholarid') 
 
 names = data |>
   select(naam) |>

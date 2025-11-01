@@ -2,11 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.8.25">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-10-27">
+<meta name="dcterms.date" content="2025-11-01">
 
 <title>Data Processing Ethnicity – Networks</title>
 <style>
@@ -22,8 +22,9 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 /* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -34,7 +35,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -65,15 +66,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
-<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-6bd9cfa162949bde0a231f530c97869d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-5b4ad623e5705c0698d39aec6f10cf02.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -108,13 +111,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link rel="stylesheet" href="../../src/code/styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Networks</span>
     </a>
@@ -213,7 +218,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 27, 2025</p>
+      <p class="date">November 1, 2025</p>
     </div>
   </div>
   
@@ -228,17 +233,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="getting-started" class="level2">
 <h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># clear the global environment</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># clear the global environment</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-Ncells  605486 32.4    1372058 73.3         NA   715802 38.3
-Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
+Ncells  606930 32.5    1376190 73.5         NA   715791 38.3
+Vcells 1124376  8.6    8388608 64.0      16384  2012307 15.4</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># load and activate packages</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># load and activate packages</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb3-3"><a href="#cb3-3"></a><span class="fu">library</span>(readxl)</span>
 <span id="cb3-4"><a href="#cb3-4"></a><span class="fu">library</span>(stringr)</span>
@@ -254,7 +259,7 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 <span id="cb3-14"><a href="#cb3-14"></a></span>
 <span id="cb3-15"><a href="#cb3-15"></a><span class="co"># load custom functions</span></span>
 <span id="cb3-16"><a href="#cb3-16"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
-<span id="cb3-17"><a href="#cb3-17"></a><span class="fu">.load_quarto_dependencies</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="fu">.load_quarto_dependencies</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="functions" class="level2">
@@ -279,7 +284,7 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 </ul>
 <p>This design lets downstream code branch cleanly on <code>res$ok</code> and inspect <code>res$status</code> or <code>res$error</code> without breaking the pipeline.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>is_ok <span class="ot">=</span> <span class="cf">function</span>(resp) <span class="fu">resp_status</span>(resp) <span class="sc">&gt;=</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span> <span class="fu">resp_status</span>(resp) <span class="sc">&lt;</span> <span class="dv">300</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>is_ok <span class="ot">=</span> <span class="cf">function</span>(resp) <span class="fu">resp_status</span>(resp) <span class="sc">&gt;=</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span> <span class="fu">resp_status</span>(resp) <span class="sc">&lt;</span> <span class="dv">300</span></span>
 <span id="cb4-2"><a href="#cb4-2"></a></span>
 <span id="cb4-3"><a href="#cb4-3"></a>request_last_name <span class="ot">=</span> <span class="cf">function</span>(base_url, <span class="at">pause=</span><span class="fl">0.5</span>){</span>
 <span id="cb4-4"><a href="#cb4-4"></a>  <span class="co"># configure user agent</span></span>
@@ -339,7 +344,7 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 <span id="cb4-58"><a href="#cb4-58"></a>    )</span>
 <span id="cb4-59"><a href="#cb4-59"></a>  }</span>
 <span id="cb4-60"><a href="#cb4-60"></a>  <span class="fu">return</span>(res)</span>
-<span id="cb4-61"><a href="#cb4-61"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-61"><a href="#cb4-61"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="configure-url-and-extracters" class="level3">
@@ -348,7 +353,7 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 <h4 class="anchored" data-anchor-id="format_url-build-a-query-url-for-cbg-familienamen"><code>format_url()</code> – Build a query URL for CBG Familienamen</h4>
 <p>Takes a name and constructs a browser-ready URL for the CBG surnames site, encoding spaces as + and adding query parameters for multiple name fields. Optional <code>.what = "info"</code> appends the path to the analysis/etymology page. Returns the full URL string.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>format_url <span class="ot">=</span> <span class="cf">function</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>format_url <span class="ot">=</span> <span class="cf">function</span>(</span>
 <span id="cb5-2"><a href="#cb5-2"></a>    name,</span>
 <span id="cb5-3"><a href="#cb5-3"></a>    <span class="at">base =</span> <span class="st">"https://www.cbgfamilienamen.nl/nfb/detail_naam.php?"</span>,</span>
 <span id="cb5-4"><a href="#cb5-4"></a>    <span class="at">.what =</span> <span class="st">"base"</span></span>
@@ -371,14 +376,14 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 <span id="cb5-21"><a href="#cb5-21"></a>  }</span>
 <span id="cb5-22"><a href="#cb5-22"></a>  </span>
 <span id="cb5-23"><a href="#cb5-23"></a>  <span class="fu">return</span>(url)</span>
-<span id="cb5-24"><a href="#cb5-24"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-24"><a href="#cb5-24"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="extract_info-parse-analysisetymology-text-from-response" class="level4">
 <h4 class="anchored" data-anchor-id="extract_info-parse-analysisetymology-text-from-response"><code>extract_info()</code> – Parse analysis/etymology text from response</h4>
 <p>Given a response wrapper <code>r</code> (with <code>r$resp</code> from <code>httr2</code>), reads the HTML body and extracts the “kenmerken/verklaring” section. It splits the page text, trims boilerplate until the © footer, and returns a single “;”-separated string with the extracted info (or “” if not found).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>extract_info <span class="ot">=</span> <span class="cf">function</span>(r){</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>extract_info <span class="ot">=</span> <span class="cf">function</span>(r){</span>
 <span id="cb6-2"><a href="#cb6-2"></a>  html <span class="ot">=</span> <span class="fu">read_html</span>(<span class="fu">resp_body_string</span>(r<span class="sc">$</span>resp))</span>
 <span id="cb6-3"><a href="#cb6-3"></a>  text <span class="ot">=</span> html <span class="sc">|&gt;</span></span>
 <span id="cb6-4"><a href="#cb6-4"></a>    <span class="fu">html_element</span>(<span class="st">"body"</span>) <span class="sc">|&gt;</span></span>
@@ -401,14 +406,20 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 <span id="cb6-21"><a href="#cb6-21"></a>  <span class="co"># drop empty strings</span></span>
 <span id="cb6-22"><a href="#cb6-22"></a>  <span class="co"># info = info[nzchar(info)]</span></span>
 <span id="cb6-23"><a href="#cb6-23"></a>  <span class="fu">return</span>(<span class="fu">paste</span>(<span class="fu">unname</span>(info), <span class="at">collapse =</span> <span class="st">"; "</span>))</span>
-<span id="cb6-24"><a href="#cb6-24"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-24"><a href="#cb6-24"></a>}</span>
+<span id="cb6-25"><a href="#cb6-25"></a></span>
+<span id="cb6-26"><a href="#cb6-26"></a>safe_info <span class="ot">=</span> <span class="cf">function</span>(r, <span class="at">default =</span> <span class="cn">NA_character_</span>) {</span>
+<span id="cb6-27"><a href="#cb6-27"></a>  <span class="fu">tryCatch</span>(<span class="fu">extract_info</span>(r),</span>
+<span id="cb6-28"><a href="#cb6-28"></a>           <span class="at">error =</span> <span class="cf">function</span>(e) default,</span>
+<span id="cb6-29"><a href="#cb6-29"></a>           <span class="at">warning =</span> <span class="cf">function</span>(w) default)</span>
+<span id="cb6-30"><a href="#cb6-30"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="extract_count-retrieve-occurrence-count-from-tables" class="level4">
 <h4 class="anchored" data-anchor-id="extract_count-retrieve-occurrence-count-from-tables"><code>extract_count()</code> – Retrieve occurrence count from tables</h4>
 <p>Parses all HTML tables from <code>r$resp</code> and searches for the table layout containing the national count. If found, pulls the value at row 2, column 2 (per the site’s structure) and returns it as an integer; throws an error if no tables are present and returns <code>NA</code> when the expected layout is missing.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>extract_count <span class="ot">=</span> <span class="cf">function</span>(r){</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>extract_count <span class="ot">=</span> <span class="cf">function</span>(r){</span>
 <span id="cb7-2"><a href="#cb7-2"></a>  <span class="co"># extract all tables on the page</span></span>
 <span id="cb7-3"><a href="#cb7-3"></a>  html <span class="ot">=</span> <span class="fu">read_html</span>(<span class="fu">resp_body_string</span>(r<span class="sc">$</span>resp))</span>
 <span id="cb7-4"><a href="#cb7-4"></a>  tables <span class="ot">=</span> <span class="fu">html_table</span>(html, <span class="at">header=</span><span class="cn">FALSE</span>)</span>
@@ -428,7 +439,13 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 <span id="cb7-18"><a href="#cb7-18"></a>  }</span>
 <span id="cb7-19"><a href="#cb7-19"></a></span>
 <span id="cb7-20"><a href="#cb7-20"></a>  <span class="fu">return</span>(count)</span>
-<span id="cb7-21"><a href="#cb7-21"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-21"><a href="#cb7-21"></a>}</span>
+<span id="cb7-22"><a href="#cb7-22"></a></span>
+<span id="cb7-23"><a href="#cb7-23"></a>safe_count <span class="ot">=</span> <span class="cf">function</span>(r, <span class="at">default =</span> <span class="cn">NA_integer_</span>) {</span>
+<span id="cb7-24"><a href="#cb7-24"></a>  <span class="fu">tryCatch</span>(<span class="fu">extract_count</span>(r),</span>
+<span id="cb7-25"><a href="#cb7-25"></a>           <span class="at">error =</span> <span class="cf">function</span>(e) default,</span>
+<span id="cb7-26"><a href="#cb7-26"></a>           <span class="at">warning =</span> <span class="cf">function</span>(w) default)</span>
+<span id="cb7-27"><a href="#cb7-27"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
@@ -437,45 +454,33 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 <p>These utilities wrap the earlier extractors and assemble a tidy result for a single surname. - <code>safe_count()</code> / <code>safe_info()</code> wrap <code>extract_count()</code> and <code>extract_info()</code> in <code>tryCatch()</code>, returning a default (<code>NA_integer_</code> / <code>NA_character_</code>) on any error or warning. This guarantees downstream code receives a value even when pages are missing or malformed. - <code>get_name_row()</code> takes a name and performs up to two requests: 1. Builds the base URL with <code>format_url(name)</code> and fetches it via <code>request_last_name()</code>. If the HTTP result is ok, it parses the national occurrence count with <code>safe_count()</code>; otherwise it records <code>NA</code>. 2. Only if a non-missing count was obtained, it builds the “info” URL (<code>.what = "info"</code>) and requests it, then extracts the analysis/etymology info with <code>safe_info()</code> (again only when both requests succeeded).</p>
 <p>Both <code>count</code> and <code>info</code> are coerced to character for consistency. The function returns a one-row tibble with <code>last_name</code>, <code>name_count</code>, and <code>info</code>, providing a compact, fault-tolerant record for each queried surname.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>safe_count <span class="ot">=</span> <span class="cf">function</span>(r, <span class="at">default =</span> <span class="cn">NA_integer_</span>) {</span>
-<span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">tryCatch</span>(<span class="fu">extract_count</span>(r),</span>
-<span id="cb8-3"><a href="#cb8-3"></a>           <span class="at">error =</span> <span class="cf">function</span>(e) default,</span>
-<span id="cb8-4"><a href="#cb8-4"></a>           <span class="at">warning =</span> <span class="cf">function</span>(w) default)</span>
-<span id="cb8-5"><a href="#cb8-5"></a>}</span>
-<span id="cb8-6"><a href="#cb8-6"></a></span>
-<span id="cb8-7"><a href="#cb8-7"></a>safe_info <span class="ot">=</span> <span class="cf">function</span>(r, <span class="at">default =</span> <span class="cn">NA_character_</span>) {</span>
-<span id="cb8-8"><a href="#cb8-8"></a>  <span class="fu">tryCatch</span>(<span class="fu">extract_info</span>(r),</span>
-<span id="cb8-9"><a href="#cb8-9"></a>           <span class="at">error =</span> <span class="cf">function</span>(e) default,</span>
-<span id="cb8-10"><a href="#cb8-10"></a>           <span class="at">warning =</span> <span class="cf">function</span>(w) default)</span>
-<span id="cb8-11"><a href="#cb8-11"></a>}</span>
-<span id="cb8-12"><a href="#cb8-12"></a></span>
-<span id="cb8-13"><a href="#cb8-13"></a>get_name_row <span class="ot">=</span> <span class="cf">function</span>(name, <span class="at">count=</span><span class="cn">NA_character_</span>, <span class="at">info=</span><span class="cn">NA_character_</span>){</span>
-<span id="cb8-14"><a href="#cb8-14"></a>  <span class="co"># scrape the count information</span></span>
-<span id="cb8-15"><a href="#cb8-15"></a>  r1 <span class="ot">=</span> <span class="fu">format_url</span>(name) <span class="sc">|&gt;</span></span>
-<span id="cb8-16"><a href="#cb8-16"></a>    <span class="fu">request_last_name</span>() </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>get_name_row <span class="ot">=</span> <span class="cf">function</span>(name, <span class="at">count=</span><span class="cn">NA_character_</span>, <span class="at">info=</span><span class="cn">NA_character_</span>){</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="co"># scrape the count information</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>  r1 <span class="ot">=</span> <span class="fu">format_url</span>(name) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="fu">request_last_name</span>() </span>
+<span id="cb8-5"><a href="#cb8-5"></a></span>
+<span id="cb8-6"><a href="#cb8-6"></a>  count <span class="ot">=</span> <span class="cf">if</span> (<span class="fu">isTRUE</span>(r1<span class="sc">$</span>ok)) <span class="fu">safe_count</span>(r1) <span class="cf">else</span> <span class="cn">NA_character_</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>  count <span class="ot">=</span> <span class="fu">as.character</span>(count)</span>
+<span id="cb8-8"><a href="#cb8-8"></a></span>
+<span id="cb8-9"><a href="#cb8-9"></a>  <span class="co"># scrape info if the first scrape yielded success</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(count)){</span>
+<span id="cb8-11"><a href="#cb8-11"></a>  r2 <span class="ot">=</span> <span class="fu">format_url</span>(name, <span class="at">.what=</span><span class="st">"info"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>    <span class="fu">request_last_name</span>()</span>
+<span id="cb8-13"><a href="#cb8-13"></a></span>
+<span id="cb8-14"><a href="#cb8-14"></a>  info <span class="ot">=</span> <span class="cf">if</span> (<span class="fu">isTRUE</span>(r2<span class="sc">$</span>ok) <span class="sc">&amp;&amp;</span> <span class="fu">isTRUE</span>(r1<span class="sc">$</span>ok)) <span class="fu">safe_info</span>(r2) <span class="cf">else</span> <span class="cn">NA_character_</span></span>
+<span id="cb8-15"><a href="#cb8-15"></a>  info <span class="ot">=</span> <span class="fu">as.character</span>(info)</span>
+<span id="cb8-16"><a href="#cb8-16"></a>  }</span>
 <span id="cb8-17"><a href="#cb8-17"></a></span>
-<span id="cb8-18"><a href="#cb8-18"></a>  count <span class="ot">=</span> <span class="cf">if</span> (<span class="fu">isTRUE</span>(r1<span class="sc">$</span>ok)) <span class="fu">safe_count</span>(r1) <span class="cf">else</span> <span class="cn">NA_character_</span></span>
-<span id="cb8-19"><a href="#cb8-19"></a>  count <span class="ot">=</span> <span class="fu">as.character</span>(count)</span>
-<span id="cb8-20"><a href="#cb8-20"></a></span>
-<span id="cb8-21"><a href="#cb8-21"></a>  <span class="co"># scrape info if the first scrape yielded success</span></span>
-<span id="cb8-22"><a href="#cb8-22"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(count)){</span>
-<span id="cb8-23"><a href="#cb8-23"></a>  r2 <span class="ot">=</span> <span class="fu">format_url</span>(name, <span class="at">.what=</span><span class="st">"info"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-24"><a href="#cb8-24"></a>    <span class="fu">request_last_name</span>()</span>
-<span id="cb8-25"><a href="#cb8-25"></a></span>
-<span id="cb8-26"><a href="#cb8-26"></a>  info <span class="ot">=</span> <span class="cf">if</span> (<span class="fu">isTRUE</span>(r2<span class="sc">$</span>ok) <span class="sc">&amp;&amp;</span> <span class="fu">isTRUE</span>(r1<span class="sc">$</span>ok)) <span class="fu">safe_info</span>(r2) <span class="cf">else</span> <span class="cn">NA_character_</span></span>
-<span id="cb8-27"><a href="#cb8-27"></a>  info <span class="ot">=</span> <span class="fu">as.character</span>(info)</span>
-<span id="cb8-28"><a href="#cb8-28"></a>  }</span>
-<span id="cb8-29"><a href="#cb8-29"></a></span>
-<span id="cb8-30"><a href="#cb8-30"></a></span>
-<span id="cb8-31"><a href="#cb8-31"></a>  <span class="fu">as_tibble</span>(<span class="fu">list</span>(</span>
-<span id="cb8-32"><a href="#cb8-32"></a>    <span class="at">last_name =</span> name, </span>
-<span id="cb8-33"><a href="#cb8-33"></a>    <span class="at">name_count =</span> count,</span>
-<span id="cb8-34"><a href="#cb8-34"></a>    <span class="at">info =</span> info</span>
-<span id="cb8-35"><a href="#cb8-35"></a>  ))</span>
-<span id="cb8-36"><a href="#cb8-36"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-18"><a href="#cb8-18"></a></span>
+<span id="cb8-19"><a href="#cb8-19"></a>  <span class="fu">as_tibble</span>(<span class="fu">list</span>(</span>
+<span id="cb8-20"><a href="#cb8-20"></a>    <span class="at">last_name =</span> name, </span>
+<span id="cb8-21"><a href="#cb8-21"></a>    <span class="at">name_count =</span> count,</span>
+<span id="cb8-22"><a href="#cb8-22"></a>    <span class="at">info =</span> info</span>
+<span id="cb8-23"><a href="#cb8-23"></a>  ))</span>
+<span id="cb8-24"><a href="#cb8-24"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>add_origin5 <span class="ot">=</span> <span class="cf">function</span>(ethnicity){</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>add_origin5 <span class="ot">=</span> <span class="cf">function</span>(ethnicity){</span>
 <span id="cb9-2"><a href="#cb9-2"></a>  ethnicity_patch <span class="ot">=</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(</span>
 <span id="cb9-3"><a href="#cb9-3"></a>      <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'origin_patch.xlsx'</span>)</span>
 <span id="cb9-4"><a href="#cb9-4"></a>    ) <span class="sc">|&gt;</span></span>
@@ -539,10 +544,10 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 <span id="cb9-62"><a href="#cb9-62"></a>      <span class="at">origin4 =</span> <span class="fu">str_detect</span>(info, <span class="st">"andere taal"</span>)</span>
 <span id="cb9-63"><a href="#cb9-63"></a>    ) <span class="sc">|&gt;</span></span>
 <span id="cb9-64"><a href="#cb9-64"></a>    <span class="fu">select</span>(<span class="sc">-</span>regional)</span>
-<span id="cb9-65"><a href="#cb9-65"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-65"><a href="#cb9-65"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>clean_ethnicity <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>clean_ethnicity <span class="ot">=</span> <span class="cf">function</span>(data){</span>
 <span id="cb10-2"><a href="#cb10-2"></a>  data <span class="sc">|&gt;</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a>    <span class="fu">mutate</span>(</span>
 <span id="cb10-4"><a href="#cb10-4"></a>      <span class="at">origin1 =</span> <span class="fu">ifelse</span>(origin1 <span class="sc">==</span> <span class="st">'character(0)'</span>, <span class="cn">NA_character_</span>, origin1),</span>
@@ -551,27 +556,23 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 <span id="cb10-7"><a href="#cb10-7"></a>        <span class="at">.default =</span> origin1</span>
 <span id="cb10-8"><a href="#cb10-8"></a>      ),</span>
 <span id="cb10-9"><a href="#cb10-9"></a>      <span class="at">origin =</span> <span class="fu">coalesce</span>(origin, origin5),</span>
-<span id="cb10-10"><a href="#cb10-10"></a>      <span class="co"># origin = case_when(</span></span>
-<span id="cb10-11"><a href="#cb10-11"></a>      <span class="co">#   is.na(origin) &amp; !is.na(count) &amp; !is.na(info) ~ "Nederlandse naam",</span></span>
-<span id="cb10-12"><a href="#cb10-12"></a>      <span class="co">#   has_particle ~ "Nederlandse naam",</span></span>
-<span id="cb10-13"><a href="#cb10-13"></a>      <span class="co">#   .default = origin</span></span>
-<span id="cb10-14"><a href="#cb10-14"></a>      <span class="co"># ),</span></span>
-<span id="cb10-15"><a href="#cb10-15"></a>      <span class="at">origin =</span> <span class="fu">str_remove</span>(origin, <span class="fu">regex</span>(<span class="st">"</span><span class="sc">\\</span><span class="st"> .*"</span>)),</span>
-<span id="cb10-16"><a href="#cb10-16"></a>      <span class="at">origin =</span> <span class="fu">case_when</span>(</span>
-<span id="cb10-17"><a href="#cb10-17"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Christelijk"</span>) <span class="sc">~</span> <span class="st">"Nederlandse"</span>,</span>
-<span id="cb10-18"><a href="#cb10-18"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Friese"</span>) <span class="sc">~</span> <span class="st">"Nederlandse"</span>,</span>
-<span id="cb10-19"><a href="#cb10-19"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Tilburgse"</span>) <span class="sc">~</span> <span class="st">"Nederlandse"</span>,</span>
-<span id="cb10-20"><a href="#cb10-20"></a>        origin <span class="sc">==</span>  <span class="st">""</span> <span class="sc">~</span> <span class="cn">NA_character_</span>,</span>
-<span id="cb10-21"><a href="#cb10-21"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Waalse"</span>) <span class="sc">~</span> <span class="st">"Belgische"</span>,</span>
-<span id="cb10-22"><a href="#cb10-22"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Catalaanse"</span>) <span class="sc">~</span> <span class="st">"Spaanse"</span>, </span>
-<span id="cb10-23"><a href="#cb10-23"></a>        <span class="at">.default =</span> origin</span>
-<span id="cb10-24"><a href="#cb10-24"></a>      )</span>
-<span id="cb10-25"><a href="#cb10-25"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb10-26"><a href="#cb10-26"></a>    <span class="fu">select</span>(last_name, origin, name_count)</span>
-<span id="cb10-27"><a href="#cb10-27"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-10"><a href="#cb10-10"></a></span>
+<span id="cb10-11"><a href="#cb10-11"></a>      <span class="at">origin =</span> <span class="fu">str_remove</span>(origin, <span class="fu">regex</span>(<span class="st">"</span><span class="sc">\\</span><span class="st"> .*"</span>)),</span>
+<span id="cb10-12"><a href="#cb10-12"></a>      <span class="at">origin =</span> <span class="fu">case_when</span>(</span>
+<span id="cb10-13"><a href="#cb10-13"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Christelijk"</span>) <span class="sc">~</span> <span class="st">"Nederlandse"</span>,</span>
+<span id="cb10-14"><a href="#cb10-14"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Friese"</span>) <span class="sc">~</span> <span class="st">"Nederlandse"</span>,</span>
+<span id="cb10-15"><a href="#cb10-15"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Tilburgse"</span>) <span class="sc">~</span> <span class="st">"Nederlandse"</span>,</span>
+<span id="cb10-16"><a href="#cb10-16"></a>        origin <span class="sc">==</span>  <span class="st">""</span> <span class="sc">~</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb10-17"><a href="#cb10-17"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Waalse"</span>) <span class="sc">~</span> <span class="st">"Belgische"</span>,</span>
+<span id="cb10-18"><a href="#cb10-18"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Catalaanse"</span>) <span class="sc">~</span> <span class="st">"Spaanse"</span>, </span>
+<span id="cb10-19"><a href="#cb10-19"></a>        <span class="at">.default =</span> origin</span>
+<span id="cb10-20"><a href="#cb10-20"></a>      )</span>
+<span id="cb10-21"><a href="#cb10-21"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb10-22"><a href="#cb10-22"></a>    <span class="fu">select</span>(last_name, origin, name_count)</span>
+<span id="cb10-23"><a href="#cb10-23"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(<span class="st">'DemografixeR'</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(<span class="st">'DemografixeR'</span>)</span>
 <span id="cb11-2"><a href="#cb11-2"></a></span>
 <span id="cb11-3"><a href="#cb11-3"></a>nationalize_name <span class="ot">=</span> <span class="cf">function</span>(idx) {</span>
 <span id="cb11-4"><a href="#cb11-4"></a>  origin_cache <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">"origin_cache.Rds"</span>))</span>
@@ -589,44 +590,44 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 <span id="cb11-16"><a href="#cb11-16"></a></span>
 <span id="cb11-17"><a href="#cb11-17"></a>  <span class="co"># fetch nationality results</span></span>
 <span id="cb11-18"><a href="#cb11-18"></a>  hold <span class="ot">=</span> <span class="fu">c</span>()</span>
-<span id="cb11-19"><a href="#cb11-19"></a>  <span class="cf">for</span> (name <span class="cf">in</span> last_names){</span>
-<span id="cb11-20"><a href="#cb11-20"></a>    resp <span class="ot">=</span> <span class="fu">nationalize</span>(name, <span class="at">sliced=</span><span class="cn">FALSE</span>, <span class="at">apikey =</span> APIKEY, <span class="at">simplify =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb11-21"><a href="#cb11-21"></a>    hold[[name]] <span class="ot">=</span> resp </span>
-<span id="cb11-22"><a href="#cb11-22"></a>  }</span>
-<span id="cb11-23"><a href="#cb11-23"></a></span>
-<span id="cb11-24"><a href="#cb11-24"></a>  <span class="co"># combine cache with results and put new cache results</span></span>
-<span id="cb11-25"><a href="#cb11-25"></a>  origin <span class="ot">=</span> <span class="fu">bind_rows</span>(origin_cache, <span class="fu">bind_rows</span>(hold)) <span class="sc">|&gt;</span> </span>
-<span id="cb11-26"><a href="#cb11-26"></a>    <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb11-27"><a href="#cb11-27"></a></span>
-<span id="cb11-28"><a href="#cb11-28"></a>  <span class="cf">if</span> (<span class="st">"country"</span> <span class="sc">%in%</span> <span class="fu">colnames</span>(origin)) origin <span class="ot">=</span> origin <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>country)</span>
+<span id="cb11-19"><a href="#cb11-19"></a>  <span class="cf">if</span> (eval_ok) {</span>
+<span id="cb11-20"><a href="#cb11-20"></a>    <span class="cf">for</span> (name <span class="cf">in</span> last_names){</span>
+<span id="cb11-21"><a href="#cb11-21"></a>      resp <span class="ot">=</span> <span class="fu">nationalize</span>(name, <span class="at">sliced=</span><span class="cn">FALSE</span>, <span class="at">apikey =</span> APIKEY, <span class="at">simplify =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb11-22"><a href="#cb11-22"></a>      hold[[name]] <span class="ot">=</span> resp </span>
+<span id="cb11-23"><a href="#cb11-23"></a>    }</span>
+<span id="cb11-24"><a href="#cb11-24"></a>  }</span>
+<span id="cb11-25"><a href="#cb11-25"></a></span>
+<span id="cb11-26"><a href="#cb11-26"></a>  <span class="co"># combine cache with results and put new cache results</span></span>
+<span id="cb11-27"><a href="#cb11-27"></a>  origin <span class="ot">=</span> <span class="fu">bind_rows</span>(origin_cache, <span class="fu">bind_rows</span>(hold)) <span class="sc">|&gt;</span> </span>
+<span id="cb11-28"><a href="#cb11-28"></a>    <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb11-29"><a href="#cb11-29"></a></span>
-<span id="cb11-30"><a href="#cb11-30"></a>  <span class="fu">saveRDS</span>(origin, <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">"origin_cache.Rds"</span>))</span>
+<span id="cb11-30"><a href="#cb11-30"></a>  <span class="cf">if</span> (<span class="st">"country"</span> <span class="sc">%in%</span> <span class="fu">colnames</span>(origin)) origin <span class="ot">=</span> origin <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>country)</span>
 <span id="cb11-31"><a href="#cb11-31"></a></span>
-<span id="cb11-32"><a href="#cb11-32"></a>  <span class="fu">return</span>(origin)</span>
-<span id="cb11-33"><a href="#cb11-33"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-32"><a href="#cb11-32"></a>  <span class="fu">saveRDS</span>(origin, <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">"origin_cache.Rds"</span>))</span>
+<span id="cb11-33"><a href="#cb11-33"></a></span>
+<span id="cb11-34"><a href="#cb11-34"></a>  <span class="fu">return</span>(origin)</span>
+<span id="cb11-35"><a href="#cb11-35"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># o = res |&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># o = res |&gt;</span></span>
 <span id="cb12-2"><a href="#cb12-2"></a><span class="co">#   mutate(too_uncertain = probability &lt; 0.05)</span></span>
 <span id="cb12-3"><a href="#cb12-3"></a></span>
 <span id="cb12-4"><a href="#cb12-4"></a>select_best_match <span class="ot">=</span> <span class="cf">function</span>(res){</span>
-<span id="cb12-5"><a href="#cb12-5"></a>  </span>
-<span id="cb12-6"><a href="#cb12-6"></a></span>
-<span id="cb12-7"><a href="#cb12-7"></a>  res <span class="sc">|&gt;</span> </span>
-<span id="cb12-8"><a href="#cb12-8"></a>    <span class="fu">rename</span>(<span class="st">"last_name"</span> <span class="ot">=</span> <span class="st">"name"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb12-9"><a href="#cb12-9"></a>    <span class="co"># get the best match</span></span>
-<span id="cb12-10"><a href="#cb12-10"></a>    <span class="fu">group_by</span>(last_name) <span class="sc">|&gt;</span></span>
-<span id="cb12-11"><a href="#cb12-11"></a>    <span class="fu">slice</span>(<span class="dv">1</span>) </span>
-<span id="cb12-12"><a href="#cb12-12"></a>    <span class="co"># |&gt;</span></span>
-<span id="cb12-13"><a href="#cb12-13"></a>    <span class="co"># add country label for inspection</span></span>
-<span id="cb12-14"><a href="#cb12-14"></a>    <span class="co"># left_join(</span></span>
-<span id="cb12-15"><a href="#cb12-15"></a>    <span class="co">#   iso |&gt; select(alpha_2, country_name),</span></span>
-<span id="cb12-16"><a href="#cb12-16"></a>    <span class="co">#   by=join_by(country_id==alpha_2)</span></span>
-<span id="cb12-17"><a href="#cb12-17"></a>    <span class="co"># )</span></span>
-<span id="cb12-18"><a href="#cb12-18"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-5"><a href="#cb12-5"></a>  res <span class="sc">|&gt;</span> </span>
+<span id="cb12-6"><a href="#cb12-6"></a>    <span class="fu">rename</span>(<span class="st">"last_name"</span> <span class="ot">=</span> <span class="st">"name"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a>    <span class="co"># get the best match</span></span>
+<span id="cb12-8"><a href="#cb12-8"></a>    <span class="fu">group_by</span>(last_name) <span class="sc">|&gt;</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>    <span class="fu">slice</span>(<span class="dv">1</span>) </span>
+<span id="cb12-10"><a href="#cb12-10"></a>    <span class="co"># |&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11"></a>    <span class="co"># add country label for inspection</span></span>
+<span id="cb12-12"><a href="#cb12-12"></a>    <span class="co"># left_join(</span></span>
+<span id="cb12-13"><a href="#cb12-13"></a>    <span class="co">#   iso |&gt; select(alpha_2, country_name),</span></span>
+<span id="cb12-14"><a href="#cb12-14"></a>    <span class="co">#   by=join_by(country_id==alpha_2)</span></span>
+<span id="cb12-15"><a href="#cb12-15"></a>    <span class="co"># )</span></span>
+<span id="cb12-16"><a href="#cb12-16"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>name_to_origin <span class="ot">=</span> <span class="cf">function</span>(idx) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>name_to_origin <span class="ot">=</span> <span class="cf">function</span>(idx) {</span>
 <span id="cb13-2"><a href="#cb13-2"></a>  ethnicity_cache <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'cbg_cache.Rds'</span>))</span>
 <span id="cb13-3"><a href="#cb13-3"></a></span>
 <span id="cb13-4"><a href="#cb13-4"></a>  <span class="co"># select uncached names</span></span>
@@ -646,10 +647,10 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 <span id="cb13-18"><a href="#cb13-18"></a>  <span class="fu">saveRDS</span>(res,  <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'cbg_cache.Rds'</span>))</span>
 <span id="cb13-19"><a href="#cb13-19"></a></span>
 <span id="cb13-20"><a href="#cb13-20"></a>  <span class="fu">return</span>(res)</span>
-<span id="cb13-21"><a href="#cb13-21"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-21"><a href="#cb13-21"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>harmonize_ethnicity <span class="ot">=</span> <span class="cf">function</span>(origin) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>harmonize_ethnicity <span class="ot">=</span> <span class="cf">function</span>(origin) {</span>
 <span id="cb14-2"><a href="#cb14-2"></a>  iso <span class="ot">=</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(<span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'iso3611_codes.xlsx'</span>))</span>
 <span id="cb14-3"><a href="#cb14-3"></a></span>
 <span id="cb14-4"><a href="#cb14-4"></a>  origin <span class="ot">=</span> origin <span class="sc">|&gt;</span></span>
@@ -696,48 +697,46 @@ Vcells 1121536  8.6    8388608 64.0      16384  2012236 15.4</code></pre>
 <span id="cb14-45"><a href="#cb14-45"></a>      iso <span class="sc">|&gt;</span> <span class="fu">select</span>(alpha_2, country_name),</span>
 <span id="cb14-46"><a href="#cb14-46"></a>      <span class="at">by =</span> <span class="fu">join_by</span>(ethnicity <span class="sc">==</span> alpha_2)</span>
 <span id="cb14-47"><a href="#cb14-47"></a>    )</span>
-<span id="cb14-48"><a href="#cb14-48"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-48"><a href="#cb14-48"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
 <section id="application" class="level2">
 <h2 class="anchored" data-anchor-id="application">Application</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>dir <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'processed'</span>)</span>
-<span id="cb15-2"><a href="#cb15-2"></a>file <span class="ot">=</span> <span class="fu">list.files</span>(dir, <span class="at">pattern =</span> <span class="st">'names.Rds'</span>)</span>
-<span id="cb15-3"><a href="#cb15-3"></a>names <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(dir, file[<span class="fu">length</span>(file)]))</span>
-<span id="cb15-4"><a href="#cb15-4"></a></span>
-<span id="cb15-5"><a href="#cb15-5"></a><span class="co"># create an name index</span></span>
-<span id="cb15-6"><a href="#cb15-6"></a>idx <span class="ot">=</span> names <span class="sc">|&gt;</span></span>
-<span id="cb15-7"><a href="#cb15-7"></a>  <span class="fu">distinct</span>(particle, last_name, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb15-8"><a href="#cb15-8"></a>  <span class="fu">unite</span>(search_name, particle<span class="sc">:</span>last_name, <span class="at">sep=</span><span class="st">" "</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>, <span class="at">remove =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb15-9"><a href="#cb15-9"></a>  <span class="fu">unite</span>(search_name_full, particle<span class="sc">:</span>maiden_name, <span class="at">sep=</span><span class="st">" "</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>, <span class="at">remove =</span> <span class="cn">FALSE</span>) </span>
-<span id="cb15-10"><a href="#cb15-10"></a></span>
-<span id="cb15-11"><a href="#cb15-11"></a><span class="co"># scrape using nationalizer</span></span>
-<span id="cb15-12"><a href="#cb15-12"></a>res <span class="ot">=</span> <span class="fu">nationalize_name</span>(idx) <span class="sc">|&gt;</span></span>
-<span id="cb15-13"><a href="#cb15-13"></a>  <span class="fu">select_best_match</span>()</span>
-<span id="cb15-14"><a href="#cb15-14"></a></span>
-<span id="cb15-15"><a href="#cb15-15"></a><span class="co"># scrape using family name database</span></span>
-<span id="cb15-16"><a href="#cb15-16"></a>res2 <span class="ot">=</span> <span class="fu">name_to_origin</span>(idx)<span class="sc">|&gt;</span> </span>
-<span id="cb15-17"><a href="#cb15-17"></a>  <span class="fu">add_origin</span>() <span class="sc">|&gt;</span></span>
-<span id="cb15-18"><a href="#cb15-18"></a>  <span class="fu">add_origin5</span>() <span class="sc">|&gt;</span></span>
-<span id="cb15-19"><a href="#cb15-19"></a>  <span class="fu">clean_ethnicity</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>names <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'names'</span>)</span>
+<span id="cb15-2"><a href="#cb15-2"></a></span>
+<span id="cb15-3"><a href="#cb15-3"></a><span class="co"># create an name index</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a>idx <span class="ot">=</span> names <span class="sc">|&gt;</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a>  <span class="fu">distinct</span>(particle, last_name, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a>  <span class="fu">unite</span>(search_name, particle<span class="sc">:</span>last_name, <span class="at">sep=</span><span class="st">" "</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>, <span class="at">remove =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a>  <span class="fu">unite</span>(search_name_full, particle<span class="sc">:</span>maiden_name, <span class="at">sep=</span><span class="st">" "</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>, <span class="at">remove =</span> <span class="cn">FALSE</span>) </span>
+<span id="cb15-8"><a href="#cb15-8"></a></span>
+<span id="cb15-9"><a href="#cb15-9"></a><span class="co"># scrape using nationalizer</span></span>
+<span id="cb15-10"><a href="#cb15-10"></a>res <span class="ot">=</span> <span class="fu">nationalize_name</span>(idx) <span class="sc">|&gt;</span></span>
+<span id="cb15-11"><a href="#cb15-11"></a>  <span class="fu">select_best_match</span>()</span>
+<span id="cb15-12"><a href="#cb15-12"></a></span>
+<span id="cb15-13"><a href="#cb15-13"></a><span class="co"># scrape using family name database</span></span>
+<span id="cb15-14"><a href="#cb15-14"></a>res2 <span class="ot">=</span> <span class="fu">name_to_origin</span>(idx)<span class="sc">|&gt;</span> </span>
+<span id="cb15-15"><a href="#cb15-15"></a>  <span class="fu">add_origin</span>() <span class="sc">|&gt;</span></span>
+<span id="cb15-16"><a href="#cb15-16"></a>  <span class="fu">add_origin5</span>() <span class="sc">|&gt;</span></span>
+<span id="cb15-17"><a href="#cb15-17"></a>  <span class="fu">clean_ethnicity</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: There was 1 warning in `mutate()`.
 ℹ In argument: `origin1 = str_remove(origin1, "Joodse naam")`.
 Caused by warning in `stri_replace_first_regex()`:
 ! argument is not an atomic vector; coercing</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># combine scraped information</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># combine scraped information</span></span>
 <span id="cb17-2"><a href="#cb17-2"></a>origin <span class="ot">=</span> idx <span class="sc">|&gt;</span></span>
 <span id="cb17-3"><a href="#cb17-3"></a>  <span class="fu">left_join</span>(res, <span class="at">by=</span><span class="fu">join_by</span>(search_name<span class="sc">==</span>last_name)) <span class="sc">|&gt;</span></span>
 <span id="cb17-4"><a href="#cb17-4"></a>  <span class="fu">left_join</span>(res2, <span class="at">by=</span><span class="fu">join_by</span>(search_name<span class="sc">==</span>last_name)) <span class="sc">|&gt;</span></span>
 <span id="cb17-5"><a href="#cb17-5"></a>  <span class="fu">select</span>(uid, last_name, search_name, type<span class="sc">:</span>name_count) <span class="sc">|&gt;</span></span>
 <span id="cb17-6"><a href="#cb17-6"></a>  <span class="fu">harmonize_ethnicity</span>()</span>
 <span id="cb17-7"><a href="#cb17-7"></a></span>
-<span id="cb17-8"><a href="#cb17-8"></a><span class="fu">fsaveRDS</span>(origin, <span class="st">'ethnicity'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-8"><a href="#cb17-8"></a><span class="fu">fsaveRDS</span>(origin, <span class="st">'ethnicity'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "SAVING: ./data/processed/20251027ethnicity.Rds"</code></pre>
+<pre><code>[1] "SAVING: ./data/processed/20251101ethnicity.Rds"</code></pre>
 </div>
 </div>
 
@@ -746,236 +745,243 @@ Caused by warning in `stri_replace_first_regex()`:
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
       }
+      return false;
     }
-    return false;
-  }
-  const onCopySuccess = function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
       }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  }
-  const getTextToCopy = function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
       for (const childEl of codeEl.children) {
         if (isCodeAnnotation(childEl)) {
           childEl.remove();
         }
       }
       return codeEl.innerText;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-    text: getTextToCopy
-  });
-  clipboard.on('success', onCopySuccess);
-  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-      text: getTextToCopy,
-      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
     });
-    clipboardModal.on('success', onCopySuccess);
-  }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
     }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start',
-    };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
-        }
-      }
-    }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
           }
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
         }
-        return container.innerHTML
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
       } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
       }
     }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
           }
         } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
+            const note = htmlDoc.querySelector('main.content');
             if (note !== null) {
-              const html = processXRef(id, note);
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -983,185 +989,161 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           });
         }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
-    });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            div.style.left = 0;
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+      }, function(instance) {
       });
     }
-  }
-});
-</script>
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
 </div> <!-- /content -->
 
 

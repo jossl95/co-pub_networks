@@ -52,12 +52,35 @@ fsaveRDS <- function(x, file, location = "./data/processed/", ...) {
 
   # save file
   print(paste("SAVING: ", totalname, sep = ""))
-  saveRDS(x, file = totalname)
+  saveRDS(x, file = totalname, compress = "bzip2")
 }
 
-freadRDS  <- function(fileName){
+freadRDS = function(fileName){
   # load file and return object
   readRDS(fileName)
+}
+
+freadRDS2 = function(file, location = "processed", ...){
+  # make sure that the location is nested within the data directory
+  if (!str_detect(file, '.Rds')) file = paste0(file, ".Rds")
+
+  # format location and create the location if it does not exist
+  if (!str_detect(location, 'data/')) location = file.path('data', location)
+  if (!file.exists(location)) warning("the location does not exist ", location)
+
+  # list and filter by literal substring 'file'
+  files = list.files(location, pattern = file)
+  files = files[grepl(file, files, fixed = TRUE)]
+
+  # exclude old_* unless the requested file itself starts with old_
+  if (!startsWith(file, "old_")) files = files[!startsWith(files, "old_")] 
+  if (startsWith(file, "old_")) files = files[startsWith(files, "old_")] 
+
+  # create file_path for the most recent file
+  file_name = sort(files, decreasing = TRUE, na.last = NA)[1]
+  file_path = file.path(location, file_name)
+
+  return(readRDS(file_path))
 }
 
 fload <- function(filename) {
@@ -82,3 +105,7 @@ normalize_name = function(x) {
   trimws(x)
 }
 # colorize <- function(x, color) {sprintf("<span style='color: %s;'>%s</span>", color, x) }
+
+eval_ok <- tryCatch(isTRUE(params$eval), error = function(...) {
+  tryCatch(isTRUE(param$eval), error = function(...) FALSE)
+})

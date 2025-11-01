@@ -1,0 +1,20 @@
+project:
+  type: default
+  render: 
+    - "paper1.qmd"
+  output-dir: _output    # <-- all rendered files go here
+
+execute:
+  freeze: auto
+
+format:
+  hikmah-pdf:
+    papersize: a4
+    geometry:
+      - top=25mm
+      - left=25mm
+      - bottom=25mm
+      - right=25mm
+    number-sections: true
+    number-depth: 3
+  html: default

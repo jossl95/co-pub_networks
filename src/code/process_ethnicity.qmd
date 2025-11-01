@@ -1,6 +1,9 @@
 ---
 title: "Data Processing Ethnicity"
 date: today
+
+params:
+  eval: false
 ---
 
 ## Getting Started
@@ -181,6 +184,13 @@ extract_info = function(r){
   # info = info[nzchar(info)]
   return(paste(unname(info), collapse = "; "))
 }
+
+safe_info = function(r, default = NA_character_) {
+  tryCatch(extract_info(r),
+           error = function(e) default,
+           warning = function(w) default)
+}
+
 ```
 
 #### `extract_count()` – Retrieve occurrence count from tables
@@ -208,6 +218,13 @@ extract_count = function(r){
 
   return(count)
 }
+
+safe_count = function(r, default = NA_integer_) {
+  tryCatch(extract_count(r),
+           error = function(e) default,
+           warning = function(w) default)
+}
+
 ```
 
 ### Tidy Scrape Wrappers
@@ -222,17 +239,6 @@ Both `count` and `info` are coerced to character for consistency. The function r
 
 
 ```{r}
-safe_count = function(r, default = NA_integer_) {
-  tryCatch(extract_count(r),
-           error = function(e) default,
-           warning = function(w) default)
-}
-
-safe_info = function(r, default = NA_character_) {
-  tryCatch(extract_info(r),
-           error = function(e) default,
-           warning = function(w) default)
-}
 
 get_name_row = function(name, count=NA_character_, info=NA_character_){
   # scrape the count information
@@ -343,11 +349,7 @@ clean_ethnicity = function(data){
         .default = origin1
       ),
       origin = coalesce(origin, origin5),
-      # origin = case_when(
-      #   is.na(origin) & !is.na(count) & !is.na(info) ~ "Nederlandse naam",
-      #   has_particle ~ "Nederlandse naam",
-      #   .default = origin
-      # ),
+
       origin = str_remove(origin, regex("\\ .*")),
       origin = case_when(
         str_detect(origin, "Christelijk") ~ "Nederlandse",
@@ -384,9 +386,11 @@ nationalize_name = function(idx) {
 
   # fetch nationality results
   hold = c()
-  for (name in last_names){
-    resp = nationalize(name, sliced=FALSE, apikey = APIKEY, simplify = FALSE)
-    hold[[name]] = resp 
+  if (eval_ok) {
+    for (name in last_names){
+      resp = nationalize(name, sliced=FALSE, apikey = APIKEY, simplify = FALSE)
+      hold[[name]] = resp 
+    }
   }
 
   # combine cache with results and put new cache results
@@ -408,8 +412,6 @@ nationalize_name = function(idx) {
 #   mutate(too_uncertain = probability < 0.05)
 
 select_best_match = function(res){
-  
-
   res |> 
     rename("last_name" = "name") |>
     # get the best match
@@ -506,9 +508,7 @@ harmonize_ethnicity = function(origin) {
 ## Application
 
 ```{r}
-dir = file.path('data', 'processed')
-file = list.files(dir, pattern = 'names.Rds')
-names = readRDS(file.path(dir, file[length(file)]))
+names = freadRDS2('names')
 
 # create an name index
 idx = names |>
