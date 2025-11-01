@@ -7,6 +7,9 @@ project:
 execute:
   freeze: auto
 
+bibliography: assets/references.bib
+csl: assets/asa.csl
+
 format:
   hikmah-pdf:
     papersize: a4
@@ -17,4 +20,5 @@ format:
       - right=25mm
     number-sections: true
     number-depth: 3
-  html: default
+  docx:
+    papersize: a4

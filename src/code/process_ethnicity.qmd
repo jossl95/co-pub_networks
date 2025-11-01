@@ -9,6 +9,8 @@ params:
 ## Getting Started
 
 ```{r}
+#| warning: false
+#| output: false
 # clear the global environment
 rm(list = ls())
 gc()
@@ -38,6 +40,70 @@ source("src/utils/custom_functions.r")
 ```
 
 ## Functions
+
+### Implementation Nationalize.io
+
+**`nationalize_name()`** — fetch nationality probabilities for names with persistent caching
+
+Reads an existing cache of name→nationality results (`data/utils/origin_cache.Rds`), queries only uncached `search_name` values via the nationalize.io API, merges new results with the cache, de-duplicates, and writes the updated cache back to disk. Live API calls are performed only when a boolean flag `eval_ok` is `TRUE`; otherwise the function simply returns the current cache.
+
+How it works:
+- Loads `.env` with `dotenv::load_dot_env()` and reads the API key from `Sys.getenv("GENDERIZE_API_KEY")` (the Nationalize/Genderize/Agify services share the same key format).
+- Filters out names already present in `origin_cache$name`.
+- For remaining names (if `eval_ok` is `TRUE`), calls `nationalize(name, sliced = FALSE, apikey = APIKEY, simplify = FALSE)` and collects responses.
+- Binds new rows with the cache and keeps distinct rows (`distinct(.keep_all = TRUE)`).
+- Drops a top-level country column if present (some client returns a nested/list column).
+
+```{r}
+nationalize_name = function(idx) {
+  origin_cache = readRDS(file.path('data', 'utils', "origin_cache.Rds"))
+
+  # load api key from secrets file
+  dotenv::load_dot_env()
+  APIKEY <- Sys.getenv("GENDERIZE_API_KEY")
+
+  # select uncached names
+  idx =  idx |> filter(!search_name %in% origin_cache$name)
+
+  # select last_names
+  last_names = idx$search_name |> na.omit() |> unique() |> sort()
+  # last_names = last_names[12:22]
+
+  # fetch nationality results
+  hold = c()
+  if (eval_ok) {
+    for (name in last_names){
+      resp = nationalize(name, sliced=FALSE, apikey = APIKEY, simplify = FALSE)
+      hold[[name]] = resp 
+    }
+  }
+
+  # combine cache with results and put new cache results
+  origin = bind_rows(origin_cache, bind_rows(hold)) |> 
+    distinct(.keep_all = TRUE)
+
+  if ("country" %in% colnames(origin)) origin = origin |> select(-country)
+
+  saveRDS(origin, file.path('data', 'utils', "origin_cache.Rds"))
+
+  return(origin)
+}
+```
+
+`nationalize_name` give multiple responses per individuals. The following function
+selects the first response per name, which is the "best match"
+
+```{r}
+
+select_best_match = function(res){
+  res |> 
+    rename("last_name" = "name") |>
+    # get the best match
+    group_by(last_name) |>
+    slice(1) 
+}
+
+```
 
 ### Scraper Configuration
 
@@ -267,6 +333,12 @@ get_name_row = function(name, count=NA_character_, info=NA_character_){
 ```
 
 
+## patch ethnic origin 
+
+**`add_origin5()`** — attach origin labels from a curated patch via fuzzy last-name matching
+
+Loads a manual patch file (`data/utils/origin_patch.xlsx`), normalizes last names with `normalize_name()`, and performs a fuzzy left join on last_name_norm (maximum distance 0.5) to transfer an origin label. The matched label is renamed to `origin5`. Helper/diagnostic columns from the join (e.g., normalized names, counts) are dropped; unmatched rows are left unchanged.
+
 
 ```{r}
 #| warning: false
@@ -293,7 +365,21 @@ add_origin5 = function(ethnicity){
       -last_name_norm.y, -last_name.y,
     )
 }
+```
 
+### Operationalize origin 
+
+**`add_origin()`** — extract origin cues from free-text info and standardize fields
+
+Parses textual hints in info to create up to four origin indicators:
+-	`origin1`: phrases matching “X naam” (e.g., “Friese naam”), excluding “Joodse naam”.
+- `origin2`: country/region after “afkomstig uit …”, trimmed at punctuation/parentheses; regional references (e.g., dorp/plaats/gemeente/graafschap/stad/deel/Friesland) are set to NA.
+- `origin3`: phrases matching “X (achter|familie|beroeps)?naam”, with boilerplate openings removed.
+- `origin4`: boolean flag if info mentions “andere taal”.
+
+Also adds `has_particle` (detects leading “van ” or “de ” in last_name) and drops the intermediate regional flag used for cleaning.
+
+```{r}
 add_origin = function(data) {
   data |>
     mutate(
@@ -339,6 +425,23 @@ add_origin = function(data) {
 
 ```
 
+### Clean and harmonize nationality variable
+
+**`clean_ethnicity()`** — consolidate and normalize origin labels
+
+Standardizes multiple origin signals into a single field `origin` and harmonizes label variants. The function:
+1. treats the literal string `"character(0)"` in origin1 as missing;
+2. sets origin = `origin3` when there are multiple values in `origin1`, otherwise uses origin1;
+3. backfills missing `origin` from `origin5` (`coalesce(origin, origin5)`);
+4. keeps only the first token of `origin` (drops everything after the first space);
+5. normalizes several Dutch adjectives to umbrella categories:
+  - "Christelijk", "Friese", "Tilburgse" → "Nederlandse"
+  - empty string → NA
+  - "Waalse" → "Belgische"
+  - "Catalaanse" → "Spaanse"
+6. returns only `last_name`, `origin`, and `name_count`.
+
+
 ```{r}
 clean_ethnicity = function(data){
   data |>
@@ -366,65 +469,17 @@ clean_ethnicity = function(data){
 
 ```
 
+### scrape nationality per row from achternamen bank
 
-```{r}
-library('DemografixeR')
+**`name_to_origin()`** — resolve origin info for names with on-disk caching
 
-nationalize_name = function(idx) {
-  origin_cache = readRDS(file.path('data', 'utils', "origin_cache.Rds"))
+Loads a cached table of name to origin results (`data/utils/cbg_cache.Rds`), looks up only the uncached names from i`dx$search_name` using a resolver `get_name_row()`, appends new rows to the cache, saves the updated cache back to disk, and returns the combined result.å
 
-  # load api key from secrets file
-  dotenv::load_dot_env()
-  APIKEY <- Sys.getenv("GENDERIZE_API_KEY")
-
-  # select uncached names
-  idx =  idx |> filter(!search_name %in% origin_cache$name)
-
-  # select last_names
-  last_names = idx$search_name |> na.omit() |> unique() |> sort()
-  # last_names = last_names[12:22]
-
-  # fetch nationality results
-  hold = c()
-  if (eval_ok) {
-    for (name in last_names){
-      resp = nationalize(name, sliced=FALSE, apikey = APIKEY, simplify = FALSE)
-      hold[[name]] = resp 
-    }
-  }
-
-  # combine cache with results and put new cache results
-  origin = bind_rows(origin_cache, bind_rows(hold)) |> 
-    distinct(.keep_all = TRUE)
-
-  if ("country" %in% colnames(origin)) origin = origin |> select(-country)
-
-  saveRDS(origin, file.path('data', 'utils', "origin_cache.Rds"))
-
-  return(origin)
-}
-```
-
-```{r}
-# o = res |>
-#   mutate(too_uncertain = probability < 0.05)
-
-select_best_match = function(res){
-  res |> 
-    rename("last_name" = "name") |>
-    # get the best match
-    group_by(last_name) |>
-    slice(1) 
-    # |>
-    # add country label for inspection
-    # left_join(
-    #   iso |> select(alpha_2, country_name),
-    #   by=join_by(country_id==alpha_2)
-    # )
-}
-
-```
-
+How it works:
+- Reads `cbg_cache.Rds` (expected to contain a last_name column used as the cache key).
+- Filters `idx` to names not already in `ethnicity_cache$last_name`.
+- Iterates over unique `search_name` values, calls `get_name_row(name)` for each miss, collects rows.
+- åBinds new rows with the existing cache and saves the result.
 
 ```{r}
 name_to_origin = function(idx) {
@@ -448,9 +503,22 @@ name_to_origin = function(idx) {
 
   return(res)
 }
-
-
 ```
+
+## Harmonize ethnicity variables
+
+**`harmonize_ethnicity()`** — map origin signals to ISO alpha-2 codes and attach country names
+
+This function consolidates multiple origin indicators into a standardized two-letter country code and enriches it with a readable country name. It (1) normalizes name_count, (2) assigns `ethnicity` via rule-based matches on Dutch origin adjectives with a frequency threshold, (3) applies a set of surname-specific overrides, (4) blanks inconsistent statistics, and (5) joins ISO codes to add `country_name`.
+
+How it works:
+- Reads ISO codes from `data/utils/iso3611_codes.xlsx` (which include `alpha_2`, `country_name`).
+- Cleans name_count: converts `"< 5"` to `5`, casts to integer, replaces NA with 0.
+- Sets `ethnicity` using heuristics:
+  - If `origin` contains "Nederlandse", "Chinese", "Duitse", "Marokkaanse", or "Turkse" and name_count > 200, assign "NL", "CN", "DE", "MA", "TR" respectively; otherwise fall back to country_id.
+  - Applies bespoke overrides based on search_name (e.g., "Wachter" → "NL", "Metinsoy" → "TR", "Phillips" → "BR", etc.), replacing any prior value.
+  - If the chosen `ethnicity` differs from `country_id`, sets count and probability to NA to avoid mixing mismatched stats.
+- Keeps relevant columns, removes duplicates (distinct on uid, search_name, ethnicity), and left-joins ISO to add country_name.
 
 ```{r}
 harmonize_ethnicity = function(origin) {
@@ -506,6 +574,9 @@ harmonize_ethnicity = function(origin) {
 ## Application
 
 ```{r}
+#| warning: false
+#| output: false
+
 names = freadRDS2('names')
 
 # create an name index
@@ -533,4 +604,8 @@ origin = idx |>
 
 fsaveRDS(origin, 'ethnicity')
 
+```
+
+```{r}
+origin |> head()
 ```

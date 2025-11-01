@@ -1,5 +1,5 @@
 ---
-title: "Scientific Co-Publishing Networks"
+title: "Popularity Pays—For Whom? Intersectional Inequalities in the Growth of Co-Authorship Networks"
 
 author: 
   - name: "Jos Slabbekoorn"

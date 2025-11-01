@@ -410,17 +410,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-2"><a href="#cb7-2"></a></span>
 <span id="cb7-3"><a href="#cb7-3"></a>works <span class="ot">=</span> <span class="fu">parse_works</span>(data, demographics) <span class="sc">|&gt;</span> </span>
 <span id="cb7-4"><a href="#cb7-4"></a>  <span class="fu">add_uid_to_authorships</span>(demographics) <span class="sc">|&gt;</span> </span>
-<span id="cb7-5"><a href="#cb7-5"></a>  <span class="fu">add_citations</span>()</span>
-<span id="cb7-6"><a href="#cb7-6"></a></span>
-<span id="cb7-7"><a href="#cb7-7"></a>scholars_list <span class="ot">=</span> <span class="fu">parse_scholars</span>(data, demographics)</span>
-<span id="cb7-8"><a href="#cb7-8"></a></span>
-<span id="cb7-9"><a href="#cb7-9"></a>scholars <span class="ot">=</span> <span class="fu">list</span>(</span>
-<span id="cb7-10"><a href="#cb7-10"></a>  <span class="at">demographics =</span> demographics, </span>
-<span id="cb7-11"><a href="#cb7-11"></a>  <span class="at">scholars_oa =</span> scholars_list,</span>
-<span id="cb7-12"><a href="#cb7-12"></a>  <span class="at">works =</span> works</span>
-<span id="cb7-13"><a href="#cb7-13"></a>)</span>
-<span id="cb7-14"><a href="#cb7-14"></a></span>
-<span id="cb7-15"><a href="#cb7-15"></a><span class="fu">fsaveRDS</span>(scholars, <span class="at">file=</span><span class="st">"scholars"</span>, <span class="at">location =</span> <span class="st">"./data/combined/"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="fu">add_citations</span>() <span class="sc">|&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="fu">distinct</span>(work_id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-7"><a href="#cb7-7"></a></span>
+<span id="cb7-8"><a href="#cb7-8"></a>scholars_list <span class="ot">=</span> <span class="fu">parse_scholars</span>(data, demographics)</span>
+<span id="cb7-9"><a href="#cb7-9"></a></span>
+<span id="cb7-10"><a href="#cb7-10"></a>scholars <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb7-11"><a href="#cb7-11"></a>  <span class="at">demographics =</span> demographics, </span>
+<span id="cb7-12"><a href="#cb7-12"></a>  <span class="at">scholars_oa =</span> scholars_list,</span>
+<span id="cb7-13"><a href="#cb7-13"></a>  <span class="at">works =</span> works</span>
+<span id="cb7-14"><a href="#cb7-14"></a>)</span>
+<span id="cb7-15"><a href="#cb7-15"></a></span>
+<span id="cb7-16"><a href="#cb7-16"></a><span class="fu">fsaveRDS</span>(scholars, <span class="at">file=</span><span class="st">"scholars"</span>, <span class="at">location =</span> <span class="st">"./data/combined/"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 
