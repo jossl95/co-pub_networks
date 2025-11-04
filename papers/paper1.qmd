@@ -1,5 +1,5 @@
 ---
-title: "Popularity Pays—For Whom? Intersectional Inequalities in the Growth of Co-Authorship Networks"
+title: "Who Works With Whom? Gender, Nationality, and the Shape of Co-Publishing Networks"
 
 author: 
   - name: "Jos Slabbekoorn"
@@ -29,3 +29,8 @@ author:
 ---
 
 {{< include paper1/introduction.qmd >}}
+
+## References {.unnumbered}
+
+::: {#refs}
+:::

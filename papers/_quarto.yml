@@ -8,17 +8,19 @@ execute:
   freeze: auto
 
 bibliography: assets/references.bib
-csl: assets/asa.csl
+csl: assets/apa.csl
 
 format:
   hikmah-pdf:
     papersize: a4
     geometry:
-      - top=25mm
-      - left=25mm
-      - bottom=25mm
-      - right=25mm
+      - top=30mm
+      - left=30mm
+      - bottom=30mm
+      - right=30mm
     number-sections: true
     number-depth: 3
+    linestretch: 1.5
+
   docx:
     papersize: a4
