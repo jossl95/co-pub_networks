@@ -1,15 +1,15 @@
 source("src/utils/custom_functions.r")
 
 # load and activate packages
-fpackage.check(c(
-  'tidyverse', 'readxl',  'stringr', 
-  'lubridate'
-))
+library(tidyverse)
+library(readxl)
+library(stringr)
 
 corrections <- tibble::tribble(
   ~naam,                            ~first_name, ~particle, ~last_name,
   "Marjolein Broese van Groenou",   "Marjolein", NA_character_, "Broese-van Groenou",
   "Albornoz Barra Gonzalo",         "Alborno",   NA_character_, "Barra Gonzalo",
+  "Adria Albareda Sanz",            "Adria",     NA_character_, "Albareda Sanz",
   "Amina op de Weegh",              "Amina",     "op de",       "Weegh",
   "Amina Op de Weegh",              "Amina",     "op de",       "Weegh",
   "Ana Maria Torres Chedraui",      "Ana Maria", NA_character_, "Torres Chedraui",

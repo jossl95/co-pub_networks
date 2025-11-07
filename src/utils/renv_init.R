@@ -10,7 +10,7 @@ renv::settings$use.cache(TRUE)
 
 # Scan ONLY your content dir
 deps <- renv::dependencies(path = "src", progress = FALSE)
-pkgs <- unique(c(na.omit(deps$Package), 'knitr', 'rmarkdown'))
+pkgs <- unique(c(na.omit(deps$Package), 'knitr', 'rmarkdown', 'tidyplots'))
 
 # ---- map non-CRAN packages to their remote specs ----
 remote_map <- c(

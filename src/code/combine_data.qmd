@@ -35,8 +35,6 @@ library(cli)
 # load custom functions 
 source("src/utils/custom_functions.r")
 .load_quarto_dependencies()
-
-options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
 ```
 
 ## Functions
@@ -132,7 +130,13 @@ parse_works = function(data, demographics){
 
   works = list()
   for (id in uids){
-    works[[id]] = data$works[[id]]
+    work = data$works[[id]] 
+    
+    if (is_tibble(work) & ("work_id" %in% colnames(work))) {
+      work = work |> distinct(work_id, .keep_all = TRUE)
+    }
+
+    works[[id]] = work
   }
   return(works)
 }
@@ -198,8 +202,7 @@ demographics = combine_demographics(data)
 
 works = parse_works(data, demographics) |> 
   add_uid_to_authorships(demographics) |> 
-  add_citations() |>
-  distinct(work_id, .keep_all = TRUE)
+  add_citations() 
 
 scholars_list = parse_scholars(data, demographics)
 

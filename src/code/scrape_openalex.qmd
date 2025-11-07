@@ -489,7 +489,6 @@ works = oa_fetch_works(authors)
 fsaveRDS(works, 'oaworks', location = "./data/raw_data/")
 ```
 
-
 ```{r}
 w = bind_rows(works)
 w |> head()

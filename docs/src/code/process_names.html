@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-01">
+<meta name="dcterms.date" content="2025-11-07">
 
 <title>Data Processing Names – Networks</title>
 <style>
@@ -168,6 +168,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
     </ul>
   </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-analyses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Analyses</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-analyses">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/descriptive_analysis.html">
+ <span class="dropdown-text">Descriptive Analyses</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item compact">
@@ -221,7 +232,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 1, 2025</p>
+      <p class="date">November 7, 2025</p>
     </div>
   </div>
   
@@ -368,7 +379,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["naam"],"name":[1],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["particle"],"name":[3],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"Marjolein Broese van Groenou","2":"Marjolein","3":"NA","4":"Broese-van Groenou"},{"1":"Albornoz Barra Gonzalo","2":"Alborno","3":"NA","4":"Barra Gonzalo"},{"1":"Amina op de Weegh","2":"Amina","3":"op de","4":"Weegh"},{"1":"Amina Op de Weegh","2":"Amina","3":"op de","4":"Weegh"},{"1":"Ana Maria Torres Chedraui","2":"Ana Maria","3":"NA","4":"Torres Chedraui"},{"1":"Ana Mishkovska Kajevska","2":"Ana","3":"NA","4":"Mishkovska Kajevska"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["naam"],"name":[1],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["particle"],"name":[3],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"Marjolein Broese van Groenou","2":"Marjolein","3":"NA","4":"Broese-van Groenou"},{"1":"Albornoz Barra Gonzalo","2":"Alborno","3":"NA","4":"Barra Gonzalo"},{"1":"Adria Albareda Sanz","2":"Adria","3":"NA","4":"Albareda Sanz"},{"1":"Amina op de Weegh","2":"Amina","3":"op de","4":"Weegh"},{"1":"Amina Op de Weegh","2":"Amina","3":"op de","4":"Weegh"},{"1":"Ana Maria Torres Chedraui","2":"Ana Maria","3":"NA","4":"Torres Chedraui"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -480,10 +491,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-12"><a href="#cb10-12"></a>  <span class="fu">format_names</span>() <span class="sc">|&gt;</span></span>
 <span id="cb10-13"><a href="#cb10-13"></a>  <span class="fu">add_uid</span>()</span>
 <span id="cb10-14"><a href="#cb10-14"></a></span>
-<span id="cb10-15"><a href="#cb10-15"></a><span class="fu">fsaveRDS</span>(</span>
-<span id="cb10-16"><a href="#cb10-16"></a>  names, </span>
-<span id="cb10-17"><a href="#cb10-17"></a>  <span class="st">'names'</span></span>
-<span id="cb10-18"><a href="#cb10-18"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="fu">fsaveRDS</span>(names, <span class="st">'names'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>names <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>

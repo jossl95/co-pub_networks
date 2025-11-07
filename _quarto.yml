@@ -28,6 +28,10 @@ website:
             text: Scrape information from OpenAlex
           - href: src/code/combine_data.qmd
             text: Combine OpenAlex data
+      - text: Analyses
+        menu:
+          - href: src/code/descriptive_analysis.qmd
+            text: Descriptive Analyses
     right:
       - icon: github
         href: https://github.com/jossl95/co-pub_networks/tree/main

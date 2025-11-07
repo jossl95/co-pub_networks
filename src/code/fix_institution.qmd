@@ -96,7 +96,7 @@ unnest_authors <- function(pubs) {
 #   filter(author_id == authorships_id) |>
 #   filter(authorhships_affiliations)
 
-temp = 
+# temp = 
 ```
 
 ```{r}
@@ -132,8 +132,9 @@ dates = pubs_authors |>
     ) |>
     filter(authorships_affiliations_id %in% universities) |>
     arrange(publication_date) |>
-    group_by(authorships_id, authorships_affiliations_display_name, authorships_affiliations_id) |>
+    group_by(uid, authorships_id, authorships_affiliations_display_name, authorships_affiliations_id) |>
     summarize(
+        uid = first(uid),
         authorships_display_name = first(authorships_display_name),
         first_date = first(publication_date) ,
         last_date = last(publication_date)
@@ -146,7 +147,7 @@ dates = pubs_authors |>
 
 
 ```{r}
-timepoints <- c("2019-09-01", "2022-12-19", "2024-04-19", "2025-10-02")
+timepoints <- c("2015-09-01", "2019-09-01", "2022-12-19", "2024-04-19", "2025-10-02")
 tp <- ymd(timepoints)
 
 d = dates |>
@@ -157,15 +158,16 @@ d = dates |>
     year = as.integer(year(timepoint) - 2000) 
   ) |>
   filter(in_range) |>
-  distinct(authorships_display_name, authorships_id, authorships_display_name, authorships_affiliations_display_name, year) |>
-  pivot_wider(
-    id_cols = c(authorships_display_name, authorships_id),
-    names_from = year,
-    names_prefix = 'affiliation_',
-    values_from = authorships_affiliations_display_name,
-    values_fn = list(authorships_affiliations_display_name = \(x) list(sort(unique(na.omit(x)))))
-  ) |>
-  arrange(authorships_display_name)
+  distinct(uid, authorships_display_name, authorships_id, authorships_display_name, authorships_affiliations_display_name, year) |>
+  filter(!is.na(authorships_affiliations_display_name)) |>
+  # pivot_wider(
+  #   id_cols = c(uid, authorships_display_name, authorships_id),
+  #   names_from = year,
+  #   names_prefix = 'affiliation_',
+  #   values_from = authorships_affiliations_display_name,
+  #   values_fn = list(authorships_affiliations_display_name = \(x) list(sort(unique(na.omit(x)))))
+  # ) |>
+  arrange(authorships_display_name) 
 
 fsaveRDS(d, 'institutions_patch')
 

@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-01">
+<meta name="dcterms.date" content="2025-11-07">
 
 <title>Create patch for institutions – Networks</title>
 <style>
@@ -168,6 +168,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
     </ul>
   </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-analyses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Analyses</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-analyses">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/descriptive_analysis.html">
+ <span class="dropdown-text">Descriptive Analyses</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item compact">
@@ -211,7 +222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 1, 2025</p>
+      <p class="date">November 7, 2025</p>
     </div>
   </div>
   
@@ -299,7 +310,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-36"><a href="#cb5-36"></a><span class="co">#   filter(author_id == authorships_id) |&gt;</span></span>
 <span id="cb5-37"><a href="#cb5-37"></a><span class="co">#   filter(authorhships_affiliations)</span></span>
 <span id="cb5-38"><a href="#cb5-38"></a></span>
-<span id="cb5-39"><a href="#cb5-39"></a>temp <span class="ot">=</span> </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-39"><a href="#cb5-39"></a><span class="co"># temp = </span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>pubs_authors <span class="ot">=</span> pubs <span class="sc">|&gt;</span></span>
@@ -329,19 +340,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-14"><a href="#cb7-14"></a>    ) <span class="sc">|&gt;</span></span>
 <span id="cb7-15"><a href="#cb7-15"></a>    <span class="fu">filter</span>(authorships_affiliations_id <span class="sc">%in%</span> universities) <span class="sc">|&gt;</span></span>
 <span id="cb7-16"><a href="#cb7-16"></a>    <span class="fu">arrange</span>(publication_date) <span class="sc">|&gt;</span></span>
-<span id="cb7-17"><a href="#cb7-17"></a>    <span class="fu">group_by</span>(authorships_id, authorships_affiliations_display_name, authorships_affiliations_id) <span class="sc">|&gt;</span></span>
+<span id="cb7-17"><a href="#cb7-17"></a>    <span class="fu">group_by</span>(uid, authorships_id, authorships_affiliations_display_name, authorships_affiliations_id) <span class="sc">|&gt;</span></span>
 <span id="cb7-18"><a href="#cb7-18"></a>    <span class="fu">summarize</span>(</span>
-<span id="cb7-19"><a href="#cb7-19"></a>        <span class="at">authorships_display_name =</span> <span class="fu">first</span>(authorships_display_name),</span>
-<span id="cb7-20"><a href="#cb7-20"></a>        <span class="at">first_date =</span> <span class="fu">first</span>(publication_date) ,</span>
-<span id="cb7-21"><a href="#cb7-21"></a>        <span class="at">last_date =</span> <span class="fu">last</span>(publication_date)</span>
-<span id="cb7-22"><a href="#cb7-22"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb7-23"><a href="#cb7-23"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb7-24"><a href="#cb7-24"></a>      <span class="at">first_date =</span> first_date <span class="sc">%m-%</span> <span class="fu">months</span>(<span class="dv">18</span>),</span>
-<span id="cb7-25"><a href="#cb7-25"></a>      <span class="at">last_date =</span> last_date <span class="sc">%m+%</span> <span class="fu">months</span>(<span class="dv">6</span>)</span>
-<span id="cb7-26"><a href="#cb7-26"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-19"><a href="#cb7-19"></a>        <span class="at">uid =</span> <span class="fu">first</span>(uid),</span>
+<span id="cb7-20"><a href="#cb7-20"></a>        <span class="at">authorships_display_name =</span> <span class="fu">first</span>(authorships_display_name),</span>
+<span id="cb7-21"><a href="#cb7-21"></a>        <span class="at">first_date =</span> <span class="fu">first</span>(publication_date) ,</span>
+<span id="cb7-22"><a href="#cb7-22"></a>        <span class="at">last_date =</span> <span class="fu">last</span>(publication_date)</span>
+<span id="cb7-23"><a href="#cb7-23"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb7-24"><a href="#cb7-24"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb7-25"><a href="#cb7-25"></a>      <span class="at">first_date =</span> first_date <span class="sc">%m-%</span> <span class="fu">months</span>(<span class="dv">18</span>),</span>
+<span id="cb7-26"><a href="#cb7-26"></a>      <span class="at">last_date =</span> last_date <span class="sc">%m+%</span> <span class="fu">months</span>(<span class="dv">6</span>)</span>
+<span id="cb7-27"><a href="#cb7-27"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>timepoints <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"2019-09-01"</span>, <span class="st">"2022-12-19"</span>, <span class="st">"2024-04-19"</span>, <span class="st">"2025-10-02"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>timepoints <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"2015-09-01"</span>, <span class="st">"2019-09-01"</span>, <span class="st">"2022-12-19"</span>, <span class="st">"2024-04-19"</span>, <span class="st">"2025-10-02"</span>)</span>
 <span id="cb8-2"><a href="#cb8-2"></a>tp <span class="ot">&lt;-</span> <span class="fu">ymd</span>(timepoints)</span>
 <span id="cb8-3"><a href="#cb8-3"></a></span>
 <span id="cb8-4"><a href="#cb8-4"></a>d <span class="ot">=</span> dates <span class="sc">|&gt;</span></span>
@@ -352,17 +364,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-9"><a href="#cb8-9"></a>    <span class="at">year =</span> <span class="fu">as.integer</span>(<span class="fu">year</span>(timepoint) <span class="sc">-</span> <span class="dv">2000</span>) </span>
 <span id="cb8-10"><a href="#cb8-10"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb8-11"><a href="#cb8-11"></a>  <span class="fu">filter</span>(in_range) <span class="sc">|&gt;</span></span>
-<span id="cb8-12"><a href="#cb8-12"></a>  <span class="fu">distinct</span>(authorships_display_name, authorships_id, authorships_display_name, authorships_affiliations_display_name, year) <span class="sc">|&gt;</span></span>
-<span id="cb8-13"><a href="#cb8-13"></a>  <span class="fu">pivot_wider</span>(</span>
-<span id="cb8-14"><a href="#cb8-14"></a>    <span class="at">id_cols =</span> <span class="fu">c</span>(authorships_display_name, authorships_id),</span>
-<span id="cb8-15"><a href="#cb8-15"></a>    <span class="at">names_from =</span> year,</span>
-<span id="cb8-16"><a href="#cb8-16"></a>    <span class="at">names_prefix =</span> <span class="st">'affiliation_'</span>,</span>
-<span id="cb8-17"><a href="#cb8-17"></a>    <span class="at">values_from =</span> authorships_affiliations_display_name,</span>
-<span id="cb8-18"><a href="#cb8-18"></a>    <span class="at">values_fn =</span> <span class="fu">list</span>(<span class="at">authorships_affiliations_display_name =</span> \(x) <span class="fu">list</span>(<span class="fu">sort</span>(<span class="fu">unique</span>(<span class="fu">na.omit</span>(x)))))</span>
-<span id="cb8-19"><a href="#cb8-19"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb8-20"><a href="#cb8-20"></a>  <span class="fu">arrange</span>(authorships_display_name)</span>
-<span id="cb8-21"><a href="#cb8-21"></a></span>
-<span id="cb8-22"><a href="#cb8-22"></a><span class="fu">fsaveRDS</span>(d, <span class="st">'institutions_patch'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-12"><a href="#cb8-12"></a>  <span class="fu">distinct</span>(uid, authorships_display_name, authorships_id, authorships_display_name, authorships_affiliations_display_name, year) <span class="sc">|&gt;</span></span>
+<span id="cb8-13"><a href="#cb8-13"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(authorships_affiliations_display_name)) <span class="sc">|&gt;</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a>  <span class="co"># pivot_wider(</span></span>
+<span id="cb8-15"><a href="#cb8-15"></a>  <span class="co">#   id_cols = c(uid, authorships_display_name, authorships_id),</span></span>
+<span id="cb8-16"><a href="#cb8-16"></a>  <span class="co">#   names_from = year,</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>  <span class="co">#   names_prefix = 'affiliation_',</span></span>
+<span id="cb8-18"><a href="#cb8-18"></a>  <span class="co">#   values_from = authorships_affiliations_display_name,</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a>  <span class="co">#   values_fn = list(authorships_affiliations_display_name = \(x) list(sort(unique(na.omit(x)))))</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a>  <span class="co"># ) |&gt;</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a>  <span class="fu">arrange</span>(authorships_display_name) </span>
+<span id="cb8-22"><a href="#cb8-22"></a></span>
+<span id="cb8-23"><a href="#cb8-23"></a><span class="fu">fsaveRDS</span>(d, <span class="st">'institutions_patch'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 

@@ -421,7 +421,7 @@ gender = idx |>
   left_join(res2, by=join_by(term == name), suffix = c(".x", ".y")) |>
   harmonize_gender()
 
-# fsaveRDS(gender, "gender")
+fsaveRDS(gender, "gender")
 ```
 
 

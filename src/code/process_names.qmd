@@ -271,10 +271,7 @@ names = data |>
   format_names() |>
   add_uid()
 
-fsaveRDS(
-  names, 
-  'names'
-)
+fsaveRDS(names, 'names')
 ```
 
 ```{r}
