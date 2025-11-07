@@ -2,7 +2,7 @@
 title: Descriptive Statistics
 date: today
 
-eval: false
+# eval: false
 ---
 
 ## Getting Started
@@ -21,7 +21,8 @@ gc()
 
 # load and activate packages
 library(tidyverse)
-install.packages("tidyplots")
+if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
+renv::activate(project = here::here()) 
 library(tidyplots)
 
 # load custom functions 
