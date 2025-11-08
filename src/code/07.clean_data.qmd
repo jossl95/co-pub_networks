@@ -186,4 +186,25 @@ data = freadRDS2(file="scholars", location = "combined") |>
 dems = data[['demographics']]
 ```
 
+```{r}
+
+# get country_conversion table
+country_conversion = read_csv(
+  file.path('data', 'utils', 'country_conversion.csv')) |> 
+  as_tibble() |>
+  distinct(alpha_2, region) |>
+  mutate(region = ifelse(str_detect(alpha_2, 'NL'), 'Netherlands', region))
+
+d = dems |> 
+  left_join(country_conversion, by=join_by(ethnicity == alpha_2)) |>
+  relocate(region, .before = ethnicity)
+
+```
+
 <!-- h-index en i10_index -->
+
+<!-- nationality -->
+
+<!-- positions -->
+
+<!-- institutions -->
