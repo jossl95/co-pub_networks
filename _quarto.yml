@@ -14,23 +14,27 @@ website:
     left:
       - text: Data Processing
         menu:
-          - href: src/code/create_scholars.qmd
+          - href: src/code/01.create_scholars.qmd
             text: Create Scholars
-          - href: src/code/process_names.qmd
+          - href: src/code/02.process_names.qmd
             text: Process Names
-          - href: src/code/process_gender.qmd
+          - href: src/code/03.process_gender.qmd
             text: Process Gender
-          - href: src/code/process_ethnicity.qmd
+          - href: src/code/04.process_ethnicity.qmd
             text: Process Ethnicity
       - text: Data Scraping
         menu:
-          - href: src/code/scrape_openalex.qmd
-            text: Scrape information from OpenAlex
-          - href: src/code/combine_data.qmd
+          - href: src/code/05.scrape_openalex.qmd
+            text: Scrape Information from OpenAlex
+          - href: src/code/06.combine_data.qmd
             text: Combine OpenAlex data
+          - href: src/code/07.clean_data.qmd
+            text: Data Cleaning
+          - href: src/code/08.process_affiliations.qmd
+            text: Process Affiliations
       - text: Analyses
         menu:
-          - href: src/code/descriptive_analysis.qmd
+          - href: src/code/09.descriptive_analysis.qmd
             text: Descriptive Analyses
     right:
       - icon: github

@@ -1,0 +1,205 @@
+
+---
+title: Combine Scrape Data
+date: today
+
+execute: 
+  eval: false
+---
+
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# clear the global environment
+rm(list = ls())
+gc()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(stringr)
+library(lubridate)
+
+# load custom functions 
+source("src/utils/custom_functions.r")
+.load_quarto_dependencies()
+```
+
+## Functions
+
+### Combine demographics
+```{r}
+
+combine_demographics = function(data){
+  scholars_wide =  data[['scholars']] |>
+    mutate(
+      year = as.integer(year(date) - 2000)
+    ) |>
+    arrange(naam, date) |>
+    select(-university, -date, -google_scholar_id) |>
+    pivot_wider(
+      names_from  = year,
+      values_from = c(email_adres, universiteit, functie, discipline),
+      names_glue  = "{.value}_{year}",
+      values_fill = NA,
+      values_fn   = list(
+      email_adres = ~ if (all(is.na(.x))) NA_character_ else str_c(unique(na.omit(.x)), collapse = "; "),
+      universiteit  = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x)),
+      functie     = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x)),
+      discipline  = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x))
+      )
+    ) |>
+    select(
+      naam, ends_with('22'), ends_with('24'), ends_with('25')
+    )
+
+  # combine all demographics
+  demographics = data[['names']] |>
+    left_join(data[['gender']]) |>
+    left_join(data[['ethnicity']] |> select(uid, ethnicity, probability)) |>
+    rename(ethnicity_prob = probability) |>
+    left_join(scholars_wide) 
+
+  return(demographics)
+}
+
+```
+
+### Parse works data
+
+```{r}
+
+# add_citations = function(works){
+   
+#   w = works |> 
+#     bind_rows() |> 
+#     distinct(work_id, .keep_all=TRUE) |>
+#     select(-uid, -author_id)
+
+#   scraped_works_ids = w |> distinct(work_id)
+
+#   for (id in names(works)) {
+#     tab = works[[id]]
+
+#     cited = NULL
+#     if (is_tibble(tab) && nrow(tab) > 0) {
+#       cited =  tab |>
+#         unnest_longer(referenced_works) |>
+#         select(work_id, referenced_works) |>
+#         rename(citation_id = referenced_works) |>
+#         drop_na() |>
+#         filter(!is.logical(citation_id)) 
+      
+#       if (!is.null(cited)) {
+#         cited = cited |>
+#           inner_join(w, by=join_by(citation_id == work_id)) |>
+#           nest(citations = -work_id)
+#       }
+
+#       if (!is.null(cited) | nrow(cited) > 0) {
+#         tab = tab |> left_join(cited, by = join_by(work_id == work_id))
+#       }
+#     }
+
+#     works[[id]] = tab
+#   }
+
+#   return(works)
+# }
+
+parse_works = function(data, demographics){
+  uids = demographics |> distinct(uid) |> pull() |> na.omit()
+  works = list()
+  for (id in uids){
+    work = data$works[[id]] 
+    
+    if (is_tibble(work) & ("work_id" %in% colnames(work))) {
+      work = work |> distinct(work_id, .keep_all = TRUE)
+    }
+
+    works[[id]] = work
+  }
+  return(works)
+}
+
+add_uid_to_authorships = function(works) {
+  # create a lookup table
+  lookup = works |> 
+    bind_rows() |> distinct(uid, author_id) |> drop_na()
+
+  # add uid
+  for (id_ in names(works)){
+    tab = works[[id_]]
+    if (any(nrow(tab) == 0, !is_tibble(tab))) next
+
+    works[[id_]] = tab |>
+      mutate(
+        authorships = map(authorships,
+          ~ .x |> mutate(
+              id = str_remove(id, "^https://openalex.org/")
+            )
+        ),
+        authorships = map(authorships,
+          ~ lookup |> 
+            right_join(.x, by = join_by(author_id == id))  
+        )
+      )
+  }
+  return(works)
+}
+
+```
+
+### Parse Scholar information
+
+```{r}
+parse_scholars = function(data, demographics){
+  uids = demographics |> distinct(uid) |> pull() |> na.omit()
+  scholartab = data[['id']] |> bind_rows() 
+
+  authors= list()
+  for (id_ in uids){
+    authors[[id_]] = scholartab |> filter(uid == id_)
+  }
+
+  return(authors)
+}
+```
+
+
+## Application
+
+```{r}
+data = list(
+  scholars = freadRDS2('scholarid'),
+  ethnicity = freadRDS2('ethnicity'),
+  gender = freadRDS2('gender'),
+  names = freadRDS2('names'),
+  id = freadRDS2('oaauthors', location = 'raw_data'),
+  works = freadRDS2('oaworks', location = 'raw_data')
+)
+```
+
+```{r}
+demographics = combine_demographics(data)
+
+works = parse_works(data, demographics) |> 
+  add_uid_to_authorships() 
+
+scholars_list = parse_scholars(data, demographics)
+
+scholars = list(
+  demographics = demographics, 
+  scholars_oa = scholars_list,
+  works = works
+)
+
+fsaveRDS(scholars, file="scholars", location = "./data/combined/")
+```

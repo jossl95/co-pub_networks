@@ -1,0 +1,189 @@
+
+---
+title: Prune Scrape Data
+date: today
+
+execute: 
+  eval: false
+---
+
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# clear the global environment
+rm(list = ls())
+gc()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(stringr)
+library(lubridate)
+library(purrr)
+
+# load custom functions 
+source("src/utils/custom_functions.r")
+.load_quarto_dependencies()
+```
+
+## Functions
+
+```{r}
+prune_invalid_publication_types = function(data) {
+  # excluding rare or irregular publication types from the works object. 
+  # - data inspection showed a spike in datasets being published in 2020.
+  valid_types = data[['works']] |> 
+    bind_rows() |>
+    group_by(type) |>
+    summarise(n= n()) |>
+    # excluding types with fewer than 50 hits (retraction: 1, libguides: 18, 
+    # reference-entry: 39), and datasets (991). 
+    filter(
+      n >= 50, 
+      type != 'dataset'
+    ) |> 
+    pull(type)
+
+  # slice works object per author and only select valid publication types
+  for (id in names(data[['works']][1:10])){
+    tab = data[['works']][[id]]
+
+    if(is.null(tab) | !is_tibble(tab) | nrow(tab) < 1) next
+    tab = tab |> filter(type %in% valid_types) 
+    
+    # sort the counts_by_year table
+    if(is_tibble(tab) && 'counts_by_year' %in% colnames(tab)) {
+      tab = tab |>
+        mutate(
+          counts_by_year = map(
+            counts_by_year,
+            ~ if (!is.null(.x) && is.data.frame(.x) && "year" %in% names(.x)) {
+                arrange(.x, year)
+              } else {
+                .x
+              }
+          )
+        )
+    }
+    data[['works']][[id]] = tab
+  }
+  return(data)
+}
+```
+
+```{r}
+get_author_id_lookup = function(data){
+
+  # iterate over works, and select scholars with intranetwork ties
+  hold = list()
+  for (id in names(data[['works']])){
+    # set lookup with intranetwork ties
+    lookup = data[['works']] |> bind_rows() |>
+      distinct(uid, author_id) |> drop_na() |>
+      filter(uid != id) |> pull(author_id)
+
+    # ids = lookup 
+    tab = data[['works']][[id]] |>
+      mutate(authors = authorships, .after = authorships) |>
+      unnest(authors, names_sep = "__", keep_empty=FALSE) |>
+      filter(authors__author_id %in% lookup)
+
+    # set tab to missing if scholar has no intranetwork ties
+    if (nrow(tab) == 0) tab = NULL
+
+    hold[[id]] = tab
+  }
+  
+  # combine valid scholars and create a lookup matrix with unique values
+  # voor all author identifiers.
+  res = hold |> bind_rows() |>
+    distinct(uid, author_id, authors__author_id) |>
+    filter(author_id != authors__author_id)
+
+  return(res)
+}
+
+prune_works_by_author_id = function(data){
+  lookup = get_author_id_lookup(data)
+
+  works = list()
+  for (id in names(data[['works']])){
+    tab = data[['works']][[id]] |>
+      filter(
+        uid %in% unique(lookup$uid)
+        & author_id %in% unique(lookup$author_id)
+      ) |>
+      mutate(
+        doi = ifelse(is.logical(doi), NA_character_, doi),
+        counts_by_year = ifelse(is.logical(counts_by_year), list(), counts_by_year),
+        oa_url = ifelse(is.logical(oa_url), NA_character_, oa_url)
+      )
+
+    if (nrow(tab) == 0) tab = tibble()
+    works[[id]] = tab
+  }
+
+  data[['works']] = works
+  return(data)
+}
+
+```
+
+```{r}
+prune_demographics = function(data){
+  # create list of uids that were succesfully scraped
+  valid_uids = data[['works']] |> bind_rows() |> distinct(uid) |> pull()
+
+  # read in affiliations
+  data[['demographics']] = data[['demographics']] |>
+    filter(uid %in% valid_uids)
+
+  return(data)
+}
+```
+```{r}
+prune_scholars = function(data){
+  # create list of uids that were succesfully scraped
+  valid_uids = data[['works']] |> bind_rows() |> distinct(author_id) |> pull()
+
+  # read in affiliations
+  hold = list()
+  for (id in names(data[['scholars_oa']])) {
+    tab = data[['scholars_oa']][[id]]
+    if (nrow(tab) == 0) {
+      hold[[id]] = tab
+      next
+    }
+
+    hold[[id]] = tab |>
+      mutate(author_id = str_remove(author_id, "^https://openalex.org/")) |> 
+      filter(author_id %in% valid_uids)
+  }
+
+  data[['scholars_oa']] = hold
+  return(data)
+}
+```
+
+## Application
+
+```{r}
+data = freadRDS2(file="scholars", location = "combined") |>
+  prune_invalid_publication_types() |>
+  prune_works_by_author_id() |>
+  prune_demographics() |>
+  prune_scholars()
+```
+
+```{r}
+dems = data[['demographics']]
+```
+
+<!-- h-index en i10_index -->

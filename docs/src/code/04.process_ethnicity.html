@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-11-08">
+
+<title>Data Processing Ethnicity – Networks</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-5b4ad623e5705c0698d39aec6f10cf02.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+<link rel="stylesheet" href="src/code/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Networks</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-data-processing" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Data Processing</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-data-processing">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/01.create_scholars.html">
+ <span class="dropdown-text">Create Scholars</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/02.process_names.html">
+ <span class="dropdown-text">Process Names</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/03.process_gender.html">
+ <span class="dropdown-text">Process Gender</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/04.process_ethnicity.html">
+ <span class="dropdown-text">Process Ethnicity</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-data-scraping" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Data Scraping</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-data-scraping">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/05.scrape_openalex.html">
+ <span class="dropdown-text">Scrape Information from OpenAlex</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/06.combine_data.html">
+ <span class="dropdown-text">Combine OpenAlex data</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/07.clean_data.html">
+ <span class="dropdown-text">Data Cleaning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/08.process_affiliations.html">
+ <span class="dropdown-text">Process Affiliations</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-analyses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Analyses</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-analyses">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/09.descriptive_analysis.html">
+ <span class="dropdown-text">Descriptive Analyses</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jossl95/co-pub_networks/tree/main"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
+  <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a>
+  <ul class="collapse">
+  <li><a href="#implementation-nationalize.io" id="toc-implementation-nationalize.io" class="nav-link" data-scroll-target="#implementation-nationalize.io">Implementation Nationalize.io</a></li>
+  <li><a href="#scraper-configuration" id="toc-scraper-configuration" class="nav-link" data-scroll-target="#scraper-configuration">Scraper Configuration</a></li>
+  <li><a href="#configure-url-and-extracters" id="toc-configure-url-and-extracters" class="nav-link" data-scroll-target="#configure-url-and-extracters">Configure URL and Extracters</a></li>
+  <li><a href="#tidy-scrape-wrappers" id="toc-tidy-scrape-wrappers" class="nav-link" data-scroll-target="#tidy-scrape-wrappers">Tidy Scrape Wrappers</a></li>
+  </ul></li>
+  <li><a href="#patch-ethnic-origin" id="toc-patch-ethnic-origin" class="nav-link" data-scroll-target="#patch-ethnic-origin">patch ethnic origin</a>
+  <ul class="collapse">
+  <li><a href="#operationalize-origin" id="toc-operationalize-origin" class="nav-link" data-scroll-target="#operationalize-origin">Operationalize origin</a></li>
+  <li><a href="#clean-and-harmonize-nationality-variable" id="toc-clean-and-harmonize-nationality-variable" class="nav-link" data-scroll-target="#clean-and-harmonize-nationality-variable">Clean and harmonize nationality variable</a></li>
+  <li><a href="#scrape-nationality-per-row-from-achternamen-bank" id="toc-scrape-nationality-per-row-from-achternamen-bank" class="nav-link" data-scroll-target="#scrape-nationality-per-row-from-achternamen-bank">scrape nationality per row from achternamen bank</a></li>
+  </ul></li>
+  <li><a href="#harmonize-ethnicity-variables" id="toc-harmonize-ethnicity-variables" class="nav-link" data-scroll-target="#harmonize-ethnicity-variables">Harmonize ethnicity variables</a></li>
+  <li><a href="#application" id="toc-application" class="nav-link" data-scroll-target="#application">Application</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Data Processing Ethnicity</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 8, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="getting-started" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># clear the global environment</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># load and activate packages</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="fu">library</span>(httr2)</span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="fu">library</span>(rvest)</span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="fu">library</span>(xml2)</span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="fu">library</span>(RCurl)</span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="fu">library</span>(fuzzyjoin)</span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="fu">library</span>(stringi)</span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="fu">library</span>(DemografixeR)</span>
+<span id="cb2-14"><a href="#cb2-14"></a></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="co"># load custom functions</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
+<span id="cb2-17"><a href="#cb2-17"></a><span class="fu">.load_quarto_dependencies</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="functions" class="level2">
+<h2 class="anchored" data-anchor-id="functions">Functions</h2>
+<section id="implementation-nationalize.io" class="level3">
+<h3 class="anchored" data-anchor-id="implementation-nationalize.io">Implementation Nationalize.io</h3>
+<p><strong><code>nationalize_name()</code></strong> — fetch nationality probabilities for names with persistent caching</p>
+<p>Reads an existing cache of name→nationality results (<code>data/utils/origin_cache.Rds</code>), queries only uncached <code>search_name</code> values via the nationalize.io API, merges new results with the cache, de-duplicates, and writes the updated cache back to disk. Live API calls are performed only when a boolean flag <code>eval_ok</code> is <code>TRUE</code>; otherwise the function simply returns the current cache.</p>
+<p>How it works: - Loads <code>.env</code> with <code>dotenv::load_dot_env()</code> and reads the API key from <code>Sys.getenv("GENDERIZE_API_KEY")</code> (the Nationalize/Genderize/Agify services share the same key format). - Filters out names already present in <code>origin_cache$name</code>. - For remaining names (if <code>eval_ok</code> is <code>TRUE</code>), calls <code>nationalize(name, sliced = FALSE, apikey = APIKEY, simplify = FALSE)</code> and collects responses. - Binds new rows with the cache and keeps distinct rows (<code>distinct(.keep_all = TRUE)</code>). - Drops a top-level country column if present (some client returns a nested/list column).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>nationalize_name <span class="ot">=</span> <span class="cf">function</span>(idx) {</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  origin_cache <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'_cache'</span>, <span class="st">"origin_cache.Rds"</span>))</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a>  <span class="co"># load api key from secrets file</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>  dotenv<span class="sc">::</span><span class="fu">load_dot_env</span>()</span>
+<span id="cb3-6"><a href="#cb3-6"></a>  APIKEY <span class="ot">&lt;-</span> <span class="fu">Sys.getenv</span>(<span class="st">"GENDERIZE_API_KEY"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7"></a></span>
+<span id="cb3-8"><a href="#cb3-8"></a>  <span class="co"># select uncached names</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>  idx <span class="ot">=</span>  idx <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span>search_name <span class="sc">%in%</span> origin_cache<span class="sc">$</span>name)</span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a>  <span class="co"># select last_names</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>  last_names <span class="ot">=</span> idx<span class="sc">$</span>search_name <span class="sc">|&gt;</span> <span class="fu">na.omit</span>() <span class="sc">|&gt;</span> <span class="fu">unique</span>() <span class="sc">|&gt;</span> <span class="fu">sort</span>()</span>
+<span id="cb3-13"><a href="#cb3-13"></a>  <span class="co"># last_names = last_names[12:22]</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a></span>
+<span id="cb3-15"><a href="#cb3-15"></a>  <span class="co"># fetch nationality results</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a>  hold <span class="ot">=</span> <span class="fu">c</span>()</span>
+<span id="cb3-17"><a href="#cb3-17"></a>  <span class="cf">if</span> (eval_ok) {</span>
+<span id="cb3-18"><a href="#cb3-18"></a>    <span class="cf">for</span> (name <span class="cf">in</span> last_names){</span>
+<span id="cb3-19"><a href="#cb3-19"></a>      resp <span class="ot">=</span> <span class="fu">nationalize</span>(name, <span class="at">sliced=</span><span class="cn">FALSE</span>, <span class="at">apikey =</span> APIKEY, <span class="at">simplify =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-20"><a href="#cb3-20"></a>      hold[[name]] <span class="ot">=</span> resp </span>
+<span id="cb3-21"><a href="#cb3-21"></a>    }</span>
+<span id="cb3-22"><a href="#cb3-22"></a>  }</span>
+<span id="cb3-23"><a href="#cb3-23"></a></span>
+<span id="cb3-24"><a href="#cb3-24"></a>  <span class="co"># combine cache with results and put new cache results</span></span>
+<span id="cb3-25"><a href="#cb3-25"></a>  origin <span class="ot">=</span> <span class="fu">bind_rows</span>(origin_cache, <span class="fu">bind_rows</span>(hold)) <span class="sc">|&gt;</span> </span>
+<span id="cb3-26"><a href="#cb3-26"></a>    <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-27"><a href="#cb3-27"></a></span>
+<span id="cb3-28"><a href="#cb3-28"></a>  <span class="cf">if</span> (<span class="st">"country"</span> <span class="sc">%in%</span> <span class="fu">colnames</span>(origin)) origin <span class="ot">=</span> origin <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>country)</span>
+<span id="cb3-29"><a href="#cb3-29"></a></span>
+<span id="cb3-30"><a href="#cb3-30"></a>  <span class="fu">saveRDS</span>(origin, <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'_cache'</span>, <span class="st">"origin_cache.Rds"</span>))</span>
+<span id="cb3-31"><a href="#cb3-31"></a></span>
+<span id="cb3-32"><a href="#cb3-32"></a>  <span class="fu">return</span>(origin)</span>
+<span id="cb3-33"><a href="#cb3-33"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>nationalize_name</code> give multiple responses per individuals. The following function selects the first response per name, which is the “best match”</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>select_best_match <span class="ot">=</span> <span class="cf">function</span>(res){</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  res <span class="sc">|&gt;</span> </span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="fu">rename</span>(<span class="st">"last_name"</span> <span class="ot">=</span> <span class="st">"name"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="co"># get the best match</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="fu">group_by</span>(last_name) <span class="sc">|&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="fu">slice</span>(<span class="dv">1</span>) </span>
+<span id="cb4-7"><a href="#cb4-7"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="scraper-configuration" class="level3">
+<h3 class="anchored" data-anchor-id="scraper-configuration">Scraper Configuration</h3>
+<p>This function builds a resilient GET request to a target page and returns a uniform result object instead of throwing on transport errors.</p>
+<ul>
+<li><strong>Success check.</strong> <code>is_ok()</code> flags responses with HTTP status in the 200–299 range.</li>
+<li><strong>Browser-like request.</strong> <code>request_last_name()</code> constructs an <code>httr2</code> request with a Mac Chrome user agent, Dutch/English Accept-Language, and broad Accept headers to mimic a real browser and reduce blocking.</li>
+<li><strong>Connection settings.</strong> It sets a 30-second timeout and (deliberately) disables SSL peer verification to cope with misconfigured certificates on legacy servers.</li>
+<li><strong>Retry policy.</strong> On transient errors (HTTP 429 or 5xx), it retries up to 4 times with jittered exponential backoff <code>(runif(0.5–1.2) × 2^(try−1))</code>, which spreads load and avoids thundering herds.</li>
+<li><strong>Politeness delay.</strong> If a global pause is set, it sleeps <code>pause + U(0, 0.4)</code> seconds before firing the request to throttle scraping.</li>
+<li><strong>Error handling.</strong> The actual HTTP call is wrapped in <code>tryCatch()</code>. Instead of stopping, it returns a structured list:
+<ul>
+<li><strong>ok (logical)</strong> – success per <code>is_ok()</code></li>
+<li><strong>status (integer)</strong> – HTTP status or <code>NA</code> on transport error</li>
+<li><strong>url (character)</strong> – the requested URL</li>
+<li><strong>resp (httr2 response)</strong> – raw response on success, NULL on error</li>
+<li><strong>error (condition)</strong> – the caught error on failure</li>
+</ul></li>
+</ul>
+<p>This design lets downstream code branch cleanly on <code>res$ok</code> and inspect <code>res$status</code> or <code>res$error</code> without breaking the pipeline.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>is_ok <span class="ot">=</span> <span class="cf">function</span>(resp) <span class="fu">resp_status</span>(resp) <span class="sc">&gt;=</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span> <span class="fu">resp_status</span>(resp) <span class="sc">&lt;</span> <span class="dv">300</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a></span>
+<span id="cb5-3"><a href="#cb5-3"></a>request_last_name <span class="ot">=</span> <span class="cf">function</span>(base_url, <span class="at">pause=</span><span class="fl">0.5</span>){</span>
+<span id="cb5-4"><a href="#cb5-4"></a>  <span class="co"># configure user agent</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>  ua <span class="ot">=</span> <span class="fu">paste</span>(</span>
+<span id="cb5-6"><a href="#cb5-6"></a>    <span class="st">"Mozilla/5.0 (Macintosh; Intel Mac OS X 15_5)"</span>,</span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="st">"AppleWebKit/537.36 (KHTML, like Gecko)"</span>,</span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="st">"Chrome/129.0.0.0 Safari/537.36"</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>  )</span>
+<span id="cb5-10"><a href="#cb5-10"></a></span>
+<span id="cb5-11"><a href="#cb5-11"></a>  req <span class="ot">=</span> <span class="fu">request</span>(base_url) <span class="sc">|&gt;</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a>    <span class="fu">req_user_agent</span>(ua) <span class="sc">|&gt;</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a>    <span class="co"># disable SSL verification</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a>    <span class="fu">req_options</span>(<span class="at">ssl_verifypeer =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a>    <span class="fu">req_timeout</span>(<span class="dv">30</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a>    <span class="fu">req_headers</span>(</span>
+<span id="cb5-17"><a href="#cb5-17"></a>      <span class="st">"Accept"</span> <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"text/html,application/xhtml+xml,"</span>,</span>
+<span id="cb5-18"><a href="#cb5-18"></a>                        <span class="st">"application/xml;q=0.9,*/*;q=0.8"</span>),</span>
+<span id="cb5-19"><a href="#cb5-19"></a>      <span class="st">"Accept-Language"</span> <span class="ot">=</span> <span class="st">"nl,en;q=0.8"</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a>    <span class="fu">req_retry</span>(</span>
+<span id="cb5-22"><a href="#cb5-22"></a>      <span class="at">max_tries =</span> <span class="dv">4</span>,</span>
+<span id="cb5-23"><a href="#cb5-23"></a>      <span class="at">backoff =</span> <span class="sc">~</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>) <span class="sc">*</span> (<span class="dv">2</span> <span class="sc">^</span> (.x <span class="sc">-</span> <span class="dv">1</span>)),  <span class="co"># jittered exponential</span></span>
+<span id="cb5-24"><a href="#cb5-24"></a>      <span class="at">is_transient =</span> <span class="cf">function</span>(resp) {</span>
+<span id="cb5-25"><a href="#cb5-25"></a>        code <span class="ot">&lt;-</span> <span class="fu">resp_status</span>(resp)</span>
+<span id="cb5-26"><a href="#cb5-26"></a>        <span class="fu">isTRUE</span>(code <span class="sc">==</span> <span class="dv">429</span>L <span class="sc">||</span> (code <span class="sc">&gt;=</span> <span class="dv">500</span>L <span class="sc">&amp;</span> code <span class="sc">&lt;</span> <span class="dv">600</span>L))</span>
+<span id="cb5-27"><a href="#cb5-27"></a>      }</span>
+<span id="cb5-28"><a href="#cb5-28"></a>    )</span>
+<span id="cb5-29"><a href="#cb5-29"></a></span>
+<span id="cb5-30"><a href="#cb5-30"></a>  <span class="co"># polite pause + jitter</span></span>
+<span id="cb5-31"><a href="#cb5-31"></a>  <span class="cf">if</span> (pause <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">Sys.sleep</span>(pause <span class="sc">+</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">0.4</span>))</span>
+<span id="cb5-32"><a href="#cb5-32"></a></span>
+<span id="cb5-33"><a href="#cb5-33"></a>  <span class="co"># CRITICAL: don't throw on transport errors</span></span>
+<span id="cb5-34"><a href="#cb5-34"></a>  resp <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(</span>
+<span id="cb5-35"><a href="#cb5-35"></a>    <span class="fu">req_perform</span>(req),</span>
+<span id="cb5-36"><a href="#cb5-36"></a>    <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb5-37"><a href="#cb5-37"></a>      <span class="fu">attr</span>(e, <span class="st">"nvb_url"</span>) <span class="ot">&lt;-</span> url</span>
+<span id="cb5-38"><a href="#cb5-38"></a>      e</span>
+<span id="cb5-39"><a href="#cb5-39"></a>    }</span>
+<span id="cb5-40"><a href="#cb5-40"></a>  )</span>
+<span id="cb5-41"><a href="#cb5-41"></a></span>
+<span id="cb5-42"><a href="#cb5-42"></a>  <span class="co"># Return a uniform list the caller can inspect</span></span>
+<span id="cb5-43"><a href="#cb5-43"></a>  <span class="cf">if</span> (<span class="fu">inherits</span>(resp, <span class="st">"error"</span>)) {</span>
+<span id="cb5-44"><a href="#cb5-44"></a>    res <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb5-45"><a href="#cb5-45"></a>      <span class="at">ok =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb5-46"><a href="#cb5-46"></a>      <span class="at">status =</span> <span class="cn">NA_integer_</span>,</span>
+<span id="cb5-47"><a href="#cb5-47"></a>      <span class="at">url =</span> url,</span>
+<span id="cb5-48"><a href="#cb5-48"></a>      <span class="at">resp =</span> <span class="cn">NULL</span>,</span>
+<span id="cb5-49"><a href="#cb5-49"></a>      <span class="at">error =</span> resp</span>
+<span id="cb5-50"><a href="#cb5-50"></a>    )</span>
+<span id="cb5-51"><a href="#cb5-51"></a>  } <span class="cf">else</span> {</span>
+<span id="cb5-52"><a href="#cb5-52"></a>    res <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb5-53"><a href="#cb5-53"></a>      <span class="at">ok =</span> <span class="fu">is_ok</span>(resp),</span>
+<span id="cb5-54"><a href="#cb5-54"></a>      <span class="at">status =</span> <span class="fu">resp_status</span>(resp),</span>
+<span id="cb5-55"><a href="#cb5-55"></a>      <span class="at">url =</span> url,</span>
+<span id="cb5-56"><a href="#cb5-56"></a>      <span class="at">resp =</span> resp,</span>
+<span id="cb5-57"><a href="#cb5-57"></a>      <span class="at">error =</span> <span class="cn">NULL</span></span>
+<span id="cb5-58"><a href="#cb5-58"></a>    )</span>
+<span id="cb5-59"><a href="#cb5-59"></a>  }</span>
+<span id="cb5-60"><a href="#cb5-60"></a>  <span class="fu">return</span>(res)</span>
+<span id="cb5-61"><a href="#cb5-61"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="configure-url-and-extracters" class="level3">
+<h3 class="anchored" data-anchor-id="configure-url-and-extracters">Configure URL and Extracters</h3>
+<section id="format_url-build-a-query-url-for-cbg-familienamen" class="level4">
+<h4 class="anchored" data-anchor-id="format_url-build-a-query-url-for-cbg-familienamen"><code>format_url()</code> – Build a query URL for CBG Familienamen</h4>
+<p>Takes a name and constructs a browser-ready URL for the CBG surnames site, encoding spaces as + and adding query parameters for multiple name fields. Optional <code>.what = "info"</code> appends the path to the analysis/etymology page. Returns the full URL string.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>format_url <span class="ot">=</span> <span class="cf">function</span>(</span>
+<span id="cb6-2"><a href="#cb6-2"></a>    name,</span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="at">base =</span> <span class="st">"https://www.cbgfamilienamen.nl/nfb/detail_naam.php?"</span>,</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="at">.what =</span> <span class="st">"base"</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>  ){</span>
+<span id="cb6-6"><a href="#cb6-6"></a>  <span class="co"># format_name for URL</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>  formatted_name <span class="ot">=</span> name <span class="sc">|&gt;</span> </span>
+<span id="cb6-8"><a href="#cb6-8"></a>    <span class="fu">URLencode</span>(<span class="at">reserved =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>    <span class="fu">str_replace_all</span>(<span class="at">pattern =</span> <span class="st">"%20"</span>, <span class="st">'+'</span>)</span>
+<span id="cb6-10"><a href="#cb6-10"></a></span>
+<span id="cb6-11"><a href="#cb6-11"></a>  <span class="co"># configure url</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a>  url <span class="ot">=</span> <span class="fu">paste0</span>(</span>
+<span id="cb6-13"><a href="#cb6-13"></a>    base,</span>
+<span id="cb6-14"><a href="#cb6-14"></a>    <span class="st">"gba_naam="</span>, formatted_name,</span>
+<span id="cb6-15"><a href="#cb6-15"></a>    <span class="st">"&amp;gba_lcnaam="</span>, <span class="fu">tolower</span>(formatted_name),</span>
+<span id="cb6-16"><a href="#cb6-16"></a>    <span class="st">"&amp;nfd_naam="</span>, formatted_name</span>
+<span id="cb6-17"><a href="#cb6-17"></a>  )</span>
+<span id="cb6-18"><a href="#cb6-18"></a></span>
+<span id="cb6-19"><a href="#cb6-19"></a>  <span class="cf">if</span> (.what <span class="sc">==</span> <span class="st">'info'</span>){</span>
+<span id="cb6-20"><a href="#cb6-20"></a>    url <span class="ot">=</span> <span class="fu">paste0</span>(url, <span class="st">"&amp;info=analyse+en+verklaring"</span>)</span>
+<span id="cb6-21"><a href="#cb6-21"></a>  }</span>
+<span id="cb6-22"><a href="#cb6-22"></a>  </span>
+<span id="cb6-23"><a href="#cb6-23"></a>  <span class="fu">return</span>(url)</span>
+<span id="cb6-24"><a href="#cb6-24"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="extract_info-parse-analysisetymology-text-from-response" class="level4">
+<h4 class="anchored" data-anchor-id="extract_info-parse-analysisetymology-text-from-response"><code>extract_info()</code> – Parse analysis/etymology text from response</h4>
+<p>Given a response wrapper <code>r</code> (with <code>r$resp</code> from <code>httr2</code>), reads the HTML body and extracts the “kenmerken/verklaring” section. It splits the page text, trims boilerplate until the © footer, and returns a single “;”-separated string with the extracted info (or “” if not found).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>extract_info <span class="ot">=</span> <span class="cf">function</span>(r){</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  html <span class="ot">=</span> <span class="fu">read_html</span>(<span class="fu">resp_body_string</span>(r<span class="sc">$</span>resp))</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  text <span class="ot">=</span> html <span class="sc">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>    <span class="fu">html_element</span>(<span class="st">"body"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>    <span class="fu">html_text</span>()</span>
+<span id="cb7-6"><a href="#cb7-6"></a></span>
+<span id="cb7-7"><a href="#cb7-7"></a>  info <span class="ot">=</span> <span class="fu">c</span>(<span class="st">""</span>)</span>
+<span id="cb7-8"><a href="#cb7-8"></a>  <span class="cf">if</span> (<span class="fu">str_detect</span>(text, <span class="fu">regex</span>(<span class="st">'kenmerken:|verklaring:'</span>))){</span>
+<span id="cb7-9"><a href="#cb7-9"></a>    parts <span class="ot">=</span> <span class="fu">str_split_fixed</span>(text, <span class="at">pattern=</span><span class="fu">regex</span>(<span class="st">'kenmerken:|verklaring:'</span>), <span class="dv">2</span>)[<span class="dv">2</span>] <span class="sc">|&gt;</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>      <span class="fu">str_split</span>(<span class="at">pattern =</span> <span class="fu">regex</span>(<span class="st">"[</span><span class="sc">\\</span><span class="st">n|</span><span class="sc">\\</span><span class="st">t|</span><span class="sc">\\</span><span class="st">s]{3,20}"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>      <span class="fu">unlist</span>()</span>
+<span id="cb7-12"><a href="#cb7-12"></a></span>
+<span id="cb7-13"><a href="#cb7-13"></a>    idx <span class="ot">=</span> <span class="fu">which</span>(<span class="fu">grepl</span>(<span class="fu">regex</span>(<span class="st">"©"</span>), parts))</span>
+<span id="cb7-14"><a href="#cb7-14"></a></span>
+<span id="cb7-15"><a href="#cb7-15"></a>    <span class="cf">if</span> (<span class="fu">length</span>(idx) <span class="sc">&gt;=</span> <span class="dv">1</span>) {</span>
+<span id="cb7-16"><a href="#cb7-16"></a>      info <span class="ot">=</span> parts[<span class="fu">seq_len</span>(idx[<span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb7-17"><a href="#cb7-17"></a>      info <span class="ot">=</span> <span class="fu">as.vector</span>(info[<span class="fu">nzchar</span>(info)])</span>
+<span id="cb7-18"><a href="#cb7-18"></a>    }</span>
+<span id="cb7-19"><a href="#cb7-19"></a>  }</span>
+<span id="cb7-20"><a href="#cb7-20"></a></span>
+<span id="cb7-21"><a href="#cb7-21"></a>  <span class="co"># drop empty strings</span></span>
+<span id="cb7-22"><a href="#cb7-22"></a>  <span class="co"># info = info[nzchar(info)]</span></span>
+<span id="cb7-23"><a href="#cb7-23"></a>  <span class="fu">return</span>(<span class="fu">paste</span>(<span class="fu">unname</span>(info), <span class="at">collapse =</span> <span class="st">"; "</span>))</span>
+<span id="cb7-24"><a href="#cb7-24"></a>}</span>
+<span id="cb7-25"><a href="#cb7-25"></a></span>
+<span id="cb7-26"><a href="#cb7-26"></a>safe_info <span class="ot">=</span> <span class="cf">function</span>(r, <span class="at">default =</span> <span class="cn">NA_character_</span>) {</span>
+<span id="cb7-27"><a href="#cb7-27"></a>  <span class="fu">tryCatch</span>(<span class="fu">extract_info</span>(r),</span>
+<span id="cb7-28"><a href="#cb7-28"></a>           <span class="at">error =</span> <span class="cf">function</span>(e) default,</span>
+<span id="cb7-29"><a href="#cb7-29"></a>           <span class="at">warning =</span> <span class="cf">function</span>(w) default)</span>
+<span id="cb7-30"><a href="#cb7-30"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="extract_count-retrieve-occurrence-count-from-tables" class="level4">
+<h4 class="anchored" data-anchor-id="extract_count-retrieve-occurrence-count-from-tables"><code>extract_count()</code> – Retrieve occurrence count from tables</h4>
+<p>Parses all HTML tables from <code>r$resp</code> and searches for the table layout containing the national count. If found, pulls the value at row 2, column 2 (per the site’s structure) and returns it as an integer; throws an error if no tables are present and returns <code>NA</code> when the expected layout is missing.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>extract_count <span class="ot">=</span> <span class="cf">function</span>(r){</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="co"># extract all tables on the page</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>  html <span class="ot">=</span> <span class="fu">read_html</span>(<span class="fu">resp_body_string</span>(r<span class="sc">$</span>resp))</span>
+<span id="cb8-4"><a href="#cb8-4"></a>  tables <span class="ot">=</span> <span class="fu">html_table</span>(html, <span class="at">header=</span><span class="cn">FALSE</span>)</span>
+<span id="cb8-5"><a href="#cb8-5"></a></span>
+<span id="cb8-6"><a href="#cb8-6"></a>  <span class="co"># select the first table if a table if found</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="cf">if</span> (<span class="fu">length</span>(tables) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">"No tables were found"</span>)</span>
+<span id="cb8-8"><a href="#cb8-8"></a>  </span>
+<span id="cb8-9"><a href="#cb8-9"></a>  <span class="co"># set count value</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a>  count <span class="ot">=</span> <span class="cn">NA_integer_</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a>  <span class="cf">if</span> (<span class="fu">length</span>(tables) <span class="sc">&gt;=</span> <span class="dv">4</span>) {</span>
+<span id="cb8-12"><a href="#cb8-12"></a>    <span class="cf">for</span> (tab <span class="cf">in</span> tables){</span>
+<span id="cb8-13"><a href="#cb8-13"></a>      i <span class="ot">=</span> <span class="fu">nrow</span>(tab)</span>
+<span id="cb8-14"><a href="#cb8-14"></a>      <span class="cf">if</span> (i <span class="sc">&gt;=</span> <span class="dv">5</span>){</span>
+<span id="cb8-15"><a href="#cb8-15"></a>        count <span class="ot">=</span> tab[<span class="dv">2</span>,<span class="dv">2</span>] <span class="sc">|&gt;</span> <span class="fu">pull</span>()</span>
+<span id="cb8-16"><a href="#cb8-16"></a>      }</span>
+<span id="cb8-17"><a href="#cb8-17"></a>    }</span>
+<span id="cb8-18"><a href="#cb8-18"></a>  }</span>
+<span id="cb8-19"><a href="#cb8-19"></a></span>
+<span id="cb8-20"><a href="#cb8-20"></a>  <span class="fu">return</span>(count)</span>
+<span id="cb8-21"><a href="#cb8-21"></a>}</span>
+<span id="cb8-22"><a href="#cb8-22"></a></span>
+<span id="cb8-23"><a href="#cb8-23"></a>safe_count <span class="ot">=</span> <span class="cf">function</span>(r, <span class="at">default =</span> <span class="cn">NA_integer_</span>) {</span>
+<span id="cb8-24"><a href="#cb8-24"></a>  <span class="fu">tryCatch</span>(<span class="fu">extract_count</span>(r),</span>
+<span id="cb8-25"><a href="#cb8-25"></a>           <span class="at">error =</span> <span class="cf">function</span>(e) default,</span>
+<span id="cb8-26"><a href="#cb8-26"></a>           <span class="at">warning =</span> <span class="cf">function</span>(w) default)</span>
+<span id="cb8-27"><a href="#cb8-27"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="tidy-scrape-wrappers" class="level3">
+<h3 class="anchored" data-anchor-id="tidy-scrape-wrappers">Tidy Scrape Wrappers</h3>
+<p>These utilities wrap the earlier extractors and assemble a tidy result for a single surname. - <code>safe_count()</code> / <code>safe_info()</code> wrap <code>extract_count()</code> and <code>extract_info()</code> in <code>tryCatch()</code>, returning a default (<code>NA_integer_</code> / <code>NA_character_</code>) on any error or warning. This guarantees downstream code receives a value even when pages are missing or malformed. - <code>get_name_row()</code> takes a name and performs up to two requests: 1. Builds the base URL with <code>format_url(name)</code> and fetches it via <code>request_last_name()</code>. If the HTTP result is ok, it parses the national occurrence count with <code>safe_count()</code>; otherwise it records <code>NA</code>. 2. Only if a non-missing count was obtained, it builds the “info” URL (<code>.what = "info"</code>) and requests it, then extracts the analysis/etymology info with <code>safe_info()</code> (again only when both requests succeeded).</p>
+<p>Both <code>count</code> and <code>info</code> are coerced to character for consistency. The function returns a one-row tibble with <code>last_name</code>, <code>name_count</code>, and <code>info</code>, providing a compact, fault-tolerant record for each queried surname.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>get_name_row <span class="ot">=</span> <span class="cf">function</span>(name, <span class="at">count=</span><span class="cn">NA_character_</span>, <span class="at">info=</span><span class="cn">NA_character_</span>){</span>
+<span id="cb9-2"><a href="#cb9-2"></a>  <span class="co"># scrape the count information</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a>  r1 <span class="ot">=</span> <span class="fu">format_url</span>(name) <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>    <span class="fu">request_last_name</span>() </span>
+<span id="cb9-5"><a href="#cb9-5"></a></span>
+<span id="cb9-6"><a href="#cb9-6"></a>  count <span class="ot">=</span> <span class="cf">if</span> (<span class="fu">isTRUE</span>(r1<span class="sc">$</span>ok)) <span class="fu">safe_count</span>(r1) <span class="cf">else</span> <span class="cn">NA_character_</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>  count <span class="ot">=</span> <span class="fu">as.character</span>(count)</span>
+<span id="cb9-8"><a href="#cb9-8"></a></span>
+<span id="cb9-9"><a href="#cb9-9"></a>  <span class="co"># scrape info if the first scrape yielded success</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(count)){</span>
+<span id="cb9-11"><a href="#cb9-11"></a>  r2 <span class="ot">=</span> <span class="fu">format_url</span>(name, <span class="at">.what=</span><span class="st">"info"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-12"><a href="#cb9-12"></a>    <span class="fu">request_last_name</span>()</span>
+<span id="cb9-13"><a href="#cb9-13"></a></span>
+<span id="cb9-14"><a href="#cb9-14"></a>  info <span class="ot">=</span> <span class="cf">if</span> (<span class="fu">isTRUE</span>(r2<span class="sc">$</span>ok) <span class="sc">&amp;&amp;</span> <span class="fu">isTRUE</span>(r1<span class="sc">$</span>ok)) <span class="fu">safe_info</span>(r2) <span class="cf">else</span> <span class="cn">NA_character_</span></span>
+<span id="cb9-15"><a href="#cb9-15"></a>  info <span class="ot">=</span> <span class="fu">as.character</span>(info)</span>
+<span id="cb9-16"><a href="#cb9-16"></a>  }</span>
+<span id="cb9-17"><a href="#cb9-17"></a></span>
+<span id="cb9-18"><a href="#cb9-18"></a></span>
+<span id="cb9-19"><a href="#cb9-19"></a>  <span class="fu">as_tibble</span>(<span class="fu">list</span>(</span>
+<span id="cb9-20"><a href="#cb9-20"></a>    <span class="at">last_name =</span> name, </span>
+<span id="cb9-21"><a href="#cb9-21"></a>    <span class="at">name_count =</span> count,</span>
+<span id="cb9-22"><a href="#cb9-22"></a>    <span class="at">info =</span> info</span>
+<span id="cb9-23"><a href="#cb9-23"></a>  ))</span>
+<span id="cb9-24"><a href="#cb9-24"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="patch-ethnic-origin" class="level2">
+<h2 class="anchored" data-anchor-id="patch-ethnic-origin">patch ethnic origin</h2>
+<p><strong><code>add_origin5()</code></strong> — attach origin labels from a curated patch via fuzzy last-name matching</p>
+<p>Loads a manual patch file (<code>data/utils/origin_patch.xlsx</code>), normalizes last names with <code>normalize_name()</code>, and performs a fuzzy left join on last_name_norm (maximum distance 0.5) to transfer an origin label. The matched label is renamed to <code>origin5</code>. Helper/diagnostic columns from the join (e.g., normalized names, counts) are dropped; unmatched rows are left unchanged.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>add_origin5 <span class="ot">=</span> <span class="cf">function</span>(ethnicity){</span>
+<span id="cb10-2"><a href="#cb10-2"></a>  ethnicity_patch <span class="ot">=</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(</span>
+<span id="cb10-3"><a href="#cb10-3"></a>      <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'origin_patch.xlsx'</span>)</span>
+<span id="cb10-4"><a href="#cb10-4"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>    <span class="fu">mutate</span>(<span class="at">last_name_norm =</span> <span class="fu">normalize_name</span>(last_name))</span>
+<span id="cb10-6"><a href="#cb10-6"></a></span>
+<span id="cb10-7"><a href="#cb10-7"></a>  ethnicity <span class="sc">|&gt;</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a>    <span class="fu">mutate</span>(<span class="at">last_name_norm =</span> <span class="fu">normalize_name</span>(last_name)) <span class="sc">|&gt;</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a>    fuzzyjoin<span class="sc">::</span><span class="fu">stringdist_left_join</span>(</span>
+<span id="cb10-10"><a href="#cb10-10"></a>      ethnicity_patch,</span>
+<span id="cb10-11"><a href="#cb10-11"></a>      <span class="at">by =</span> <span class="st">"last_name_norm"</span>,</span>
+<span id="cb10-12"><a href="#cb10-12"></a>      <span class="at">max_dist =</span> <span class="fl">0.5</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a>    <span class="fu">rename</span>(</span>
+<span id="cb10-15"><a href="#cb10-15"></a>      <span class="st">"last_name"</span> <span class="ot">=</span> <span class="st">"last_name.x"</span>,</span>
+<span id="cb10-16"><a href="#cb10-16"></a>      <span class="st">"origin5"</span> <span class="ot">=</span> <span class="st">"origin"</span></span>
+<span id="cb10-17"><a href="#cb10-17"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb10-18"><a href="#cb10-18"></a>    <span class="fu">select</span>(</span>
+<span id="cb10-19"><a href="#cb10-19"></a>      <span class="sc">-</span>last_name_norm.x, <span class="sc">-</span>count, </span>
+<span id="cb10-20"><a href="#cb10-20"></a>      <span class="sc">-</span>last_name_norm.y, <span class="sc">-</span>last_name.y,</span>
+<span id="cb10-21"><a href="#cb10-21"></a>    )</span>
+<span id="cb10-22"><a href="#cb10-22"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="operationalize-origin" class="level3">
+<h3 class="anchored" data-anchor-id="operationalize-origin">Operationalize origin</h3>
+<p><strong><code>add_origin()</code></strong> — extract origin cues from free-text info and standardize fields</p>
+<p>Parses textual hints in info to create up to four origin indicators: - <code>origin1</code>: phrases matching “X naam” (e.g., “Friese naam”), excluding “Joodse naam”. - <code>origin2</code>: country/region after “afkomstig uit …”, trimmed at punctuation/parentheses; regional references (e.g., dorp/plaats/gemeente/graafschap/stad/deel/Friesland) are set to NA. - <code>origin3</code>: phrases matching “X (achter|familie|beroeps)?naam”, with boilerplate openings removed. - <code>origin4</code>: boolean flag if info mentions “andere taal”.</p>
+<p>Also adds <code>has_particle</code> (detects leading “van” or “de” in last_name) and drops the intermediate regional flag used for cleaning.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>add_origin <span class="ot">=</span> <span class="cf">function</span>(data) {</span>
+<span id="cb11-2"><a href="#cb11-2"></a>  data <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb11-4"><a href="#cb11-4"></a>      <span class="at">origin1 =</span> <span class="fu">str_extract_all</span>(info, <span class="fu">regex</span>(<span class="st">"[:upper:]([:lower:]{2,}) naam"</span>)),</span>
+<span id="cb11-5"><a href="#cb11-5"></a>      <span class="at">origin2 =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb11-6"><a href="#cb11-6"></a>        <span class="fu">str_detect</span>(info, <span class="st">"afkomstig uit"</span>),</span>
+<span id="cb11-7"><a href="#cb11-7"></a>        <span class="fu">str_remove</span>(info, <span class="st">".*afkomstig uit"</span>),</span>
+<span id="cb11-8"><a href="#cb11-8"></a>        <span class="cn">NA_character_</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a>      ),</span>
+<span id="cb11-10"><a href="#cb11-10"></a>      <span class="at">origin3 =</span> <span class="fu">str_extract</span>(</span>
+<span id="cb11-11"><a href="#cb11-11"></a>        info, <span class="st">"[:upper:]([:lower:]{2,}) (achter)?(familie)?(beroeps)?naam"</span></span>
+<span id="cb11-12"><a href="#cb11-12"></a>      )</span>
+<span id="cb11-13"><a href="#cb11-13"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb11-14"><a href="#cb11-14"></a>    <span class="co"># clean origin information</span></span>
+<span id="cb11-15"><a href="#cb11-15"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb11-16"><a href="#cb11-16"></a>      <span class="co"># Exclude Jewish people form Origin information</span></span>
+<span id="cb11-17"><a href="#cb11-17"></a>      <span class="at">origin1 =</span> <span class="fu">str_remove</span>(</span>
+<span id="cb11-18"><a href="#cb11-18"></a>        origin1, <span class="fu">regex</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">bJoodse naam</span><span class="sc">\\</span><span class="st">b</span><span class="sc">\\</span><span class="st">s*([/;,|-]</span><span class="sc">\\</span><span class="st">s*)?"</span>, </span>
+<span id="cb11-19"><a href="#cb11-19"></a>        <span class="at">ignore_case =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb11-20"><a href="#cb11-20"></a>      <span class="co"># Remove separators</span></span>
+<span id="cb11-21"><a href="#cb11-21"></a>      <span class="at">origin2 =</span> <span class="fu">str_remove</span>(origin2, <span class="st">"</span><span class="sc">\\</span><span class="st">..*"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-22"><a href="#cb11-22"></a>        <span class="fu">str_remove</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">;.*"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-23"><a href="#cb11-23"></a>        <span class="fu">str_remove</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">(.*"</span>),</span>
+<span id="cb11-24"><a href="#cb11-24"></a>      <span class="co"># is a regional name</span></span>
+<span id="cb11-25"><a href="#cb11-25"></a>      <span class="at">regional =</span> <span class="fu">str_detect</span>(</span>
+<span id="cb11-26"><a href="#cb11-26"></a>        origin2, <span class="fu">paste0</span>(</span>
+<span id="cb11-27"><a href="#cb11-27"></a>          <span class="st">"(dorp)|(plaats)|(gemeente)"</span>,</span>
+<span id="cb11-28"><a href="#cb11-28"></a>          <span class="st">"|(graafschap)|(stad)|(deel)|(Friesland)"</span></span>
+<span id="cb11-29"><a href="#cb11-29"></a>        )</span>
+<span id="cb11-30"><a href="#cb11-30"></a>      ),</span>
+<span id="cb11-31"><a href="#cb11-31"></a>      <span class="at">has_particle =</span> <span class="fu">str_detect</span>(</span>
+<span id="cb11-32"><a href="#cb11-32"></a>        last_name, <span class="fu">regex</span>(<span class="st">"^(van |de )"</span>)</span>
+<span id="cb11-33"><a href="#cb11-33"></a>      ),</span>
+<span id="cb11-34"><a href="#cb11-34"></a>      <span class="at">origin2 =</span> <span class="fu">ifelse</span>(<span class="fu">isTRUE</span>(regional), <span class="cn">NA_character_</span>, origin2),</span>
+<span id="cb11-35"><a href="#cb11-35"></a>      <span class="at">origin3 =</span> origin3 <span class="sc">|&gt;</span></span>
+<span id="cb11-36"><a href="#cb11-36"></a>        <span class="fu">str_remove</span>(<span class="st">"D(i)?e(ze)? (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-37"><a href="#cb11-37"></a>        <span class="fu">str_remove</span>(<span class="st">"Een (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-38"><a href="#cb11-38"></a>        <span class="fu">str_remove</span>(<span class="st">"Zijn (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-39"><a href="#cb11-39"></a>        <span class="fu">str_remove</span>(<span class="st">"Als (familie)?(achter)?(beroeps)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-40"><a href="#cb11-40"></a>        <span class="fu">str_remove</span>(<span class="st">"Joodse (familie)?(achter)?naam"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-41"><a href="#cb11-41"></a>        <span class="fu">str_remove</span>(<span class="st">"Bijbelse (familie)?(achter)?naam"</span>),</span>
+<span id="cb11-42"><a href="#cb11-42"></a>      <span class="at">origin4 =</span> <span class="fu">str_detect</span>(info, <span class="st">"andere taal"</span>)</span>
+<span id="cb11-43"><a href="#cb11-43"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb11-44"><a href="#cb11-44"></a>    <span class="fu">select</span>(<span class="sc">-</span>regional)</span>
+<span id="cb11-45"><a href="#cb11-45"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="clean-and-harmonize-nationality-variable" class="level3">
+<h3 class="anchored" data-anchor-id="clean-and-harmonize-nationality-variable">Clean and harmonize nationality variable</h3>
+<p><strong><code>clean_ethnicity()</code></strong> — consolidate and normalize origin labels</p>
+<p>Standardizes multiple origin signals into a single field <code>origin</code> and harmonizes label variants. The function: 1. treats the literal string <code>"character(0)"</code> in origin1 as missing; 2. sets origin = <code>origin3</code> when there are multiple values in <code>origin1</code>, otherwise uses origin1; 3. backfills missing <code>origin</code> from <code>origin5</code> (<code>coalesce(origin, origin5)</code>); 4. keeps only the first token of <code>origin</code> (drops everything after the first space); 5. normalizes several Dutch adjectives to umbrella categories: - “Christelijk”, “Friese”, “Tilburgse” → “Nederlandse” - empty string → NA - “Waalse” → “Belgische” - “Catalaanse” → “Spaanse” 6. returns only <code>last_name</code>, <code>origin</code>, and <code>name_count</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>clean_ethnicity <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb12-2"><a href="#cb12-2"></a>  data <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb12-4"><a href="#cb12-4"></a>      <span class="at">origin1 =</span> <span class="fu">ifelse</span>(origin1 <span class="sc">==</span> <span class="st">'character(0)'</span>, <span class="cn">NA_character_</span>, origin1),</span>
+<span id="cb12-5"><a href="#cb12-5"></a>      <span class="at">origin =</span> <span class="fu">case_when</span>(</span>
+<span id="cb12-6"><a href="#cb12-6"></a>        <span class="fu">length</span>(origin1) <span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">~</span> origin3,</span>
+<span id="cb12-7"><a href="#cb12-7"></a>        <span class="at">.default =</span> origin1</span>
+<span id="cb12-8"><a href="#cb12-8"></a>      ),</span>
+<span id="cb12-9"><a href="#cb12-9"></a>      <span class="at">origin =</span> <span class="fu">coalesce</span>(origin, origin5),</span>
+<span id="cb12-10"><a href="#cb12-10"></a></span>
+<span id="cb12-11"><a href="#cb12-11"></a>      <span class="at">origin =</span> <span class="fu">str_remove</span>(origin, <span class="fu">regex</span>(<span class="st">"</span><span class="sc">\\</span><span class="st"> .*"</span>)),</span>
+<span id="cb12-12"><a href="#cb12-12"></a>      <span class="at">origin =</span> <span class="fu">case_when</span>(</span>
+<span id="cb12-13"><a href="#cb12-13"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Christelijk"</span>) <span class="sc">~</span> <span class="st">"Nederlandse"</span>,</span>
+<span id="cb12-14"><a href="#cb12-14"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Friese"</span>) <span class="sc">~</span> <span class="st">"Nederlandse"</span>,</span>
+<span id="cb12-15"><a href="#cb12-15"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Tilburgse"</span>) <span class="sc">~</span> <span class="st">"Nederlandse"</span>,</span>
+<span id="cb12-16"><a href="#cb12-16"></a>        origin <span class="sc">==</span>  <span class="st">""</span> <span class="sc">~</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb12-17"><a href="#cb12-17"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Waalse"</span>) <span class="sc">~</span> <span class="st">"Belgische"</span>,</span>
+<span id="cb12-18"><a href="#cb12-18"></a>        <span class="fu">str_detect</span>(origin, <span class="st">"Catalaanse"</span>) <span class="sc">~</span> <span class="st">"Spaanse"</span>, </span>
+<span id="cb12-19"><a href="#cb12-19"></a>        <span class="at">.default =</span> origin</span>
+<span id="cb12-20"><a href="#cb12-20"></a>      )</span>
+<span id="cb12-21"><a href="#cb12-21"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb12-22"><a href="#cb12-22"></a>    <span class="fu">select</span>(last_name, origin, name_count)</span>
+<span id="cb12-23"><a href="#cb12-23"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="scrape-nationality-per-row-from-achternamen-bank" class="level3">
+<h3 class="anchored" data-anchor-id="scrape-nationality-per-row-from-achternamen-bank">scrape nationality per row from achternamen bank</h3>
+<p><strong><code>name_to_origin()</code></strong> — resolve origin info for names with on-disk caching</p>
+<p>Loads a cached table of name to origin results (<code>data/utils/cbg_cache.Rds</code>), looks up only the uncached names from i<code>dx$search_name</code> using a resolver <code>get_name_row()</code>, appends new rows to the cache, saves the updated cache back to disk, and returns the combined result.å</p>
+<p>How it works: - Reads <code>cbg_cache.Rds</code> (expected to contain a last_name column used as the cache key). - Filters <code>idx</code> to names not already in <code>ethnicity_cache$last_name</code>. - Iterates over unique <code>search_name</code> values, calls <code>get_name_row(name)</code> for each miss, collects rows. - åBinds new rows with the existing cache and saves the result.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>name_to_origin <span class="ot">=</span> <span class="cf">function</span>(idx) {</span>
+<span id="cb13-2"><a href="#cb13-2"></a>  ethnicity_cache <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'_cache'</span>, <span class="st">'cbg_cache.Rds'</span>))</span>
+<span id="cb13-3"><a href="#cb13-3"></a></span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="co"># select uncached names</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a>  idx <span class="ot">=</span>  idx <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span>search_name <span class="sc">%in%</span> ethnicity_cache<span class="sc">$</span>last_name)</span>
+<span id="cb13-6"><a href="#cb13-6"></a></span>
+<span id="cb13-7"><a href="#cb13-7"></a>  <span class="co"># select last_names</span></span>
+<span id="cb13-8"><a href="#cb13-8"></a>  last_names <span class="ot">=</span> idx<span class="sc">$</span>search_name <span class="sc">|&gt;</span> <span class="fu">na.omit</span>() <span class="sc">|&gt;</span> <span class="fu">unique</span>() <span class="sc">|&gt;</span> <span class="fu">sort</span>()</span>
+<span id="cb13-9"><a href="#cb13-9"></a></span>
+<span id="cb13-10"><a href="#cb13-10"></a>  hold <span class="ot">=</span> <span class="fu">c</span>()</span>
+<span id="cb13-11"><a href="#cb13-11"></a>  <span class="cf">for</span> (name <span class="cf">in</span> last_names){</span>
+<span id="cb13-12"><a href="#cb13-12"></a>    <span class="cf">if</span> (<span class="sc">!</span>name <span class="sc">%in%</span> ethnicity_cache<span class="sc">$</span>last_name){</span>
+<span id="cb13-13"><a href="#cb13-13"></a>      hold[[name]] <span class="ot">=</span> <span class="fu">get_name_row</span>(name)</span>
+<span id="cb13-14"><a href="#cb13-14"></a>    }</span>
+<span id="cb13-15"><a href="#cb13-15"></a>  }</span>
+<span id="cb13-16"><a href="#cb13-16"></a></span>
+<span id="cb13-17"><a href="#cb13-17"></a>  res <span class="ot">=</span> <span class="fu">bind_rows</span>(ethnicity_cache, <span class="fu">bind_rows</span>(hold))</span>
+<span id="cb13-18"><a href="#cb13-18"></a>  <span class="fu">saveRDS</span>(res,  <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'_cache'</span>, <span class="st">'cbg_cache.Rds'</span>))</span>
+<span id="cb13-19"><a href="#cb13-19"></a></span>
+<span id="cb13-20"><a href="#cb13-20"></a>  <span class="fu">return</span>(res)</span>
+<span id="cb13-21"><a href="#cb13-21"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="harmonize-ethnicity-variables" class="level2">
+<h2 class="anchored" data-anchor-id="harmonize-ethnicity-variables">Harmonize ethnicity variables</h2>
+<p><strong><code>harmonize_ethnicity()</code></strong> — map origin signals to ISO alpha-2 codes and attach country names</p>
+<p>This function consolidates multiple origin indicators into a standardized two-letter country code and enriches it with a readable country name. It (1) normalizes name_count, (2) assigns <code>ethnicity</code> via rule-based matches on Dutch origin adjectives with a frequency threshold, (3) applies a set of surname-specific overrides, (4) blanks inconsistent statistics, and (5) joins ISO codes to add <code>country_name</code>.</p>
+<p>How it works: - Reads ISO codes from <code>data/utils/iso3611_codes.xlsx</code> (which include <code>alpha_2</code>, <code>country_name</code>). - Cleans name_count: converts <code>"&lt; 5"</code> to <code>5</code>, casts to integer, replaces NA with 0. - Sets <code>ethnicity</code> using heuristics: - If <code>origin</code> contains “Nederlandse”, “Chinese”, “Duitse”, “Marokkaanse”, or “Turkse” and name_count &gt; 200, assign “NL”, “CN”, “DE”, “MA”, “TR” respectively; otherwise fall back to country_id. - Applies bespoke overrides based on search_name (e.g., “Wachter” → “NL”, “Metinsoy” → “TR”, “Phillips” → “BR”, etc.), replacing any prior value. - If the chosen <code>ethnicity</code> differs from <code>country_id</code>, sets count and probability to NA to avoid mixing mismatched stats. - Keeps relevant columns, removes duplicates (distinct on uid, search_name, ethnicity), and left-joins ISO to add country_name.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>harmonize_ethnicity <span class="ot">=</span> <span class="cf">function</span>(origin) {</span>
+<span id="cb14-2"><a href="#cb14-2"></a>  iso <span class="ot">=</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(<span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'iso3611_codes.xlsx'</span>))</span>
+<span id="cb14-3"><a href="#cb14-3"></a></span>
+<span id="cb14-4"><a href="#cb14-4"></a>  origin <span class="ot">=</span> origin <span class="sc">|&gt;</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb14-6"><a href="#cb14-6"></a>      <span class="at">name_count =</span> name_count <span class="sc">|&gt;</span> <span class="fu">str_replace</span>(<span class="st">'&lt; 5'</span>, <span class="st">'5'</span>) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>(),</span>
+<span id="cb14-7"><a href="#cb14-7"></a>      <span class="at">name_count =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(name_count), <span class="dv">0</span>, name_count),</span>
+<span id="cb14-8"><a href="#cb14-8"></a>      <span class="at">ethnicity =</span> <span class="fu">case_when</span>(</span>
+<span id="cb14-9"><a href="#cb14-9"></a>        <span class="fu">str_detect</span>(origin, <span class="st">'Nederlandse'</span>) <span class="sc">&amp;</span> (name_count <span class="sc">&gt;</span> <span class="dv">200</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-10"><a href="#cb14-10"></a>        <span class="fu">str_detect</span>(origin, <span class="st">'Chinese'</span>) <span class="sc">&amp;</span> (name_count <span class="sc">&gt;</span> <span class="dv">200</span>) <span class="sc">~</span> <span class="st">"CN"</span>,</span>
+<span id="cb14-11"><a href="#cb14-11"></a>        <span class="fu">str_detect</span>(origin, <span class="st">'Duitse'</span>) <span class="sc">&amp;</span> (name_count <span class="sc">&gt;</span> <span class="dv">200</span>) <span class="sc">~</span> <span class="st">"DE"</span>,</span>
+<span id="cb14-12"><a href="#cb14-12"></a>        <span class="fu">str_detect</span>(origin, <span class="st">'Marokkaanse'</span>) <span class="sc">&amp;</span> (name_count <span class="sc">&gt;</span> <span class="dv">200</span>) <span class="sc">~</span> <span class="st">"MA"</span>,</span>
+<span id="cb14-13"><a href="#cb14-13"></a>        <span class="fu">str_detect</span>(origin, <span class="st">'Turkse'</span>) <span class="sc">&amp;</span> (name_count <span class="sc">&gt;</span> <span class="dv">200</span>) <span class="sc">~</span> <span class="st">"TR"</span>,</span>
+<span id="cb14-14"><a href="#cb14-14"></a>        <span class="at">.default =</span> country_id</span>
+<span id="cb14-15"><a href="#cb14-15"></a>      ),</span>
+<span id="cb14-16"><a href="#cb14-16"></a>      <span class="at">ethnicity =</span> <span class="fu">case_when</span>(</span>
+<span id="cb14-17"><a href="#cb14-17"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">'Wachter'</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-18"><a href="#cb14-18"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">'Das'</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-19"><a href="#cb14-19"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Metinsoy"</span>) <span class="sc">~</span> <span class="st">"TR"</span>,</span>
+<span id="cb14-20"><a href="#cb14-20"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Wagner"</span>) <span class="sc">~</span> <span class="st">"DE"</span>,</span>
+<span id="cb14-21"><a href="#cb14-21"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Mos"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-22"><a href="#cb14-22"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Vlieg"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-23"><a href="#cb14-23"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Knigge"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-24"><a href="#cb14-24"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Bol"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-25"><a href="#cb14-25"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Deen"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-26"><a href="#cb14-26"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Vrooman"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-27"><a href="#cb14-27"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Verdun"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-28"><a href="#cb14-28"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Merlo"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-29"><a href="#cb14-29"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Phillips"</span>) <span class="sc">~</span> <span class="st">"BR"</span>,</span>
+<span id="cb14-30"><a href="#cb14-30"></a>        <span class="fu">str_detect</span>(search_name, <span class="st">"Raekstad"</span>) <span class="sc">~</span> <span class="st">"NL"</span>,</span>
+<span id="cb14-31"><a href="#cb14-31"></a></span>
+<span id="cb14-32"><a href="#cb14-32"></a>        <span class="at">.default =</span> ethnicity</span>
+<span id="cb14-33"><a href="#cb14-33"></a>      ),</span>
+<span id="cb14-34"><a href="#cb14-34"></a>      <span class="at">count =</span> <span class="fu">case_when</span>(</span>
+<span id="cb14-35"><a href="#cb14-35"></a>        country_id <span class="sc">!=</span> ethnicity <span class="sc">~</span> <span class="cn">NA</span>,</span>
+<span id="cb14-36"><a href="#cb14-36"></a>        <span class="at">.default =</span> count</span>
+<span id="cb14-37"><a href="#cb14-37"></a>      ),</span>
+<span id="cb14-38"><a href="#cb14-38"></a>      <span class="at">probability =</span> <span class="fu">case_when</span>(</span>
+<span id="cb14-39"><a href="#cb14-39"></a>        country_id <span class="sc">!=</span> ethnicity <span class="sc">~</span> <span class="cn">NA</span>,</span>
+<span id="cb14-40"><a href="#cb14-40"></a>        <span class="at">.default =</span> probability</span>
+<span id="cb14-41"><a href="#cb14-41"></a>      )</span>
+<span id="cb14-42"><a href="#cb14-42"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb14-43"><a href="#cb14-43"></a>    <span class="fu">select</span>(uid, search_name, ethnicity, count, probability) <span class="sc">|&gt;</span></span>
+<span id="cb14-44"><a href="#cb14-44"></a>    <span class="fu">distinct</span>(uid, search_name, ethnicity, <span class="at">.keep_all=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-45"><a href="#cb14-45"></a>    <span class="fu">left_join</span>(</span>
+<span id="cb14-46"><a href="#cb14-46"></a>      iso <span class="sc">|&gt;</span> <span class="fu">select</span>(alpha_2, country_name),</span>
+<span id="cb14-47"><a href="#cb14-47"></a>      <span class="at">by =</span> <span class="fu">join_by</span>(ethnicity <span class="sc">==</span> alpha_2)</span>
+<span id="cb14-48"><a href="#cb14-48"></a>    )</span>
+<span id="cb14-49"><a href="#cb14-49"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="application" class="level2">
+<h2 class="anchored" data-anchor-id="application">Application</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>names <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'names'</span>)</span>
+<span id="cb15-2"><a href="#cb15-2"></a></span>
+<span id="cb15-3"><a href="#cb15-3"></a><span class="co"># create an name index</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a>idx <span class="ot">=</span> names <span class="sc">|&gt;</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a>  <span class="fu">distinct</span>(particle, last_name, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a>  <span class="fu">unite</span>(search_name, particle<span class="sc">:</span>last_name, <span class="at">sep=</span><span class="st">" "</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>, <span class="at">remove =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a>  <span class="fu">unite</span>(search_name_full, particle<span class="sc">:</span>maiden_name, <span class="at">sep=</span><span class="st">" "</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>, <span class="at">remove =</span> <span class="cn">FALSE</span>) </span>
+<span id="cb15-8"><a href="#cb15-8"></a></span>
+<span id="cb15-9"><a href="#cb15-9"></a><span class="co"># scrape using nationalizer</span></span>
+<span id="cb15-10"><a href="#cb15-10"></a>res <span class="ot">=</span> <span class="fu">nationalize_name</span>(idx) <span class="sc">|&gt;</span></span>
+<span id="cb15-11"><a href="#cb15-11"></a>  <span class="fu">select_best_match</span>()</span>
+<span id="cb15-12"><a href="#cb15-12"></a></span>
+<span id="cb15-13"><a href="#cb15-13"></a><span class="co"># scrape using family name database</span></span>
+<span id="cb15-14"><a href="#cb15-14"></a>res2 <span class="ot">=</span> <span class="fu">name_to_origin</span>(idx)<span class="sc">|&gt;</span> </span>
+<span id="cb15-15"><a href="#cb15-15"></a>  <span class="fu">add_origin</span>() <span class="sc">|&gt;</span></span>
+<span id="cb15-16"><a href="#cb15-16"></a>  <span class="fu">add_origin5</span>() <span class="sc">|&gt;</span></span>
+<span id="cb15-17"><a href="#cb15-17"></a>  <span class="fu">clean_ethnicity</span>()</span>
+<span id="cb15-18"><a href="#cb15-18"></a></span>
+<span id="cb15-19"><a href="#cb15-19"></a><span class="co"># combine scraped information</span></span>
+<span id="cb15-20"><a href="#cb15-20"></a>origin <span class="ot">=</span> idx <span class="sc">|&gt;</span></span>
+<span id="cb15-21"><a href="#cb15-21"></a>  <span class="fu">left_join</span>(res, <span class="at">by=</span><span class="fu">join_by</span>(search_name<span class="sc">==</span>last_name)) <span class="sc">|&gt;</span></span>
+<span id="cb15-22"><a href="#cb15-22"></a>  <span class="fu">left_join</span>(res2, <span class="at">by=</span><span class="fu">join_by</span>(search_name<span class="sc">==</span>last_name)) <span class="sc">|&gt;</span></span>
+<span id="cb15-23"><a href="#cb15-23"></a>  <span class="fu">select</span>(uid, last_name, search_name, type<span class="sc">:</span>name_count) <span class="sc">|&gt;</span></span>
+<span id="cb15-24"><a href="#cb15-24"></a>  <span class="fu">harmonize_ethnicity</span>()</span>
+<span id="cb15-25"><a href="#cb15-25"></a></span>
+<span id="cb15-26"><a href="#cb15-26"></a><span class="fu">fsaveRDS</span>(origin, <span class="st">'ethnicity'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>origin <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["uid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["search_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["ethnicity"],"name":[3],"type":["chr"],"align":["left"]},{"label":["count"],"name":[4],"type":["int"],"align":["right"]},{"label":["probability"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["country_name"],"name":[6],"type":["chr"],"align":["left"]}],"data":[{"1":"kOKT9MVfb0","2":"Micheli","3":"IT","4":"8502","5":"0.3428157","6":"Italy"},{"1":"Kj5Q8YFGzd","2":"Scheuer","3":"LU","4":"2592","5":"0.1330481","6":"Luxembourg"},{"1":"2h5Y5XM6fr","2":"Bieleman","3":"NL","4":"98","5":"0.7142857","6":"Netherlands (Kingdom of the)"},{"1":"86uR0I7fEb","2":"Venema","3":"NL","4":"4704","5":"0.6094382","6":"Netherlands (Kingdom of the)"},{"1":"UK5LWZg9DA","2":"de Lacey","3":"NZ","4":"137","5":"0.2581629","6":"New Zealand"},{"1":"31YWpPTcf5","2":"van Montfort","3":"NL","4":"432","5":"0.5637251","6":"Netherlands (Kingdom of the)"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
