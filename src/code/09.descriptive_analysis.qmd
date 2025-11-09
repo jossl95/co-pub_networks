@@ -37,7 +37,7 @@ tidyplots_options(
 
 
 ```{r}
-data = freadRDS2(file="scholars", location = "combined")
+data = freadRDS2(file="scholars", location = "clean")
 ```
 
 
@@ -63,7 +63,7 @@ works_count = works |>
 
 works_count_plot = works_count |>
   tidyplot(x = publication_year, y = n, color = type) |>
-  add_barstack_absolute() |>
+  add_areastack_absolute() |>
   adjust_size(width = 15, height = 7) |>
   adjust_x_axis_title("Publication Year") |>
   adjust_x_axis(limits = c(1960, 2026)) |>
@@ -112,7 +112,7 @@ dems = data[['demographics']]
 dems_long = dems |>
   pivot_longer(
     # only the repeated fields:
-    cols = matches("^(email_adres|universiteit|functie|discipline)_\\d{2}$"),
+    cols = matches("^(email|university|position|discipline)_\\d{2}$"),
     # split into the base name (becomes columns) and the 2-digit year
     names_to = c(".value", "year2"),
     names_pattern = "^(.*)_(\\d{2})$",
@@ -121,15 +121,15 @@ dems_long = dems |>
   mutate(year = as.integer(paste0("20", year2))) |>
   select(-year2) |>
   arrange(uid, year) |>
-  mutate(universiteit = na_if(universiteit, "")) |>
-  separate_rows(universiteit, sep = "\\s*/\\s*")
+  mutate(university = na_if(university, "")) |>
+  separate_rows(university, sep = "\\s*/\\s*")
 ```
 
 
 ```{r}
 dems_long = dems_long |>
   mutate(
-    uni = str_to_lower(universiteit),
+    uni = str_to_lower(university),
     university = case_when(
         str_detect(uni, 'rug') ~ "University of Groningen",
         str_detect(uni, 'ru') ~ "Radboud University",
@@ -143,7 +143,7 @@ dems_long = dems_long |>
     )
   )|>
   filter(!is.na(university)) |>
-  select(-uni, -universiteit) |>
+  select(-uni) |>
   distinct(uid, university, discipline, year, .keep_all = TRUE)
 ```
 

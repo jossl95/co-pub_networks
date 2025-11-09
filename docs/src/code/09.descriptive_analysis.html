@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-08">
+<meta name="dcterms.date" content="2025-11-09">
 
 <title>Descriptive Statistics – Networks</title>
 <style>
@@ -235,7 +235,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 8, 2025</p>
+      <p class="date">November 9, 2025</p>
     </div>
   </div>
   
@@ -272,7 +272,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="application" class="level2">
 <h2 class="anchored" data-anchor-id="application">Application</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="at">file=</span><span class="st">"scholars"</span>, <span class="at">location =</span> <span class="st">"combined"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="at">file=</span><span class="st">"scholars"</span>, <span class="at">location =</span> <span class="st">"clean"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="number-of-publications" class="level3">
 <h3 class="anchored" data-anchor-id="number-of-publications">Number of publications</h3>
@@ -290,7 +290,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-10"><a href="#cb4-10"></a></span>
 <span id="cb4-11"><a href="#cb4-11"></a>works_count_plot <span class="ot">=</span> works_count <span class="sc">|&gt;</span></span>
 <span id="cb4-12"><a href="#cb4-12"></a>  <span class="fu">tidyplot</span>(<span class="at">x =</span> publication_year, <span class="at">y =</span> n, <span class="at">color =</span> type) <span class="sc">|&gt;</span></span>
-<span id="cb4-13"><a href="#cb4-13"></a>  <span class="fu">add_barstack_absolute</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>  <span class="fu">add_areastack_absolute</span>() <span class="sc">|&gt;</span></span>
 <span id="cb4-14"><a href="#cb4-14"></a>  <span class="fu">adjust_size</span>(<span class="at">width =</span> <span class="dv">15</span>, <span class="at">height =</span> <span class="dv">7</span>) <span class="sc">|&gt;</span></span>
 <span id="cb4-15"><a href="#cb4-15"></a>  <span class="fu">adjust_x_axis_title</span>(<span class="st">"Publication Year"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb4-16"><a href="#cb4-16"></a>  <span class="fu">adjust_x_axis</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">1960</span>, <span class="dv">2026</span>)) <span class="sc">|&gt;</span></span>
@@ -343,7 +343,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-3"><a href="#cb6-3"></a>dems_long <span class="ot">=</span> dems <span class="sc">|&gt;</span></span>
 <span id="cb6-4"><a href="#cb6-4"></a>  <span class="fu">pivot_longer</span>(</span>
 <span id="cb6-5"><a href="#cb6-5"></a>    <span class="co"># only the repeated fields:</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a>    <span class="at">cols =</span> <span class="fu">matches</span>(<span class="st">"^(email_adres|universiteit|functie|discipline)_</span><span class="sc">\\</span><span class="st">d{2}$"</span>),</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    <span class="at">cols =</span> <span class="fu">matches</span>(<span class="st">"^(email|university|position|discipline)_</span><span class="sc">\\</span><span class="st">d{2}$"</span>),</span>
 <span id="cb6-7"><a href="#cb6-7"></a>    <span class="co"># split into the base name (becomes columns) and the 2-digit year</span></span>
 <span id="cb6-8"><a href="#cb6-8"></a>    <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">".value"</span>, <span class="st">"year2"</span>),</span>
 <span id="cb6-9"><a href="#cb6-9"></a>    <span class="at">names_pattern =</span> <span class="st">"^(.*)_(</span><span class="sc">\\</span><span class="st">d{2})$"</span>,</span>
@@ -352,13 +352,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-12"><a href="#cb6-12"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">as.integer</span>(<span class="fu">paste0</span>(<span class="st">"20"</span>, year2))) <span class="sc">|&gt;</span></span>
 <span id="cb6-13"><a href="#cb6-13"></a>  <span class="fu">select</span>(<span class="sc">-</span>year2) <span class="sc">|&gt;</span></span>
 <span id="cb6-14"><a href="#cb6-14"></a>  <span class="fu">arrange</span>(uid, year) <span class="sc">|&gt;</span></span>
-<span id="cb6-15"><a href="#cb6-15"></a>  <span class="fu">mutate</span>(<span class="at">universiteit =</span> <span class="fu">na_if</span>(universiteit, <span class="st">""</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb6-16"><a href="#cb6-16"></a>  <span class="fu">separate_rows</span>(universiteit, <span class="at">sep =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">s*/</span><span class="sc">\\</span><span class="st">s*"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-15"><a href="#cb6-15"></a>  <span class="fu">mutate</span>(<span class="at">university =</span> <span class="fu">na_if</span>(university, <span class="st">""</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb6-16"><a href="#cb6-16"></a>  <span class="fu">separate_rows</span>(university, <span class="at">sep =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">s*/</span><span class="sc">\\</span><span class="st">s*"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>dems_long <span class="ot">=</span> dems_long <span class="sc">|&gt;</span></span>
 <span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb7-3"><a href="#cb7-3"></a>    <span class="at">uni =</span> <span class="fu">str_to_lower</span>(universiteit),</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    <span class="at">uni =</span> <span class="fu">str_to_lower</span>(university),</span>
 <span id="cb7-4"><a href="#cb7-4"></a>    <span class="at">university =</span> <span class="fu">case_when</span>(</span>
 <span id="cb7-5"><a href="#cb7-5"></a>        <span class="fu">str_detect</span>(uni, <span class="st">'rug'</span>) <span class="sc">~</span> <span class="st">"University of Groningen"</span>,</span>
 <span id="cb7-6"><a href="#cb7-6"></a>        <span class="fu">str_detect</span>(uni, <span class="st">'ru'</span>) <span class="sc">~</span> <span class="st">"Radboud University"</span>,</span>
@@ -372,7 +372,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-14"><a href="#cb7-14"></a>    )</span>
 <span id="cb7-15"><a href="#cb7-15"></a>  )<span class="sc">|&gt;</span></span>
 <span id="cb7-16"><a href="#cb7-16"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(university)) <span class="sc">|&gt;</span></span>
-<span id="cb7-17"><a href="#cb7-17"></a>  <span class="fu">select</span>(<span class="sc">-</span>uni, <span class="sc">-</span>universiteit) <span class="sc">|&gt;</span></span>
+<span id="cb7-17"><a href="#cb7-17"></a>  <span class="fu">select</span>(<span class="sc">-</span>uni) <span class="sc">|&gt;</span></span>
 <span id="cb7-18"><a href="#cb7-18"></a>  <span class="fu">distinct</span>(uid, university, discipline, year, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">

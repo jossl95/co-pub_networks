@@ -172,6 +172,164 @@ prune_scholars = function(data){
 }
 ```
 
+```{r}
+
+clean_demographics = function(data) {
+  # get country_conversion table
+  country_conversion = read_csv(
+      file.path('data', 'utils', 'country_conversion.csv'),
+      show_col_types = FALSE
+    ) |>
+    distinct(alpha_2, region) |>
+    mutate(
+      region = ifelse(str_detect(alpha_2, 'NL'), 'Netherlands', region) |>
+        str_replace('(Asia|Oceania)', 'Asia and Oceania') 
+    )
+
+  # add region to demographics and clean the dataframe
+  data[['demographics']] = data[['demographics']] |> 
+    left_join(country_conversion, by=join_by(ethnicity == alpha_2)) |>
+    relocate(region, .before = ethnicity) |>
+    rename(
+      origin = region,
+      gender_prob = prob,
+      gender_count = count,
+      university_22 = universiteit_22,
+      university_24 = universiteit_24,
+      university_25 = universiteit_25,
+      email_22 = email_adres_22,
+      email_24 = email_adres_24,
+      email_25 = email_adres_25,
+      position_22 = functie_22,
+      position_24 = functie_24,
+      position_25 = functie_25,
+    ) |>
+    select(uid, clean_name, gender, origin, ethnicity, email_22:discipline_25)
+
+  return(data)
+}
+
+```
+
+```{r}
+# 1) Core h-index calculator -----------------------------------------------
+h_index_vec = function(citations) {
+  if (is.null(citations) || length(citations) == 0L) return(0L)
+  c = sort(as.integer(citations[is.finite(citations) & !is.na(citations)]), decreasing = TRUE)
+  if (!length(c)) return(0L)
+  # With c sorted desc, h is the count of entries with c_i >= i
+  as.integer(sum(c >= seq_along(c)))
+}
+
+# 2) Robust extractor for cited_by_count from different "works" shapes ------
+# Handles:
+# - data.frame/tibble with column `cited_by_count`
+# - list with element `results` that is a data.frame (e.g., API wrappers)
+# - list of work-objects where each has $cited_by_count
+# - optional de-duplication by `id` if present
+extract_citations = function(works_obj) {
+  # helper to deduplicate & pull citations from a data.frame
+  df_to_cites = function(df) {
+    if (!is.data.frame(df)) return(integer())
+    if ("id" %in% names(df)) df = distinct(df, id, .keep_all = TRUE)
+    if ("cited_by_count" %in% names(df)) return(as.integer(df$cited_by_count))
+    integer()
+  }
+
+  if (is.data.frame(works_obj)) {
+    return(df_to_cites(works_obj))
+  }
+
+  if (is.list(works_obj)) {
+    # common wrapper: list(results = data.frame(...))
+    if ("results" %in% names(works_obj)) return(df_to_cites(works_obj$results))
+
+    # otherwise assume a list of work records
+    cites = map_dbl(works_obj, ~ tryCatch(
+      {
+        v = .x[["cited_by_count"]]
+        if (is.null(v)) NA_real_ else as.numeric(v)
+      },
+      error = function(e) NA_real_
+    ))
+    return(as.integer(cites[!is.na(cites)]))
+  }
+
+  integer()
+}
+
+# 3) Compute per-author h-index from a named list ---------------------------
+# Input: works_by_uid — a named list where names(works_by_uid) are `uid`s,
+#         each value is that author's OpenAlex works object
+h_index_by_author = function(works_by_uid) {
+  imap_dfr(works_by_uid, function(works, uid) {
+    cites = extract_citations(works)
+    tibble(
+      uid             = uid,
+      n_works         = length(cites),
+      total_citations = sum(cites, na.rm = TRUE),
+      h_index         = h_index_vec(cites)
+    )
+  }) |>
+    arrange(desc(h_index), desc(total_citations))
+}
+
+
+# 3) Compute per-author i10-index from a named list ---------------------------
+# Input: works_by_uid — a named list where names(works_by_uid) are `uid`s,
+#         each value is that author's OpenAlex works object
+i_index_vec = function(citations, threshold = 10L) {
+  c = as.integer(citations[is.finite(citations) & !is.na(citations)])
+  if (!length(c)) return(0L)
+  sum(c >= as.integer(threshold))
+}
+
+# Per-author iN (defaults to i10). Input: named list 'works_by_uid'
+i_index_by_author = function(works_by_uid, threshold = 10L) {
+  colname = paste0("i", threshold, "_index")
+  imap_dfr(works_by_uid, function(works, uid) {
+    cites = extract_citations(works)
+    tibble(
+      uid             = uid,
+      n_works         = length(cites),
+      total_citations = sum(cites, na.rm = TRUE),
+      !!colname       := i_index_vec(cites, threshold = threshold)
+    )
+  }) |>
+    arrange(desc(.data[[colname]]), desc(total_citations))
+}
+
+# Wrapper function addint these data to demographics
+add_updated_stats_to_demographics = function(data){
+  h_index = h_index_by_author(data[['works']]) 
+  i10_index = i_index_by_author(data[['works']]) |> select(uid, i10_index)
+
+  data[['demographics']] = data[['demographics']] |> 
+    left_join(h_index) |>
+    left_join(i10_index)
+
+  return(data)
+}
+
+
+```
+
+```{r}
+add_edge_table = function(data){
+  data[['edge_table']] = data[['works']] |>
+    bind_rows() |>
+    select(uid, work_id, authorships, publication_date, publication_year, type) |>
+    # mutate(a = authorships, .after=authorships) |>
+    rename(a = authorships) |>
+    unnest(a, names_sep = "__", keep_empty=FALSE) |>
+    filter(!is.na(a__uid) & uid != a__uid)
+
+  return(data)
+}
+
+```
+
+
 ## Application
 
 ```{r}
@@ -179,32 +337,15 @@ data = freadRDS2(file="scholars", location = "combined") |>
   prune_invalid_publication_types() |>
   prune_works_by_author_id() |>
   prune_demographics() |>
-  prune_scholars()
+  prune_scholars() |>
+  clean_demographics() |>
+  add_updated_stats_to_demographics() |>
+  add_edge_table()
+
+fsaveRDS(data, 'scholars', location = "./data/clean/")
 ```
 
-```{r}
-dems = data[['demographics']]
-```
 
-```{r}
 
-# get country_conversion table
-country_conversion = read_csv(
-  file.path('data', 'utils', 'country_conversion.csv')) |> 
-  as_tibble() |>
-  distinct(alpha_2, region) |>
-  mutate(region = ifelse(str_detect(alpha_2, 'NL'), 'Netherlands', region))
 
-d = dems |> 
-  left_join(country_conversion, by=join_by(ethnicity == alpha_2)) |>
-  relocate(region, .before = ethnicity)
 
-```
-
-<!-- h-index en i10_index -->
-
-<!-- nationality -->
-
-<!-- positions -->
-
-<!-- institutions -->
