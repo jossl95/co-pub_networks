@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-09">
+<meta name="dcterms.date" content="2025-11-10">
 
 <title>Create patch for institutions – Networks</title>
 <style>
@@ -230,7 +230,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 9, 2025</p>
+      <p class="date">November 10, 2025</p>
     </div>
   </div>
   
@@ -252,19 +252,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># load and activate packages</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="fu">library</span>(lubridate)</span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="fu">library</span>(openalexR)</span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="fu">library</span>(rvest)</span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="fu">library</span>(jsonlite)</span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="fu">library</span>(cli)</span>
-<span id="cb2-10"><a href="#cb2-10"></a></span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="co"># load custom functions</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
-<span id="cb2-13"><a href="#cb2-13"></a><span class="fu">.load_quarto_dependencies</span>()</span>
-<span id="cb2-14"><a href="#cb2-14"></a></span>
-<span id="cb2-15"><a href="#cb2-15"></a><span class="fu">options</span>(<span class="at">openalexR.mailto =</span> <span class="st">"jos.slabbekoorn@ru.nl"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="co"># load custom functions</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="fu">.load_quarto_dependencies</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholars'</span>, <span class="at">location=</span><span class="st">'clean'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -330,23 +322,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-8"><a href="#cb6-8"></a></span>
 <span id="cb6-9"><a href="#cb6-9"></a>dates <span class="ot">=</span> works_authors <span class="sc">|&gt;</span></span>
 <span id="cb6-10"><a href="#cb6-10"></a>    <span class="fu">distinct</span>(</span>
-<span id="cb6-11"><a href="#cb6-11"></a>      authorships__display_name, authorships__author_id, authorships__affiliations_id, </span>
-<span id="cb6-12"><a href="#cb6-12"></a>      authorships__affiliations_display_name, publication_date,</span>
-<span id="cb6-13"><a href="#cb6-13"></a>      <span class="at">.keep_all=</span><span class="cn">TRUE</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a>      authorships__display_name, authorships__author_id, </span>
+<span id="cb6-12"><a href="#cb6-12"></a>      authorships__affiliations_id, authorships__affiliations_display_name, </span>
+<span id="cb6-13"><a href="#cb6-13"></a>      publication_date, <span class="at">.keep_all=</span><span class="cn">TRUE</span></span>
 <span id="cb6-14"><a href="#cb6-14"></a>    ) <span class="sc">|&gt;</span></span>
 <span id="cb6-15"><a href="#cb6-15"></a>    <span class="fu">filter</span>(authorships__affiliations_id <span class="sc">%in%</span> universities) <span class="sc">|&gt;</span></span>
 <span id="cb6-16"><a href="#cb6-16"></a>    <span class="fu">arrange</span>(publication_date) <span class="sc">|&gt;</span></span>
-<span id="cb6-17"><a href="#cb6-17"></a>    <span class="fu">group_by</span>(uid, authorships__author_id, authorships__affiliations_display_name, authorships__affiliations_id) <span class="sc">|&gt;</span></span>
-<span id="cb6-18"><a href="#cb6-18"></a>    <span class="fu">summarize</span>(</span>
-<span id="cb6-19"><a href="#cb6-19"></a>        <span class="at">uid =</span> <span class="fu">first</span>(uid),</span>
-<span id="cb6-20"><a href="#cb6-20"></a>        <span class="at">authorships__display_name =</span> <span class="fu">first</span>(authorships__display_name),</span>
-<span id="cb6-21"><a href="#cb6-21"></a>        <span class="at">first_date =</span> <span class="fu">first</span>(publication_date) ,</span>
-<span id="cb6-22"><a href="#cb6-22"></a>        <span class="at">last_date =</span> <span class="fu">last</span>(publication_date)</span>
-<span id="cb6-23"><a href="#cb6-23"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb6-24"><a href="#cb6-24"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb6-25"><a href="#cb6-25"></a>      <span class="at">first_date =</span> first_date <span class="sc">%m-%</span> <span class="fu">months</span>(<span class="dv">18</span>),</span>
-<span id="cb6-26"><a href="#cb6-26"></a>      <span class="at">last_date =</span> last_date <span class="sc">%m+%</span> <span class="fu">months</span>(<span class="dv">6</span>)</span>
-<span id="cb6-27"><a href="#cb6-27"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-17"><a href="#cb6-17"></a>    <span class="fu">group_by</span>(</span>
+<span id="cb6-18"><a href="#cb6-18"></a>      uid, authorships__author_id, authorships__affiliations_display_name, </span>
+<span id="cb6-19"><a href="#cb6-19"></a>      authorships__affiliations_id</span>
+<span id="cb6-20"><a href="#cb6-20"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a>    <span class="fu">summarize</span>(</span>
+<span id="cb6-22"><a href="#cb6-22"></a>        <span class="at">uid =</span> <span class="fu">first</span>(uid),</span>
+<span id="cb6-23"><a href="#cb6-23"></a>        <span class="at">authorships__display_name =</span> <span class="fu">first</span>(authorships__display_name),</span>
+<span id="cb6-24"><a href="#cb6-24"></a>        <span class="at">first_date =</span> <span class="fu">first</span>(publication_date) ,</span>
+<span id="cb6-25"><a href="#cb6-25"></a>        <span class="at">last_date =</span> <span class="fu">last</span>(publication_date)</span>
+<span id="cb6-26"><a href="#cb6-26"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb6-27"><a href="#cb6-27"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb6-28"><a href="#cb6-28"></a>      <span class="at">first_date =</span> first_date <span class="sc">%m-%</span> <span class="fu">months</span>(<span class="dv">18</span>),</span>
+<span id="cb6-29"><a href="#cb6-29"></a>      <span class="at">last_date =</span> last_date <span class="sc">%m+%</span> <span class="fu">months</span>(<span class="dv">6</span>)</span>
+<span id="cb6-30"><a href="#cb6-30"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>format_institutions <span class="ot">=</span> <span class="cf">function</span>(d) {</span>
@@ -391,6 +386,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-15"><a href="#cb8-15"></a></span>
 <span id="cb8-16"><a href="#cb8-16"></a><span class="fu">fsaveRDS</span>(d, <span class="st">'affiliations'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<!-- get publication date disseration (reasonable coverage) -->
 
 
 </section>

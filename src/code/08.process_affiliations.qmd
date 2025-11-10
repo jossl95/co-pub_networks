@@ -23,19 +23,11 @@ gc()
 
 # load and activate packages
 library(tidyverse)
-library(readxl)
 library(stringr)
-library(lubridate)
-library(openalexR)
-library(rvest)
-library(jsonlite)
-library(cli)
 
 # load custom functions
 source("src/utils/custom_functions.r")
 .load_quarto_dependencies()
-
-options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
 ```
 
 
@@ -110,13 +102,16 @@ universities = c(
 
 dates = works_authors |>
     distinct(
-      authorships__display_name, authorships__author_id, authorships__affiliations_id, 
-      authorships__affiliations_display_name, publication_date,
-      .keep_all=TRUE
+      authorships__display_name, authorships__author_id, 
+      authorships__affiliations_id, authorships__affiliations_display_name, 
+      publication_date, .keep_all=TRUE
     ) |>
     filter(authorships__affiliations_id %in% universities) |>
     arrange(publication_date) |>
-    group_by(uid, authorships__author_id, authorships__affiliations_display_name, authorships__affiliations_id) |>
+    group_by(
+      uid, authorships__author_id, authorships__affiliations_display_name, 
+      authorships__affiliations_id
+    ) |>
     summarize(
         uid = first(uid),
         authorships__display_name = first(authorships__display_name),
@@ -174,3 +169,6 @@ d = dates |>
 
 fsaveRDS(d, 'affiliations')
 ```
+
+
+<!-- get publication date disseration (reasonable coverage) -->

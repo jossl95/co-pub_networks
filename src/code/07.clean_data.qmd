@@ -322,7 +322,7 @@ add_edge_table = function(data){
     # mutate(a = authorships, .after=authorships) |>
     rename(a = authorships) |>
     unnest(a, names_sep = "__", keep_empty=FALSE) |>
-    filter(!is.na(a__uid) & uid != a__uid)
+    filter(!is.na(a__uid))
 
   return(data)
 }

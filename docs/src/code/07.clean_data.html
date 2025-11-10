@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-09">
+<meta name="dcterms.date" content="2025-11-10">
 
 <title>Prune Scrape Data – Networks</title>
 <style>
@@ -232,7 +232,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 9, 2025</p>
+      <p class="date">November 10, 2025</p>
     </div>
   </div>
   
@@ -542,7 +542,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-5"><a href="#cb9-5"></a>    <span class="co"># mutate(a = authorships, .after=authorships) |&gt;</span></span>
 <span id="cb9-6"><a href="#cb9-6"></a>    <span class="fu">rename</span>(<span class="at">a =</span> authorships) <span class="sc">|&gt;</span></span>
 <span id="cb9-7"><a href="#cb9-7"></a>    <span class="fu">unnest</span>(a, <span class="at">names_sep =</span> <span class="st">"__"</span>, <span class="at">keep_empty=</span><span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-8"><a href="#cb9-8"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(a__uid) <span class="sc">&amp;</span> uid <span class="sc">!=</span> a__uid)</span>
+<span id="cb9-8"><a href="#cb9-8"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(a__uid))</span>
 <span id="cb9-9"><a href="#cb9-9"></a></span>
 <span id="cb9-10"><a href="#cb9-10"></a>  <span class="fu">return</span>(data)</span>
 <span id="cb9-11"><a href="#cb9-11"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>

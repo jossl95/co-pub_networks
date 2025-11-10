@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-09">
+<meta name="dcterms.date" content="2025-11-10">
 
 <title>Descriptive Statistics – Networks</title>
 <style>
@@ -216,6 +216,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#number-of-publications" id="toc-number-of-publications" class="nav-link" data-scroll-target="#number-of-publications">Number of publications</a></li>
   <li><a href="#number-of-scholars" id="toc-number-of-scholars" class="nav-link" data-scroll-target="#number-of-scholars">Number of scholars</a></li>
   </ul></li>
+  <li><a href="#network-statistics" id="toc-network-statistics" class="nav-link" data-scroll-target="#network-statistics">Network Statistics</a></li>
   </ul>
 </nav>
     </div>
@@ -235,7 +236,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 9, 2025</p>
+      <p class="date">November 10, 2025</p>
     </div>
   </div>
   
@@ -290,7 +291,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-10"><a href="#cb4-10"></a></span>
 <span id="cb4-11"><a href="#cb4-11"></a>works_count_plot <span class="ot">=</span> works_count <span class="sc">|&gt;</span></span>
 <span id="cb4-12"><a href="#cb4-12"></a>  <span class="fu">tidyplot</span>(<span class="at">x =</span> publication_year, <span class="at">y =</span> n, <span class="at">color =</span> type) <span class="sc">|&gt;</span></span>
-<span id="cb4-13"><a href="#cb4-13"></a>  <span class="fu">add_areastack_absolute</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>  <span class="fu">add_barstack_absolute</span>() <span class="sc">|&gt;</span></span>
 <span id="cb4-14"><a href="#cb4-14"></a>  <span class="fu">adjust_size</span>(<span class="at">width =</span> <span class="dv">15</span>, <span class="at">height =</span> <span class="dv">7</span>) <span class="sc">|&gt;</span></span>
 <span id="cb4-15"><a href="#cb4-15"></a>  <span class="fu">adjust_x_axis_title</span>(<span class="st">"Publication Year"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb4-16"><a href="#cb4-16"></a>  <span class="fu">adjust_x_axis</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">1960</span>, <span class="dv">2026</span>)) <span class="sc">|&gt;</span></span>
@@ -393,9 +394,502 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-
-
 </section>
+</section>
+<section id="network-statistics" class="level2">
+<h2 class="anchored" data-anchor-id="network-statistics">Network Statistics</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="fu">library</span>(igraph)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'igraph'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:lubridate':
+
+    %--%, union</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:dplyr':
+
+    as_data_frame, groups, union</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:purrr':
+
+    compose, simplify</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:tidyr':
+
+    crossing</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:tibble':
+
+    as_data_frame</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    decompose, spectrum</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:base':
+
+    union</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">library</span>(Matrix)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'Matrix'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:tidyr':
+
+    expand, pack, unpack</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>priority <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"UVA"</span>,<span class="st">"EUR"</span>,<span class="st">"RUG"</span>,<span class="st">"VU"</span>,<span class="st">"Leiden"</span>,<span class="st">"RU"</span>,<span class="st">"UU"</span>,<span class="st">"Tilburg"</span>)</span>
+<span id="cb21-2"><a href="#cb21-2"></a>dems <span class="ot">=</span> dems <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb21-4"><a href="#cb21-4"></a>    <span class="at">position =</span> <span class="fu">coalesce</span>(<span class="sc">!!!</span><span class="fu">select</span>(., <span class="fu">starts_with</span>(<span class="st">"position_"</span>))),</span>
+<span id="cb21-5"><a href="#cb21-5"></a>    <span class="at">university =</span> <span class="fu">coalesce</span>(<span class="sc">!!!</span><span class="fu">select</span>(., <span class="fu">starts_with</span>(<span class="st">"university_"</span>)))</span>
+<span id="cb21-6"><a href="#cb21-6"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb21-7"><a href="#cb21-7"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb21-8"><a href="#cb21-8"></a>    <span class="at">s =</span> <span class="fu">str_to_lower</span>(<span class="fu">str_squish</span>(university)),</span>
+<span id="cb21-9"><a href="#cb21-9"></a>    <span class="at">university =</span> <span class="fu">case_when</span>(</span>
+<span id="cb21-10"><a href="#cb21-10"></a>      <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">brug</span><span class="sc">\\</span><span class="st">b|groningen"</span>) <span class="sc">~</span> <span class="st">"RUG"</span>,</span>
+<span id="cb21-11"><a href="#cb21-11"></a>      <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">bvu</span><span class="sc">\\</span><span class="st">b|vrij</span><span class="sc">\\</span><span class="st">s*e?</span><span class="sc">\\</span><span class="st">s*universiteit"</span>) <span class="sc">~</span> <span class="st">"VU"</span>,</span>
+<span id="cb21-12"><a href="#cb21-12"></a>      <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">buva</span><span class="sc">\\</span><span class="st">b|universiteit van amsterdam|univ(?:ersity)? of amsterdam"</span>) <span class="sc">~</span> <span class="st">"UVA"</span>,</span>
+<span id="cb21-13"><a href="#cb21-13"></a>      <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">beur</span><span class="sc">\\</span><span class="st">b|erasmus"</span>) <span class="sc">~</span> <span class="st">"EUR"</span>,</span>
+<span id="cb21-14"><a href="#cb21-14"></a>      <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">bleiden</span><span class="sc">\\</span><span class="st">b"</span>) <span class="sc">~</span> <span class="st">"LU"</span>,</span>
+<span id="cb21-15"><a href="#cb21-15"></a>      <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">bru</span><span class="sc">\\</span><span class="st">b|radboud"</span>) <span class="sc">~</span> <span class="st">"RU"</span>,</span>
+<span id="cb21-16"><a href="#cb21-16"></a>      <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">buu</span><span class="sc">\\</span><span class="st">b|utrecht"</span>) <span class="sc">~</span> <span class="st">"UU"</span>,</span>
+<span id="cb21-17"><a href="#cb21-17"></a>      <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">buvt</span><span class="sc">\\</span><span class="st">b|universiteit tilburg|</span><span class="sc">\\</span><span class="st">btilburg</span><span class="sc">\\</span><span class="st">b"</span>) <span class="sc">~</span> <span class="st">"TU"</span>,</span>
+<span id="cb21-18"><a href="#cb21-18"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span></span>
+<span id="cb21-19"><a href="#cb21-19"></a>    )</span>
+<span id="cb21-20"><a href="#cb21-20"></a>  )</span>
+<span id="cb21-21"><a href="#cb21-21"></a></span>
+<span id="cb21-22"><a href="#cb21-22"></a>edge <span class="ot">=</span> data[[<span class="st">'edge_table'</span>]] <span class="sc">|&gt;</span></span>
+<span id="cb21-23"><a href="#cb21-23"></a>  <span class="fu">filter</span>(publication_date <span class="sc">&gt;</span> <span class="fu">ymd</span>(<span class="st">"2019-01-01"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="co"># deps</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb22-3"><a href="#cb22-3"></a><span class="fu">library</span>(igraph)</span>
+<span id="cb22-4"><a href="#cb22-4"></a><span class="fu">library</span>(Matrix)</span>
+<span id="cb22-5"><a href="#cb22-5"></a></span>
+<span id="cb22-6"><a href="#cb22-6"></a>build_matrices <span class="ot">&lt;-</span> <span class="cf">function</span>(D, E, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">weighted =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb22-7"><a href="#cb22-7"></a>                           <span class="at">sign_incidence =</span> <span class="cn">TRUE</span>, <span class="at">exclude_isolates =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb22-8"><a href="#cb22-8"></a>  <span class="fu">stopifnot</span>(<span class="st">"uid"</span> <span class="sc">%in%</span> <span class="fu">colnames</span>(D))</span>
+<span id="cb22-9"><a href="#cb22-9"></a>  <span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"uid"</span>, <span class="st">"a__uid"</span>) <span class="sc">%in%</span> <span class="fu">colnames</span>(E)))</span>
+<span id="cb22-10"><a href="#cb22-10"></a></span>
+<span id="cb22-11"><a href="#cb22-11"></a>  <span class="co"># --- 1) Clean edges: only between known nodes, drop NAs &amp; self-loops</span></span>
+<span id="cb22-12"><a href="#cb22-12"></a>  nodes_vec <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">as.character</span>(D<span class="sc">$</span>uid))</span>
+<span id="cb22-13"><a href="#cb22-13"></a>  Eclean <span class="ot">&lt;-</span> E <span class="sc">%&gt;%</span></span>
+<span id="cb22-14"><a href="#cb22-14"></a>    <span class="fu">transmute</span>(<span class="at">uid =</span> <span class="fu">as.character</span>(uid), <span class="at">a__uid =</span> <span class="fu">as.character</span>(a__uid)) <span class="sc">%&gt;%</span></span>
+<span id="cb22-15"><a href="#cb22-15"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(uid), <span class="sc">!</span><span class="fu">is.na</span>(a__uid),</span>
+<span id="cb22-16"><a href="#cb22-16"></a>           uid <span class="sc">%in%</span> nodes_vec, a__uid <span class="sc">%in%</span> nodes_vec,</span>
+<span id="cb22-17"><a href="#cb22-17"></a>           uid <span class="sc">!=</span> a__uid)</span>
+<span id="cb22-18"><a href="#cb22-18"></a></span>
+<span id="cb22-19"><a href="#cb22-19"></a>  <span class="co"># --- 2) Aggregate parallel edges (counts -&gt; weights if weighted)</span></span>
+<span id="cb22-20"><a href="#cb22-20"></a>  Eagg <span class="ot">&lt;-</span> <span class="cf">if</span> (weighted) {</span>
+<span id="cb22-21"><a href="#cb22-21"></a>    Eclean <span class="sc">%&gt;%</span> <span class="fu">count</span>(uid, a__uid, <span class="at">name =</span> <span class="st">"weight"</span>)</span>
+<span id="cb22-22"><a href="#cb22-22"></a>  } <span class="cf">else</span> {</span>
+<span id="cb22-23"><a href="#cb22-23"></a>    Eclean <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(uid, a__uid) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">weight =</span> <span class="dv">1</span>L)</span>
+<span id="cb22-24"><a href="#cb22-24"></a>  }</span>
+<span id="cb22-25"><a href="#cb22-25"></a></span>
+<span id="cb22-26"><a href="#cb22-26"></a>  <span class="co"># --- 3) Build graph (vertex order = nodes_vec)</span></span>
+<span id="cb22-27"><a href="#cb22-27"></a>  g <span class="ot">&lt;-</span> <span class="fu">graph_from_data_frame</span>(Eagg, <span class="at">directed =</span> directed,</span>
+<span id="cb22-28"><a href="#cb22-28"></a>                             <span class="at">vertices =</span> <span class="fu">tibble</span>(<span class="at">name =</span> nodes_vec))</span>
+<span id="cb22-29"><a href="#cb22-29"></a></span>
+<span id="cb22-30"><a href="#cb22-30"></a>  <span class="co"># --- 4) Optionally drop isolates (no edges to others)</span></span>
+<span id="cb22-31"><a href="#cb22-31"></a>  <span class="cf">if</span> (exclude_isolates) {</span>
+<span id="cb22-32"><a href="#cb22-32"></a>    keep_vids <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="cf">if</span> (directed) <span class="st">"all"</span> <span class="cf">else</span> <span class="st">"total"</span>) <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb22-33"><a href="#cb22-33"></a>    g <span class="ot">&lt;-</span> <span class="fu">induced_subgraph</span>(g, <span class="at">vids =</span> keep_vids)</span>
+<span id="cb22-34"><a href="#cb22-34"></a>  }</span>
+<span id="cb22-35"><a href="#cb22-35"></a></span>
+<span id="cb22-36"><a href="#cb22-36"></a>  <span class="co"># refresh node vector in case isolates were dropped</span></span>
+<span id="cb22-37"><a href="#cb22-37"></a>  nodes_vec_keep <span class="ot">&lt;-</span> <span class="fu">V</span>(g)<span class="sc">$</span>name</span>
+<span id="cb22-38"><a href="#cb22-38"></a>  n <span class="ot">&lt;-</span> <span class="fu">length</span>(nodes_vec_keep)</span>
+<span id="cb22-39"><a href="#cb22-39"></a></span>
+<span id="cb22-40"><a href="#cb22-40"></a>  <span class="co"># --- 5) Adjacency (sparse)</span></span>
+<span id="cb22-41"><a href="#cb22-41"></a>  A <span class="ot">&lt;-</span> <span class="fu">as_adjacency_matrix</span>(</span>
+<span id="cb22-42"><a href="#cb22-42"></a>    g,</span>
+<span id="cb22-43"><a href="#cb22-43"></a>    <span class="at">attr   =</span> <span class="cf">if</span> (weighted) <span class="st">"weight"</span> <span class="cf">else</span> <span class="cn">NULL</span>,</span>
+<span id="cb22-44"><a href="#cb22-44"></a>    <span class="at">sparse =</span> <span class="cn">TRUE</span></span>
+<span id="cb22-45"><a href="#cb22-45"></a>  )</span>
+<span id="cb22-46"><a href="#cb22-46"></a>  <span class="cf">if</span> (<span class="sc">!</span>directed) A <span class="ot">&lt;-</span> <span class="fu">forceSymmetric</span>(A, <span class="at">uplo =</span> <span class="st">"U"</span>)</span>
+<span id="cb22-47"><a href="#cb22-47"></a></span>
+<span id="cb22-48"><a href="#cb22-48"></a>  <span class="co"># --- 6) Node × Edge incidence (sparse)</span></span>
+<span id="cb22-49"><a href="#cb22-49"></a>  el <span class="ot">&lt;-</span> <span class="fu">as_data_frame</span>(g, <span class="at">what =</span> <span class="st">"edges"</span>)</span>
+<span id="cb22-50"><a href="#cb22-50"></a>  m  <span class="ot">&lt;-</span> <span class="fu">nrow</span>(el)</span>
+<span id="cb22-51"><a href="#cb22-51"></a></span>
+<span id="cb22-52"><a href="#cb22-52"></a>  <span class="cf">if</span> (m <span class="sc">==</span> <span class="dv">0</span>L) {</span>
+<span id="cb22-53"><a href="#cb22-53"></a>    B <span class="ot">&lt;-</span> <span class="fu">sparseMatrix</span>(<span class="at">i =</span> <span class="fu">integer</span>(), <span class="at">j =</span> <span class="fu">integer</span>(), <span class="at">x =</span> <span class="fu">numeric</span>(),</span>
+<span id="cb22-54"><a href="#cb22-54"></a>                      <span class="at">dims =</span> <span class="fu">c</span>(n, <span class="dv">0</span>), <span class="at">dimnames =</span> <span class="fu">list</span>(nodes_vec_keep, <span class="fu">character</span>()))</span>
+<span id="cb22-55"><a href="#cb22-55"></a>    edge_weight <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="dv">0</span>)</span>
+<span id="cb22-56"><a href="#cb22-56"></a>  } <span class="cf">else</span> {</span>
+<span id="cb22-57"><a href="#cb22-57"></a>    tail_idx <span class="ot">&lt;-</span> <span class="fu">match</span>(el<span class="sc">$</span>from, nodes_vec_keep)</span>
+<span id="cb22-58"><a href="#cb22-58"></a>    head_idx <span class="ot">&lt;-</span> <span class="fu">match</span>(el<span class="sc">$</span>to,   nodes_vec_keep)</span>
+<span id="cb22-59"><a href="#cb22-59"></a></span>
+<span id="cb22-60"><a href="#cb22-60"></a>    row_idx <span class="ot">&lt;-</span> <span class="fu">c</span>(tail_idx, head_idx)</span>
+<span id="cb22-61"><a href="#cb22-61"></a>    col_idx <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">seq_len</span>(m), <span class="at">each =</span> <span class="dv">2</span>L)</span>
+<span id="cb22-62"><a href="#cb22-62"></a></span>
+<span id="cb22-63"><a href="#cb22-63"></a>    vals <span class="ot">&lt;-</span> <span class="cf">if</span> (directed <span class="sc">&amp;&amp;</span> sign_incidence) <span class="fu">c</span>(<span class="fu">rep</span>(<span class="sc">-</span><span class="dv">1</span>, m), <span class="fu">rep</span>(<span class="sc">+</span><span class="dv">1</span>, m)) <span class="cf">else</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">2</span>L <span class="sc">*</span> m)</span>
+<span id="cb22-64"><a href="#cb22-64"></a></span>
+<span id="cb22-65"><a href="#cb22-65"></a>    B <span class="ot">&lt;-</span> <span class="fu">sparseMatrix</span>(</span>
+<span id="cb22-66"><a href="#cb22-66"></a>      <span class="at">i =</span> row_idx, <span class="at">j =</span> col_idx, <span class="at">x =</span> vals,</span>
+<span id="cb22-67"><a href="#cb22-67"></a>      <span class="at">dims =</span> <span class="fu">c</span>(n, m),</span>
+<span id="cb22-68"><a href="#cb22-68"></a>      <span class="at">dimnames =</span> <span class="fu">list</span>(nodes_vec_keep, <span class="fu">paste0</span>(<span class="st">"e"</span>, <span class="fu">seq_len</span>(m)))</span>
+<span id="cb22-69"><a href="#cb22-69"></a>    )</span>
+<span id="cb22-70"><a href="#cb22-70"></a>    edge_weight <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="st">"weight"</span> <span class="sc">%in%</span> <span class="fu">names</span>(el)) el<span class="sc">$</span>weight <span class="cf">else</span> <span class="fu">rep</span>(<span class="dv">1</span>, m)</span>
+<span id="cb22-71"><a href="#cb22-71"></a>  }</span>
+<span id="cb22-72"><a href="#cb22-72"></a></span>
+<span id="cb22-73"><a href="#cb22-73"></a>  <span class="co"># --- 7) Ego × Alter rectangular counts (uid rows × a__uid cols), restricted to kept nodes</span></span>
+<span id="cb22-74"><a href="#cb22-74"></a>  Eclean_keep <span class="ot">&lt;-</span> Eclean <span class="sc">%&gt;%</span></span>
+<span id="cb22-75"><a href="#cb22-75"></a>    <span class="fu">filter</span>(uid <span class="sc">%in%</span> nodes_vec_keep, a__uid <span class="sc">%in%</span> nodes_vec_keep)</span>
+<span id="cb22-76"><a href="#cb22-76"></a></span>
+<span id="cb22-77"><a href="#cb22-77"></a>  <span class="cf">if</span> (<span class="fu">nrow</span>(Eclean_keep) <span class="sc">==</span> <span class="dv">0</span>L) {</span>
+<span id="cb22-78"><a href="#cb22-78"></a>    EgoAlter <span class="ot">&lt;-</span> <span class="fu">Matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> n, <span class="at">ncol =</span> n,</span>
+<span id="cb22-79"><a href="#cb22-79"></a>                       <span class="at">dimnames =</span> <span class="fu">list</span>(nodes_vec_keep, nodes_vec_keep), <span class="at">sparse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-80"><a href="#cb22-80"></a>  } <span class="cf">else</span> {</span>
+<span id="cb22-81"><a href="#cb22-81"></a>    tbl <span class="ot">&lt;-</span> <span class="fu">xtabs</span>(<span class="sc">~</span> uid <span class="sc">+</span> a__uid, Eclean_keep)</span>
+<span id="cb22-82"><a href="#cb22-82"></a>    <span class="co"># ensure full square ordering over nodes_vec_keep</span></span>
+<span id="cb22-83"><a href="#cb22-83"></a>    EgoAlter <span class="ot">&lt;-</span> <span class="fu">Matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> n, <span class="at">ncol =</span> n,</span>
+<span id="cb22-84"><a href="#cb22-84"></a>                       <span class="at">dimnames =</span> <span class="fu">list</span>(nodes_vec_keep, nodes_vec_keep), <span class="at">sparse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-85"><a href="#cb22-85"></a>    EgoAlter[<span class="fu">rownames</span>(tbl), <span class="fu">colnames</span>(tbl)] <span class="ot">&lt;-</span> <span class="fu">Matrix</span>(tbl, <span class="at">sparse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-86"><a href="#cb22-86"></a>  }</span>
+<span id="cb22-87"><a href="#cb22-87"></a></span>
+<span id="cb22-88"><a href="#cb22-88"></a>  <span class="co"># --- 8) Slice D to non-isolates and return as D</span></span>
+<span id="cb22-89"><a href="#cb22-89"></a>  D_out <span class="ot">&lt;-</span> D <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">as.character</span>(uid) <span class="sc">%in%</span> nodes_vec_keep)</span>
+<span id="cb22-90"><a href="#cb22-90"></a></span>
+<span id="cb22-91"><a href="#cb22-91"></a>  <span class="fu">list</span>(</span>
+<span id="cb22-92"><a href="#cb22-92"></a>    <span class="at">graph        =</span> g,</span>
+<span id="cb22-93"><a href="#cb22-93"></a>    <span class="at">A            =</span> A,            <span class="co"># adjacency (n × n)</span></span>
+<span id="cb22-94"><a href="#cb22-94"></a>    <span class="at">B            =</span> B,            <span class="co"># node–edge incidence (n × m)</span></span>
+<span id="cb22-95"><a href="#cb22-95"></a>    <span class="at">D            =</span> D_out,        <span class="co"># nodes tibble, non-isolates only (if exclude_isolates=TRUE)</span></span>
+<span id="cb22-96"><a href="#cb22-96"></a>    <span class="at">edge_weight  =</span> edge_weight,  <span class="co"># weights aligned to B's columns</span></span>
+<span id="cb22-97"><a href="#cb22-97"></a>    <span class="at">EgoAlter     =</span> EgoAlter      <span class="co"># uid × a__uid counts among kept nodes</span></span>
+<span id="cb22-98"><a href="#cb22-98"></a>  )</span>
+<span id="cb22-99"><a href="#cb22-99"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>res <span class="ot">&lt;-</span> <span class="fu">build_matrices</span>(dems, edge, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">weighted =</span> <span class="cn">TRUE</span>, <span class="at">sign_incidence =</span> <span class="cn">TRUE</span>, <span class="at">exclude_isolates =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-2"><a href="#cb23-2"></a></span>
+<span id="cb23-3"><a href="#cb23-3"></a>A <span class="ot">&lt;-</span> res<span class="sc">$</span>A          <span class="co"># adjacency (sparse Matrix)</span></span>
+<span id="cb23-4"><a href="#cb23-4"></a>B <span class="ot">&lt;-</span> res<span class="sc">$</span>B          <span class="co"># incidence (sparse Matrix)</span></span>
+<span id="cb23-5"><a href="#cb23-5"></a>w <span class="ot">&lt;-</span> res<span class="sc">$</span>edge_weight</span>
+<span id="cb23-6"><a href="#cb23-6"></a>GA <span class="ot">&lt;-</span> res<span class="sc">$</span>graph</span>
+<span id="cb23-7"><a href="#cb23-7"></a>EA <span class="ot">&lt;-</span> res<span class="sc">$</span>EgoAlter  <span class="co"># uid × a__uid rectangular matrix</span></span>
+<span id="cb23-8"><a href="#cb23-8"></a></span>
+<span id="cb23-9"><a href="#cb23-9"></a><span class="co"># Example: verify dimensions/names</span></span>
+<span id="cb23-10"><a href="#cb23-10"></a><span class="fu">dim</span>(A); <span class="fu">dim</span>(B); <span class="fu">head</span>(<span class="fu">rownames</span>(A)); <span class="fu">head</span>(<span class="fu">colnames</span>(B))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 589 589</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  589 2176</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2h5Y5XM6fr" "31YWpPTcf5" "HMtVtlDrOm" "4CHOlu6p4z" "mzHx3nOJap"
+[6] "5ViQZnCRf8"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "e1" "e2" "e3" "e4" "e5" "e6"</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="fu">library</span>(igraph)</span>
+<span id="cb28-2"><a href="#cb28-2"></a><span class="fu">library</span>(ggraph)</span>
+<span id="cb28-3"><a href="#cb28-3"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb28-4"><a href="#cb28-4"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb28-5"><a href="#cb28-5"></a><span class="fu">library</span>(scales)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'scales'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:purrr':
+
+    discard</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:readr':
+
+    col_factor</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="co"># ---------------------------------------------------------------</span></span>
+<span id="cb32-2"><a href="#cb32-2"></a><span class="co"># 0) Helper: attach node attributes from D by uid</span></span>
+<span id="cb32-3"><a href="#cb32-3"></a><span class="co"># ---------------------------------------------------------------</span></span>
+<span id="cb32-4"><a href="#cb32-4"></a>attach_node_attrs <span class="ot">&lt;-</span> <span class="cf">function</span>(g, D, <span class="at">id_col =</span> <span class="st">"uid"</span>) {</span>
+<span id="cb32-5"><a href="#cb32-5"></a>  <span class="co"># ensure character ids</span></span>
+<span id="cb32-6"><a href="#cb32-6"></a>  D <span class="ot">&lt;-</span> D <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="sc">!!</span><span class="at">id_col :=</span> <span class="fu">as.character</span>(.data[[id_col]]))</span>
+<span id="cb32-7"><a href="#cb32-7"></a>  <span class="fu">V</span>(g)<span class="sc">$</span>name <span class="ot">&lt;-</span> <span class="fu">as.character</span>(<span class="fu">V</span>(g)<span class="sc">$</span>name)</span>
+<span id="cb32-8"><a href="#cb32-8"></a></span>
+<span id="cb32-9"><a href="#cb32-9"></a>  <span class="co"># align D to vertex order</span></span>
+<span id="cb32-10"><a href="#cb32-10"></a>  idx  <span class="ot">&lt;-</span> <span class="fu">match</span>(<span class="fu">V</span>(g)<span class="sc">$</span>name, D[[id_col]])</span>
+<span id="cb32-11"><a href="#cb32-11"></a>  keep <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">is.na</span>(idx)</span>
+<span id="cb32-12"><a href="#cb32-12"></a></span>
+<span id="cb32-13"><a href="#cb32-13"></a>  <span class="co"># add every column in D (except id) as a vertex attribute</span></span>
+<span id="cb32-14"><a href="#cb32-14"></a>  <span class="cf">for</span> (col <span class="cf">in</span> <span class="fu">setdiff</span>(<span class="fu">names</span>(D), id_col)) {</span>
+<span id="cb32-15"><a href="#cb32-15"></a>    vals <span class="ot">&lt;-</span> D[[col]][idx[keep]]</span>
+<span id="cb32-16"><a href="#cb32-16"></a></span>
+<span id="cb32-17"><a href="#cb32-17"></a>    <span class="co"># coerce to simple atomic vectors (no tibbles/lists)</span></span>
+<span id="cb32-18"><a href="#cb32-18"></a>    <span class="cf">if</span> (<span class="fu">is.factor</span>(vals)) vals <span class="ot">&lt;-</span> <span class="fu">as.character</span>(vals)</span>
+<span id="cb32-19"><a href="#cb32-19"></a>    <span class="cf">if</span> (<span class="fu">is.list</span>(vals)) {</span>
+<span id="cb32-20"><a href="#cb32-20"></a>      vals <span class="ot">&lt;-</span> <span class="fu">vapply</span>(vals, <span class="cf">function</span>(z)</span>
+<span id="cb32-21"><a href="#cb32-21"></a>        <span class="cf">if</span> (<span class="fu">length</span>(z) <span class="sc">==</span> <span class="dv">0</span>) <span class="cn">NA_character_</span></span>
+<span id="cb32-22"><a href="#cb32-22"></a>        <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">length</span>(z) <span class="sc">==</span> <span class="dv">1</span>) <span class="fu">as.character</span>(z)</span>
+<span id="cb32-23"><a href="#cb32-23"></a>        <span class="cf">else</span> <span class="fu">paste</span>(z, <span class="at">collapse =</span> <span class="st">"; "</span>), <span class="fu">character</span>(<span class="dv">1</span>))</span>
+<span id="cb32-24"><a href="#cb32-24"></a>    }</span>
+<span id="cb32-25"><a href="#cb32-25"></a></span>
+<span id="cb32-26"><a href="#cb32-26"></a>    g <span class="ot">&lt;-</span> <span class="fu">set_vertex_attr</span>(g, <span class="at">name =</span> col, <span class="at">index =</span> <span class="fu">which</span>(keep), <span class="at">value =</span> vals)</span>
+<span id="cb32-27"><a href="#cb32-27"></a>  }</span>
+<span id="cb32-28"><a href="#cb32-28"></a>  g</span>
+<span id="cb32-29"><a href="#cb32-29"></a>}</span>
+<span id="cb32-30"><a href="#cb32-30"></a><span class="co"># ---------------------------------------------------------------</span></span>
+<span id="cb32-31"><a href="#cb32-31"></a><span class="co"># 1) One-mode plot from adjacency or existing GA</span></span>
+<span id="cb32-32"><a href="#cb32-32"></a><span class="co">#    - sizes = strength (weighted degree)</span></span>
+<span id="cb32-33"><a href="#cb32-33"></a><span class="co">#    - colors = gender; shapes = position; facets possible by university</span></span>
+<span id="cb32-34"><a href="#cb32-34"></a><span class="co"># ---------------------------------------------------------------</span></span>
+<span id="cb32-35"><a href="#cb32-35"></a>plot_from_adjacency <span class="ot">&lt;-</span> <span class="cf">function</span>(g, <span class="at">title =</span> <span class="st">"Network (one-mode)"</span>, <span class="at">directed =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb32-36"><a href="#cb32-36"></a>  <span class="co"># compute basic metrics for aesthetics</span></span>
+<span id="cb32-37"><a href="#cb32-37"></a>  <span class="fu">V</span>(g)<span class="sc">$</span>strength  <span class="ot">&lt;-</span> <span class="fu">graph.strength</span>(g, <span class="at">weights =</span> <span class="fu">E</span>(g)<span class="sc">$</span>weight <span class="sc">%||%</span> <span class="cn">NULL</span>) </span>
+<span id="cb32-38"><a href="#cb32-38"></a>  <span class="fu">V</span>(g)<span class="sc">$</span>degree    <span class="ot">&lt;-</span> <span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="cf">if</span> (directed) <span class="st">"all"</span> <span class="cf">else</span> <span class="st">"total"</span>)</span>
+<span id="cb32-39"><a href="#cb32-39"></a>  <span class="fu">E</span>(g)<span class="sc">$</span>ewidth    <span class="ot">&lt;-</span> <span class="fu">rescale</span>(<span class="fu">E</span>(g)<span class="sc">$</span>weight <span class="sc">%||%</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">gsize</span>(g)), <span class="at">to =</span> <span class="fu">c</span>(<span class="fl">0.2</span>, <span class="fl">1.8</span>))</span>
+<span id="cb32-40"><a href="#cb32-40"></a></span>
+<span id="cb32-41"><a href="#cb32-41"></a>  <span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb32-42"><a href="#cb32-42"></a>  <span class="fu">ggraph</span>(g, <span class="at">layout =</span> <span class="st">"fr"</span>) <span class="sc">+</span></span>
+<span id="cb32-43"><a href="#cb32-43"></a>    <span class="fu">geom_edge_link</span>(<span class="fu">aes</span>(<span class="at">width =</span> ewidth),</span>
+<span id="cb32-44"><a href="#cb32-44"></a>                   <span class="at">edge_alpha =</span> <span class="fl">0.25</span>,</span>
+<span id="cb32-45"><a href="#cb32-45"></a>                   <span class="at">colour =</span> <span class="st">"grey40"</span>,</span>
+<span id="cb32-46"><a href="#cb32-46"></a>                   <span class="at">lineend =</span> <span class="st">"round"</span>,</span>
+<span id="cb32-47"><a href="#cb32-47"></a>                   <span class="at">arrow =</span> <span class="cf">if</span> (directed) <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">"mm"</span>)) <span class="cf">else</span> <span class="cn">NULL</span>,</span>
+<span id="cb32-48"><a href="#cb32-48"></a>                   <span class="at">end_cap =</span> <span class="cf">if</span> (directed) <span class="fu">circle</span>(<span class="dv">2</span>, <span class="st">"mm"</span>) <span class="cf">else</span> <span class="fu">square</span>(<span class="fl">0.5</span>, <span class="st">"mm"</span>)) <span class="sc">+</span></span>
+<span id="cb32-49"><a href="#cb32-49"></a>    <span class="fu">geom_node_point</span>(<span class="fu">aes</span>(<span class="at">size =</span> degree, <span class="at">color =</span> university, <span class="at">shape =</span> gender),</span>
+<span id="cb32-50"><a href="#cb32-50"></a>                    <span class="at">alpha =</span> <span class="fl">0.9</span>, <span class="at">stroke =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb32-51"><a href="#cb32-51"></a>    <span class="fu">scale_size_continuous</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">9</span>), <span class="at">breaks =</span> <span class="fu">pretty_breaks</span>(<span class="dv">4</span>)) <span class="sc">+</span></span>
+<span id="cb32-52"><a href="#cb32-52"></a>    <span class="fu">scale_edge_width</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="fl">0.2</span>, <span class="fl">1.8</span>), <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb32-53"><a href="#cb32-53"></a>    <span class="fu">guides</span>(<span class="at">color =</span> <span class="fu">guide_legend</span>(<span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">5</span>)),</span>
+<span id="cb32-54"><a href="#cb32-54"></a>           <span class="at">shape =</span> <span class="fu">guide_legend</span>(<span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">5</span>))) <span class="sc">+</span></span>
+<span id="cb32-55"><a href="#cb32-55"></a>    <span class="fu">theme_graph</span>(<span class="at">base_family =</span> <span class="st">"sans"</span>) <span class="sc">+</span></span>
+<span id="cb32-56"><a href="#cb32-56"></a>    <span class="fu">labs</span>(<span class="at">title =</span> title, <span class="at">size =</span> <span class="st">"Strength"</span>, <span class="at">shape =</span> <span class="st">"Gender"</span>, <span class="at">color =</span> <span class="st">"Position"</span>)</span>
+<span id="cb32-57"><a href="#cb32-57"></a>}</span>
+<span id="cb32-58"><a href="#cb32-58"></a></span>
+<span id="cb32-59"><a href="#cb32-59"></a></span>
+<span id="cb32-60"><a href="#cb32-60"></a>gA <span class="ot">&lt;-</span> <span class="fu">graph_from_adjacency_matrix</span>(A, <span class="at">mode =</span> <span class="st">"undirected"</span>, <span class="at">weighted =</span> <span class="cn">TRUE</span>, <span class="at">diag =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-61"><a href="#cb32-61"></a>gA <span class="ot">&lt;-</span> <span class="fu">attach_node_attrs</span>(GA, dems, <span class="at">id_col =</span> <span class="st">"uid"</span>)</span>
+<span id="cb32-62"><a href="#cb32-62"></a><span class="fu">plot_from_adjacency</span>((gA))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `graph.strength()` was deprecated in igraph 2.0.0.
+ℹ Please use `strength()` instead.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="09.descriptive_analysis_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="co"># deps</span></span>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="fu">library</span>(igraph)</span>
+<span id="cb34-3"><a href="#cb34-3"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb34-4"><a href="#cb34-4"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb34-5"><a href="#cb34-5"></a></span>
+<span id="cb34-6"><a href="#cb34-6"></a><span class="co"># ---------- helpers (unchanged) ----------</span></span>
+<span id="cb34-7"><a href="#cb34-7"></a>.harmonic_closeness <span class="ot">&lt;-</span> <span class="cf">function</span>(g, <span class="at">weights =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb34-8"><a href="#cb34-8"></a>  D <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">distances</span>(g, <span class="at">weights =</span> weights))</span>
+<span id="cb34-9"><a href="#cb34-9"></a>  <span class="fu">diag</span>(D) <span class="ot">&lt;-</span> <span class="cn">Inf</span></span>
+<span id="cb34-10"><a href="#cb34-10"></a>  (<span class="fu">rowSums</span>(<span class="dv">1</span> <span class="sc">/</span> D, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">/</span> (<span class="fu">vcount</span>(g) <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb34-11"><a href="#cb34-11"></a>}</span>
+<span id="cb34-12"><a href="#cb34-12"></a>.same_attribute_share <span class="ot">&lt;-</span> <span class="cf">function</span>(g, attr_vec) {</span>
+<span id="cb34-13"><a href="#cb34-13"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(attr_vec)) <span class="fu">return</span>(<span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g)))</span>
+<span id="cb34-14"><a href="#cb34-14"></a>  nbrs <span class="ot">&lt;-</span> <span class="fu">ego</span>(g, <span class="at">order =</span> <span class="dv">1</span>, <span class="at">nodes =</span> <span class="fu">V</span>(g), <span class="at">mode =</span> <span class="st">"all"</span>)</span>
+<span id="cb34-15"><a href="#cb34-15"></a>  <span class="fu">sapply</span>(<span class="fu">seq_along</span>(nbrs), <span class="cf">function</span>(i) {</span>
+<span id="cb34-16"><a href="#cb34-16"></a>    neigh <span class="ot">&lt;-</span> nbrs[[i]]</span>
+<span id="cb34-17"><a href="#cb34-17"></a>    <span class="cf">if</span> (<span class="fu">length</span>(neigh) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NA_real_</span>)</span>
+<span id="cb34-18"><a href="#cb34-18"></a>    <span class="fu">mean</span>(attr_vec[neigh] <span class="sc">==</span> attr_vec[i])</span>
+<span id="cb34-19"><a href="#cb34-19"></a>  })</span>
+<span id="cb34-20"><a href="#cb34-20"></a>}</span>
+<span id="cb34-21"><a href="#cb34-21"></a></span>
+<span id="cb34-22"><a href="#cb34-22"></a><span class="co"># ========================================================================</span></span>
+<span id="cb34-23"><a href="#cb34-23"></a><span class="co"># A) From res$A / res$graph / res$D  (one-mode adjacency)</span></span>
+<span id="cb34-24"><a href="#cb34-24"></a><span class="co"># ========================================================================</span></span>
+<span id="cb34-25"><a href="#cb34-25"></a>compute_node_stats_from_res_adjacency <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb34-26"><a href="#cb34-26"></a>  res,</span>
+<span id="cb34-27"><a href="#cb34-27"></a>  <span class="at">node_id_col =</span> <span class="st">"uid"</span>,</span>
+<span id="cb34-28"><a href="#cb34-28"></a>  <span class="at">use_weights =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb34-29"><a href="#cb34-29"></a>  <span class="at">invert_weights_for_paths =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb34-30"><a href="#cb34-30"></a>  <span class="at">attr_col =</span> <span class="cn">NULL</span></span>
+<span id="cb34-31"><a href="#cb34-31"></a>){</span>
+<span id="cb34-32"><a href="#cb34-32"></a>  <span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"graph"</span>,<span class="st">"D"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(res)))</span>
+<span id="cb34-33"><a href="#cb34-33"></a>  A     <span class="ot">&lt;-</span> res<span class="sc">$</span>A</span>
+<span id="cb34-34"><a href="#cb34-34"></a>  nodes <span class="ot">&lt;-</span> res<span class="sc">$</span>D</span>
+<span id="cb34-35"><a href="#cb34-35"></a>  mode  <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">is_directed</span>(res<span class="sc">$</span>graph)) <span class="st">"directed"</span> <span class="cf">else</span> <span class="st">"undirected"</span></span>
+<span id="cb34-36"><a href="#cb34-36"></a></span>
+<span id="cb34-37"><a href="#cb34-37"></a>  g <span class="ot">&lt;-</span> <span class="fu">graph_from_adjacency_matrix</span>(</span>
+<span id="cb34-38"><a href="#cb34-38"></a>    A,</span>
+<span id="cb34-39"><a href="#cb34-39"></a>    <span class="at">mode     =</span> mode,</span>
+<span id="cb34-40"><a href="#cb34-40"></a>    <span class="at">weighted =</span> use_weights,</span>
+<span id="cb34-41"><a href="#cb34-41"></a>    <span class="at">diag     =</span> <span class="cn">FALSE</span></span>
+<span id="cb34-42"><a href="#cb34-42"></a>  )</span>
+<span id="cb34-43"><a href="#cb34-43"></a>  <span class="fu">V</span>(g)<span class="sc">$</span>name <span class="ot">&lt;-</span> <span class="fu">rownames</span>(A)</span>
+<span id="cb34-44"><a href="#cb34-44"></a></span>
+<span id="cb34-45"><a href="#cb34-45"></a>  w_strength <span class="ot">&lt;-</span> <span class="cf">if</span> (use_weights <span class="sc">&amp;&amp;</span> <span class="st">"weight"</span> <span class="sc">%in%</span> <span class="fu">edge_attr_names</span>(g)) <span class="fu">E</span>(g)<span class="sc">$</span>weight <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb34-46"><a href="#cb34-46"></a>  w_dist <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(w_strength) <span class="sc">&amp;&amp;</span> invert_weights_for_paths) {</span>
+<span id="cb34-47"><a href="#cb34-47"></a>    <span class="cf">if</span> (<span class="fu">any</span>(w_strength <span class="sc">&lt;=</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="cn">NULL</span> <span class="cf">else</span> <span class="dv">1</span> <span class="sc">/</span> w_strength</span>
+<span id="cb34-48"><a href="#cb34-48"></a>  } <span class="cf">else</span> w_strength</span>
+<span id="cb34-49"><a href="#cb34-49"></a></span>
+<span id="cb34-50"><a href="#cb34-50"></a>  gu <span class="ot">&lt;-</span> <span class="fu">simplify</span>(<span class="fu">as_undirected</span>(g, <span class="at">mode =</span> <span class="st">"collapse"</span>, <span class="at">edge.attr.comb =</span> <span class="st">"sum"</span>),</span>
+<span id="cb34-51"><a href="#cb34-51"></a>                 <span class="at">remove.multiple =</span> <span class="cn">TRUE</span>, <span class="at">remove.loops =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb34-52"><a href="#cb34-52"></a></span>
+<span id="cb34-53"><a href="#cb34-53"></a>  deg_all <span class="ot">&lt;-</span> <span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="st">"all"</span>)</span>
+<span id="cb34-54"><a href="#cb34-54"></a>  str_all <span class="ot">&lt;-</span> <span class="fu">graph.strength</span>(g, <span class="at">mode =</span> <span class="st">"all"</span>, <span class="at">weights =</span> w_strength)</span>
+<span id="cb34-55"><a href="#cb34-55"></a>  deg_in  <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="st">"in"</span>)  <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb34-56"><a href="#cb34-56"></a>  deg_out <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="st">"out"</span>) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb34-57"><a href="#cb34-57"></a>  str_in  <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">graph.strength</span>(g, <span class="at">mode =</span> <span class="st">"in"</span>,  <span class="at">weights =</span> w_strength) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb34-58"><a href="#cb34-58"></a>  str_out <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">graph.strength</span>(g, <span class="at">mode =</span> <span class="st">"out"</span>, <span class="at">weights =</span> w_strength) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb34-59"><a href="#cb34-59"></a></span>
+<span id="cb34-60"><a href="#cb34-60"></a>  btw <span class="ot">&lt;-</span> <span class="fu">betweenness</span>(g, <span class="at">directed =</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>), <span class="at">weights =</span> w_dist, <span class="at">normalized =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb34-61"><a href="#cb34-61"></a>  clo_harm <span class="ot">&lt;-</span> <span class="fu">.harmonic_closeness</span>(g, <span class="at">weights =</span> w_dist)</span>
+<span id="cb34-62"><a href="#cb34-62"></a></span>
+<span id="cb34-63"><a href="#cb34-63"></a>  eig  <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">eigen_centrality</span>(g, <span class="at">directed =</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>), <span class="at">weights =</span> w_strength)<span class="sc">$</span>vector,</span>
+<span id="cb34-64"><a href="#cb34-64"></a>                   <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g)))</span>
+<span id="cb34-65"><a href="#cb34-65"></a>  pr   <span class="ot">&lt;-</span> <span class="fu">page_rank</span>(g, <span class="at">directed =</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>), <span class="at">weights =</span> w_strength)<span class="sc">$</span>vector</span>
+<span id="cb34-66"><a href="#cb34-66"></a>  hubs <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">hub_score</span>(g, <span class="at">weights =</span> w_strength)<span class="sc">$</span>vector <span class="cf">else</span> <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g))</span>
+<span id="cb34-67"><a href="#cb34-67"></a>  auth <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">authority_score</span>(g, <span class="at">weights =</span> w_strength)<span class="sc">$</span>vector <span class="cf">else</span> <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g))</span>
+<span id="cb34-68"><a href="#cb34-68"></a></span>
+<span id="cb34-69"><a href="#cb34-69"></a>  clustering_local <span class="ot">&lt;-</span> <span class="fu">transitivity</span>(gu, <span class="at">type =</span> <span class="st">"local"</span>, <span class="at">isolates =</span> <span class="st">"zero"</span>)</span>
+<span id="cb34-70"><a href="#cb34-70"></a>  triangles_cnt    <span class="ot">&lt;-</span> <span class="fu">count_triangles</span>(gu, <span class="at">vids =</span> <span class="fu">V</span>(gu))</span>
+<span id="cb34-71"><a href="#cb34-71"></a>  coreness_k       <span class="ot">&lt;-</span> <span class="fu">coreness</span>(gu, <span class="at">mode =</span> <span class="st">"all"</span>)</span>
+<span id="cb34-72"><a href="#cb34-72"></a>  constraint_burt  <span class="ot">&lt;-</span> <span class="fu">constraint</span>(g, <span class="at">weights =</span> w_strength)</span>
+<span id="cb34-73"><a href="#cb34-73"></a>  knn_vec          <span class="ot">&lt;-</span> <span class="fu">knn</span>(gu)<span class="sc">$</span>knn</span>
+<span id="cb34-74"><a href="#cb34-74"></a>  ecc <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">tryCatch</span>(<span class="fu">eccentricity</span>(g, <span class="at">weights =</span> w_dist),</span>
+<span id="cb34-75"><a href="#cb34-75"></a>                                   <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g))))</span>
+<span id="cb34-76"><a href="#cb34-76"></a>  comp <span class="ot">&lt;-</span> <span class="fu">components</span>(g)<span class="sc">$</span>membership</span>
+<span id="cb34-77"><a href="#cb34-77"></a>  comm_louvain <span class="ot">&lt;-</span> <span class="fu">membership</span>(<span class="fu">cluster_louvain</span>(gu, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight))</span>
+<span id="cb34-78"><a href="#cb34-78"></a></span>
+<span id="cb34-79"><a href="#cb34-79"></a>  same_attr_share <span class="ot">&lt;-</span> {</span>
+<span id="cb34-80"><a href="#cb34-80"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(attr_col) <span class="sc">||</span> <span class="sc">!</span>(attr_col <span class="sc">%in%</span> <span class="fu">names</span>(nodes))) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g)) <span class="cf">else</span> {</span>
+<span id="cb34-81"><a href="#cb34-81"></a>      attr_vec <span class="ot">&lt;-</span> nodes[[attr_col]][<span class="fu">match</span>(<span class="fu">V</span>(g)<span class="sc">$</span>name, nodes[[node_id_col]])]</span>
+<span id="cb34-82"><a href="#cb34-82"></a>      <span class="fu">.same_attribute_share</span>(gu, attr_vec)</span>
+<span id="cb34-83"><a href="#cb34-83"></a>    }</span>
+<span id="cb34-84"><a href="#cb34-84"></a>  }</span>
+<span id="cb34-85"><a href="#cb34-85"></a></span>
+<span id="cb34-86"><a href="#cb34-86"></a>  out <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb34-87"><a href="#cb34-87"></a>    <span class="sc">!!</span><span class="at">node_id_col :=</span> <span class="fu">V</span>(g)<span class="sc">$</span>name,</span>
+<span id="cb34-88"><a href="#cb34-88"></a>    <span class="at">degree        =</span> <span class="fu">as.numeric</span>(deg_all),</span>
+<span id="cb34-89"><a href="#cb34-89"></a>    <span class="at">strength      =</span> <span class="fu">as.numeric</span>(str_all),</span>
+<span id="cb34-90"><a href="#cb34-90"></a>    <span class="at">degree_in     =</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(deg_in))  <span class="fu">as.numeric</span>(deg_in)  <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb34-91"><a href="#cb34-91"></a>    <span class="at">degree_out    =</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(deg_out)) <span class="fu">as.numeric</span>(deg_out) <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb34-92"><a href="#cb34-92"></a>    <span class="at">strength_in   =</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(str_in))  <span class="fu">as.numeric</span>(str_in)  <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb34-93"><a href="#cb34-93"></a>    <span class="at">strength_out  =</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(str_out)) <span class="fu">as.numeric</span>(str_out) <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb34-94"><a href="#cb34-94"></a>    <span class="at">betweenness   =</span> <span class="fu">as.numeric</span>(btw),</span>
+<span id="cb34-95"><a href="#cb34-95"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">as.numeric</span>(clo_harm),</span>
+<span id="cb34-96"><a href="#cb34-96"></a>    <span class="at">eigenvector   =</span> <span class="fu">as.numeric</span>(eig),</span>
+<span id="cb34-97"><a href="#cb34-97"></a>    <span class="at">pagerank      =</span> <span class="fu">as.numeric</span>(pr),</span>
+<span id="cb34-98"><a href="#cb34-98"></a>    <span class="at">hubs          =</span> <span class="fu">as.numeric</span>(hubs),</span>
+<span id="cb34-99"><a href="#cb34-99"></a>    <span class="at">authorities   =</span> <span class="fu">as.numeric</span>(auth),</span>
+<span id="cb34-100"><a href="#cb34-100"></a>    <span class="at">clustering_local =</span> <span class="fu">as.numeric</span>(clustering_local),</span>
+<span id="cb34-101"><a href="#cb34-101"></a>    <span class="at">triangles     =</span> <span class="fu">as.numeric</span>(triangles_cnt),</span>
+<span id="cb34-102"><a href="#cb34-102"></a>    <span class="at">coreness_k    =</span> <span class="fu">as.numeric</span>(coreness_k),</span>
+<span id="cb34-103"><a href="#cb34-103"></a>    <span class="at">constraint_burt =</span> <span class="fu">as.numeric</span>(constraint_burt),</span>
+<span id="cb34-104"><a href="#cb34-104"></a>    <span class="at">avg_neighbor_degree =</span> <span class="fu">as.numeric</span>(knn_vec),</span>
+<span id="cb34-105"><a href="#cb34-105"></a>    <span class="at">eccentricity  =</span> <span class="fu">as.numeric</span>(ecc),</span>
+<span id="cb34-106"><a href="#cb34-106"></a>    <span class="at">component     =</span> <span class="fu">as.integer</span>(comp),</span>
+<span id="cb34-107"><a href="#cb34-107"></a>    <span class="at">community_louvain =</span> <span class="fu">as.integer</span>(comm_louvain),</span>
+<span id="cb34-108"><a href="#cb34-108"></a>    <span class="at">same_attr_share =</span> <span class="fu">as.numeric</span>(same_attr_share)</span>
+<span id="cb34-109"><a href="#cb34-109"></a>  )</span>
+<span id="cb34-110"><a href="#cb34-110"></a></span>
+<span id="cb34-111"><a href="#cb34-111"></a>  nodes <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(out, <span class="at">by =</span> <span class="fu">setNames</span>(node_id_col, node_id_col))</span>
+<span id="cb34-112"><a href="#cb34-112"></a>}</span>
+<span id="cb34-113"><a href="#cb34-113"></a></span>
+<span id="cb34-114"><a href="#cb34-114"></a><span class="co"># ========================================================================</span></span>
+<span id="cb34-115"><a href="#cb34-115"></a><span class="co"># B) From res$B / res$D  (two-mode incidence -&gt; one-mode projection)</span></span>
+<span id="cb34-116"><a href="#cb34-116"></a><span class="co">#     project = "rows" uses node rows (recommended here)</span></span>
+<span id="cb34-117"><a href="#cb34-117"></a><span class="co"># ========================================================================</span></span>
+<span id="cb34-118"><a href="#cb34-118"></a>compute_node_stats_from_res_incidence <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb34-119"><a href="#cb34-119"></a>  res,</span>
+<span id="cb34-120"><a href="#cb34-120"></a>  <span class="at">node_id_col =</span> <span class="st">"uid"</span>,</span>
+<span id="cb34-121"><a href="#cb34-121"></a>  <span class="at">project =</span> <span class="fu">c</span>(<span class="st">"rows"</span>,<span class="st">"cols"</span>),</span>
+<span id="cb34-122"><a href="#cb34-122"></a>  <span class="at">invert_weights_for_paths =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb34-123"><a href="#cb34-123"></a>  <span class="at">attr_col =</span> <span class="cn">NULL</span></span>
+<span id="cb34-124"><a href="#cb34-124"></a>){</span>
+<span id="cb34-125"><a href="#cb34-125"></a>  <span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"B"</span>,<span class="st">"D"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(res)))</span>
+<span id="cb34-126"><a href="#cb34-126"></a>  project <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(project)</span>
+<span id="cb34-127"><a href="#cb34-127"></a>  B     <span class="ot">&lt;-</span> res<span class="sc">$</span>B</span>
+<span id="cb34-128"><a href="#cb34-128"></a>  nodes <span class="ot">&lt;-</span> res<span class="sc">$</span>D</span>
+<span id="cb34-129"><a href="#cb34-129"></a></span>
+<span id="cb34-130"><a href="#cb34-130"></a>  g_bi <span class="ot">&lt;-</span> <span class="fu">graph_from_biadjacency_matrix</span>(B, <span class="at">weighted =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb34-131"><a href="#cb34-131"></a>  <span class="fu">V</span>(g_bi)<span class="sc">$</span>name <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rownames</span>(B), <span class="fu">colnames</span>(B))</span>
+<span id="cb34-132"><a href="#cb34-132"></a></span>
+<span id="cb34-133"><a href="#cb34-133"></a>  pr <span class="ot">&lt;-</span> <span class="fu">bipartite_projection</span>(g_bi, <span class="at">multiplicity =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb34-134"><a href="#cb34-134"></a>  g1 <span class="ot">&lt;-</span> <span class="cf">if</span> (project <span class="sc">==</span> <span class="st">"rows"</span>) pr<span class="sc">$</span>proj1 <span class="cf">else</span> pr<span class="sc">$</span>proj2</span>
+<span id="cb34-135"><a href="#cb34-135"></a></span>
+<span id="cb34-136"><a href="#cb34-136"></a>  gu <span class="ot">&lt;-</span> <span class="fu">simplify</span>(g1, <span class="at">remove.multiple =</span> <span class="cn">TRUE</span>, <span class="at">remove.loops =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb34-137"><a href="#cb34-137"></a>  w_strength <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="st">"weight"</span> <span class="sc">%in%</span> <span class="fu">edge_attr_names</span>(gu)) <span class="fu">E</span>(gu)<span class="sc">$</span>weight <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb34-138"><a href="#cb34-138"></a>  w_dist <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(w_strength) <span class="sc">&amp;&amp;</span> invert_weights_for_paths) {</span>
+<span id="cb34-139"><a href="#cb34-139"></a>    <span class="cf">if</span> (<span class="fu">any</span>(w_strength <span class="sc">&lt;=</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="cn">NULL</span> <span class="cf">else</span> <span class="dv">1</span> <span class="sc">/</span> w_strength</span>
+<span id="cb34-140"><a href="#cb34-140"></a>  } <span class="cf">else</span> w_strength</span>
+<span id="cb34-141"><a href="#cb34-141"></a></span>
+<span id="cb34-142"><a href="#cb34-142"></a>  deg   <span class="ot">&lt;-</span> <span class="fu">degree</span>(gu)</span>
+<span id="cb34-143"><a href="#cb34-143"></a>  stren <span class="ot">&lt;-</span> <span class="fu">graph.strength</span>(gu, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight)</span>
+<span id="cb34-144"><a href="#cb34-144"></a>  btw   <span class="ot">&lt;-</span> <span class="fu">betweenness</span>(gu, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">weights =</span> w_dist, <span class="at">normalized =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb34-145"><a href="#cb34-145"></a>  clo_h <span class="ot">&lt;-</span> <span class="fu">.harmonic_closeness</span>(gu, <span class="at">weights =</span> w_dist)</span>
+<span id="cb34-146"><a href="#cb34-146"></a>  eig   <span class="ot">&lt;-</span> <span class="fu">eigen_centrality</span>(gu, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight)<span class="sc">$</span>vector</span>
+<span id="cb34-147"><a href="#cb34-147"></a>  pr    <span class="ot">&lt;-</span> <span class="fu">page_rank</span>(gu, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight)<span class="sc">$</span>vector</span>
+<span id="cb34-148"><a href="#cb34-148"></a>  clust <span class="ot">&lt;-</span> <span class="fu">transitivity</span>(gu, <span class="at">type =</span> <span class="st">"local"</span>, <span class="at">isolates =</span> <span class="st">"zero"</span>)</span>
+<span id="cb34-149"><a href="#cb34-149"></a>  tri   <span class="ot">&lt;-</span> <span class="fu">count_triangles</span>(gu, <span class="at">vids =</span> <span class="fu">V</span>(gu))</span>
+<span id="cb34-150"><a href="#cb34-150"></a>  corek <span class="ot">&lt;-</span> <span class="fu">coreness</span>(gu)</span>
+<span id="cb34-151"><a href="#cb34-151"></a>  cons  <span class="ot">&lt;-</span> <span class="fu">constraint</span>(gu, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight)</span>
+<span id="cb34-152"><a href="#cb34-152"></a>  knn_v <span class="ot">&lt;-</span> <span class="fu">knn</span>(gu)<span class="sc">$</span>knn</span>
+<span id="cb34-153"><a href="#cb34-153"></a>  ecc   <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">tryCatch</span>(<span class="fu">eccentricity</span>(gu, <span class="at">weights =</span> w_dist),</span>
+<span id="cb34-154"><a href="#cb34-154"></a>                                     <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(gu))))</span>
+<span id="cb34-155"><a href="#cb34-155"></a>  comp  <span class="ot">&lt;-</span> <span class="fu">components</span>(gu)<span class="sc">$</span>membership</span>
+<span id="cb34-156"><a href="#cb34-156"></a>  comm  <span class="ot">&lt;-</span> <span class="fu">membership</span>(<span class="fu">cluster_louvain</span>(gu, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight))</span>
+<span id="cb34-157"><a href="#cb34-157"></a></span>
+<span id="cb34-158"><a href="#cb34-158"></a>  same_attr_share <span class="ot">&lt;-</span> {</span>
+<span id="cb34-159"><a href="#cb34-159"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(attr_col) <span class="sc">||</span> <span class="sc">!</span>(attr_col <span class="sc">%in%</span> <span class="fu">names</span>(nodes))) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(gu)) <span class="cf">else</span> {</span>
+<span id="cb34-160"><a href="#cb34-160"></a>      attr_vec <span class="ot">&lt;-</span> nodes[[attr_col]][<span class="fu">match</span>(<span class="fu">V</span>(gu)<span class="sc">$</span>name, nodes[[node_id_col]])]</span>
+<span id="cb34-161"><a href="#cb34-161"></a>      <span class="fu">.same_attribute_share</span>(gu, attr_vec)</span>
+<span id="cb34-162"><a href="#cb34-162"></a>    }</span>
+<span id="cb34-163"><a href="#cb34-163"></a>  }</span>
+<span id="cb34-164"><a href="#cb34-164"></a></span>
+<span id="cb34-165"><a href="#cb34-165"></a>  out <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb34-166"><a href="#cb34-166"></a>    <span class="sc">!!</span><span class="at">node_id_col :=</span> <span class="fu">V</span>(gu)<span class="sc">$</span>name,</span>
+<span id="cb34-167"><a href="#cb34-167"></a>    <span class="at">degree        =</span> <span class="fu">as.numeric</span>(deg),</span>
+<span id="cb34-168"><a href="#cb34-168"></a>    <span class="at">strength      =</span> <span class="fu">as.numeric</span>(stren),</span>
+<span id="cb34-169"><a href="#cb34-169"></a>    <span class="at">betweenness   =</span> <span class="fu">as.numeric</span>(btw),</span>
+<span id="cb34-170"><a href="#cb34-170"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">as.numeric</span>(clo_h),</span>
+<span id="cb34-171"><a href="#cb34-171"></a>    <span class="at">eigenvector   =</span> <span class="fu">as.numeric</span>(eig),</span>
+<span id="cb34-172"><a href="#cb34-172"></a>    <span class="at">pagerank      =</span> <span class="fu">as.numeric</span>(pr),</span>
+<span id="cb34-173"><a href="#cb34-173"></a>    <span class="at">clustering_local =</span> <span class="fu">as.numeric</span>(clust),</span>
+<span id="cb34-174"><a href="#cb34-174"></a>    <span class="at">triangles     =</span> <span class="fu">as.numeric</span>(tri),</span>
+<span id="cb34-175"><a href="#cb34-175"></a>    <span class="at">coreness_k    =</span> <span class="fu">as.numeric</span>(corek),</span>
+<span id="cb34-176"><a href="#cb34-176"></a>    <span class="at">constraint_burt =</span> <span class="fu">as.numeric</span>(cons),</span>
+<span id="cb34-177"><a href="#cb34-177"></a>    <span class="at">avg_neighbor_degree =</span> <span class="fu">as.numeric</span>(knn_v),</span>
+<span id="cb34-178"><a href="#cb34-178"></a>    <span class="at">eccentricity  =</span> <span class="fu">as.numeric</span>(ecc),</span>
+<span id="cb34-179"><a href="#cb34-179"></a>    <span class="at">component     =</span> <span class="fu">as.integer</span>(comp),</span>
+<span id="cb34-180"><a href="#cb34-180"></a>    <span class="at">community_louvain =</span> <span class="fu">as.integer</span>(comm),</span>
+<span id="cb34-181"><a href="#cb34-181"></a>    <span class="at">same_attr_share =</span> <span class="fu">as.numeric</span>(same_attr_share)</span>
+<span id="cb34-182"><a href="#cb34-182"></a>  )</span>
+<span id="cb34-183"><a href="#cb34-183"></a></span>
+<span id="cb34-184"><a href="#cb34-184"></a>  nodes <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(out, <span class="at">by =</span> <span class="fu">setNames</span>(node_id_col, node_id_col))</span>
+<span id="cb34-185"><a href="#cb34-185"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="co"># adjacency-based (uses res$A, res$graph, res$D)</span></span>
+<span id="cb35-2"><a href="#cb35-2"></a>stats_adj <span class="ot">&lt;-</span> <span class="fu">compute_node_stats_from_res_adjacency</span>(res, <span class="at">attr_col =</span> <span class="st">"gender"</span>)</span>
+<span id="cb35-3"><a href="#cb35-3"></a></span>
+<span id="cb35-4"><a href="#cb35-4"></a><span class="co"># incidence-based row projection (uses res$B, res$D)</span></span>
+<span id="cb35-5"><a href="#cb35-5"></a>stats_inc <span class="ot">&lt;-</span> <span class="fu">compute_node_stats_from_res_incidence</span>(res, <span class="at">project =</span> <span class="st">"rows"</span>, <span class="at">attr_col =</span> <span class="st">"gender"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->
