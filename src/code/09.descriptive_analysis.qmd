@@ -581,3 +581,60 @@ stats_adj <- compute_node_stats_from_res_adjacency(res, attr_col = "gender")
 # incidence-based row projection (uses res$B, res$D)
 stats_inc <- compute_node_stats_from_res_incidence(res, project = "rows", attr_col = "gender")
 ```
+
+
+```{r}
+stats_adj |>
+  group_by(gender) |>
+  summarise(
+    degree = mean(degree),
+    betweenness = mean(betweenness),
+    closeness_harmonic = mean(closeness_harmonic),
+    eigenvector = mean(eigenvector),
+    clustering_local = mean(clustering_local),
+    coreness_k = mean(coreness_k),
+    constraint_burt = mean(constraint_burt)
+  )
+```
+
+```{r}
+stats_adj |>
+  group_by(origin) |>
+  summarise(
+    degree = mean(degree),
+    betweenness = mean(betweenness),
+    closeness_harmonic = mean(closeness_harmonic),
+    eigenvector = mean(eigenvector),
+    clustering_local = mean(clustering_local),
+    coreness_k = mean(coreness_k),
+    constraint_burt = mean(constraint_burt)
+  )
+```
+
+```{r}
+stats_adj |>
+  group_by(position) |>
+  summarise(
+    degree = mean(degree),
+    betweenness = mean(betweenness),
+    closeness_harmonic = mean(closeness_harmonic),
+    eigenvector = mean(eigenvector),
+    clustering_local = mean(clustering_local),
+    coreness_k = mean(coreness_k),
+    constraint_burt = mean(constraint_burt)
+  )
+```
+
+```{r}
+stats_adj |>
+  group_by(university) |>
+  summarise(
+    degree = mean(degree),
+    betweenness = mean(betweenness),
+    closeness_harmonic = mean(closeness_harmonic),
+    eigenvector = mean(eigenvector),
+    clustering_local = mean(clustering_local),
+    coreness_k = mean(coreness_k),
+    constraint_burt = mean(constraint_burt)
+  )
+```

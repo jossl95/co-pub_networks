@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-10">
+<meta name="dcterms.date" content="2025-11-11">
 
 <title>Descriptive Statistics – Networks</title>
 <style>
@@ -236,7 +236,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 10, 2025</p>
+      <p class="date">November 11, 2025</p>
     </div>
   </div>
   
@@ -887,6 +887,86 @@ Attaching package: 'scales'</code></pre>
 <span id="cb35-3"><a href="#cb35-3"></a></span>
 <span id="cb35-4"><a href="#cb35-4"></a><span class="co"># incidence-based row projection (uses res$B, res$D)</span></span>
 <span id="cb35-5"><a href="#cb35-5"></a>stats_inc <span class="ot">&lt;-</span> <span class="fu">compute_node_stats_from_res_incidence</span>(res, <span class="at">project =</span> <span class="st">"rows"</span>, <span class="at">attr_col =</span> <span class="st">"gender"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>stats_adj <span class="sc">|&gt;</span></span>
+<span id="cb36-2"><a href="#cb36-2"></a>  <span class="fu">group_by</span>(gender) <span class="sc">|&gt;</span></span>
+<span id="cb36-3"><a href="#cb36-3"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb36-4"><a href="#cb36-4"></a>    <span class="at">degree =</span> <span class="fu">mean</span>(degree),</span>
+<span id="cb36-5"><a href="#cb36-5"></a>    <span class="at">betweenness =</span> <span class="fu">mean</span>(betweenness),</span>
+<span id="cb36-6"><a href="#cb36-6"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">mean</span>(closeness_harmonic),</span>
+<span id="cb36-7"><a href="#cb36-7"></a>    <span class="at">eigenvector =</span> <span class="fu">mean</span>(eigenvector),</span>
+<span id="cb36-8"><a href="#cb36-8"></a>    <span class="at">clustering_local =</span> <span class="fu">mean</span>(clustering_local),</span>
+<span id="cb36-9"><a href="#cb36-9"></a>    <span class="at">coreness_k =</span> <span class="fu">mean</span>(coreness_k),</span>
+<span id="cb36-10"><a href="#cb36-10"></a>    <span class="at">constraint_burt =</span> <span class="fu">mean</span>(constraint_burt)</span>
+<span id="cb36-11"><a href="#cb36-11"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["gender"],"name":[1],"type":["chr"],"align":["left"]},{"label":["degree"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["betweenness"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["closeness_harmonic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["eigenvector"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["clustering_local"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["coreness_k"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["constraint_burt"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"female","2":"3.244147","3":"0.004207611","4":"0.5876687","5":"0.003416267","6":"0.3484423","7":"2.130435","8":"0.7086918"},{"1":"male","2":"4.090000","3":"0.008404219","4":"0.6413285","5":"0.003364037","6":"0.3314300","7":"2.260000","8":"0.6858677"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>stats_adj <span class="sc">|&gt;</span></span>
+<span id="cb37-2"><a href="#cb37-2"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span></span>
+<span id="cb37-3"><a href="#cb37-3"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb37-4"><a href="#cb37-4"></a>    <span class="at">degree =</span> <span class="fu">mean</span>(degree),</span>
+<span id="cb37-5"><a href="#cb37-5"></a>    <span class="at">betweenness =</span> <span class="fu">mean</span>(betweenness),</span>
+<span id="cb37-6"><a href="#cb37-6"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">mean</span>(closeness_harmonic),</span>
+<span id="cb37-7"><a href="#cb37-7"></a>    <span class="at">eigenvector =</span> <span class="fu">mean</span>(eigenvector),</span>
+<span id="cb37-8"><a href="#cb37-8"></a>    <span class="at">clustering_local =</span> <span class="fu">mean</span>(clustering_local),</span>
+<span id="cb37-9"><a href="#cb37-9"></a>    <span class="at">coreness_k =</span> <span class="fu">mean</span>(coreness_k),</span>
+<span id="cb37-10"><a href="#cb37-10"></a>    <span class="at">constraint_burt =</span> <span class="fu">mean</span>(constraint_burt)</span>
+<span id="cb37-11"><a href="#cb37-11"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["origin"],"name":[1],"type":["chr"],"align":["left"]},{"label":["degree"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["betweenness"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["closeness_harmonic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["eigenvector"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["clustering_local"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["coreness_k"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["constraint_burt"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"Africa","2":"2.772727","3":"0.003125991","4":"0.4732379","5":"1.285619e-06","6":"0.3166126","7":"1.863636","8":"0.8268286"},{"1":"Americas","2":"3.027778","3":"0.006006007","4":"0.5826436","5":"4.108845e-09","6":"0.2636243","7":"1.944444","8":"0.7390114"},{"1":"Asia and Oceania","2":"2.428571","3":"0.003028434","4":"0.5743416","5":"1.882160e-11","6":"0.4216097","7":"1.857143","8":"0.7706480"},{"1":"Europe","2":"3.209877","3":"0.003692706","4":"0.5662554","5":"6.267455e-03","6":"0.3584206","7":"2.111111","8":"0.7157182"},{"1":"Netherlands","2":"4.273038","3":"0.008339668","4":"0.6594896","5":"3.465155e-03","6":"0.3364059","7":"2.334471","8":"0.6600747"},{"1":"NA","2":"3.675676","3":"0.008222134","4":"0.6383382","5":"7.683748e-07","6":"0.2666848","7":"2.351351","8":"0.6960690"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>stats_adj <span class="sc">|&gt;</span></span>
+<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">group_by</span>(position) <span class="sc">|&gt;</span></span>
+<span id="cb38-3"><a href="#cb38-3"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb38-4"><a href="#cb38-4"></a>    <span class="at">degree =</span> <span class="fu">mean</span>(degree),</span>
+<span id="cb38-5"><a href="#cb38-5"></a>    <span class="at">betweenness =</span> <span class="fu">mean</span>(betweenness),</span>
+<span id="cb38-6"><a href="#cb38-6"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">mean</span>(closeness_harmonic),</span>
+<span id="cb38-7"><a href="#cb38-7"></a>    <span class="at">eigenvector =</span> <span class="fu">mean</span>(eigenvector),</span>
+<span id="cb38-8"><a href="#cb38-8"></a>    <span class="at">clustering_local =</span> <span class="fu">mean</span>(clustering_local),</span>
+<span id="cb38-9"><a href="#cb38-9"></a>    <span class="at">coreness_k =</span> <span class="fu">mean</span>(coreness_k),</span>
+<span id="cb38-10"><a href="#cb38-10"></a>    <span class="at">constraint_burt =</span> <span class="fu">mean</span>(constraint_burt)</span>
+<span id="cb38-11"><a href="#cb38-11"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["position"],"name":[1],"type":["chr"],"align":["left"]},{"label":["degree"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["betweenness"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["closeness_harmonic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["eigenvector"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["clustering_local"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["coreness_k"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["constraint_burt"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"Assistant Professor","2":"3.383333","3":"0.0038368882","4":"0.5953333","5":"8.332713e-03","6":"0.2516258","7":"2.150000","8":"0.6896858"},{"1":"Associate Professor","2":"5.185185","3":"0.0158268866","4":"0.6093006","5":"1.144250e-04","6":"0.2171916","7":"2.382716","8":"0.5844567"},{"1":"Full Professor","2":"6.270270","3":"0.0162588709","4":"0.6953580","5":"9.146335e-03","6":"0.2213767","7":"2.639640","8":"0.5122591"},{"1":"Lecturer","2":"2.400000","3":"0.0016501234","4":"0.5162275","5":"2.943831e-12","6":"0.3740476","7":"1.850000","8":"0.8086779"},{"1":"PhD Candidate","2":"2.319767","3":"0.0003750691","4":"0.6199985","5":"3.610073e-05","6":"0.5280869","7":"2.052326","8":"0.7942991"},{"1":"Postdoctoral Researcher","2":"2.960000","3":"0.0016881642","4":"0.6439071","5":"2.363849e-09","6":"0.2136364","7":"2.000000","8":"0.7501623"},{"1":"Researcher","2":"2.413043","3":"0.0017878704","4":"0.5503693","5":"6.163258e-07","6":"0.4297101","7":"2.021739","8":"0.8243745"},{"1":"Staff","2":"2.500000","3":"0.0008028978","4":"0.6476501","5":"6.040909e-14","6":"0.6458333","7":"2.000000","8":"0.6966447"},{"1":"NA","2":"1.437500","3":"0.0002386602","4":"0.4108282","5":"4.288367e-15","6":"0.1666667","7":"1.375000","8":"0.9783549"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>stats_adj <span class="sc">|&gt;</span></span>
+<span id="cb39-2"><a href="#cb39-2"></a>  <span class="fu">group_by</span>(university) <span class="sc">|&gt;</span></span>
+<span id="cb39-3"><a href="#cb39-3"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb39-4"><a href="#cb39-4"></a>    <span class="at">degree =</span> <span class="fu">mean</span>(degree),</span>
+<span id="cb39-5"><a href="#cb39-5"></a>    <span class="at">betweenness =</span> <span class="fu">mean</span>(betweenness),</span>
+<span id="cb39-6"><a href="#cb39-6"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">mean</span>(closeness_harmonic),</span>
+<span id="cb39-7"><a href="#cb39-7"></a>    <span class="at">eigenvector =</span> <span class="fu">mean</span>(eigenvector),</span>
+<span id="cb39-8"><a href="#cb39-8"></a>    <span class="at">clustering_local =</span> <span class="fu">mean</span>(clustering_local),</span>
+<span id="cb39-9"><a href="#cb39-9"></a>    <span class="at">coreness_k =</span> <span class="fu">mean</span>(coreness_k),</span>
+<span id="cb39-10"><a href="#cb39-10"></a>    <span class="at">constraint_burt =</span> <span class="fu">mean</span>(constraint_burt)</span>
+<span id="cb39-11"><a href="#cb39-11"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["university"],"name":[1],"type":["chr"],"align":["left"]},{"label":["degree"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["betweenness"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["closeness_harmonic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["eigenvector"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["clustering_local"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["coreness_k"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["constraint_burt"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"EUR","2":"3.292683","3":"0.005989056","4":"0.6592736","5":"2.476432e-02","6":"0.2999032","7":"2.109756","8":"0.6962310"},{"1":"LU","2":"2.022222","3":"0.001848955","4":"0.2880064","5":"1.337507e-13","6":"0.2125573","7":"1.400000","8":"0.8347237"},{"1":"RU","2":"4.032967","3":"0.007810823","4":"0.7132471","5":"1.826458e-11","6":"0.4515595","7":"2.483516","8":"0.6432280"},{"1":"RUG","2":"4.782051","3":"0.009404678","4":"0.7786472","5":"7.863974e-09","6":"0.3684009","7":"2.525641","8":"0.6522611"},{"1":"TU","2":"2.000000","3":"0.002190314","4":"0.6140365","5":"4.074643e-12","6":"0.0000000","7":"2.000000","8":"0.6250000"},{"1":"UU","2":"4.578947","3":"0.008097906","4":"0.8356761","5":"2.085704e-12","6":"0.4963219","7":"2.631579","8":"0.6460375"},{"1":"UVA","2":"3.725000","3":"0.005441726","4":"0.5293262","5":"6.766735e-12","6":"0.2635309","7":"2.141667","8":"0.7134215"},{"1":"VU","2":"3.105691","3":"0.005212175","4":"0.5089477","5":"1.092764e-10","6":"0.3201750","7":"1.983740","8":"0.7229979"},{"1":"NA","2":"2.000000","3":"0.001405162","4":"0.5417546","5":"4.690719e-16","6":"0.1666667","7":"1.500000","8":"0.8035483"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
 </div>
 
 
