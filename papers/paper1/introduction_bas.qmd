@@ -1,0 +1,41 @@
+## Introduction
+
+
+::: {.callout-note}
+Bas
+
+Gender disparities in academia have been studied in an extensive body of literature (refs). Prior work finds that women have lower salaries (kim et al. 2024), obtain fewer grants (usa onderzoek), find less impact despite more innovative writing (hofstra et al., 2020), have shorter and less prolific careers (tolsma et al. 2025; mulders 2024), and the research topics of women seem devalued in science careers (kim et al.). Also in the Netherlands, gender inequality in scientific careers remains persistent with respect to careers lengths, productivity, the timing of early career grants, and academic salaries. 
+
+The problem of academic gender inequality has often been cast as a consequence of leaky pipelines (ref) and chilly climates (ref) for women in labs, departments, and disciplines that render socialization in science and its associated path dependency later on in careers fragile for women scientists. But what are the main factors of that socialization that causes leaky pipelines and chilly climates? What are the main drivers that prohibit women academics to gain access to career trajectories and friendly and warm social contexts compared to men? A key aspect of this question is that science is an inherently social enterprise: colleagues, departments, publishing, x,y,z is structured in such a way that the social relationships that surrounds an academic are key to their success. Examples of the importance such academic social capital is seen in the access to the professoriate that is quite dependent on one's mentors (hofstra et al. 2022), dissertation committees that exhibit gender homophilous tendencies in who is awarded a cum laude PhD degree (bol 202?), and network size of co-authorship teams that dictates either innovation or consolodiation (Nature dashun wang). 
+
+Co-authorships may in particular play a distinct and important role in who gets to succeed in science and how gender relates to that. That is because it gets at the core of what science is about: discovering and publishing those discoveries. So in that light the question who is granted access to a core of well-publishing, reputable, x, y, z co-authors gets at the core of what science is key so as to find how and to what extent co-publising dynamics is one piece of of the academic gender inequality puzzle. 
+
+As such, we ask...
+
+But gender is not the only axis along which potential academic inequalities arise. Prior work has show that... Yet, in the Netherlands we hardly know to what extent ethnic background shapes academic inequality. One of the few insights we have is that minoritized persons have less chances to start academic careers and even if they have started academic careers they stop these earlier (Mulders et al. 2024). In that light, the question of ethnic inequality in co-publishing networks is a novel one, and even more so when we start to consider combinations of minoritized identities with gender. Perhaps the academic chilly climate compounding negative experience of non-white women in academic departments eclipses the experiences of white women. But without gaining a deeper insight on these dynamics, we simply do not know. As such, we shift the perspective of gender inequality and co-publishing networks to one that enables an intersecctional perspective.
+
+Hence, we ask
+
+Our empirical site is the Netherlands, and...
+
+:::
+
+
+- Is there social inequality in the social sciences?
+    - Are there gender-based and origin-based inequalities?
+        - Gender- and origin-based inequalities in outcomes: 
+        - Gender- and origin-based inequalities in opportunities, collaborations
+    - Why collaboration matters? 
+        - Co-authorship structures shape productivity, visibility, and citation impact, and they evolve systematically over time [@newman2001; @moody2004; @abbasi2011; @wallace2012; @ductor2015; @li2022]
+        - Network mechanisms (such as: homophily, triadic closure, preferential attachment, structural holes) organize collaboration opportunities and inequalities [@barabasi1999; @ebadi2015; @bojanowski2020]
+
+- Which structural inequalities are purpetuated by collaboration networks?
+    - To what extend and why are there gender-based differences in collaboration (networks?)
+    - To what extend and why are there origin-based differences in collaboration (networks?)
+
+- To what extend do gender and origin-based differences in collaboration intersect?
+    - What is intersectionality? 
+        - Definition of intersectionality [@crenshaw1989; @king1988].
+        - Intersectional compounding vs. buffering: gender penalties may intensify for international women, or shared nationality may mitigate gender gaps in forming ties. [@vanderwal2021; @kwiek2021]
+        - Network status processes (visibility, centrality, gatekeeping, sponsorship) may compound for women from underrepresented nationality groups; conversely, shared nationality may buffer gender penalties in some contexts [@bunkerwhittington2024; @whittington2018; @kim2022].
+        - Additive accounts understate disadvantage that accrues at the intersection of gender and nationality [@kozlowski2022].
