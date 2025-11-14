@@ -1,5 +1,5 @@
 ---
-title: "Who Works With Whom? Gender, Nationality, and the Shape of Co-Publishing Networks"
+title: "Intersectional Inequalities in Co-Authorship Networks: Gender, Origin, and Collaboration in Dutch Social Science"
 
 author: 
   - name: "Jos Slabbekoorn"
