@@ -27,7 +27,7 @@ library(tidyplots)
 source("src/utils/custom_functions.r")
 .load_quarto_dependencies()
 
-options(knitr.graphics.fig.width = 20)
+options(knitr.graphics.fig.width = 25)
 tidyplots_options(
   unit = "cm"
 )
@@ -380,8 +380,79 @@ plot_from_adjacency <- function(g, title = "Network (one-mode)", directed = FALS
 
 
 gA <- graph_from_adjacency_matrix(A, mode = "undirected", weighted = TRUE, diag = FALSE)
-gA <- attach_node_attrs(GA, dems, id_col = "uid")
-plot_from_adjacency((gA))
+# gA <- attach_node_attrs(A, dems, id_col = "uid")
+# plot_from_adjacency((gA))
+```
+
+
+```{r}
+
+# plotly
+# kateto.net
+```
+
+```{r}
+library(dplyr)
+library(scales)      # for rescale()
+library(visNetwork)
+
+data <- toVisNetworkData(gA)
+
+N <- data$nodes |>
+  inner_join(
+    dems |>
+      distinct(uid, .keep_all = TRUE) |>
+      select(uid, clean_name, gender, origin, h_index, position, university),
+    by = join_by(id == uid)
+  ) |>
+  # build per-node aesthetics
+  mutate(
+    label = ifelse(!is.na(clean_name) & nzchar(clean_name), clean_name, as.character(id)),
+    university = ifelse(is.na(university) | !nzchar(university), "(Unknown)", university)
+  )
+
+# ---- color by university ----
+uni_levels <- sort(unique(N$university))
+pal <- scales::hue_pal()(length(uni_levels))
+col_map <- setNames(pal, uni_levels)
+
+# ---- size by h_index + shape by gender ----
+N <- N |>
+  mutate(
+    color = unname(col_map[university]),
+    size  = if (all(is.na(h_index))) 20 else
+              suppressWarnings(rescale(h_index, to = c(12, 40),
+                                       from = range(h_index, na.rm = TRUE))),
+    size  = ifelse(is.na(size), 12, size),
+    gender_clean = tolower(as.character(gender)),
+    shape = dplyr::recode(
+      gender_clean,
+      "male" = "triangle",
+      "female" = "dot",
+      .default = "square"
+    ),
+    title = paste0(
+      "<b>", label, "</b>",
+      "<br/>University: ", university,
+      "<br/>Gender: ", ifelse(is.na(gender) | !nzchar(gender), "Unknown", gender),
+      "<br/>h-index: ", ifelse(is.na(h_index), "NA", h_index)
+    )
+  ) |>
+  select(-gender_clean)  # cleanup helper col
+
+E <- data$edges
+
+p = visNetwork(nodes = N, edges = E, height = "800px", width = "100%") |>
+  visNodes(borderWidth = 1) |>
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) |>
+  visPhysics(solver = "barnesHut") |>
+  visLayout(randomSeed = 42) |>
+  visLegend()
+
+p |> visSave(file = "full_network.html")
+
+library(webshot)
+webshot("full_network.html", zoom = 2, delay = 80, file = "full_network.png")
 ```
 
 
@@ -575,66 +646,66 @@ compute_node_stats_from_res_incidence <- function(
 
 
 ```{r}
-# adjacency-based (uses res$A, res$graph, res$D)
-stats_adj <- compute_node_stats_from_res_adjacency(res, attr_col = "gender")
+# # adjacency-based (uses res$A, res$graph, res$D)
+# stats_adj <- compute_node_stats_from_res_adjacency(res, attr_col = "gender")
 
-# incidence-based row projection (uses res$B, res$D)
-stats_inc <- compute_node_stats_from_res_incidence(res, project = "rows", attr_col = "gender")
+# # incidence-based row projection (uses res$B, res$D)
+# stats_inc <- compute_node_stats_from_res_incidence(res, project = "rows", attr_col = "gender")
 ```
 
 
 ```{r}
-stats_adj |>
-  group_by(gender) |>
-  summarise(
-    degree = mean(degree),
-    betweenness = mean(betweenness),
-    closeness_harmonic = mean(closeness_harmonic),
-    eigenvector = mean(eigenvector),
-    clustering_local = mean(clustering_local),
-    coreness_k = mean(coreness_k),
-    constraint_burt = mean(constraint_burt)
-  )
+# stats_adj |>
+#   group_by(gender) |>
+#   summarise(
+#     degree = mean(degree),
+#     betweenness = mean(betweenness),
+#     closeness_harmonic = mean(closeness_harmonic),
+#     eigenvector = mean(eigenvector),
+#     clustering_local = mean(clustering_local),
+#     coreness_k = mean(coreness_k),
+#     constraint_burt = mean(constraint_burt)
+#   )
 ```
 
 ```{r}
-stats_adj |>
-  group_by(origin) |>
-  summarise(
-    degree = mean(degree),
-    betweenness = mean(betweenness),
-    closeness_harmonic = mean(closeness_harmonic),
-    eigenvector = mean(eigenvector),
-    clustering_local = mean(clustering_local),
-    coreness_k = mean(coreness_k),
-    constraint_burt = mean(constraint_burt)
-  )
+# stats_adj |>
+#   group_by(origin) |>
+#   summarise(
+#     degree = mean(degree),
+#     betweenness = mean(betweenness),
+#     closeness_harmonic = mean(closeness_harmonic),
+#     eigenvector = mean(eigenvector),
+#     clustering_local = mean(clustering_local),
+#     coreness_k = mean(coreness_k),
+#     constraint_burt = mean(constraint_burt)
+#   )
 ```
 
 ```{r}
-stats_adj |>
-  group_by(position) |>
-  summarise(
-    degree = mean(degree),
-    betweenness = mean(betweenness),
-    closeness_harmonic = mean(closeness_harmonic),
-    eigenvector = mean(eigenvector),
-    clustering_local = mean(clustering_local),
-    coreness_k = mean(coreness_k),
-    constraint_burt = mean(constraint_burt)
-  )
+# stats_adj |>
+#   group_by(position) |>
+#   summarise(
+#     degree = mean(degree),
+#     betweenness = mean(betweenness),
+#     closeness_harmonic = mean(closeness_harmonic),
+#     eigenvector = mean(eigenvector),
+#     clustering_local = mean(clustering_local),
+#     coreness_k = mean(coreness_k),
+#     constraint_burt = mean(constraint_burt)
+#   )
 ```
 
 ```{r}
-stats_adj |>
-  group_by(university) |>
-  summarise(
-    degree = mean(degree),
-    betweenness = mean(betweenness),
-    closeness_harmonic = mean(closeness_harmonic),
-    eigenvector = mean(eigenvector),
-    clustering_local = mean(clustering_local),
-    coreness_k = mean(coreness_k),
-    constraint_burt = mean(constraint_burt)
-  )
+# stats_adj |>
+#   group_by(university) |>
+#   summarise(
+#     degree = mean(degree),
+#     betweenness = mean(betweenness),
+#     closeness_harmonic = mean(closeness_harmonic),
+#     eigenvector = mean(eigenvector),
+#     clustering_local = mean(clustering_local),
+#     coreness_k = mean(coreness_k),
+#     constraint_burt = mean(constraint_burt)
+#   )
 ```

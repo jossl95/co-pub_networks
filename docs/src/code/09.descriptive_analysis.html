@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-11">
+<meta name="dcterms.date" content="2025-11-14">
 
 <title>Descriptive Statistics – Networks</title>
 <style>
@@ -236,7 +236,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 11, 2025</p>
+      <p class="date">November 14, 2025</p>
     </div>
   </div>
   
@@ -264,7 +264,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-6"><a href="#cb2-6"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
 <span id="cb2-7"><a href="#cb2-7"></a><span class="fu">.load_quarto_dependencies</span>()</span>
 <span id="cb2-8"><a href="#cb2-8"></a></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="fu">options</span>(<span class="at">knitr.graphics.fig.width =</span> <span class="dv">20</span>)</span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="fu">options</span>(<span class="at">knitr.graphics.fig.width =</span> <span class="dv">25</span>)</span>
 <span id="cb2-10"><a href="#cb2-10"></a><span class="fu">tidyplots_options</span>(</span>
 <span id="cb2-11"><a href="#cb2-11"></a>  <span class="at">unit =</span> <span class="st">"cm"</span></span>
 <span id="cb2-12"><a href="#cb2-12"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -680,293 +680,328 @@ Attaching package: 'scales'</code></pre>
 <span id="cb32-58"><a href="#cb32-58"></a></span>
 <span id="cb32-59"><a href="#cb32-59"></a></span>
 <span id="cb32-60"><a href="#cb32-60"></a>gA <span class="ot">&lt;-</span> <span class="fu">graph_from_adjacency_matrix</span>(A, <span class="at">mode =</span> <span class="st">"undirected"</span>, <span class="at">weighted =</span> <span class="cn">TRUE</span>, <span class="at">diag =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb32-61"><a href="#cb32-61"></a>gA <span class="ot">&lt;-</span> <span class="fu">attach_node_attrs</span>(GA, dems, <span class="at">id_col =</span> <span class="st">"uid"</span>)</span>
-<span id="cb32-62"><a href="#cb32-62"></a><span class="fu">plot_from_adjacency</span>((gA))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: `graph.strength()` was deprecated in igraph 2.0.0.
-ℹ Please use `strength()` instead.</code></pre>
+<span id="cb32-61"><a href="#cb32-61"></a><span class="co"># gA &lt;- attach_node_attrs(A, dems, id_col = "uid")</span></span>
+<span id="cb32-62"><a href="#cb32-62"></a><span class="co"># plot_from_adjacency((gA))</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="co"># plotly</span></span>
+<span id="cb33-2"><a href="#cb33-2"></a><span class="co"># kateto.net</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="fu">library</span>(scales)      <span class="co"># for rescale()</span></span>
+<span id="cb34-3"><a href="#cb34-3"></a><span class="fu">library</span>(visNetwork)</span>
+<span id="cb34-4"><a href="#cb34-4"></a></span>
+<span id="cb34-5"><a href="#cb34-5"></a>data <span class="ot">&lt;-</span> <span class="fu">toVisNetworkData</span>(gA)</span>
+<span id="cb34-6"><a href="#cb34-6"></a></span>
+<span id="cb34-7"><a href="#cb34-7"></a>N <span class="ot">&lt;-</span> data<span class="sc">$</span>nodes <span class="sc">|&gt;</span></span>
+<span id="cb34-8"><a href="#cb34-8"></a>  <span class="fu">inner_join</span>(</span>
+<span id="cb34-9"><a href="#cb34-9"></a>    dems <span class="sc">|&gt;</span></span>
+<span id="cb34-10"><a href="#cb34-10"></a>      <span class="fu">distinct</span>(uid, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb34-11"><a href="#cb34-11"></a>      <span class="fu">select</span>(uid, clean_name, gender, origin, h_index, position, university),</span>
+<span id="cb34-12"><a href="#cb34-12"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(id <span class="sc">==</span> uid)</span>
+<span id="cb34-13"><a href="#cb34-13"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb34-14"><a href="#cb34-14"></a>  <span class="co"># build per-node aesthetics</span></span>
+<span id="cb34-15"><a href="#cb34-15"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb34-16"><a href="#cb34-16"></a>    <span class="at">label =</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(clean_name) <span class="sc">&amp;</span> <span class="fu">nzchar</span>(clean_name), clean_name, <span class="fu">as.character</span>(id)),</span>
+<span id="cb34-17"><a href="#cb34-17"></a>    <span class="at">university =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(university) <span class="sc">|</span> <span class="sc">!</span><span class="fu">nzchar</span>(university), <span class="st">"(Unknown)"</span>, university)</span>
+<span id="cb34-18"><a href="#cb34-18"></a>  )</span>
+<span id="cb34-19"><a href="#cb34-19"></a></span>
+<span id="cb34-20"><a href="#cb34-20"></a><span class="co"># ---- color by university ----</span></span>
+<span id="cb34-21"><a href="#cb34-21"></a>uni_levels <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(N<span class="sc">$</span>university))</span>
+<span id="cb34-22"><a href="#cb34-22"></a>pal <span class="ot">&lt;-</span> scales<span class="sc">::</span><span class="fu">hue_pal</span>()(<span class="fu">length</span>(uni_levels))</span>
+<span id="cb34-23"><a href="#cb34-23"></a>col_map <span class="ot">&lt;-</span> <span class="fu">setNames</span>(pal, uni_levels)</span>
+<span id="cb34-24"><a href="#cb34-24"></a></span>
+<span id="cb34-25"><a href="#cb34-25"></a><span class="co"># ---- size by h_index + shape by gender ----</span></span>
+<span id="cb34-26"><a href="#cb34-26"></a>N <span class="ot">&lt;-</span> N <span class="sc">|&gt;</span></span>
+<span id="cb34-27"><a href="#cb34-27"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb34-28"><a href="#cb34-28"></a>    <span class="at">color =</span> <span class="fu">unname</span>(col_map[university]),</span>
+<span id="cb34-29"><a href="#cb34-29"></a>    <span class="at">size  =</span> <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.na</span>(h_index))) <span class="dv">20</span> <span class="cf">else</span></span>
+<span id="cb34-30"><a href="#cb34-30"></a>              <span class="fu">suppressWarnings</span>(<span class="fu">rescale</span>(h_index, <span class="at">to =</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">40</span>),</span>
+<span id="cb34-31"><a href="#cb34-31"></a>                                       <span class="at">from =</span> <span class="fu">range</span>(h_index, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))),</span>
+<span id="cb34-32"><a href="#cb34-32"></a>    <span class="at">size  =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(size), <span class="dv">12</span>, size),</span>
+<span id="cb34-33"><a href="#cb34-33"></a>    <span class="at">gender_clean =</span> <span class="fu">tolower</span>(<span class="fu">as.character</span>(gender)),</span>
+<span id="cb34-34"><a href="#cb34-34"></a>    <span class="at">shape =</span> dplyr<span class="sc">::</span><span class="fu">recode</span>(</span>
+<span id="cb34-35"><a href="#cb34-35"></a>      gender_clean,</span>
+<span id="cb34-36"><a href="#cb34-36"></a>      <span class="st">"male"</span> <span class="ot">=</span> <span class="st">"triangle"</span>,</span>
+<span id="cb34-37"><a href="#cb34-37"></a>      <span class="st">"female"</span> <span class="ot">=</span> <span class="st">"dot"</span>,</span>
+<span id="cb34-38"><a href="#cb34-38"></a>      <span class="at">.default =</span> <span class="st">"square"</span></span>
+<span id="cb34-39"><a href="#cb34-39"></a>    ),</span>
+<span id="cb34-40"><a href="#cb34-40"></a>    <span class="at">title =</span> <span class="fu">paste0</span>(</span>
+<span id="cb34-41"><a href="#cb34-41"></a>      <span class="st">"&lt;b&gt;"</span>, label, <span class="st">"&lt;/b&gt;"</span>,</span>
+<span id="cb34-42"><a href="#cb34-42"></a>      <span class="st">"&lt;br/&gt;University: "</span>, university,</span>
+<span id="cb34-43"><a href="#cb34-43"></a>      <span class="st">"&lt;br/&gt;Gender: "</span>, <span class="fu">ifelse</span>(<span class="fu">is.na</span>(gender) <span class="sc">|</span> <span class="sc">!</span><span class="fu">nzchar</span>(gender), <span class="st">"Unknown"</span>, gender),</span>
+<span id="cb34-44"><a href="#cb34-44"></a>      <span class="st">"&lt;br/&gt;h-index: "</span>, <span class="fu">ifelse</span>(<span class="fu">is.na</span>(h_index), <span class="st">"NA"</span>, h_index)</span>
+<span id="cb34-45"><a href="#cb34-45"></a>    )</span>
+<span id="cb34-46"><a href="#cb34-46"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb34-47"><a href="#cb34-47"></a>  <span class="fu">select</span>(<span class="sc">-</span>gender_clean)  <span class="co"># cleanup helper col</span></span>
+<span id="cb34-48"><a href="#cb34-48"></a></span>
+<span id="cb34-49"><a href="#cb34-49"></a>E <span class="ot">&lt;-</span> data<span class="sc">$</span>edges</span>
+<span id="cb34-50"><a href="#cb34-50"></a></span>
+<span id="cb34-51"><a href="#cb34-51"></a>p <span class="ot">=</span> <span class="fu">visNetwork</span>(<span class="at">nodes =</span> N, <span class="at">edges =</span> E, <span class="at">height =</span> <span class="st">"800px"</span>, <span class="at">width =</span> <span class="st">"100%"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb34-52"><a href="#cb34-52"></a>  <span class="fu">visNodes</span>(<span class="at">borderWidth =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb34-53"><a href="#cb34-53"></a>  <span class="fu">visOptions</span>(<span class="at">highlightNearest =</span> <span class="cn">TRUE</span>, <span class="at">nodesIdSelection =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb34-54"><a href="#cb34-54"></a>  <span class="fu">visPhysics</span>(<span class="at">solver =</span> <span class="st">"barnesHut"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb34-55"><a href="#cb34-55"></a>  <span class="fu">visLayout</span>(<span class="at">randomSeed =</span> <span class="dv">42</span>) <span class="sc">|&gt;</span></span>
+<span id="cb34-56"><a href="#cb34-56"></a>  <span class="fu">visLegend</span>()</span>
+<span id="cb34-57"><a href="#cb34-57"></a></span>
+<span id="cb34-58"><a href="#cb34-58"></a>p <span class="sc">|&gt;</span> <span class="fu">visSave</span>(<span class="at">file =</span> <span class="st">"full_network.html"</span>)</span>
+<span id="cb34-59"><a href="#cb34-59"></a></span>
+<span id="cb34-60"><a href="#cb34-60"></a><span class="fu">library</span>(webshot)</span>
+<span id="cb34-61"><a href="#cb34-61"></a><span class="fu">webshot</span>(<span class="st">"full_network.html"</span>, <span class="at">zoom =</span> <span class="dv">2</span>, <span class="at">delay =</span> <span class="dv">80</span>, <span class="at">file =</span> <span class="st">"full_network.png"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="09.descriptive_analysis_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="09.descriptive_analysis_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="co"># deps</span></span>
-<span id="cb34-2"><a href="#cb34-2"></a><span class="fu">library</span>(igraph)</span>
-<span id="cb34-3"><a href="#cb34-3"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb34-4"><a href="#cb34-4"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb34-5"><a href="#cb34-5"></a></span>
-<span id="cb34-6"><a href="#cb34-6"></a><span class="co"># ---------- helpers (unchanged) ----------</span></span>
-<span id="cb34-7"><a href="#cb34-7"></a>.harmonic_closeness <span class="ot">&lt;-</span> <span class="cf">function</span>(g, <span class="at">weights =</span> <span class="cn">NULL</span>) {</span>
-<span id="cb34-8"><a href="#cb34-8"></a>  D <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">distances</span>(g, <span class="at">weights =</span> weights))</span>
-<span id="cb34-9"><a href="#cb34-9"></a>  <span class="fu">diag</span>(D) <span class="ot">&lt;-</span> <span class="cn">Inf</span></span>
-<span id="cb34-10"><a href="#cb34-10"></a>  (<span class="fu">rowSums</span>(<span class="dv">1</span> <span class="sc">/</span> D, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">/</span> (<span class="fu">vcount</span>(g) <span class="sc">-</span> <span class="dv">1</span>)</span>
-<span id="cb34-11"><a href="#cb34-11"></a>}</span>
-<span id="cb34-12"><a href="#cb34-12"></a>.same_attribute_share <span class="ot">&lt;-</span> <span class="cf">function</span>(g, attr_vec) {</span>
-<span id="cb34-13"><a href="#cb34-13"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(attr_vec)) <span class="fu">return</span>(<span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g)))</span>
-<span id="cb34-14"><a href="#cb34-14"></a>  nbrs <span class="ot">&lt;-</span> <span class="fu">ego</span>(g, <span class="at">order =</span> <span class="dv">1</span>, <span class="at">nodes =</span> <span class="fu">V</span>(g), <span class="at">mode =</span> <span class="st">"all"</span>)</span>
-<span id="cb34-15"><a href="#cb34-15"></a>  <span class="fu">sapply</span>(<span class="fu">seq_along</span>(nbrs), <span class="cf">function</span>(i) {</span>
-<span id="cb34-16"><a href="#cb34-16"></a>    neigh <span class="ot">&lt;-</span> nbrs[[i]]</span>
-<span id="cb34-17"><a href="#cb34-17"></a>    <span class="cf">if</span> (<span class="fu">length</span>(neigh) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NA_real_</span>)</span>
-<span id="cb34-18"><a href="#cb34-18"></a>    <span class="fu">mean</span>(attr_vec[neigh] <span class="sc">==</span> attr_vec[i])</span>
-<span id="cb34-19"><a href="#cb34-19"></a>  })</span>
-<span id="cb34-20"><a href="#cb34-20"></a>}</span>
-<span id="cb34-21"><a href="#cb34-21"></a></span>
-<span id="cb34-22"><a href="#cb34-22"></a><span class="co"># ========================================================================</span></span>
-<span id="cb34-23"><a href="#cb34-23"></a><span class="co"># A) From res$A / res$graph / res$D  (one-mode adjacency)</span></span>
-<span id="cb34-24"><a href="#cb34-24"></a><span class="co"># ========================================================================</span></span>
-<span id="cb34-25"><a href="#cb34-25"></a>compute_node_stats_from_res_adjacency <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
-<span id="cb34-26"><a href="#cb34-26"></a>  res,</span>
-<span id="cb34-27"><a href="#cb34-27"></a>  <span class="at">node_id_col =</span> <span class="st">"uid"</span>,</span>
-<span id="cb34-28"><a href="#cb34-28"></a>  <span class="at">use_weights =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb34-29"><a href="#cb34-29"></a>  <span class="at">invert_weights_for_paths =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb34-30"><a href="#cb34-30"></a>  <span class="at">attr_col =</span> <span class="cn">NULL</span></span>
-<span id="cb34-31"><a href="#cb34-31"></a>){</span>
-<span id="cb34-32"><a href="#cb34-32"></a>  <span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"graph"</span>,<span class="st">"D"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(res)))</span>
-<span id="cb34-33"><a href="#cb34-33"></a>  A     <span class="ot">&lt;-</span> res<span class="sc">$</span>A</span>
-<span id="cb34-34"><a href="#cb34-34"></a>  nodes <span class="ot">&lt;-</span> res<span class="sc">$</span>D</span>
-<span id="cb34-35"><a href="#cb34-35"></a>  mode  <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">is_directed</span>(res<span class="sc">$</span>graph)) <span class="st">"directed"</span> <span class="cf">else</span> <span class="st">"undirected"</span></span>
-<span id="cb34-36"><a href="#cb34-36"></a></span>
-<span id="cb34-37"><a href="#cb34-37"></a>  g <span class="ot">&lt;-</span> <span class="fu">graph_from_adjacency_matrix</span>(</span>
-<span id="cb34-38"><a href="#cb34-38"></a>    A,</span>
-<span id="cb34-39"><a href="#cb34-39"></a>    <span class="at">mode     =</span> mode,</span>
-<span id="cb34-40"><a href="#cb34-40"></a>    <span class="at">weighted =</span> use_weights,</span>
-<span id="cb34-41"><a href="#cb34-41"></a>    <span class="at">diag     =</span> <span class="cn">FALSE</span></span>
-<span id="cb34-42"><a href="#cb34-42"></a>  )</span>
-<span id="cb34-43"><a href="#cb34-43"></a>  <span class="fu">V</span>(g)<span class="sc">$</span>name <span class="ot">&lt;-</span> <span class="fu">rownames</span>(A)</span>
-<span id="cb34-44"><a href="#cb34-44"></a></span>
-<span id="cb34-45"><a href="#cb34-45"></a>  w_strength <span class="ot">&lt;-</span> <span class="cf">if</span> (use_weights <span class="sc">&amp;&amp;</span> <span class="st">"weight"</span> <span class="sc">%in%</span> <span class="fu">edge_attr_names</span>(g)) <span class="fu">E</span>(g)<span class="sc">$</span>weight <span class="cf">else</span> <span class="cn">NULL</span></span>
-<span id="cb34-46"><a href="#cb34-46"></a>  w_dist <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(w_strength) <span class="sc">&amp;&amp;</span> invert_weights_for_paths) {</span>
-<span id="cb34-47"><a href="#cb34-47"></a>    <span class="cf">if</span> (<span class="fu">any</span>(w_strength <span class="sc">&lt;=</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="cn">NULL</span> <span class="cf">else</span> <span class="dv">1</span> <span class="sc">/</span> w_strength</span>
-<span id="cb34-48"><a href="#cb34-48"></a>  } <span class="cf">else</span> w_strength</span>
-<span id="cb34-49"><a href="#cb34-49"></a></span>
-<span id="cb34-50"><a href="#cb34-50"></a>  gu <span class="ot">&lt;-</span> <span class="fu">simplify</span>(<span class="fu">as_undirected</span>(g, <span class="at">mode =</span> <span class="st">"collapse"</span>, <span class="at">edge.attr.comb =</span> <span class="st">"sum"</span>),</span>
-<span id="cb34-51"><a href="#cb34-51"></a>                 <span class="at">remove.multiple =</span> <span class="cn">TRUE</span>, <span class="at">remove.loops =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb34-52"><a href="#cb34-52"></a></span>
-<span id="cb34-53"><a href="#cb34-53"></a>  deg_all <span class="ot">&lt;-</span> <span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="st">"all"</span>)</span>
-<span id="cb34-54"><a href="#cb34-54"></a>  str_all <span class="ot">&lt;-</span> <span class="fu">graph.strength</span>(g, <span class="at">mode =</span> <span class="st">"all"</span>, <span class="at">weights =</span> w_strength)</span>
-<span id="cb34-55"><a href="#cb34-55"></a>  deg_in  <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="st">"in"</span>)  <span class="cf">else</span> <span class="cn">NULL</span></span>
-<span id="cb34-56"><a href="#cb34-56"></a>  deg_out <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="st">"out"</span>) <span class="cf">else</span> <span class="cn">NULL</span></span>
-<span id="cb34-57"><a href="#cb34-57"></a>  str_in  <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">graph.strength</span>(g, <span class="at">mode =</span> <span class="st">"in"</span>,  <span class="at">weights =</span> w_strength) <span class="cf">else</span> <span class="cn">NULL</span></span>
-<span id="cb34-58"><a href="#cb34-58"></a>  str_out <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">graph.strength</span>(g, <span class="at">mode =</span> <span class="st">"out"</span>, <span class="at">weights =</span> w_strength) <span class="cf">else</span> <span class="cn">NULL</span></span>
-<span id="cb34-59"><a href="#cb34-59"></a></span>
-<span id="cb34-60"><a href="#cb34-60"></a>  btw <span class="ot">&lt;-</span> <span class="fu">betweenness</span>(g, <span class="at">directed =</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>), <span class="at">weights =</span> w_dist, <span class="at">normalized =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb34-61"><a href="#cb34-61"></a>  clo_harm <span class="ot">&lt;-</span> <span class="fu">.harmonic_closeness</span>(g, <span class="at">weights =</span> w_dist)</span>
-<span id="cb34-62"><a href="#cb34-62"></a></span>
-<span id="cb34-63"><a href="#cb34-63"></a>  eig  <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">eigen_centrality</span>(g, <span class="at">directed =</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>), <span class="at">weights =</span> w_strength)<span class="sc">$</span>vector,</span>
-<span id="cb34-64"><a href="#cb34-64"></a>                   <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g)))</span>
-<span id="cb34-65"><a href="#cb34-65"></a>  pr   <span class="ot">&lt;-</span> <span class="fu">page_rank</span>(g, <span class="at">directed =</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>), <span class="at">weights =</span> w_strength)<span class="sc">$</span>vector</span>
-<span id="cb34-66"><a href="#cb34-66"></a>  hubs <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">hub_score</span>(g, <span class="at">weights =</span> w_strength)<span class="sc">$</span>vector <span class="cf">else</span> <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g))</span>
-<span id="cb34-67"><a href="#cb34-67"></a>  auth <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">authority_score</span>(g, <span class="at">weights =</span> w_strength)<span class="sc">$</span>vector <span class="cf">else</span> <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g))</span>
-<span id="cb34-68"><a href="#cb34-68"></a></span>
-<span id="cb34-69"><a href="#cb34-69"></a>  clustering_local <span class="ot">&lt;-</span> <span class="fu">transitivity</span>(gu, <span class="at">type =</span> <span class="st">"local"</span>, <span class="at">isolates =</span> <span class="st">"zero"</span>)</span>
-<span id="cb34-70"><a href="#cb34-70"></a>  triangles_cnt    <span class="ot">&lt;-</span> <span class="fu">count_triangles</span>(gu, <span class="at">vids =</span> <span class="fu">V</span>(gu))</span>
-<span id="cb34-71"><a href="#cb34-71"></a>  coreness_k       <span class="ot">&lt;-</span> <span class="fu">coreness</span>(gu, <span class="at">mode =</span> <span class="st">"all"</span>)</span>
-<span id="cb34-72"><a href="#cb34-72"></a>  constraint_burt  <span class="ot">&lt;-</span> <span class="fu">constraint</span>(g, <span class="at">weights =</span> w_strength)</span>
-<span id="cb34-73"><a href="#cb34-73"></a>  knn_vec          <span class="ot">&lt;-</span> <span class="fu">knn</span>(gu)<span class="sc">$</span>knn</span>
-<span id="cb34-74"><a href="#cb34-74"></a>  ecc <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">tryCatch</span>(<span class="fu">eccentricity</span>(g, <span class="at">weights =</span> w_dist),</span>
-<span id="cb34-75"><a href="#cb34-75"></a>                                   <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g))))</span>
-<span id="cb34-76"><a href="#cb34-76"></a>  comp <span class="ot">&lt;-</span> <span class="fu">components</span>(g)<span class="sc">$</span>membership</span>
-<span id="cb34-77"><a href="#cb34-77"></a>  comm_louvain <span class="ot">&lt;-</span> <span class="fu">membership</span>(<span class="fu">cluster_louvain</span>(gu, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight))</span>
-<span id="cb34-78"><a href="#cb34-78"></a></span>
-<span id="cb34-79"><a href="#cb34-79"></a>  same_attr_share <span class="ot">&lt;-</span> {</span>
-<span id="cb34-80"><a href="#cb34-80"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(attr_col) <span class="sc">||</span> <span class="sc">!</span>(attr_col <span class="sc">%in%</span> <span class="fu">names</span>(nodes))) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g)) <span class="cf">else</span> {</span>
-<span id="cb34-81"><a href="#cb34-81"></a>      attr_vec <span class="ot">&lt;-</span> nodes[[attr_col]][<span class="fu">match</span>(<span class="fu">V</span>(g)<span class="sc">$</span>name, nodes[[node_id_col]])]</span>
-<span id="cb34-82"><a href="#cb34-82"></a>      <span class="fu">.same_attribute_share</span>(gu, attr_vec)</span>
-<span id="cb34-83"><a href="#cb34-83"></a>    }</span>
-<span id="cb34-84"><a href="#cb34-84"></a>  }</span>
-<span id="cb34-85"><a href="#cb34-85"></a></span>
-<span id="cb34-86"><a href="#cb34-86"></a>  out <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb34-87"><a href="#cb34-87"></a>    <span class="sc">!!</span><span class="at">node_id_col :=</span> <span class="fu">V</span>(g)<span class="sc">$</span>name,</span>
-<span id="cb34-88"><a href="#cb34-88"></a>    <span class="at">degree        =</span> <span class="fu">as.numeric</span>(deg_all),</span>
-<span id="cb34-89"><a href="#cb34-89"></a>    <span class="at">strength      =</span> <span class="fu">as.numeric</span>(str_all),</span>
-<span id="cb34-90"><a href="#cb34-90"></a>    <span class="at">degree_in     =</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(deg_in))  <span class="fu">as.numeric</span>(deg_in)  <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb34-91"><a href="#cb34-91"></a>    <span class="at">degree_out    =</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(deg_out)) <span class="fu">as.numeric</span>(deg_out) <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb34-92"><a href="#cb34-92"></a>    <span class="at">strength_in   =</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(str_in))  <span class="fu">as.numeric</span>(str_in)  <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb34-93"><a href="#cb34-93"></a>    <span class="at">strength_out  =</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(str_out)) <span class="fu">as.numeric</span>(str_out) <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb34-94"><a href="#cb34-94"></a>    <span class="at">betweenness   =</span> <span class="fu">as.numeric</span>(btw),</span>
-<span id="cb34-95"><a href="#cb34-95"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">as.numeric</span>(clo_harm),</span>
-<span id="cb34-96"><a href="#cb34-96"></a>    <span class="at">eigenvector   =</span> <span class="fu">as.numeric</span>(eig),</span>
-<span id="cb34-97"><a href="#cb34-97"></a>    <span class="at">pagerank      =</span> <span class="fu">as.numeric</span>(pr),</span>
-<span id="cb34-98"><a href="#cb34-98"></a>    <span class="at">hubs          =</span> <span class="fu">as.numeric</span>(hubs),</span>
-<span id="cb34-99"><a href="#cb34-99"></a>    <span class="at">authorities   =</span> <span class="fu">as.numeric</span>(auth),</span>
-<span id="cb34-100"><a href="#cb34-100"></a>    <span class="at">clustering_local =</span> <span class="fu">as.numeric</span>(clustering_local),</span>
-<span id="cb34-101"><a href="#cb34-101"></a>    <span class="at">triangles     =</span> <span class="fu">as.numeric</span>(triangles_cnt),</span>
-<span id="cb34-102"><a href="#cb34-102"></a>    <span class="at">coreness_k    =</span> <span class="fu">as.numeric</span>(coreness_k),</span>
-<span id="cb34-103"><a href="#cb34-103"></a>    <span class="at">constraint_burt =</span> <span class="fu">as.numeric</span>(constraint_burt),</span>
-<span id="cb34-104"><a href="#cb34-104"></a>    <span class="at">avg_neighbor_degree =</span> <span class="fu">as.numeric</span>(knn_vec),</span>
-<span id="cb34-105"><a href="#cb34-105"></a>    <span class="at">eccentricity  =</span> <span class="fu">as.numeric</span>(ecc),</span>
-<span id="cb34-106"><a href="#cb34-106"></a>    <span class="at">component     =</span> <span class="fu">as.integer</span>(comp),</span>
-<span id="cb34-107"><a href="#cb34-107"></a>    <span class="at">community_louvain =</span> <span class="fu">as.integer</span>(comm_louvain),</span>
-<span id="cb34-108"><a href="#cb34-108"></a>    <span class="at">same_attr_share =</span> <span class="fu">as.numeric</span>(same_attr_share)</span>
-<span id="cb34-109"><a href="#cb34-109"></a>  )</span>
-<span id="cb34-110"><a href="#cb34-110"></a></span>
-<span id="cb34-111"><a href="#cb34-111"></a>  nodes <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(out, <span class="at">by =</span> <span class="fu">setNames</span>(node_id_col, node_id_col))</span>
-<span id="cb34-112"><a href="#cb34-112"></a>}</span>
-<span id="cb34-113"><a href="#cb34-113"></a></span>
-<span id="cb34-114"><a href="#cb34-114"></a><span class="co"># ========================================================================</span></span>
-<span id="cb34-115"><a href="#cb34-115"></a><span class="co"># B) From res$B / res$D  (two-mode incidence -&gt; one-mode projection)</span></span>
-<span id="cb34-116"><a href="#cb34-116"></a><span class="co">#     project = "rows" uses node rows (recommended here)</span></span>
-<span id="cb34-117"><a href="#cb34-117"></a><span class="co"># ========================================================================</span></span>
-<span id="cb34-118"><a href="#cb34-118"></a>compute_node_stats_from_res_incidence <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
-<span id="cb34-119"><a href="#cb34-119"></a>  res,</span>
-<span id="cb34-120"><a href="#cb34-120"></a>  <span class="at">node_id_col =</span> <span class="st">"uid"</span>,</span>
-<span id="cb34-121"><a href="#cb34-121"></a>  <span class="at">project =</span> <span class="fu">c</span>(<span class="st">"rows"</span>,<span class="st">"cols"</span>),</span>
-<span id="cb34-122"><a href="#cb34-122"></a>  <span class="at">invert_weights_for_paths =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb34-123"><a href="#cb34-123"></a>  <span class="at">attr_col =</span> <span class="cn">NULL</span></span>
-<span id="cb34-124"><a href="#cb34-124"></a>){</span>
-<span id="cb34-125"><a href="#cb34-125"></a>  <span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"B"</span>,<span class="st">"D"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(res)))</span>
-<span id="cb34-126"><a href="#cb34-126"></a>  project <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(project)</span>
-<span id="cb34-127"><a href="#cb34-127"></a>  B     <span class="ot">&lt;-</span> res<span class="sc">$</span>B</span>
-<span id="cb34-128"><a href="#cb34-128"></a>  nodes <span class="ot">&lt;-</span> res<span class="sc">$</span>D</span>
-<span id="cb34-129"><a href="#cb34-129"></a></span>
-<span id="cb34-130"><a href="#cb34-130"></a>  g_bi <span class="ot">&lt;-</span> <span class="fu">graph_from_biadjacency_matrix</span>(B, <span class="at">weighted =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb34-131"><a href="#cb34-131"></a>  <span class="fu">V</span>(g_bi)<span class="sc">$</span>name <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rownames</span>(B), <span class="fu">colnames</span>(B))</span>
-<span id="cb34-132"><a href="#cb34-132"></a></span>
-<span id="cb34-133"><a href="#cb34-133"></a>  pr <span class="ot">&lt;-</span> <span class="fu">bipartite_projection</span>(g_bi, <span class="at">multiplicity =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb34-134"><a href="#cb34-134"></a>  g1 <span class="ot">&lt;-</span> <span class="cf">if</span> (project <span class="sc">==</span> <span class="st">"rows"</span>) pr<span class="sc">$</span>proj1 <span class="cf">else</span> pr<span class="sc">$</span>proj2</span>
-<span id="cb34-135"><a href="#cb34-135"></a></span>
-<span id="cb34-136"><a href="#cb34-136"></a>  gu <span class="ot">&lt;-</span> <span class="fu">simplify</span>(g1, <span class="at">remove.multiple =</span> <span class="cn">TRUE</span>, <span class="at">remove.loops =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb34-137"><a href="#cb34-137"></a>  w_strength <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="st">"weight"</span> <span class="sc">%in%</span> <span class="fu">edge_attr_names</span>(gu)) <span class="fu">E</span>(gu)<span class="sc">$</span>weight <span class="cf">else</span> <span class="cn">NULL</span></span>
-<span id="cb34-138"><a href="#cb34-138"></a>  w_dist <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(w_strength) <span class="sc">&amp;&amp;</span> invert_weights_for_paths) {</span>
-<span id="cb34-139"><a href="#cb34-139"></a>    <span class="cf">if</span> (<span class="fu">any</span>(w_strength <span class="sc">&lt;=</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="cn">NULL</span> <span class="cf">else</span> <span class="dv">1</span> <span class="sc">/</span> w_strength</span>
-<span id="cb34-140"><a href="#cb34-140"></a>  } <span class="cf">else</span> w_strength</span>
-<span id="cb34-141"><a href="#cb34-141"></a></span>
-<span id="cb34-142"><a href="#cb34-142"></a>  deg   <span class="ot">&lt;-</span> <span class="fu">degree</span>(gu)</span>
-<span id="cb34-143"><a href="#cb34-143"></a>  stren <span class="ot">&lt;-</span> <span class="fu">graph.strength</span>(gu, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight)</span>
-<span id="cb34-144"><a href="#cb34-144"></a>  btw   <span class="ot">&lt;-</span> <span class="fu">betweenness</span>(gu, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">weights =</span> w_dist, <span class="at">normalized =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb34-145"><a href="#cb34-145"></a>  clo_h <span class="ot">&lt;-</span> <span class="fu">.harmonic_closeness</span>(gu, <span class="at">weights =</span> w_dist)</span>
-<span id="cb34-146"><a href="#cb34-146"></a>  eig   <span class="ot">&lt;-</span> <span class="fu">eigen_centrality</span>(gu, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight)<span class="sc">$</span>vector</span>
-<span id="cb34-147"><a href="#cb34-147"></a>  pr    <span class="ot">&lt;-</span> <span class="fu">page_rank</span>(gu, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight)<span class="sc">$</span>vector</span>
-<span id="cb34-148"><a href="#cb34-148"></a>  clust <span class="ot">&lt;-</span> <span class="fu">transitivity</span>(gu, <span class="at">type =</span> <span class="st">"local"</span>, <span class="at">isolates =</span> <span class="st">"zero"</span>)</span>
-<span id="cb34-149"><a href="#cb34-149"></a>  tri   <span class="ot">&lt;-</span> <span class="fu">count_triangles</span>(gu, <span class="at">vids =</span> <span class="fu">V</span>(gu))</span>
-<span id="cb34-150"><a href="#cb34-150"></a>  corek <span class="ot">&lt;-</span> <span class="fu">coreness</span>(gu)</span>
-<span id="cb34-151"><a href="#cb34-151"></a>  cons  <span class="ot">&lt;-</span> <span class="fu">constraint</span>(gu, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight)</span>
-<span id="cb34-152"><a href="#cb34-152"></a>  knn_v <span class="ot">&lt;-</span> <span class="fu">knn</span>(gu)<span class="sc">$</span>knn</span>
-<span id="cb34-153"><a href="#cb34-153"></a>  ecc   <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">tryCatch</span>(<span class="fu">eccentricity</span>(gu, <span class="at">weights =</span> w_dist),</span>
-<span id="cb34-154"><a href="#cb34-154"></a>                                     <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(gu))))</span>
-<span id="cb34-155"><a href="#cb34-155"></a>  comp  <span class="ot">&lt;-</span> <span class="fu">components</span>(gu)<span class="sc">$</span>membership</span>
-<span id="cb34-156"><a href="#cb34-156"></a>  comm  <span class="ot">&lt;-</span> <span class="fu">membership</span>(<span class="fu">cluster_louvain</span>(gu, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight))</span>
-<span id="cb34-157"><a href="#cb34-157"></a></span>
-<span id="cb34-158"><a href="#cb34-158"></a>  same_attr_share <span class="ot">&lt;-</span> {</span>
-<span id="cb34-159"><a href="#cb34-159"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(attr_col) <span class="sc">||</span> <span class="sc">!</span>(attr_col <span class="sc">%in%</span> <span class="fu">names</span>(nodes))) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(gu)) <span class="cf">else</span> {</span>
-<span id="cb34-160"><a href="#cb34-160"></a>      attr_vec <span class="ot">&lt;-</span> nodes[[attr_col]][<span class="fu">match</span>(<span class="fu">V</span>(gu)<span class="sc">$</span>name, nodes[[node_id_col]])]</span>
-<span id="cb34-161"><a href="#cb34-161"></a>      <span class="fu">.same_attribute_share</span>(gu, attr_vec)</span>
-<span id="cb34-162"><a href="#cb34-162"></a>    }</span>
-<span id="cb34-163"><a href="#cb34-163"></a>  }</span>
-<span id="cb34-164"><a href="#cb34-164"></a></span>
-<span id="cb34-165"><a href="#cb34-165"></a>  out <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb34-166"><a href="#cb34-166"></a>    <span class="sc">!!</span><span class="at">node_id_col :=</span> <span class="fu">V</span>(gu)<span class="sc">$</span>name,</span>
-<span id="cb34-167"><a href="#cb34-167"></a>    <span class="at">degree        =</span> <span class="fu">as.numeric</span>(deg),</span>
-<span id="cb34-168"><a href="#cb34-168"></a>    <span class="at">strength      =</span> <span class="fu">as.numeric</span>(stren),</span>
-<span id="cb34-169"><a href="#cb34-169"></a>    <span class="at">betweenness   =</span> <span class="fu">as.numeric</span>(btw),</span>
-<span id="cb34-170"><a href="#cb34-170"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">as.numeric</span>(clo_h),</span>
-<span id="cb34-171"><a href="#cb34-171"></a>    <span class="at">eigenvector   =</span> <span class="fu">as.numeric</span>(eig),</span>
-<span id="cb34-172"><a href="#cb34-172"></a>    <span class="at">pagerank      =</span> <span class="fu">as.numeric</span>(pr),</span>
-<span id="cb34-173"><a href="#cb34-173"></a>    <span class="at">clustering_local =</span> <span class="fu">as.numeric</span>(clust),</span>
-<span id="cb34-174"><a href="#cb34-174"></a>    <span class="at">triangles     =</span> <span class="fu">as.numeric</span>(tri),</span>
-<span id="cb34-175"><a href="#cb34-175"></a>    <span class="at">coreness_k    =</span> <span class="fu">as.numeric</span>(corek),</span>
-<span id="cb34-176"><a href="#cb34-176"></a>    <span class="at">constraint_burt =</span> <span class="fu">as.numeric</span>(cons),</span>
-<span id="cb34-177"><a href="#cb34-177"></a>    <span class="at">avg_neighbor_degree =</span> <span class="fu">as.numeric</span>(knn_v),</span>
-<span id="cb34-178"><a href="#cb34-178"></a>    <span class="at">eccentricity  =</span> <span class="fu">as.numeric</span>(ecc),</span>
-<span id="cb34-179"><a href="#cb34-179"></a>    <span class="at">component     =</span> <span class="fu">as.integer</span>(comp),</span>
-<span id="cb34-180"><a href="#cb34-180"></a>    <span class="at">community_louvain =</span> <span class="fu">as.integer</span>(comm),</span>
-<span id="cb34-181"><a href="#cb34-181"></a>    <span class="at">same_attr_share =</span> <span class="fu">as.numeric</span>(same_attr_share)</span>
-<span id="cb34-182"><a href="#cb34-182"></a>  )</span>
-<span id="cb34-183"><a href="#cb34-183"></a></span>
-<span id="cb34-184"><a href="#cb34-184"></a>  nodes <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(out, <span class="at">by =</span> <span class="fu">setNames</span>(node_id_col, node_id_col))</span>
-<span id="cb34-185"><a href="#cb34-185"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="co"># deps</span></span>
+<span id="cb35-2"><a href="#cb35-2"></a><span class="fu">library</span>(igraph)</span>
+<span id="cb35-3"><a href="#cb35-3"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb35-4"><a href="#cb35-4"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb35-5"><a href="#cb35-5"></a></span>
+<span id="cb35-6"><a href="#cb35-6"></a><span class="co"># ---------- helpers (unchanged) ----------</span></span>
+<span id="cb35-7"><a href="#cb35-7"></a>.harmonic_closeness <span class="ot">&lt;-</span> <span class="cf">function</span>(g, <span class="at">weights =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb35-8"><a href="#cb35-8"></a>  D <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">distances</span>(g, <span class="at">weights =</span> weights))</span>
+<span id="cb35-9"><a href="#cb35-9"></a>  <span class="fu">diag</span>(D) <span class="ot">&lt;-</span> <span class="cn">Inf</span></span>
+<span id="cb35-10"><a href="#cb35-10"></a>  (<span class="fu">rowSums</span>(<span class="dv">1</span> <span class="sc">/</span> D, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">/</span> (<span class="fu">vcount</span>(g) <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb35-11"><a href="#cb35-11"></a>}</span>
+<span id="cb35-12"><a href="#cb35-12"></a>.same_attribute_share <span class="ot">&lt;-</span> <span class="cf">function</span>(g, attr_vec) {</span>
+<span id="cb35-13"><a href="#cb35-13"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(attr_vec)) <span class="fu">return</span>(<span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g)))</span>
+<span id="cb35-14"><a href="#cb35-14"></a>  nbrs <span class="ot">&lt;-</span> <span class="fu">ego</span>(g, <span class="at">order =</span> <span class="dv">1</span>, <span class="at">nodes =</span> <span class="fu">V</span>(g), <span class="at">mode =</span> <span class="st">"all"</span>)</span>
+<span id="cb35-15"><a href="#cb35-15"></a>  <span class="fu">sapply</span>(<span class="fu">seq_along</span>(nbrs), <span class="cf">function</span>(i) {</span>
+<span id="cb35-16"><a href="#cb35-16"></a>    neigh <span class="ot">&lt;-</span> nbrs[[i]]</span>
+<span id="cb35-17"><a href="#cb35-17"></a>    <span class="cf">if</span> (<span class="fu">length</span>(neigh) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NA_real_</span>)</span>
+<span id="cb35-18"><a href="#cb35-18"></a>    <span class="fu">mean</span>(attr_vec[neigh] <span class="sc">==</span> attr_vec[i])</span>
+<span id="cb35-19"><a href="#cb35-19"></a>  })</span>
+<span id="cb35-20"><a href="#cb35-20"></a>}</span>
+<span id="cb35-21"><a href="#cb35-21"></a></span>
+<span id="cb35-22"><a href="#cb35-22"></a><span class="co"># ========================================================================</span></span>
+<span id="cb35-23"><a href="#cb35-23"></a><span class="co"># A) From res$A / res$graph / res$D  (one-mode adjacency)</span></span>
+<span id="cb35-24"><a href="#cb35-24"></a><span class="co"># ========================================================================</span></span>
+<span id="cb35-25"><a href="#cb35-25"></a>compute_node_stats_from_res_adjacency <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb35-26"><a href="#cb35-26"></a>  res,</span>
+<span id="cb35-27"><a href="#cb35-27"></a>  <span class="at">node_id_col =</span> <span class="st">"uid"</span>,</span>
+<span id="cb35-28"><a href="#cb35-28"></a>  <span class="at">use_weights =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb35-29"><a href="#cb35-29"></a>  <span class="at">invert_weights_for_paths =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb35-30"><a href="#cb35-30"></a>  <span class="at">attr_col =</span> <span class="cn">NULL</span></span>
+<span id="cb35-31"><a href="#cb35-31"></a>){</span>
+<span id="cb35-32"><a href="#cb35-32"></a>  <span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"graph"</span>,<span class="st">"D"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(res)))</span>
+<span id="cb35-33"><a href="#cb35-33"></a>  A     <span class="ot">&lt;-</span> res<span class="sc">$</span>A</span>
+<span id="cb35-34"><a href="#cb35-34"></a>  nodes <span class="ot">&lt;-</span> res<span class="sc">$</span>D</span>
+<span id="cb35-35"><a href="#cb35-35"></a>  mode  <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">is_directed</span>(res<span class="sc">$</span>graph)) <span class="st">"directed"</span> <span class="cf">else</span> <span class="st">"undirected"</span></span>
+<span id="cb35-36"><a href="#cb35-36"></a></span>
+<span id="cb35-37"><a href="#cb35-37"></a>  g <span class="ot">&lt;-</span> <span class="fu">graph_from_adjacency_matrix</span>(</span>
+<span id="cb35-38"><a href="#cb35-38"></a>    A,</span>
+<span id="cb35-39"><a href="#cb35-39"></a>    <span class="at">mode     =</span> mode,</span>
+<span id="cb35-40"><a href="#cb35-40"></a>    <span class="at">weighted =</span> use_weights,</span>
+<span id="cb35-41"><a href="#cb35-41"></a>    <span class="at">diag     =</span> <span class="cn">FALSE</span></span>
+<span id="cb35-42"><a href="#cb35-42"></a>  )</span>
+<span id="cb35-43"><a href="#cb35-43"></a>  <span class="fu">V</span>(g)<span class="sc">$</span>name <span class="ot">&lt;-</span> <span class="fu">rownames</span>(A)</span>
+<span id="cb35-44"><a href="#cb35-44"></a></span>
+<span id="cb35-45"><a href="#cb35-45"></a>  w_strength <span class="ot">&lt;-</span> <span class="cf">if</span> (use_weights <span class="sc">&amp;&amp;</span> <span class="st">"weight"</span> <span class="sc">%in%</span> <span class="fu">edge_attr_names</span>(g)) <span class="fu">E</span>(g)<span class="sc">$</span>weight <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb35-46"><a href="#cb35-46"></a>  w_dist <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(w_strength) <span class="sc">&amp;&amp;</span> invert_weights_for_paths) {</span>
+<span id="cb35-47"><a href="#cb35-47"></a>    <span class="cf">if</span> (<span class="fu">any</span>(w_strength <span class="sc">&lt;=</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="cn">NULL</span> <span class="cf">else</span> <span class="dv">1</span> <span class="sc">/</span> w_strength</span>
+<span id="cb35-48"><a href="#cb35-48"></a>  } <span class="cf">else</span> w_strength</span>
+<span id="cb35-49"><a href="#cb35-49"></a></span>
+<span id="cb35-50"><a href="#cb35-50"></a>  gu <span class="ot">&lt;-</span> <span class="fu">simplify</span>(<span class="fu">as_undirected</span>(g, <span class="at">mode =</span> <span class="st">"collapse"</span>, <span class="at">edge.attr.comb =</span> <span class="st">"sum"</span>),</span>
+<span id="cb35-51"><a href="#cb35-51"></a>                 <span class="at">remove.multiple =</span> <span class="cn">TRUE</span>, <span class="at">remove.loops =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb35-52"><a href="#cb35-52"></a></span>
+<span id="cb35-53"><a href="#cb35-53"></a>  deg_all <span class="ot">&lt;-</span> <span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="st">"all"</span>)</span>
+<span id="cb35-54"><a href="#cb35-54"></a>  str_all <span class="ot">&lt;-</span> <span class="fu">graph.strength</span>(g, <span class="at">mode =</span> <span class="st">"all"</span>, <span class="at">weights =</span> w_strength)</span>
+<span id="cb35-55"><a href="#cb35-55"></a>  deg_in  <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="st">"in"</span>)  <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb35-56"><a href="#cb35-56"></a>  deg_out <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="st">"out"</span>) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb35-57"><a href="#cb35-57"></a>  str_in  <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">graph.strength</span>(g, <span class="at">mode =</span> <span class="st">"in"</span>,  <span class="at">weights =</span> w_strength) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb35-58"><a href="#cb35-58"></a>  str_out <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">graph.strength</span>(g, <span class="at">mode =</span> <span class="st">"out"</span>, <span class="at">weights =</span> w_strength) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb35-59"><a href="#cb35-59"></a></span>
+<span id="cb35-60"><a href="#cb35-60"></a>  btw <span class="ot">&lt;-</span> <span class="fu">betweenness</span>(g, <span class="at">directed =</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>), <span class="at">weights =</span> w_dist, <span class="at">normalized =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb35-61"><a href="#cb35-61"></a>  clo_harm <span class="ot">&lt;-</span> <span class="fu">.harmonic_closeness</span>(g, <span class="at">weights =</span> w_dist)</span>
+<span id="cb35-62"><a href="#cb35-62"></a></span>
+<span id="cb35-63"><a href="#cb35-63"></a>  eig  <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">eigen_centrality</span>(g, <span class="at">directed =</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>), <span class="at">weights =</span> w_strength)<span class="sc">$</span>vector,</span>
+<span id="cb35-64"><a href="#cb35-64"></a>                   <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g)))</span>
+<span id="cb35-65"><a href="#cb35-65"></a>  pr   <span class="ot">&lt;-</span> <span class="fu">page_rank</span>(g, <span class="at">directed =</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>), <span class="at">weights =</span> w_strength)<span class="sc">$</span>vector</span>
+<span id="cb35-66"><a href="#cb35-66"></a>  hubs <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">hub_score</span>(g, <span class="at">weights =</span> w_strength)<span class="sc">$</span>vector <span class="cf">else</span> <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g))</span>
+<span id="cb35-67"><a href="#cb35-67"></a>  auth <span class="ot">&lt;-</span> <span class="cf">if</span> (mode <span class="sc">==</span> <span class="st">"directed"</span>) <span class="fu">authority_score</span>(g, <span class="at">weights =</span> w_strength)<span class="sc">$</span>vector <span class="cf">else</span> <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g))</span>
+<span id="cb35-68"><a href="#cb35-68"></a></span>
+<span id="cb35-69"><a href="#cb35-69"></a>  clustering_local <span class="ot">&lt;-</span> <span class="fu">transitivity</span>(gu, <span class="at">type =</span> <span class="st">"local"</span>, <span class="at">isolates =</span> <span class="st">"zero"</span>)</span>
+<span id="cb35-70"><a href="#cb35-70"></a>  triangles_cnt    <span class="ot">&lt;-</span> <span class="fu">count_triangles</span>(gu, <span class="at">vids =</span> <span class="fu">V</span>(gu))</span>
+<span id="cb35-71"><a href="#cb35-71"></a>  coreness_k       <span class="ot">&lt;-</span> <span class="fu">coreness</span>(gu, <span class="at">mode =</span> <span class="st">"all"</span>)</span>
+<span id="cb35-72"><a href="#cb35-72"></a>  constraint_burt  <span class="ot">&lt;-</span> <span class="fu">constraint</span>(g, <span class="at">weights =</span> w_strength)</span>
+<span id="cb35-73"><a href="#cb35-73"></a>  knn_vec          <span class="ot">&lt;-</span> <span class="fu">knn</span>(gu)<span class="sc">$</span>knn</span>
+<span id="cb35-74"><a href="#cb35-74"></a>  ecc <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">tryCatch</span>(<span class="fu">eccentricity</span>(g, <span class="at">weights =</span> w_dist),</span>
+<span id="cb35-75"><a href="#cb35-75"></a>                                   <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g))))</span>
+<span id="cb35-76"><a href="#cb35-76"></a>  comp <span class="ot">&lt;-</span> <span class="fu">components</span>(g)<span class="sc">$</span>membership</span>
+<span id="cb35-77"><a href="#cb35-77"></a>  comm_louvain <span class="ot">&lt;-</span> <span class="fu">membership</span>(<span class="fu">cluster_louvain</span>(gu, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight))</span>
+<span id="cb35-78"><a href="#cb35-78"></a></span>
+<span id="cb35-79"><a href="#cb35-79"></a>  same_attr_share <span class="ot">&lt;-</span> {</span>
+<span id="cb35-80"><a href="#cb35-80"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(attr_col) <span class="sc">||</span> <span class="sc">!</span>(attr_col <span class="sc">%in%</span> <span class="fu">names</span>(nodes))) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(g)) <span class="cf">else</span> {</span>
+<span id="cb35-81"><a href="#cb35-81"></a>      attr_vec <span class="ot">&lt;-</span> nodes[[attr_col]][<span class="fu">match</span>(<span class="fu">V</span>(g)<span class="sc">$</span>name, nodes[[node_id_col]])]</span>
+<span id="cb35-82"><a href="#cb35-82"></a>      <span class="fu">.same_attribute_share</span>(gu, attr_vec)</span>
+<span id="cb35-83"><a href="#cb35-83"></a>    }</span>
+<span id="cb35-84"><a href="#cb35-84"></a>  }</span>
+<span id="cb35-85"><a href="#cb35-85"></a></span>
+<span id="cb35-86"><a href="#cb35-86"></a>  out <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb35-87"><a href="#cb35-87"></a>    <span class="sc">!!</span><span class="at">node_id_col :=</span> <span class="fu">V</span>(g)<span class="sc">$</span>name,</span>
+<span id="cb35-88"><a href="#cb35-88"></a>    <span class="at">degree        =</span> <span class="fu">as.numeric</span>(deg_all),</span>
+<span id="cb35-89"><a href="#cb35-89"></a>    <span class="at">strength      =</span> <span class="fu">as.numeric</span>(str_all),</span>
+<span id="cb35-90"><a href="#cb35-90"></a>    <span class="at">degree_in     =</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(deg_in))  <span class="fu">as.numeric</span>(deg_in)  <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb35-91"><a href="#cb35-91"></a>    <span class="at">degree_out    =</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(deg_out)) <span class="fu">as.numeric</span>(deg_out) <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb35-92"><a href="#cb35-92"></a>    <span class="at">strength_in   =</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(str_in))  <span class="fu">as.numeric</span>(str_in)  <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb35-93"><a href="#cb35-93"></a>    <span class="at">strength_out  =</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(str_out)) <span class="fu">as.numeric</span>(str_out) <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb35-94"><a href="#cb35-94"></a>    <span class="at">betweenness   =</span> <span class="fu">as.numeric</span>(btw),</span>
+<span id="cb35-95"><a href="#cb35-95"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">as.numeric</span>(clo_harm),</span>
+<span id="cb35-96"><a href="#cb35-96"></a>    <span class="at">eigenvector   =</span> <span class="fu">as.numeric</span>(eig),</span>
+<span id="cb35-97"><a href="#cb35-97"></a>    <span class="at">pagerank      =</span> <span class="fu">as.numeric</span>(pr),</span>
+<span id="cb35-98"><a href="#cb35-98"></a>    <span class="at">hubs          =</span> <span class="fu">as.numeric</span>(hubs),</span>
+<span id="cb35-99"><a href="#cb35-99"></a>    <span class="at">authorities   =</span> <span class="fu">as.numeric</span>(auth),</span>
+<span id="cb35-100"><a href="#cb35-100"></a>    <span class="at">clustering_local =</span> <span class="fu">as.numeric</span>(clustering_local),</span>
+<span id="cb35-101"><a href="#cb35-101"></a>    <span class="at">triangles     =</span> <span class="fu">as.numeric</span>(triangles_cnt),</span>
+<span id="cb35-102"><a href="#cb35-102"></a>    <span class="at">coreness_k    =</span> <span class="fu">as.numeric</span>(coreness_k),</span>
+<span id="cb35-103"><a href="#cb35-103"></a>    <span class="at">constraint_burt =</span> <span class="fu">as.numeric</span>(constraint_burt),</span>
+<span id="cb35-104"><a href="#cb35-104"></a>    <span class="at">avg_neighbor_degree =</span> <span class="fu">as.numeric</span>(knn_vec),</span>
+<span id="cb35-105"><a href="#cb35-105"></a>    <span class="at">eccentricity  =</span> <span class="fu">as.numeric</span>(ecc),</span>
+<span id="cb35-106"><a href="#cb35-106"></a>    <span class="at">component     =</span> <span class="fu">as.integer</span>(comp),</span>
+<span id="cb35-107"><a href="#cb35-107"></a>    <span class="at">community_louvain =</span> <span class="fu">as.integer</span>(comm_louvain),</span>
+<span id="cb35-108"><a href="#cb35-108"></a>    <span class="at">same_attr_share =</span> <span class="fu">as.numeric</span>(same_attr_share)</span>
+<span id="cb35-109"><a href="#cb35-109"></a>  )</span>
+<span id="cb35-110"><a href="#cb35-110"></a></span>
+<span id="cb35-111"><a href="#cb35-111"></a>  nodes <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(out, <span class="at">by =</span> <span class="fu">setNames</span>(node_id_col, node_id_col))</span>
+<span id="cb35-112"><a href="#cb35-112"></a>}</span>
+<span id="cb35-113"><a href="#cb35-113"></a></span>
+<span id="cb35-114"><a href="#cb35-114"></a><span class="co"># ========================================================================</span></span>
+<span id="cb35-115"><a href="#cb35-115"></a><span class="co"># B) From res$B / res$D  (two-mode incidence -&gt; one-mode projection)</span></span>
+<span id="cb35-116"><a href="#cb35-116"></a><span class="co">#     project = "rows" uses node rows (recommended here)</span></span>
+<span id="cb35-117"><a href="#cb35-117"></a><span class="co"># ========================================================================</span></span>
+<span id="cb35-118"><a href="#cb35-118"></a>compute_node_stats_from_res_incidence <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb35-119"><a href="#cb35-119"></a>  res,</span>
+<span id="cb35-120"><a href="#cb35-120"></a>  <span class="at">node_id_col =</span> <span class="st">"uid"</span>,</span>
+<span id="cb35-121"><a href="#cb35-121"></a>  <span class="at">project =</span> <span class="fu">c</span>(<span class="st">"rows"</span>,<span class="st">"cols"</span>),</span>
+<span id="cb35-122"><a href="#cb35-122"></a>  <span class="at">invert_weights_for_paths =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb35-123"><a href="#cb35-123"></a>  <span class="at">attr_col =</span> <span class="cn">NULL</span></span>
+<span id="cb35-124"><a href="#cb35-124"></a>){</span>
+<span id="cb35-125"><a href="#cb35-125"></a>  <span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"B"</span>,<span class="st">"D"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(res)))</span>
+<span id="cb35-126"><a href="#cb35-126"></a>  project <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(project)</span>
+<span id="cb35-127"><a href="#cb35-127"></a>  B     <span class="ot">&lt;-</span> res<span class="sc">$</span>B</span>
+<span id="cb35-128"><a href="#cb35-128"></a>  nodes <span class="ot">&lt;-</span> res<span class="sc">$</span>D</span>
+<span id="cb35-129"><a href="#cb35-129"></a></span>
+<span id="cb35-130"><a href="#cb35-130"></a>  g_bi <span class="ot">&lt;-</span> <span class="fu">graph_from_biadjacency_matrix</span>(B, <span class="at">weighted =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb35-131"><a href="#cb35-131"></a>  <span class="fu">V</span>(g_bi)<span class="sc">$</span>name <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rownames</span>(B), <span class="fu">colnames</span>(B))</span>
+<span id="cb35-132"><a href="#cb35-132"></a></span>
+<span id="cb35-133"><a href="#cb35-133"></a>  pr <span class="ot">&lt;-</span> <span class="fu">bipartite_projection</span>(g_bi, <span class="at">multiplicity =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb35-134"><a href="#cb35-134"></a>  g1 <span class="ot">&lt;-</span> <span class="cf">if</span> (project <span class="sc">==</span> <span class="st">"rows"</span>) pr<span class="sc">$</span>proj1 <span class="cf">else</span> pr<span class="sc">$</span>proj2</span>
+<span id="cb35-135"><a href="#cb35-135"></a></span>
+<span id="cb35-136"><a href="#cb35-136"></a>  gu <span class="ot">&lt;-</span> <span class="fu">simplify</span>(g1, <span class="at">remove.multiple =</span> <span class="cn">TRUE</span>, <span class="at">remove.loops =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb35-137"><a href="#cb35-137"></a>  w_strength <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="st">"weight"</span> <span class="sc">%in%</span> <span class="fu">edge_attr_names</span>(gu)) <span class="fu">E</span>(gu)<span class="sc">$</span>weight <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb35-138"><a href="#cb35-138"></a>  w_dist <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(w_strength) <span class="sc">&amp;&amp;</span> invert_weights_for_paths) {</span>
+<span id="cb35-139"><a href="#cb35-139"></a>    <span class="cf">if</span> (<span class="fu">any</span>(w_strength <span class="sc">&lt;=</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="cn">NULL</span> <span class="cf">else</span> <span class="dv">1</span> <span class="sc">/</span> w_strength</span>
+<span id="cb35-140"><a href="#cb35-140"></a>  } <span class="cf">else</span> w_strength</span>
+<span id="cb35-141"><a href="#cb35-141"></a></span>
+<span id="cb35-142"><a href="#cb35-142"></a>  deg   <span class="ot">&lt;-</span> <span class="fu">degree</span>(gu)</span>
+<span id="cb35-143"><a href="#cb35-143"></a>  stren <span class="ot">&lt;-</span> <span class="fu">graph.strength</span>(gu, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight)</span>
+<span id="cb35-144"><a href="#cb35-144"></a>  btw   <span class="ot">&lt;-</span> <span class="fu">betweenness</span>(gu, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">weights =</span> w_dist, <span class="at">normalized =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb35-145"><a href="#cb35-145"></a>  clo_h <span class="ot">&lt;-</span> <span class="fu">.harmonic_closeness</span>(gu, <span class="at">weights =</span> w_dist)</span>
+<span id="cb35-146"><a href="#cb35-146"></a>  eig   <span class="ot">&lt;-</span> <span class="fu">eigen_centrality</span>(gu, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight)<span class="sc">$</span>vector</span>
+<span id="cb35-147"><a href="#cb35-147"></a>  pr    <span class="ot">&lt;-</span> <span class="fu">page_rank</span>(gu, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight)<span class="sc">$</span>vector</span>
+<span id="cb35-148"><a href="#cb35-148"></a>  clust <span class="ot">&lt;-</span> <span class="fu">transitivity</span>(gu, <span class="at">type =</span> <span class="st">"local"</span>, <span class="at">isolates =</span> <span class="st">"zero"</span>)</span>
+<span id="cb35-149"><a href="#cb35-149"></a>  tri   <span class="ot">&lt;-</span> <span class="fu">count_triangles</span>(gu, <span class="at">vids =</span> <span class="fu">V</span>(gu))</span>
+<span id="cb35-150"><a href="#cb35-150"></a>  corek <span class="ot">&lt;-</span> <span class="fu">coreness</span>(gu)</span>
+<span id="cb35-151"><a href="#cb35-151"></a>  cons  <span class="ot">&lt;-</span> <span class="fu">constraint</span>(gu, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight)</span>
+<span id="cb35-152"><a href="#cb35-152"></a>  knn_v <span class="ot">&lt;-</span> <span class="fu">knn</span>(gu)<span class="sc">$</span>knn</span>
+<span id="cb35-153"><a href="#cb35-153"></a>  ecc   <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">tryCatch</span>(<span class="fu">eccentricity</span>(gu, <span class="at">weights =</span> w_dist),</span>
+<span id="cb35-154"><a href="#cb35-154"></a>                                     <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(gu))))</span>
+<span id="cb35-155"><a href="#cb35-155"></a>  comp  <span class="ot">&lt;-</span> <span class="fu">components</span>(gu)<span class="sc">$</span>membership</span>
+<span id="cb35-156"><a href="#cb35-156"></a>  comm  <span class="ot">&lt;-</span> <span class="fu">membership</span>(<span class="fu">cluster_louvain</span>(gu, <span class="at">weights =</span> <span class="fu">E</span>(gu)<span class="sc">$</span>weight))</span>
+<span id="cb35-157"><a href="#cb35-157"></a></span>
+<span id="cb35-158"><a href="#cb35-158"></a>  same_attr_share <span class="ot">&lt;-</span> {</span>
+<span id="cb35-159"><a href="#cb35-159"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(attr_col) <span class="sc">||</span> <span class="sc">!</span>(attr_col <span class="sc">%in%</span> <span class="fu">names</span>(nodes))) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">vcount</span>(gu)) <span class="cf">else</span> {</span>
+<span id="cb35-160"><a href="#cb35-160"></a>      attr_vec <span class="ot">&lt;-</span> nodes[[attr_col]][<span class="fu">match</span>(<span class="fu">V</span>(gu)<span class="sc">$</span>name, nodes[[node_id_col]])]</span>
+<span id="cb35-161"><a href="#cb35-161"></a>      <span class="fu">.same_attribute_share</span>(gu, attr_vec)</span>
+<span id="cb35-162"><a href="#cb35-162"></a>    }</span>
+<span id="cb35-163"><a href="#cb35-163"></a>  }</span>
+<span id="cb35-164"><a href="#cb35-164"></a></span>
+<span id="cb35-165"><a href="#cb35-165"></a>  out <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb35-166"><a href="#cb35-166"></a>    <span class="sc">!!</span><span class="at">node_id_col :=</span> <span class="fu">V</span>(gu)<span class="sc">$</span>name,</span>
+<span id="cb35-167"><a href="#cb35-167"></a>    <span class="at">degree        =</span> <span class="fu">as.numeric</span>(deg),</span>
+<span id="cb35-168"><a href="#cb35-168"></a>    <span class="at">strength      =</span> <span class="fu">as.numeric</span>(stren),</span>
+<span id="cb35-169"><a href="#cb35-169"></a>    <span class="at">betweenness   =</span> <span class="fu">as.numeric</span>(btw),</span>
+<span id="cb35-170"><a href="#cb35-170"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">as.numeric</span>(clo_h),</span>
+<span id="cb35-171"><a href="#cb35-171"></a>    <span class="at">eigenvector   =</span> <span class="fu">as.numeric</span>(eig),</span>
+<span id="cb35-172"><a href="#cb35-172"></a>    <span class="at">pagerank      =</span> <span class="fu">as.numeric</span>(pr),</span>
+<span id="cb35-173"><a href="#cb35-173"></a>    <span class="at">clustering_local =</span> <span class="fu">as.numeric</span>(clust),</span>
+<span id="cb35-174"><a href="#cb35-174"></a>    <span class="at">triangles     =</span> <span class="fu">as.numeric</span>(tri),</span>
+<span id="cb35-175"><a href="#cb35-175"></a>    <span class="at">coreness_k    =</span> <span class="fu">as.numeric</span>(corek),</span>
+<span id="cb35-176"><a href="#cb35-176"></a>    <span class="at">constraint_burt =</span> <span class="fu">as.numeric</span>(cons),</span>
+<span id="cb35-177"><a href="#cb35-177"></a>    <span class="at">avg_neighbor_degree =</span> <span class="fu">as.numeric</span>(knn_v),</span>
+<span id="cb35-178"><a href="#cb35-178"></a>    <span class="at">eccentricity  =</span> <span class="fu">as.numeric</span>(ecc),</span>
+<span id="cb35-179"><a href="#cb35-179"></a>    <span class="at">component     =</span> <span class="fu">as.integer</span>(comp),</span>
+<span id="cb35-180"><a href="#cb35-180"></a>    <span class="at">community_louvain =</span> <span class="fu">as.integer</span>(comm),</span>
+<span id="cb35-181"><a href="#cb35-181"></a>    <span class="at">same_attr_share =</span> <span class="fu">as.numeric</span>(same_attr_share)</span>
+<span id="cb35-182"><a href="#cb35-182"></a>  )</span>
+<span id="cb35-183"><a href="#cb35-183"></a></span>
+<span id="cb35-184"><a href="#cb35-184"></a>  nodes <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(out, <span class="at">by =</span> <span class="fu">setNames</span>(node_id_col, node_id_col))</span>
+<span id="cb35-185"><a href="#cb35-185"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="co"># adjacency-based (uses res$A, res$graph, res$D)</span></span>
-<span id="cb35-2"><a href="#cb35-2"></a>stats_adj <span class="ot">&lt;-</span> <span class="fu">compute_node_stats_from_res_adjacency</span>(res, <span class="at">attr_col =</span> <span class="st">"gender"</span>)</span>
-<span id="cb35-3"><a href="#cb35-3"></a></span>
-<span id="cb35-4"><a href="#cb35-4"></a><span class="co"># incidence-based row projection (uses res$B, res$D)</span></span>
-<span id="cb35-5"><a href="#cb35-5"></a>stats_inc <span class="ot">&lt;-</span> <span class="fu">compute_node_stats_from_res_incidence</span>(res, <span class="at">project =</span> <span class="st">"rows"</span>, <span class="at">attr_col =</span> <span class="st">"gender"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="co"># # adjacency-based (uses res$A, res$graph, res$D)</span></span>
+<span id="cb36-2"><a href="#cb36-2"></a><span class="co"># stats_adj &lt;- compute_node_stats_from_res_adjacency(res, attr_col = "gender")</span></span>
+<span id="cb36-3"><a href="#cb36-3"></a></span>
+<span id="cb36-4"><a href="#cb36-4"></a><span class="co"># # incidence-based row projection (uses res$B, res$D)</span></span>
+<span id="cb36-5"><a href="#cb36-5"></a><span class="co"># stats_inc &lt;- compute_node_stats_from_res_incidence(res, project = "rows", attr_col = "gender")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>stats_adj <span class="sc">|&gt;</span></span>
-<span id="cb36-2"><a href="#cb36-2"></a>  <span class="fu">group_by</span>(gender) <span class="sc">|&gt;</span></span>
-<span id="cb36-3"><a href="#cb36-3"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb36-4"><a href="#cb36-4"></a>    <span class="at">degree =</span> <span class="fu">mean</span>(degree),</span>
-<span id="cb36-5"><a href="#cb36-5"></a>    <span class="at">betweenness =</span> <span class="fu">mean</span>(betweenness),</span>
-<span id="cb36-6"><a href="#cb36-6"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">mean</span>(closeness_harmonic),</span>
-<span id="cb36-7"><a href="#cb36-7"></a>    <span class="at">eigenvector =</span> <span class="fu">mean</span>(eigenvector),</span>
-<span id="cb36-8"><a href="#cb36-8"></a>    <span class="at">clustering_local =</span> <span class="fu">mean</span>(clustering_local),</span>
-<span id="cb36-9"><a href="#cb36-9"></a>    <span class="at">coreness_k =</span> <span class="fu">mean</span>(coreness_k),</span>
-<span id="cb36-10"><a href="#cb36-10"></a>    <span class="at">constraint_burt =</span> <span class="fu">mean</span>(constraint_burt)</span>
-<span id="cb36-11"><a href="#cb36-11"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["gender"],"name":[1],"type":["chr"],"align":["left"]},{"label":["degree"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["betweenness"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["closeness_harmonic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["eigenvector"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["clustering_local"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["coreness_k"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["constraint_burt"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"female","2":"3.244147","3":"0.004207611","4":"0.5876687","5":"0.003416267","6":"0.3484423","7":"2.130435","8":"0.7086918"},{"1":"male","2":"4.090000","3":"0.008404219","4":"0.6413285","5":"0.003364037","6":"0.3314300","7":"2.260000","8":"0.6858677"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="co"># stats_adj |&gt;</span></span>
+<span id="cb37-2"><a href="#cb37-2"></a><span class="co">#   group_by(gender) |&gt;</span></span>
+<span id="cb37-3"><a href="#cb37-3"></a><span class="co">#   summarise(</span></span>
+<span id="cb37-4"><a href="#cb37-4"></a><span class="co">#     degree = mean(degree),</span></span>
+<span id="cb37-5"><a href="#cb37-5"></a><span class="co">#     betweenness = mean(betweenness),</span></span>
+<span id="cb37-6"><a href="#cb37-6"></a><span class="co">#     closeness_harmonic = mean(closeness_harmonic),</span></span>
+<span id="cb37-7"><a href="#cb37-7"></a><span class="co">#     eigenvector = mean(eigenvector),</span></span>
+<span id="cb37-8"><a href="#cb37-8"></a><span class="co">#     clustering_local = mean(clustering_local),</span></span>
+<span id="cb37-9"><a href="#cb37-9"></a><span class="co">#     coreness_k = mean(coreness_k),</span></span>
+<span id="cb37-10"><a href="#cb37-10"></a><span class="co">#     constraint_burt = mean(constraint_burt)</span></span>
+<span id="cb37-11"><a href="#cb37-11"></a><span class="co">#   )</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>stats_adj <span class="sc">|&gt;</span></span>
-<span id="cb37-2"><a href="#cb37-2"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span></span>
-<span id="cb37-3"><a href="#cb37-3"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb37-4"><a href="#cb37-4"></a>    <span class="at">degree =</span> <span class="fu">mean</span>(degree),</span>
-<span id="cb37-5"><a href="#cb37-5"></a>    <span class="at">betweenness =</span> <span class="fu">mean</span>(betweenness),</span>
-<span id="cb37-6"><a href="#cb37-6"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">mean</span>(closeness_harmonic),</span>
-<span id="cb37-7"><a href="#cb37-7"></a>    <span class="at">eigenvector =</span> <span class="fu">mean</span>(eigenvector),</span>
-<span id="cb37-8"><a href="#cb37-8"></a>    <span class="at">clustering_local =</span> <span class="fu">mean</span>(clustering_local),</span>
-<span id="cb37-9"><a href="#cb37-9"></a>    <span class="at">coreness_k =</span> <span class="fu">mean</span>(coreness_k),</span>
-<span id="cb37-10"><a href="#cb37-10"></a>    <span class="at">constraint_burt =</span> <span class="fu">mean</span>(constraint_burt)</span>
-<span id="cb37-11"><a href="#cb37-11"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["origin"],"name":[1],"type":["chr"],"align":["left"]},{"label":["degree"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["betweenness"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["closeness_harmonic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["eigenvector"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["clustering_local"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["coreness_k"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["constraint_burt"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"Africa","2":"2.772727","3":"0.003125991","4":"0.4732379","5":"1.285619e-06","6":"0.3166126","7":"1.863636","8":"0.8268286"},{"1":"Americas","2":"3.027778","3":"0.006006007","4":"0.5826436","5":"4.108845e-09","6":"0.2636243","7":"1.944444","8":"0.7390114"},{"1":"Asia and Oceania","2":"2.428571","3":"0.003028434","4":"0.5743416","5":"1.882160e-11","6":"0.4216097","7":"1.857143","8":"0.7706480"},{"1":"Europe","2":"3.209877","3":"0.003692706","4":"0.5662554","5":"6.267455e-03","6":"0.3584206","7":"2.111111","8":"0.7157182"},{"1":"Netherlands","2":"4.273038","3":"0.008339668","4":"0.6594896","5":"3.465155e-03","6":"0.3364059","7":"2.334471","8":"0.6600747"},{"1":"NA","2":"3.675676","3":"0.008222134","4":"0.6383382","5":"7.683748e-07","6":"0.2666848","7":"2.351351","8":"0.6960690"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="co"># stats_adj |&gt;</span></span>
+<span id="cb38-2"><a href="#cb38-2"></a><span class="co">#   group_by(origin) |&gt;</span></span>
+<span id="cb38-3"><a href="#cb38-3"></a><span class="co">#   summarise(</span></span>
+<span id="cb38-4"><a href="#cb38-4"></a><span class="co">#     degree = mean(degree),</span></span>
+<span id="cb38-5"><a href="#cb38-5"></a><span class="co">#     betweenness = mean(betweenness),</span></span>
+<span id="cb38-6"><a href="#cb38-6"></a><span class="co">#     closeness_harmonic = mean(closeness_harmonic),</span></span>
+<span id="cb38-7"><a href="#cb38-7"></a><span class="co">#     eigenvector = mean(eigenvector),</span></span>
+<span id="cb38-8"><a href="#cb38-8"></a><span class="co">#     clustering_local = mean(clustering_local),</span></span>
+<span id="cb38-9"><a href="#cb38-9"></a><span class="co">#     coreness_k = mean(coreness_k),</span></span>
+<span id="cb38-10"><a href="#cb38-10"></a><span class="co">#     constraint_burt = mean(constraint_burt)</span></span>
+<span id="cb38-11"><a href="#cb38-11"></a><span class="co">#   )</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>stats_adj <span class="sc">|&gt;</span></span>
-<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">group_by</span>(position) <span class="sc">|&gt;</span></span>
-<span id="cb38-3"><a href="#cb38-3"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb38-4"><a href="#cb38-4"></a>    <span class="at">degree =</span> <span class="fu">mean</span>(degree),</span>
-<span id="cb38-5"><a href="#cb38-5"></a>    <span class="at">betweenness =</span> <span class="fu">mean</span>(betweenness),</span>
-<span id="cb38-6"><a href="#cb38-6"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">mean</span>(closeness_harmonic),</span>
-<span id="cb38-7"><a href="#cb38-7"></a>    <span class="at">eigenvector =</span> <span class="fu">mean</span>(eigenvector),</span>
-<span id="cb38-8"><a href="#cb38-8"></a>    <span class="at">clustering_local =</span> <span class="fu">mean</span>(clustering_local),</span>
-<span id="cb38-9"><a href="#cb38-9"></a>    <span class="at">coreness_k =</span> <span class="fu">mean</span>(coreness_k),</span>
-<span id="cb38-10"><a href="#cb38-10"></a>    <span class="at">constraint_burt =</span> <span class="fu">mean</span>(constraint_burt)</span>
-<span id="cb38-11"><a href="#cb38-11"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["position"],"name":[1],"type":["chr"],"align":["left"]},{"label":["degree"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["betweenness"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["closeness_harmonic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["eigenvector"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["clustering_local"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["coreness_k"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["constraint_burt"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"Assistant Professor","2":"3.383333","3":"0.0038368882","4":"0.5953333","5":"8.332713e-03","6":"0.2516258","7":"2.150000","8":"0.6896858"},{"1":"Associate Professor","2":"5.185185","3":"0.0158268866","4":"0.6093006","5":"1.144250e-04","6":"0.2171916","7":"2.382716","8":"0.5844567"},{"1":"Full Professor","2":"6.270270","3":"0.0162588709","4":"0.6953580","5":"9.146335e-03","6":"0.2213767","7":"2.639640","8":"0.5122591"},{"1":"Lecturer","2":"2.400000","3":"0.0016501234","4":"0.5162275","5":"2.943831e-12","6":"0.3740476","7":"1.850000","8":"0.8086779"},{"1":"PhD Candidate","2":"2.319767","3":"0.0003750691","4":"0.6199985","5":"3.610073e-05","6":"0.5280869","7":"2.052326","8":"0.7942991"},{"1":"Postdoctoral Researcher","2":"2.960000","3":"0.0016881642","4":"0.6439071","5":"2.363849e-09","6":"0.2136364","7":"2.000000","8":"0.7501623"},{"1":"Researcher","2":"2.413043","3":"0.0017878704","4":"0.5503693","5":"6.163258e-07","6":"0.4297101","7":"2.021739","8":"0.8243745"},{"1":"Staff","2":"2.500000","3":"0.0008028978","4":"0.6476501","5":"6.040909e-14","6":"0.6458333","7":"2.000000","8":"0.6966447"},{"1":"NA","2":"1.437500","3":"0.0002386602","4":"0.4108282","5":"4.288367e-15","6":"0.1666667","7":"1.375000","8":"0.9783549"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="co"># stats_adj |&gt;</span></span>
+<span id="cb39-2"><a href="#cb39-2"></a><span class="co">#   group_by(position) |&gt;</span></span>
+<span id="cb39-3"><a href="#cb39-3"></a><span class="co">#   summarise(</span></span>
+<span id="cb39-4"><a href="#cb39-4"></a><span class="co">#     degree = mean(degree),</span></span>
+<span id="cb39-5"><a href="#cb39-5"></a><span class="co">#     betweenness = mean(betweenness),</span></span>
+<span id="cb39-6"><a href="#cb39-6"></a><span class="co">#     closeness_harmonic = mean(closeness_harmonic),</span></span>
+<span id="cb39-7"><a href="#cb39-7"></a><span class="co">#     eigenvector = mean(eigenvector),</span></span>
+<span id="cb39-8"><a href="#cb39-8"></a><span class="co">#     clustering_local = mean(clustering_local),</span></span>
+<span id="cb39-9"><a href="#cb39-9"></a><span class="co">#     coreness_k = mean(coreness_k),</span></span>
+<span id="cb39-10"><a href="#cb39-10"></a><span class="co">#     constraint_burt = mean(constraint_burt)</span></span>
+<span id="cb39-11"><a href="#cb39-11"></a><span class="co">#   )</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>stats_adj <span class="sc">|&gt;</span></span>
-<span id="cb39-2"><a href="#cb39-2"></a>  <span class="fu">group_by</span>(university) <span class="sc">|&gt;</span></span>
-<span id="cb39-3"><a href="#cb39-3"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb39-4"><a href="#cb39-4"></a>    <span class="at">degree =</span> <span class="fu">mean</span>(degree),</span>
-<span id="cb39-5"><a href="#cb39-5"></a>    <span class="at">betweenness =</span> <span class="fu">mean</span>(betweenness),</span>
-<span id="cb39-6"><a href="#cb39-6"></a>    <span class="at">closeness_harmonic =</span> <span class="fu">mean</span>(closeness_harmonic),</span>
-<span id="cb39-7"><a href="#cb39-7"></a>    <span class="at">eigenvector =</span> <span class="fu">mean</span>(eigenvector),</span>
-<span id="cb39-8"><a href="#cb39-8"></a>    <span class="at">clustering_local =</span> <span class="fu">mean</span>(clustering_local),</span>
-<span id="cb39-9"><a href="#cb39-9"></a>    <span class="at">coreness_k =</span> <span class="fu">mean</span>(coreness_k),</span>
-<span id="cb39-10"><a href="#cb39-10"></a>    <span class="at">constraint_burt =</span> <span class="fu">mean</span>(constraint_burt)</span>
-<span id="cb39-11"><a href="#cb39-11"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["university"],"name":[1],"type":["chr"],"align":["left"]},{"label":["degree"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["betweenness"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["closeness_harmonic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["eigenvector"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["clustering_local"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["coreness_k"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["constraint_burt"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"EUR","2":"3.292683","3":"0.005989056","4":"0.6592736","5":"2.476432e-02","6":"0.2999032","7":"2.109756","8":"0.6962310"},{"1":"LU","2":"2.022222","3":"0.001848955","4":"0.2880064","5":"1.337507e-13","6":"0.2125573","7":"1.400000","8":"0.8347237"},{"1":"RU","2":"4.032967","3":"0.007810823","4":"0.7132471","5":"1.826458e-11","6":"0.4515595","7":"2.483516","8":"0.6432280"},{"1":"RUG","2":"4.782051","3":"0.009404678","4":"0.7786472","5":"7.863974e-09","6":"0.3684009","7":"2.525641","8":"0.6522611"},{"1":"TU","2":"2.000000","3":"0.002190314","4":"0.6140365","5":"4.074643e-12","6":"0.0000000","7":"2.000000","8":"0.6250000"},{"1":"UU","2":"4.578947","3":"0.008097906","4":"0.8356761","5":"2.085704e-12","6":"0.4963219","7":"2.631579","8":"0.6460375"},{"1":"UVA","2":"3.725000","3":"0.005441726","4":"0.5293262","5":"6.766735e-12","6":"0.2635309","7":"2.141667","8":"0.7134215"},{"1":"VU","2":"3.105691","3":"0.005212175","4":"0.5089477","5":"1.092764e-10","6":"0.3201750","7":"1.983740","8":"0.7229979"},{"1":"NA","2":"2.000000","3":"0.001405162","4":"0.5417546","5":"4.690719e-16","6":"0.1666667","7":"1.500000","8":"0.8035483"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a><span class="co"># stats_adj |&gt;</span></span>
+<span id="cb40-2"><a href="#cb40-2"></a><span class="co">#   group_by(university) |&gt;</span></span>
+<span id="cb40-3"><a href="#cb40-3"></a><span class="co">#   summarise(</span></span>
+<span id="cb40-4"><a href="#cb40-4"></a><span class="co">#     degree = mean(degree),</span></span>
+<span id="cb40-5"><a href="#cb40-5"></a><span class="co">#     betweenness = mean(betweenness),</span></span>
+<span id="cb40-6"><a href="#cb40-6"></a><span class="co">#     closeness_harmonic = mean(closeness_harmonic),</span></span>
+<span id="cb40-7"><a href="#cb40-7"></a><span class="co">#     eigenvector = mean(eigenvector),</span></span>
+<span id="cb40-8"><a href="#cb40-8"></a><span class="co">#     clustering_local = mean(clustering_local),</span></span>
+<span id="cb40-9"><a href="#cb40-9"></a><span class="co">#     coreness_k = mean(coreness_k),</span></span>
+<span id="cb40-10"><a href="#cb40-10"></a><span class="co">#     constraint_burt = mean(constraint_burt)</span></span>
+<span id="cb40-11"><a href="#cb40-11"></a><span class="co">#   )</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 
