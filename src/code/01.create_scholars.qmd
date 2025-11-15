@@ -2,6 +2,9 @@
 title: "Data Processing Scholars"
 date: today
 
+website:
+  back-to-top-navigation: true
+
 format:
   html:
     code-links:
@@ -38,6 +41,7 @@ source("src/utils/custom_functions.r")
 ### Loading in Raw Data
 
 This function loads in Excel files containing information on scholars working in Dutch sociology and political science departments. The data have been collected at three points in time — 19 December 2022, 19 April 2024, and 1 October 2025 — to capture changes in staff composition over time. Each Excel file includes two sheets, one for Sociologie and one for Politicologie, which are read in separately, harmonized, and then concatenated into a single dataset that combines all disciplines and time points.
+
 
 ```{r}
 # define tailored functions

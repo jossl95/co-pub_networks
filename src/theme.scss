@@ -8,3 +8,27 @@
 .cell-output-stderr {
   color: var( --bs-secondary);
 }
+
+#quarto-back-to-top {
+  width: $grid-margin-width;
+  background-color: $primary;
+  color: $body-bg;
+  box-shadow: 0 .2rem .5rem rgba($black, .25),0 0 .05rem rgba($black, .25);
+}
+
+@media (
+    min-width: calc($grid-body-width + $grid-margin-width + $grid-column-gutter-width + 150px)
+  ){
+  #quarto-back-to-top {
+  display: none;
+  position: fixed;
+  width: $grid-margin-width;
+
+  /* move reference point 200px to the right of center */
+  left: calc(
+    50% + calc(($grid-body-width + $grid-margin-width)/2)
+    - calc($grid-margin-width / 3) 
+    + calc($grid-column-gutter-width * 1.5));
+  transform: translateX(-50%);
+}
+}

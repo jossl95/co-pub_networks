@@ -151,14 +151,14 @@
     "href": "src/code/01.create_scholars.html",
     "title": "Data Processing Scholars",
     "section": "",
-    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  926713 49.5    1862775 99.5         NA  1210668 64.7\nVcells 1839402 14.1    8388608 64.0      16384  3391026 25.9\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(renv)\nlibrary(stringr)\nlibrary(janitor)\nlibrary(lubridate)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  926709 49.5    1862834 99.5         NA  1210502 64.7\nVcells 1839437 14.1    8388608 64.0      16384  3210506 24.5\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(renv)\nlibrary(stringr)\nlibrary(janitor)\nlibrary(lubridate)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
   },
   {
     "objectID": "src/code/01.create_scholars.html#getting-started",
     "href": "src/code/01.create_scholars.html#getting-started",
     "title": "Data Processing Scholars",
     "section": "",
-    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  926713 49.5    1862775 99.5         NA  1210668 64.7\nVcells 1839402 14.1    8388608 64.0      16384  3391026 25.9\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(renv)\nlibrary(stringr)\nlibrary(janitor)\nlibrary(lubridate)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
+    "text": "# clear the global environment\nrm(list = ls())\ngc()\n\n          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)\nNcells  926709 49.5    1862834 99.5         NA  1210502 64.7\nVcells 1839437 14.1    8388608 64.0      16384  3210506 24.5\n\n\n\n# load and activate packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(renv)\nlibrary(stringr)\nlibrary(janitor)\nlibrary(lubridate)\n\n# load custom functions\nsource(\"src/utils/custom_functions.r\")\n.load_quarto_dependencies()"
   },
   {
     "objectID": "src/code/01.create_scholars.html#functions",

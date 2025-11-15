@@ -6,8 +6,9 @@ format:
     grid:
       body-width: 900px
     toc: false
----
 
+resources: papers/_output/paper1.pdf
+---
 
 ## Description
 This project reconstructs scientific co-publishing networks in the Dutch social sciences and links them to inequalities in academic careers. We compile a near full-population roster of scholars in sociology and political science departments at Dutch universities across multiple time points, harmonising names, positions, gender, and (national/ethnic) origin from departmental records and external sources. 

@@ -42,7 +42,8 @@ website:
         href: https://github.com/jossl95/co-pub_networks
         aria-label: GitHub
   page-footer: 
-    center: "Copyright © 2025 | Jos Slabbekoorn" 
+    center: "Copyright © 2025 | Jos Slabbekoorn"
+  back-to-top-navigation: true
   
 
 execute:
@@ -60,7 +61,7 @@ format:
 
     theme:
       light: [cosmo, src/theme.scss]
-      dark: [cosmo, src/theme-dark.scss]
+      dark: [cosmo, src/theme.scss, src/theme-dark.scss]
     highlight-style: arrow
 
 excluded:
