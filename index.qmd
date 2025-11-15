@@ -7,6 +7,9 @@ format:
       body-width: 900px
     toc: false
 
+website:
+  back-to-top-navigation: false
+
 resources: papers/_output/paper1.pdf
 ---
 
@@ -30,4 +33,5 @@ This website serves as the replication package for the project. It documents the
 ### Description
 This paper examines co-authorship networks in the Dutch social sciences and asks who gains access to high-status collaborators. We use the near full-population data on scholars, institutions, and publications, scraped purposefully for this research project. It studies how gender and (national/ethnic) origin and the intersection there of shape stratify scientific , and network positions operate distinctly for Men and Women, Dutch, European, Non-European.
 :::
+
 ::::

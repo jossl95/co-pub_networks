@@ -1,4 +1,30 @@
 /*-- scss:rules --*/
+// Base font sizes
+$mobile-scale: 0.9;
+$font-size-mobile: calc($font-size-base * $mobile-scale);
+
+// Scales for headings relative to base
+$h1-scale: calc($h1-font-size / $font-size-base / 1.25)!default; 
+$h2-scale: calc($h2-font-size / $font-size-base / 1.2)!default;
+$h3-scale: calc($h3-font-size / $font-size-base / 1.15)!default;
+$h4-scale: calc($h4-font-size / $font-size-base / 1.1)!default;
+$h5-scale: calc($h5-font-size / $font-size-base / 1.05)!default;
+$h6-scale: calc($h6-font-size / $font-size-base / 1)!default;
+
+// ---------- Mobile / narrow (< $grid-body-width) ----------
+@media (max-width: $grid-body-width) {
+  body {
+    font-size: $font-size-mobile;
+  }
+
+  h1 { font-size: calc($h1-scale * $font-size-mobile);}
+  h2 { font-size: calc($h2-scale * $font-size-mobile);}
+  h3 { font-size: calc($h3-scale * $font-size-mobile);}
+  h4 { font-size: calc($h4-scale * $font-size-mobile);}
+  h5 { font-size: calc($h5-scale * $font-size-mobile);}
+  h6 { font-size: calc($h6-scale * $font-size-mobile);}
+}
+///
 
 // change color of code block output
 .cell-output

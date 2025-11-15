@@ -2,9 +2,6 @@
 title: "Data Processing Scholars"
 date: today
 
-website:
-  back-to-top-navigation: true
-
 format:
   html:
     code-links:
