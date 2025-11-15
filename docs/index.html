@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="src/code/styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -151,6 +151,17 @@ ul.task-list li input[type="checkbox"] {
   </li>
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-utilities" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Utilities</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-utilities">    
+        <li>
+    <a class="dropdown-item" href="./src/code/_custom_functions.qmd">
+ <span class="dropdown-text">Custom Functions</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/jossl95/co-pub_networks/tree/main"> <i class="bi bi-github" role="img" aria-label="GitHub">
 </i> 
@@ -167,16 +178,7 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description">Description</a></li>
-  <li><a href="#manuscript" id="toc-manuscript" class="nav-link" data-scroll-target="#manuscript">Manuscript</a></li>
-  </ul>
-</nav>
-    </div>
+    
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -201,38 +203,20 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="description" class="level2">
 <h2 class="anchored" data-anchor-id="description">Description</h2>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Project Description goes here</p>
-</div>
-</div>
+<p>This project reconstructs scientific co-publishing networks in the Dutch social sciences and links them to inequalities in academic careers. We compile a near full-population roster of scholars in sociology and political science departments at Dutch universities across multiple time points, harmonising names, positions, gender, and (national/ethnic) origin from departmental records and external sources.</p>
+<p>Using OpenAlex as a bibliometric backbone, we scrape and clean publication records, author IDs, and affiliations, and then build co-authorship networks that trace who collaborates with whom, when, and in what institutional and disciplinary settings. The project combines this infrastructure with longitudinal network models to study how collaboration opportunities, network positions, and access to high-status collaborators are stratified along lines of gender and origin, and how these patterns differ across intersectional groups.</p>
+<p>This website serves as the replication package for the project. It documents the full workflow—from creating the scholar roster and processing names, gender, and ethnicity, through scraping and merging OpenAlex data, to descriptive and model-based analyses—and provides the code and materials needed to reproduce all empirical results.</p>
 </section>
 <section id="manuscript" class="level2">
 <h2 class="anchored" data-anchor-id="manuscript">Manuscript</h2>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>A reference to the manuscript pdf goes here.</p>
-<!-- 
-```{=html}
-<embed src="<path_to_manuscript>.pdf" width="140px" height="210px" />
-``` 
--->
+<div class="columns">
+<div class="column" style="width:50%;">
+<embed src="papers/_output/paper1.pdf" width="95%" height="530px">
+</div><div class="column" style="width:50%;">
+<section id="description-1" class="level3">
+<h3 class="anchored" data-anchor-id="description-1">Description</h3>
+<p>This paper examines co-authorship networks in the Dutch social sciences and asks who gains access to high-status collaborators. We use the near full-population data on scholars, institutions, and publications, scraped purposefully for this research project. It studies how gender and (national/ethnic) origin and the intersection there of shape stratify scientific , and network positions operate distinctly for Men and Women, Dutch, European, Non-European.</p>
+</section>
 </div>
 </div>
 

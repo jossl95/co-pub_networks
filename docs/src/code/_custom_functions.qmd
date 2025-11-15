@@ -1,0 +1,162 @@
+---
+title: "Custom Functions"
+---
+
+## Functions
+
+### Load core Quarto dependencies
+This helper loads core packages needed for Quarto rendering (knitr and rmarkdown).  
+Use it at the start of documents to ensure the required engines are available.
+```{r}
+#| id: load-quarto-dependencies
+.load_quarto_dependencies = function(){
+  library(knitr)
+  library(rmarkdown)
+}
+```
+
+### (Deprecated) Check and load packages
+
+Legacy helper for checking and loading packages.
+It now only issues a deprecation warning and advises using renv plus explicit `library()` calls instead.
+```{r}
+fpackage.check <- function(packages) {
+  lifecycle::deprecate_warn(
+    when = "2025-10-27",
+    what = "fpackage.check()",
+    details = paste0("Use renv for package installation and library()",
+                     " for loading packages.")
+  )
+  message(
+    "⚠️ fpackage.check() is deprecated. Use renv + library() calls instead."
+  )
+  
+  invisible(TRUE)
+}
+```
+
+### Save object to dated .RData file
+
+Saves an R object to a .RData file in a processed data directory,
+automatically prefixing the filename with the current date (YYYYMMDD).
+```{r}
+fsave <- function(x, file, location = "./data/processed/", ...) {
+  # if directory does not exist, create it
+  if (!dir.exists(location)) dir.create(location)
+  
+  # create filename with date
+  datename <- substr(gsub("[:-]", "", Sys.time()), 1, 8)
+  totalname <- paste(location, datename, file, sep = "")
+
+  # save file
+  print(paste("SAVING: ", totalname, sep = ""))
+  save(x, file = totalname)
+}
+```
+
+### Save object to dated RDS file
+
+Saves an R object to a compressed .Rds file in a processed data directory,
+automatically prefixing the filename with the current date (YYYYMMDD).
+```{r}
+fsaveRDS <- function(x, file, location = "./data/processed/", ...) {
+  # if directory does not exist, create it
+  if (!dir.exists(location)) dir.create(location)
+  
+  # create filename with date
+  datename <- substr(gsub("[:-]", "", Sys.time()), 1, 8)
+  totalname <- paste(location, datename, file, ".Rds", sep = "")
+
+  # save file
+  print(paste("SAVING: ", totalname, sep = ""))
+  saveRDS(x, file = totalname, compress = "bzip2")
+}
+```
+
+### Read an RDS file
+
+Thin wrapper around readRDS() for symmetry with fsaveRDS().
+Given a file path, it loads and returns the stored object.
+```{r}
+freadRDS = function(fileName){
+  # load file and return object
+  readRDS(fileName)
+}
+```
+
+### Read the most recent dated RDS file by name
+
+Loads the latest (most recent by filename) .Rds file in a data subdirectory,
+based on a base filename and a dated naming convention. Skips old_ files by default.
+
+```{r}
+freadRDS2 = function(file, location = "processed", ...){
+  # make sure that the location is nested within the data directory
+  if (!str_detect(file, '.Rds')) file = paste0(file, ".Rds")
+
+  # format location and create the location if it does not exist
+  if (!str_detect(location, 'data/')) location = file.path('data', location)
+  if (!file.exists(location)) warning("the location does not exist ", location)
+
+  # list and filter by literal substring 'file'
+  files = list.files(location, pattern = file)
+  files = files[grepl(file, files, fixed = TRUE)]
+
+  # exclude old_* unless the requested file itself starts with old_
+  if (!startsWith(file, "old_")) files = files[!startsWith(files, "old_")] 
+  if (startsWith(file, "old_")) files = files[startsWith(files, "old_")] 
+
+  # create file_path for the most recent file
+  file_name = sort(files, decreasing = TRUE, na.last = NA)[1]
+  file_path = file.path(location, file_name)
+
+  return(readRDS(file_path))
+}
+```
+
+### Load .RData file and return its object
+
+Loads a .RData file and returns the loaded object directly,
+instead of leaving it in the global environment.
+
+```{r}
+fload <- function(filename) {
+  load(filename)
+  get(ls()[ls() != "filename"])
+}
+
+```
+
+### Normalise personal names
+
+Normalises name strings by transliterating Cyrillic to Latin,
+stripping accents, lowercasing, and trimming whitespace for robust matching.
+```{r}
+normalize_name = function(x) {
+  x = as.character(x)
+
+  # mark Cyrillic
+  has_cyr = stringi::stri_detect_charclass(x, "\\p{Script=Cyrillic}")
+
+  # transliterate only Cyrillic -> Latin
+  x[has_cyr] = stringi::stri_trans_general(x[has_cyr], "Cyrillic-Latin")
+
+  # strip accents for all, lowercase, trim, squish
+  x = stringi::stri_trans_general(x, "Latin-ASCII")
+  x = tolower(x)
+  x = str_squish(x)
+  trimws(x)
+}
+# colorize <- function(x, color) {sprintf("<span style='color: %s;'>%s</span>", color, x) }
+```
+
+### Check whether code should be evaluated (Quarto param)
+
+Utility to check a params$eval (or param$eval) flag safely.
+Returns TRUE/FALSE depending on the parameter, and FALSE if the parameter is missing.
+
+```{r}
+eval_ok <- tryCatch(isTRUE(params$eval), error = function(...) {
+  tryCatch(isTRUE(param$eval), error = function(...) FALSE)
+})
+```

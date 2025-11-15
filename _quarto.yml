@@ -5,6 +5,7 @@ project:
   render:
     - index.qmd
     - src/code/*.qmd
+    - src/code/
   post-render:
     - src/utils/rename_old_datafiles.R
 
@@ -37,6 +38,10 @@ website:
           - href: src/code/09.descriptive_analysis.qmd
             text: Descriptive Analyses
     right:
+      - text: Utilities
+        menu:
+          - href: src/code/0a.custom_functions.qmd
+            text: Custom Functions
       - icon: github
         href: https://github.com/jossl95/co-pub_networks/tree/main
         aria-label: GitHub

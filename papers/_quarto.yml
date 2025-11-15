@@ -22,5 +22,5 @@ format:
     number-depth: 3
     linestretch: 1.5
 
-  docx:
+  hikmah-manuscript-docx:
     papersize: a4

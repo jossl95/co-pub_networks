@@ -1,5 +1,7 @@
 ---
 title: "Intersectional Inequalities in Co-Authorship Networks: Gender, Origin, and Collaboration in Dutch Social Science"
+code-repo: "Access the code, data, and analysis at <https://github.com/jossl95/co-pub_networks>"
+correspondence-prefix: "Correspondence concerning this article should be addressed to"
 
 author: 
   - name: "Jos Slabbekoorn"
@@ -10,14 +12,16 @@ author:
         name: Radboud University Nijmegen
         department: Sociology
         country: The Netherlands
+    attributes:
+      corresponding: true
   - name: "Jochem Tolsma"
     orcid: 0000-0002-4411-6932
     affiliations:
+      - ref: RU
       - id: RUG
         name: University of Groningen
         department: Sociology
         country: The Netherlands
-      - ref: RU
   - name: "Bas Hofstra"
     orcid: 0000-0002-9052-956X
     affiliations:
@@ -26,6 +30,15 @@ author:
     orcid: 0000-0002-4486-253X
     affiliations:
       - ref: RU
+
+date: today
+
+# keywords: 
+#   - Academic Collaboration
+#   - Science of Science
+#   - Co-Authorship Networks
+#   - Intersectionality
+#   - Stochastic Actor-oriented Models
 ---
 
 {{< include paper1/introduction.qmd >}}

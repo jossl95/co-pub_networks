@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-15">
 
-<title>Create patch for institutions – Networks</title>
+<title>Custom Functions – Networks</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -107,6 +106,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
 <script src="../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="src/code/styles.css">
 </head>
@@ -189,6 +217,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-utilities" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Utilities</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-utilities">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/0a.custom_functions.html">
+ <span class="dropdown-text">Custom Functions</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/jossl95/co-pub_networks/tree/main"> <i class="bi bi-github" role="img" aria-label="GitHub">
 </i> 
@@ -210,7 +249,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
+  <li><a href="#functions" id="toc-functions" class="nav-link active" data-scroll-target="#functions">Functions</a>
+  <ul class="collapse">
+  <li><a href="#load-core-quarto-dependencies" id="toc-load-core-quarto-dependencies" class="nav-link" data-scroll-target="#load-core-quarto-dependencies">Load core Quarto dependencies</a></li>
+  <li><a href="#deprecated-check-and-load-packages" id="toc-deprecated-check-and-load-packages" class="nav-link" data-scroll-target="#deprecated-check-and-load-packages">(Deprecated) Check and load packages</a></li>
+  <li><a href="#save-object-to-dated-.rdata-file" id="toc-save-object-to-dated-.rdata-file" class="nav-link" data-scroll-target="#save-object-to-dated-.rdata-file">Save object to dated .RData file</a></li>
+  <li><a href="#save-object-to-dated-rds-file" id="toc-save-object-to-dated-rds-file" class="nav-link" data-scroll-target="#save-object-to-dated-rds-file">Save object to dated RDS file</a></li>
+  <li><a href="#read-an-rds-file" id="toc-read-an-rds-file" class="nav-link" data-scroll-target="#read-an-rds-file">Read an RDS file</a></li>
+  <li><a href="#read-the-most-recent-dated-rds-file-by-name" id="toc-read-the-most-recent-dated-rds-file-by-name" class="nav-link" data-scroll-target="#read-the-most-recent-dated-rds-file-by-name">Read the most recent dated RDS file by name</a></li>
+  <li><a href="#load-.rdata-file-and-return-its-object" id="toc-load-.rdata-file-and-return-its-object" class="nav-link" data-scroll-target="#load-.rdata-file-and-return-its-object">Load .RData file and return its object</a></li>
+  <li><a href="#normalise-personal-names" id="toc-normalise-personal-names" class="nav-link" data-scroll-target="#normalise-personal-names">Normalise personal names</a></li>
+  <li><a href="#check-whether-code-should-be-evaluated-quarto-param" id="toc-check-whether-code-should-be-evaluated-quarto-param" class="nav-link" data-scroll-target="#check-whether-code-should-be-evaluated-quarto-param">Check whether code should be evaluated (Quarto param)</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -219,7 +269,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Create patch for institutions</h1>
+<h1 class="title">Custom Functions</h1>
 </div>
 
 
@@ -227,12 +277,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="quarto-title-meta">
 
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">November 15, 2025</p>
-    </div>
-  </div>
   
     
   </div>
@@ -242,153 +286,155 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="getting-started" class="level2">
-<h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
+<section id="functions" class="level2">
+<h2 class="anchored" data-anchor-id="functions">Functions</h2>
+<section id="load-core-quarto-dependencies" class="level3">
+<h3 class="anchored" data-anchor-id="load-core-quarto-dependencies">Load core Quarto dependencies</h3>
+<p>This helper loads core packages needed for Quarto rendering (knitr and rmarkdown).<br>
+Use it at the start of documents to ensure the required engines are available.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># clear the global environment</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>.load_quarto_dependencies <span class="ot">=</span> <span class="cf">function</span>(){</span>
+<span id="cb1-2"><a href="#cb1-2"></a>  <span class="fu">library</span>(knitr)</span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="fu">library</span>(rmarkdown)</span>
+<span id="cb1-4"><a href="#cb1-4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="deprecated-check-and-load-packages" class="level3">
+<h3 class="anchored" data-anchor-id="deprecated-check-and-load-packages">(Deprecated) Check and load packages</h3>
+<p>Legacy helper for checking and loading packages. It now only issues a deprecation warning and advises using renv plus explicit <code>library()</code> calls instead.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># load and activate packages</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb2-4"><a href="#cb2-4"></a></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="co"># load custom functions</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="fu">.load_quarto_dependencies</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>fpackage.check <span class="ot">&lt;-</span> <span class="cf">function</span>(packages) {</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  lifecycle<span class="sc">::</span><span class="fu">deprecate_warn</span>(</span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="at">when =</span> <span class="st">"2025-10-27"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4"></a>    <span class="at">what =</span> <span class="st">"fpackage.check()"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="at">details =</span> <span class="fu">paste0</span>(<span class="st">"Use renv for package installation and library()"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6"></a>                     <span class="st">" for loading packages."</span>)</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  )</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  <span class="fu">message</span>(</span>
+<span id="cb2-9"><a href="#cb2-9"></a>    <span class="st">"⚠️ fpackage.check() is deprecated. Use renv + library() calls instead."</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>  )</span>
+<span id="cb2-11"><a href="#cb2-11"></a>  </span>
+<span id="cb2-12"><a href="#cb2-12"></a>  <span class="fu">invisible</span>(<span class="cn">TRUE</span>)</span>
+<span id="cb2-13"><a href="#cb2-13"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="save-object-to-dated-.rdata-file" class="level3">
+<h3 class="anchored" data-anchor-id="save-object-to-dated-.rdata-file">Save object to dated .RData file</h3>
+<p>Saves an R object to a .RData file in a processed data directory, automatically prefixing the filename with the current date (YYYYMMDD).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholars'</span>, <span class="at">location=</span><span class="st">'clean'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>fsave <span class="ot">&lt;-</span> <span class="cf">function</span>(x, file, <span class="at">location =</span> <span class="st">"./data/processed/"</span>, ...) {</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  <span class="co"># if directory does not exist, create it</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(location)) <span class="fu">dir.create</span>(location)</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  </span>
+<span id="cb3-5"><a href="#cb3-5"></a>  <span class="co"># create filename with date</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a>  datename <span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">gsub</span>(<span class="st">"[:-]"</span>, <span class="st">""</span>, <span class="fu">Sys.time</span>()), <span class="dv">1</span>, <span class="dv">8</span>)</span>
+<span id="cb3-7"><a href="#cb3-7"></a>  totalname <span class="ot">&lt;-</span> <span class="fu">paste</span>(location, datename, file, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb3-8"><a href="#cb3-8"></a></span>
+<span id="cb3-9"><a href="#cb3-9"></a>  <span class="co"># save file</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"SAVING: "</span>, totalname, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb3-11"><a href="#cb3-11"></a>  <span class="fu">save</span>(x, <span class="at">file =</span> totalname)</span>
+<span id="cb3-12"><a href="#cb3-12"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="save-object-to-dated-rds-file" class="level3">
+<h3 class="anchored" data-anchor-id="save-object-to-dated-rds-file">Save object to dated RDS file</h3>
+<p>Saves an R object to a compressed .Rds file in a processed data directory, automatically prefixing the filename with the current date (YYYYMMDD).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>unnest_authors <span class="ot">&lt;-</span> <span class="cf">function</span>(works) {</span>
-<span id="cb4-2"><a href="#cb4-2"></a>  works <span class="ot">=</span> works <span class="sc">|&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a>    <span class="co"># 1) Make sure each element of `authorships` is a tibble (handles NULLs/lists)</span></span>
-<span id="cb4-4"><a href="#cb4-4"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb4-5"><a href="#cb4-5"></a>      <span class="at">authorships =</span> <span class="fu">map</span>(authorships, <span class="sc">~</span></span>
-<span id="cb4-6"><a href="#cb4-6"></a>        <span class="cf">if</span> (<span class="fu">is.null</span>(.x)) <span class="fu">tibble</span>()</span>
-<span id="cb4-7"><a href="#cb4-7"></a>        <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">is.data.frame</span>(.x)) <span class="fu">as_tibble</span>(.x)</span>
-<span id="cb4-8"><a href="#cb4-8"></a>        <span class="cf">else</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>(.x)</span>
-<span id="cb4-9"><a href="#cb4-9"></a>      )</span>
-<span id="cb4-10"><a href="#cb4-10"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb4-11"><a href="#cb4-11"></a>    <span class="co"># 2) One row per author record (keeps works with 0 authors via keep_empty)</span></span>
-<span id="cb4-12"><a href="#cb4-12"></a>    <span class="fu">unnest</span>(authorships, <span class="at">keep_empty =</span> <span class="cn">TRUE</span>, <span class="at">names_sep =</span> <span class="st">"__"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-13"><a href="#cb4-13"></a>    <span class="co"># 3) Make sure each element of `affiliations` is a tibble (handles NULLs/lists)</span></span>
-<span id="cb4-14"><a href="#cb4-14"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb4-15"><a href="#cb4-15"></a>      <span class="at">authorships__affiliations =</span> <span class="fu">map</span>(authorships__affiliations, <span class="sc">~</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a>        <span class="cf">if</span> (<span class="fu">is.null</span>(.x)) <span class="fu">tibble</span>()</span>
-<span id="cb4-17"><a href="#cb4-17"></a>        <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">is.data.frame</span>(.x)) <span class="fu">as_tibble</span>(.x)</span>
-<span id="cb4-18"><a href="#cb4-18"></a>        <span class="cf">else</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>(.x)</span>
-<span id="cb4-19"><a href="#cb4-19"></a>      )</span>
-<span id="cb4-20"><a href="#cb4-20"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb4-21"><a href="#cb4-21"></a>    <span class="co"># 4) One row per author record (keeps works with 0 authors via keep_empty)</span></span>
-<span id="cb4-22"><a href="#cb4-22"></a>    <span class="fu">unnest</span>(authorships__affiliations, <span class="at">keep_empty =</span> <span class="cn">TRUE</span>, <span class="at">names_sep =</span> <span class="st">"_"</span>)  <span class="sc">|&gt;</span></span>
-<span id="cb4-23"><a href="#cb4-23"></a>    <span class="co"># 3) Make sure each element of `affiliations` is a tibble (handles NULLs/lists)</span></span>
-<span id="cb4-24"><a href="#cb4-24"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb4-25"><a href="#cb4-25"></a>      <span class="at">last_known_institutions =</span> <span class="fu">map</span>(last_known_institutions, <span class="sc">~</span></span>
-<span id="cb4-26"><a href="#cb4-26"></a>        <span class="cf">if</span> (<span class="fu">is.null</span>(.x)) <span class="fu">tibble</span>()</span>
-<span id="cb4-27"><a href="#cb4-27"></a>        <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">is.data.frame</span>(.x)) <span class="fu">as_tibble</span>(.x)</span>
-<span id="cb4-28"><a href="#cb4-28"></a>        <span class="cf">else</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>(.x)</span>
-<span id="cb4-29"><a href="#cb4-29"></a>      )</span>
-<span id="cb4-30"><a href="#cb4-30"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb4-31"><a href="#cb4-31"></a>    <span class="co"># 4) One row per author record (keeps works with 0 authors via keep_empty)</span></span>
-<span id="cb4-32"><a href="#cb4-32"></a>    <span class="fu">unnest</span>(last_known_institutions, <span class="at">keep_empty =</span> <span class="cn">TRUE</span>, <span class="at">names_sep =</span> <span class="st">"_"</span>)</span>
-<span id="cb4-33"><a href="#cb4-33"></a></span>
-<span id="cb4-34"><a href="#cb4-34"></a>  <span class="fu">return</span>(works)</span>
-<span id="cb4-35"><a href="#cb4-35"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>fsaveRDS <span class="ot">&lt;-</span> <span class="cf">function</span>(x, file, <span class="at">location =</span> <span class="st">"./data/processed/"</span>, ...) {</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="co"># if directory does not exist, create it</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(location)) <span class="fu">dir.create</span>(location)</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  </span>
+<span id="cb4-5"><a href="#cb4-5"></a>  <span class="co"># create filename with date</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>  datename <span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">gsub</span>(<span class="st">"[:-]"</span>, <span class="st">""</span>, <span class="fu">Sys.time</span>()), <span class="dv">1</span>, <span class="dv">8</span>)</span>
+<span id="cb4-7"><a href="#cb4-7"></a>  totalname <span class="ot">&lt;-</span> <span class="fu">paste</span>(location, datename, file, <span class="st">".Rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb4-8"><a href="#cb4-8"></a></span>
+<span id="cb4-9"><a href="#cb4-9"></a>  <span class="co"># save file</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"SAVING: "</span>, totalname, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb4-11"><a href="#cb4-11"></a>  <span class="fu">saveRDS</span>(x, <span class="at">file =</span> totalname, <span class="at">compress =</span> <span class="st">"bzip2"</span>)</span>
+<span id="cb4-12"><a href="#cb4-12"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="read-an-rds-file" class="level3">
+<h3 class="anchored" data-anchor-id="read-an-rds-file">Read an RDS file</h3>
+<p>Thin wrapper around readRDS() for symmetry with fsaveRDS(). Given a file path, it loads and returns the stored object.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>authors <span class="ot">=</span> data[[<span class="st">'scholars_oa'</span>]] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>()</span>
-<span id="cb5-2"><a href="#cb5-2"></a>works <span class="ot">=</span> data[[<span class="st">'works'</span>]] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>display_name)</span>
-<span id="cb5-3"><a href="#cb5-3"></a></span>
-<span id="cb5-4"><a href="#cb5-4"></a>works_authors <span class="ot">=</span>  works<span class="sc">|&gt;</span></span>
-<span id="cb5-5"><a href="#cb5-5"></a>  <span class="fu">left_join</span>(authors, <span class="at">by =</span> <span class="fu">join_by</span>(uid), <span class="at">relationship =</span> <span class="st">"many-to-many"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a>  <span class="fu">unnest_authors</span>() <span class="sc">|&gt;</span></span>
-<span id="cb5-7"><a href="#cb5-7"></a>  <span class="fu">filter</span>(uid <span class="sc">==</span> authorships__uid) <span class="sc">|&gt;</span></span>
-<span id="cb5-8"><a href="#cb5-8"></a>  <span class="fu">filter</span>(</span>
-<span id="cb5-9"><a href="#cb5-9"></a>    <span class="sc">!</span><span class="fu">is.na</span>(authorships__affiliations_id) <span class="sc">|</span></span>
-<span id="cb5-10"><a href="#cb5-10"></a>    authorships__affiliations_id <span class="sc">==</span> last_known_institutions_id</span>
-<span id="cb5-11"><a href="#cb5-11"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>freadRDS <span class="ot">=</span> <span class="cf">function</span>(fileName){</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="co"># load file and return object</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>  <span class="fu">readRDS</span>(fileName)</span>
+<span id="cb5-4"><a href="#cb5-4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="read-the-most-recent-dated-rds-file-by-name" class="level3">
+<h3 class="anchored" data-anchor-id="read-the-most-recent-dated-rds-file-by-name">Read the most recent dated RDS file by name</h3>
+<p>Loads the latest (most recent by filename) .Rds file in a data subdirectory, based on a base filename and a dated naming convention. Skips old_ files by default.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>universities <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb6-2"><a href="#cb6-2"></a>    <span class="st">"https://openalex.org/I865915315"</span>, <span class="st">"https://openalex.org/I887064364"</span>,</span>
-<span id="cb6-3"><a href="#cb6-3"></a>    <span class="st">"https://openalex.org/I121797337"</span>, <span class="st">"https://openalex.org/I145872427"</span>, </span>
-<span id="cb6-4"><a href="#cb6-4"></a>    <span class="st">"https://openalex.org/I193662353"</span>, <span class="st">"https://openalex.org/I913958620"</span>, </span>
-<span id="cb6-5"><a href="#cb6-5"></a>    <span class="st">"https://openalex.org/I193700539"</span>, <span class="st">"https://openalex.org/I169381384"</span>, </span>
-<span id="cb6-6"><a href="#cb6-6"></a>    <span class="st">"https://openalex.org/I913481162"</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>freadRDS2 <span class="ot">=</span> <span class="cf">function</span>(file, <span class="at">location =</span> <span class="st">"processed"</span>, ...){</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="co"># make sure that the location is nested within the data directory</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">str_detect</span>(file, <span class="st">'.Rds'</span>)) file <span class="ot">=</span> <span class="fu">paste0</span>(file, <span class="st">".Rds"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4"></a></span>
+<span id="cb6-5"><a href="#cb6-5"></a>  <span class="co"># format location and create the location if it does not exist</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">str_detect</span>(location, <span class="st">'data/'</span>)) location <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, location)</span>
+<span id="cb6-7"><a href="#cb6-7"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(location)) <span class="fu">warning</span>(<span class="st">"the location does not exist "</span>, location)</span>
 <span id="cb6-8"><a href="#cb6-8"></a></span>
-<span id="cb6-9"><a href="#cb6-9"></a>dates <span class="ot">=</span> works_authors <span class="sc">|&gt;</span></span>
-<span id="cb6-10"><a href="#cb6-10"></a>    <span class="fu">distinct</span>(</span>
-<span id="cb6-11"><a href="#cb6-11"></a>      authorships__display_name, authorships__author_id, </span>
-<span id="cb6-12"><a href="#cb6-12"></a>      authorships__affiliations_id, authorships__affiliations_display_name, </span>
-<span id="cb6-13"><a href="#cb6-13"></a>      publication_date, <span class="at">.keep_all=</span><span class="cn">TRUE</span></span>
-<span id="cb6-14"><a href="#cb6-14"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb6-15"><a href="#cb6-15"></a>    <span class="fu">filter</span>(authorships__affiliations_id <span class="sc">%in%</span> universities) <span class="sc">|&gt;</span></span>
-<span id="cb6-16"><a href="#cb6-16"></a>    <span class="fu">arrange</span>(publication_date) <span class="sc">|&gt;</span></span>
-<span id="cb6-17"><a href="#cb6-17"></a>    <span class="fu">group_by</span>(</span>
-<span id="cb6-18"><a href="#cb6-18"></a>      uid, authorships__author_id, authorships__affiliations_display_name, </span>
-<span id="cb6-19"><a href="#cb6-19"></a>      authorships__affiliations_id</span>
-<span id="cb6-20"><a href="#cb6-20"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb6-21"><a href="#cb6-21"></a>    <span class="fu">summarize</span>(</span>
-<span id="cb6-22"><a href="#cb6-22"></a>        <span class="at">uid =</span> <span class="fu">first</span>(uid),</span>
-<span id="cb6-23"><a href="#cb6-23"></a>        <span class="at">authorships__display_name =</span> <span class="fu">first</span>(authorships__display_name),</span>
-<span id="cb6-24"><a href="#cb6-24"></a>        <span class="at">first_date =</span> <span class="fu">first</span>(publication_date) ,</span>
-<span id="cb6-25"><a href="#cb6-25"></a>        <span class="at">last_date =</span> <span class="fu">last</span>(publication_date)</span>
-<span id="cb6-26"><a href="#cb6-26"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb6-27"><a href="#cb6-27"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb6-28"><a href="#cb6-28"></a>      <span class="at">first_date =</span> first_date <span class="sc">%m-%</span> <span class="fu">months</span>(<span class="dv">18</span>),</span>
-<span id="cb6-29"><a href="#cb6-29"></a>      <span class="at">last_date =</span> last_date <span class="sc">%m+%</span> <span class="fu">months</span>(<span class="dv">6</span>)</span>
-<span id="cb6-30"><a href="#cb6-30"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-9"><a href="#cb6-9"></a>  <span class="co"># list and filter by literal substring 'file'</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a>  files <span class="ot">=</span> <span class="fu">list.files</span>(location, <span class="at">pattern =</span> file)</span>
+<span id="cb6-11"><a href="#cb6-11"></a>  files <span class="ot">=</span> files[<span class="fu">grepl</span>(file, files, <span class="at">fixed =</span> <span class="cn">TRUE</span>)]</span>
+<span id="cb6-12"><a href="#cb6-12"></a></span>
+<span id="cb6-13"><a href="#cb6-13"></a>  <span class="co"># exclude old_* unless the requested file itself starts with old_</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">startsWith</span>(file, <span class="st">"old_"</span>)) files <span class="ot">=</span> files[<span class="sc">!</span><span class="fu">startsWith</span>(files, <span class="st">"old_"</span>)] </span>
+<span id="cb6-15"><a href="#cb6-15"></a>  <span class="cf">if</span> (<span class="fu">startsWith</span>(file, <span class="st">"old_"</span>)) files <span class="ot">=</span> files[<span class="fu">startsWith</span>(files, <span class="st">"old_"</span>)] </span>
+<span id="cb6-16"><a href="#cb6-16"></a></span>
+<span id="cb6-17"><a href="#cb6-17"></a>  <span class="co"># create file_path for the most recent file</span></span>
+<span id="cb6-18"><a href="#cb6-18"></a>  file_name <span class="ot">=</span> <span class="fu">sort</span>(files, <span class="at">decreasing =</span> <span class="cn">TRUE</span>, <span class="at">na.last =</span> <span class="cn">NA</span>)[<span class="dv">1</span>]</span>
+<span id="cb6-19"><a href="#cb6-19"></a>  file_path <span class="ot">=</span> <span class="fu">file.path</span>(location, file_name)</span>
+<span id="cb6-20"><a href="#cb6-20"></a></span>
+<span id="cb6-21"><a href="#cb6-21"></a>  <span class="fu">return</span>(<span class="fu">readRDS</span>(file_path))</span>
+<span id="cb6-22"><a href="#cb6-22"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="load-.rdata-file-and-return-its-object" class="level3">
+<h3 class="anchored" data-anchor-id="load-.rdata-file-and-return-its-object">Load .RData file and return its object</h3>
+<p>Loads a .RData file and returns the loaded object directly, instead of leaving it in the global environment.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>format_institutions <span class="ot">=</span> <span class="cf">function</span>(d) {</span>
-<span id="cb7-2"><a href="#cb7-2"></a>  d <span class="sc">|&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3"></a>    <span class="fu">distinct</span>(uid, year, authorships__affiliations_display_name) <span class="sc">|&gt;</span></span>
-<span id="cb7-4"><a href="#cb7-4"></a>    <span class="fu">filter</span>(year <span class="sc">&gt;</span> <span class="dv">15</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a>    <span class="fu">arrange</span>(year) <span class="sc">|&gt;</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a>    <span class="fu">group_by</span>(uid, year) <span class="sc">|&gt;</span></span>
-<span id="cb7-7"><a href="#cb7-7"></a>    <span class="fu">reframe</span>(</span>
-<span id="cb7-8"><a href="#cb7-8"></a>      <span class="at">affiliations =</span> <span class="fu">paste</span>(</span>
-<span id="cb7-9"><a href="#cb7-9"></a>        <span class="fu">unique</span>(authorships__affiliations_display_name), <span class="at">collapse =</span> <span class="st">"; "</span></span>
-<span id="cb7-10"><a href="#cb7-10"></a>      )</span>
-<span id="cb7-11"><a href="#cb7-11"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb7-12"><a href="#cb7-12"></a>    <span class="fu">pivot_wider</span>(</span>
-<span id="cb7-13"><a href="#cb7-13"></a>      <span class="at">id_cols =</span> uid, <span class="at">names_from =</span> year, </span>
-<span id="cb7-14"><a href="#cb7-14"></a>      <span class="at">values_from =</span> affiliations, <span class="at">names_prefix =</span> <span class="st">"affiliations_"</span></span>
-<span id="cb7-15"><a href="#cb7-15"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb7-16"><a href="#cb7-16"></a>    <span class="fu">select</span>(</span>
-<span id="cb7-17"><a href="#cb7-17"></a>      uid,</span>
-<span id="cb7-18"><a href="#cb7-18"></a>      <span class="fu">num_range</span>(<span class="st">"affiliations_"</span>, <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">22</span>, <span class="dv">24</span>, <span class="dv">25</span>))</span>
-<span id="cb7-19"><a href="#cb7-19"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb7-20"><a href="#cb7-20"></a>    <span class="fu">mutate</span>(<span class="at">affiliations_25 =</span> <span class="fu">ifelse</span>(</span>
-<span id="cb7-21"><a href="#cb7-21"></a>      <span class="fu">is.na</span>(affiliations_25), affiliations_24, affiliations_25</span>
-<span id="cb7-22"><a href="#cb7-22"></a>    ))</span>
-<span id="cb7-23"><a href="#cb7-23"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>fload <span class="ot">&lt;-</span> <span class="cf">function</span>(filename) {</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">load</span>(filename)</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="fu">get</span>(<span class="fu">ls</span>()[<span class="fu">ls</span>() <span class="sc">!=</span> <span class="st">"filename"</span>])</span>
+<span id="cb7-4"><a href="#cb7-4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="normalise-personal-names" class="level3">
+<h3 class="anchored" data-anchor-id="normalise-personal-names">Normalise personal names</h3>
+<p>Normalises name strings by transliterating Cyrillic to Latin, stripping accents, lowercasing, and trimming whitespace for robust matching.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>timepoints <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"2019-09-01"</span>, <span class="st">"2022-12-19"</span>, <span class="st">"2024-04-19"</span>, <span class="st">"2025-10-02"</span>)</span>
-<span id="cb8-2"><a href="#cb8-2"></a>tp <span class="ot">&lt;-</span> <span class="fu">ymd</span>(timepoints)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>normalize_name <span class="ot">=</span> <span class="cf">function</span>(x) {</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  x <span class="ot">=</span> <span class="fu">as.character</span>(x)</span>
 <span id="cb8-3"><a href="#cb8-3"></a></span>
-<span id="cb8-4"><a href="#cb8-4"></a>d <span class="ot">=</span> dates <span class="sc">|&gt;</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a>  tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">timepoint =</span> tp) <span class="sc">|&gt;</span></span>
-<span id="cb8-6"><a href="#cb8-6"></a>  <span class="fu">arrange</span>(timepoint) <span class="sc">|&gt;</span></span>
-<span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb8-8"><a href="#cb8-8"></a>    <span class="at">in_range =</span> <span class="fu">between</span>(timepoint, first_date, last_date),</span>
-<span id="cb8-9"><a href="#cb8-9"></a>    <span class="at">year =</span> <span class="fu">as.integer</span>(<span class="fu">year</span>(timepoint) <span class="sc">-</span> <span class="dv">2000</span>) </span>
-<span id="cb8-10"><a href="#cb8-10"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb8-11"><a href="#cb8-11"></a>  <span class="fu">filter</span>(in_range) <span class="sc">|&gt;</span></span>
-<span id="cb8-12"><a href="#cb8-12"></a>  <span class="fu">distinct</span>(uid, authorships__display_name, authorships__author_id, authorships__display_name, authorships__affiliations_display_name, year) <span class="sc">|&gt;</span></span>
-<span id="cb8-13"><a href="#cb8-13"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(authorships__affiliations_display_name)) <span class="sc">|&gt;</span></span>
-<span id="cb8-14"><a href="#cb8-14"></a>  <span class="fu">format_institutions</span>()</span>
-<span id="cb8-15"><a href="#cb8-15"></a></span>
-<span id="cb8-16"><a href="#cb8-16"></a><span class="fu">fsaveRDS</span>(d, <span class="st">'affiliations'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="co"># mark Cyrillic</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a>  has_cyr <span class="ot">=</span> stringi<span class="sc">::</span><span class="fu">stri_detect_charclass</span>(x, <span class="st">"</span><span class="sc">\\</span><span class="st">p{Script=Cyrillic}"</span>)</span>
+<span id="cb8-6"><a href="#cb8-6"></a></span>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="co"># transliterate only Cyrillic -&gt; Latin</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>  x[has_cyr] <span class="ot">=</span> stringi<span class="sc">::</span><span class="fu">stri_trans_general</span>(x[has_cyr], <span class="st">"Cyrillic-Latin"</span>)</span>
+<span id="cb8-9"><a href="#cb8-9"></a></span>
+<span id="cb8-10"><a href="#cb8-10"></a>  <span class="co"># strip accents for all, lowercase, trim, squish</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a>  x <span class="ot">=</span> stringi<span class="sc">::</span><span class="fu">stri_trans_general</span>(x, <span class="st">"Latin-ASCII"</span>)</span>
+<span id="cb8-12"><a href="#cb8-12"></a>  x <span class="ot">=</span> <span class="fu">tolower</span>(x)</span>
+<span id="cb8-13"><a href="#cb8-13"></a>  x <span class="ot">=</span> <span class="fu">str_squish</span>(x)</span>
+<span id="cb8-14"><a href="#cb8-14"></a>  <span class="fu">trimws</span>(x)</span>
+<span id="cb8-15"><a href="#cb8-15"></a>}</span>
+<span id="cb8-16"><a href="#cb8-16"></a><span class="co"># colorize &lt;- function(x, color) {sprintf("&lt;span style='color: %s;'&gt;%s&lt;/span&gt;", color, x) }</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<!-- get publication date disseration (reasonable coverage) -->
+</section>
+<section id="check-whether-code-should-be-evaluated-quarto-param" class="level3">
+<h3 class="anchored" data-anchor-id="check-whether-code-should-be-evaluated-quarto-param">Check whether code should be evaluated (Quarto param)</h3>
+<p>Utility to check a params<span class="math inline">\(eval (or param\)</span>eval) flag safely. Returns TRUE/FALSE depending on the parameter, and FALSE if the parameter is missing.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>eval_ok <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">isTRUE</span>(params<span class="sc">$</span>eval), <span class="at">error =</span> <span class="cf">function</span>(...) {</span>
+<span id="cb9-2"><a href="#cb9-2"></a>  <span class="fu">tryCatch</span>(<span class="fu">isTRUE</span>(param<span class="sc">$</span>eval), <span class="at">error =</span> <span class="cf">function</span>(...) <span class="cn">FALSE</span>)</span>
+<span id="cb9-3"><a href="#cb9-3"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
