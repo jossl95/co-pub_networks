@@ -2,6 +2,13 @@
 title: Descriptive Statistics
 date: today
 
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+        
 # eval: false
 ---
 
@@ -450,9 +457,9 @@ p = visNetwork(nodes = N, edges = E, height = "800px", width = "100%") |>
   visLegend()
 
 p |> visSave(file = "full_network.html")
-
-library(webshot)
-webshot("full_network.html", zoom = 2, delay = 80, file = "full_network.png")
+p
+# library(webshot)
+# webshot("full_network.html", zoom = 2, delay = 80, file = "full_network.png")
 ```
 
 

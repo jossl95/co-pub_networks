@@ -1,16 +1,5 @@
 ## Introduction
 
-:::{.callout-note}
-Some points for consideration while reading:
-
-- When writing the current draft I have not considered the length of the text. Admittingly, the text in it's current from is on the longer side. Directions on shorting the introduction is welcomed.
-- I'm currently not happy with the term "origin", alternatives like ethnicity or nationality have been considered but do also not completely do justice to the operationalization
-- For the arguments for origin-based differences in outcomes and (network) opportunities have been predominantly sourced from the status quo in the science of science literature. One argument that is currently lacking is the potential for "bias/discrimination", which has currently not been convincingly made in this literature. Do we want to explicitly state the potential for (implicit) discrimination or do wo want to adhere to the traditions in this literature.
-- I have intentionally made the intersectional argument as concise as possible, do you feel that the argument as such is sufficient?
-- I have reformulated the research questions to be even more substantive. Admittingly, the explanatory research questions remain on the dyadic level. Do you have suggestions to also include a ego, network level in here? 
-- I have made the levels (ego, dyad, network) implicit in the argument thus far out of concern for the argument getting too extensive when incorporating these levels explicitly, do you feel that the current argument requires such explication?  
-:::
-
 Social inequality in academia has been documented across a wide range of contexts and indicators. Gender disparities in academic careers are described in an extensive body of literature [e.g., @barrios2013; @bol2023; @greska2023; @lutter2016; @kim2022], which has shown that women have lower salaries [@kim2024], obtain fewer grants [@stadmark2020], receive less impact for work that is often more innovative [@hofstra2020], and have shorter and less prolific careers than men [@tolsma2025; @mulders2024]. Moreover, the topics women disproportionately work on tend to be devalued in scientific careers, yielding lower prestige and weaker career returns [@kim2024]. Beyond gender, scholars from underrepresented national and ethnic groups are less likely to obtain senior positions, have lower average publication and citation counts, and face slower career progression than majority-group men [@kozlowski2022; @hofstra2020; @whittington2018]. Even when publication rates are comparable, women and minoritised scholars often receive fewer citations and less recognition, illustrating classic Matthew effects in contemporary academic careers [@hofstra2020; @li2022; @merton1973].
 
 These unequal outcomes are closely tied to inequalities in opportunities and collaborations. Science is an inherently social enterprise: colleagues, departments, conferences, publishing venues, and committees are organised so that the social relationships surrounding an academic are central to their success [@burt1998; @stark2020]. Academic social capital matters for access to the professoriate, which depends heavily on one’s mentors [@hofstra2022]; for dissertation committees, which exhibit gender-homophilous tendencies in awarding cum laude PhD degrees [@bol2023]; and for the size and composition of co-authorship teams, which is linked to whether contributions are disruptive or consolidating in the scientific landscape [@wu2019]. Inequalities in outcomes therefore reflect, in part, unequal access to collaboration opportunities. Women tend to have fewer international collaborations and less access to prestigious, high-impact collaborations than men [@kwiek2021; @whittington2024; @barrios2013]. Scholars from countries outside the traditional scientific core similarly face barriers to entering central collaboration circuits and forming ties with highly visible partners [@khor2016; @kim2016; @hancean2014]. These differences in opportunity structures shape whose work becomes visible and whose careers advance.
@@ -56,5 +45,15 @@ I currently have chosen *Social Networks* as the target journal. Some points for
 
 - do you feel that the current introduction does adhere to this journal's standards and conventions?
 - this journal requires ethical approval for be eligible for publishing. Has this project required ethical approval? 
+:::
 
+:::{.callout-note}
+Some points for consideration while reading:
+
+- When writing the current draft I have not considered the length of the text. Admittingly, the text in it's current from is on the longer side. Directions on shorting the introduction is welcomed.
+- I'm currently not happy with the term "origin", alternatives like ethnicity or nationality have been considered but do also not completely do justice to the operationalization
+- For the arguments for origin-based differences in outcomes and (network) opportunities have been predominantly sourced from the status quo in the science of science literature. One argument that is currently lacking is the potential for "bias/discrimination", which has currently not been convincingly made in this literature. Do we want to explicitly state the potential for (implicit) discrimination or do wo want to adhere to the traditions in this literature.
+- I have intentionally made the intersectional argument as concise as possible, do you feel that the argument as such is sufficient?
+- I have reformulated the research questions to be even more substantive. Admittingly, the explanatory research questions remain on the dyadic level. Do you have suggestions to also include a ego, network level in here? 
+- I have made the levels (ego, dyad, network) implicit in the argument thus far out of concern for the argument getting too extensive when incorporating these levels explicitly, do you feel that the current argument requires such explication?  
 :::

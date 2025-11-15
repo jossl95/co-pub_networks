@@ -26,10 +26,28 @@ fpackage.check <- function(packages) {
     "⚠️ fpackage.check() is deprecated. Use renv + library() calls instead."
   )
   
+  lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  })
+
   invisible(TRUE)
 }
 
 fsave <- function(x, file, location = "./data/processed/", ...) {
+  lifecycle::deprecate_warn(
+    when = "2025-10-27",
+    what = "fsave()",
+    details = paste0(
+      "Use fsaveRDS or fsaveRDS2 to save data instead. function is",
+      "deprecated in favor of renv support which conflicts with load"
+    )
+  )
+  message(
+    "⚠️ fsave() is deprecated. Use fsaveRDS or fsaveRDS2  calls instead."
+  )
   # if directory does not exist, create it
   if (!dir.exists(location)) dir.create(location)
   
@@ -40,7 +58,9 @@ fsave <- function(x, file, location = "./data/processed/", ...) {
   # save file
   print(paste("SAVING: ", totalname, sep = ""))
   save(x, file = totalname)
+  invisible(TRUE)
 }
+
 
 fsaveRDS <- function(x, file, location = "./data/processed/", ...) {
   # if directory does not exist, create it

@@ -1,0 +1,10 @@
+/*-- scss:rules --*/
+
+// change color of code block output
+.cell-output
+.cell-output pre,
+.cell-output code,
+.cell-output-stdout,
+.cell-output-stderr {
+  color: var( --bs-secondary);
+}

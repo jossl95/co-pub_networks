@@ -2,6 +2,13 @@
 title: "Data Processing Gender"
 date: today
 
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+
 params:
   eval: false
 ---

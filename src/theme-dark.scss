@@ -1,0 +1,74 @@
+/*-- scss:defaults --*/
+
+// Core document colors
+$body-bg:            #181818;
+$body-bg-rgb:        24, 24, 24;
+$body-color:         #e3e3e3;
+$body-color-rgb:     227, 227, 227;
+
+$emphasis-color:     #ffffff;
+$secondary-color:    rgba(227, 227, 227, 0.75);
+$tertiary-color:     rgba(227, 227, 227, 0.5);
+
+$border-color:       #333333;
+$secondary-bg:       #232323;
+$tertiary-bg:        #202020;
+
+
+// Links
+$link-color:         #75aadb;
+$link-hover-color:   darken($link-color, 10%);
+
+// Navbar
+$navbar-bg:          #111111;
+$navbar-fg:          $body-color;
+$navbar-hl:          $secondary-color;
+$dropdown-border-color: $border-color;
+$dropdown-link-hover-bg: $secondary-bg;
+
+// Cards / panels
+$card-bg:            #050505ff;
+$card-border-color:  #333333;
+
+// Tables
+$table-bg:           transparent;
+$table-border-color: #333333;
+$table-striped-bg:   #232323;
+$table-hover-bg:     #272727;
+
+// Buttons
+// $btn-bg:                 #75aadb;
+// $btn-border-color:       #75aadb;
+// $btn-hover-bg:           lighten($btn-bg, 5%);
+// $btn-hover-border-color: lighten($btn-border-color, 5%);
+
+// // Hover / focus / active state: use $secondary-bg
+// .navbar-nav .nav-link:hover,
+// .navbar-nav .nav-link:focus,
+// .navbar-nav .nav-link.active {
+//   background-color: $secondary-bg;
+//   // color: $navbar-hl; // keep the text nicely visible
+// }
+
+
+// Code
+$code-color:         #f1f1f1;
+$code-bg:            #111111;
+$code-block-bg:      $secondary-bg;
+
+
+// Quarto sidebar / TOC helpers
+$sidebar-bg:         #151515;
+$sidebar-fg:         #e0e0e0;
+$sidebar-border:     #333333;
+
+/*-- scss:rules --*/
+
+// change color of code block output
+.cell-output
+.cell-output pre,
+.cell-output code,
+.cell-output-stdout,
+.cell-output-stderr {
+  color: $secondary-color;
+}

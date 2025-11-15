@@ -72,10 +72,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-5b4ad623e5705c0698d39aec6f10cf02.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-70c37785d977c9262135680fa24ce0b6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-79236a2deff6cb573539de121fe46218.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-70c37785d977c9262135680fa24ce0b6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -106,40 +110,181 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
 <script src="../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<link rel="stylesheet" href="src/code/styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const queryPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeDefault = queryPrefersDark.matches;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    queryPrefersDark.addEventListener("change", e => {
+      if(window.localStorage.getItem("quarto-color-scheme") !== null)
+        return;
+      const alternate = e.matches
+      toggleColorMode(alternate);
+      localAlternateSentinel = e.matches ? 'alternate' : 'default'; // this is used alongside local storage!
+      toggleGiscusIfUsed(alternate, darkModeDefault);
+    });
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -217,25 +362,15 @@ window.Quarto = {
   </li>
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-utilities" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Utilities</span>
-    </a>
-    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-utilities">    
-        <li>
-    <a class="dropdown-item" href="../../src/code/0a.custom_functions.html">
- <span class="dropdown-text">Custom Functions</span></a>
-  </li>  
-    </ul>
-  </li>
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/jossl95/co-pub_networks/tree/main"> <i class="bi bi-github" role="img" aria-label="GitHub">
+    <a class="nav-link" href="https://github.com/jossl95/co-pub_networks"> <i class="bi bi-github" role="img" aria-label="GitHub">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -266,6 +401,7 @@ window.Quarto = {
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
+
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -314,8 +450,15 @@ Use it at the start of documents to ensure the required engines are available.</
 <span id="cb2-9"><a href="#cb2-9"></a>    <span class="st">"⚠️ fpackage.check() is deprecated. Use renv + library() calls instead."</span></span>
 <span id="cb2-10"><a href="#cb2-10"></a>  )</span>
 <span id="cb2-11"><a href="#cb2-11"></a>  </span>
-<span id="cb2-12"><a href="#cb2-12"></a>  <span class="fu">invisible</span>(<span class="cn">TRUE</span>)</span>
-<span id="cb2-13"><a href="#cb2-13"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-12"><a href="#cb2-12"></a>  <span class="fu">lapply</span>(packages, <span class="at">FUN =</span> <span class="cf">function</span>(x) {</span>
+<span id="cb2-13"><a href="#cb2-13"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(x, <span class="at">character.only =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb2-14"><a href="#cb2-14"></a>      <span class="fu">install.packages</span>(x, <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-15"><a href="#cb2-15"></a>      <span class="fu">library</span>(x, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-16"><a href="#cb2-16"></a>    }</span>
+<span id="cb2-17"><a href="#cb2-17"></a>  })</span>
+<span id="cb2-18"><a href="#cb2-18"></a></span>
+<span id="cb2-19"><a href="#cb2-19"></a>  <span class="fu">invisible</span>(<span class="cn">TRUE</span>)</span>
+<span id="cb2-20"><a href="#cb2-20"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="save-object-to-dated-.rdata-file" class="level3">
@@ -323,22 +466,33 @@ Use it at the start of documents to ensure the required engines are available.</
 <p>Saves an R object to a .RData file in a processed data directory, automatically prefixing the filename with the current date (YYYYMMDD).</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>fsave <span class="ot">&lt;-</span> <span class="cf">function</span>(x, file, <span class="at">location =</span> <span class="st">"./data/processed/"</span>, ...) {</span>
-<span id="cb3-2"><a href="#cb3-2"></a>  <span class="co"># if directory does not exist, create it</span></span>
-<span id="cb3-3"><a href="#cb3-3"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(location)) <span class="fu">dir.create</span>(location)</span>
-<span id="cb3-4"><a href="#cb3-4"></a>  </span>
-<span id="cb3-5"><a href="#cb3-5"></a>  <span class="co"># create filename with date</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a>  datename <span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">gsub</span>(<span class="st">"[:-]"</span>, <span class="st">""</span>, <span class="fu">Sys.time</span>()), <span class="dv">1</span>, <span class="dv">8</span>)</span>
-<span id="cb3-7"><a href="#cb3-7"></a>  totalname <span class="ot">&lt;-</span> <span class="fu">paste</span>(location, datename, file, <span class="at">sep =</span> <span class="st">""</span>)</span>
-<span id="cb3-8"><a href="#cb3-8"></a></span>
-<span id="cb3-9"><a href="#cb3-9"></a>  <span class="co"># save file</span></span>
-<span id="cb3-10"><a href="#cb3-10"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"SAVING: "</span>, totalname, <span class="at">sep =</span> <span class="st">""</span>))</span>
-<span id="cb3-11"><a href="#cb3-11"></a>  <span class="fu">save</span>(x, <span class="at">file =</span> totalname)</span>
-<span id="cb3-12"><a href="#cb3-12"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-2"><a href="#cb3-2"></a>  lifecycle<span class="sc">::</span><span class="fu">deprecate_warn</span>(</span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="at">when =</span> <span class="st">"2025-10-27"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="at">what =</span> <span class="st">"fsave()"</span>,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>    <span class="at">details =</span> <span class="fu">paste0</span>(</span>
+<span id="cb3-6"><a href="#cb3-6"></a>      <span class="st">"Use fsaveRDS or fsaveRDS2 to save data instead. function is"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7"></a>      <span class="st">"deprecated in favor of renv support which conflicts with load"</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>    )</span>
+<span id="cb3-9"><a href="#cb3-9"></a>  )</span>
+<span id="cb3-10"><a href="#cb3-10"></a>  <span class="fu">message</span>(</span>
+<span id="cb3-11"><a href="#cb3-11"></a>    <span class="st">"⚠️ fsave() is deprecated. Use fsaveRDS or fsaveRDS2  calls instead."</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>  )</span>
+<span id="cb3-13"><a href="#cb3-13"></a>  <span class="co"># if directory does not exist, create it</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(location)) <span class="fu">dir.create</span>(location)</span>
+<span id="cb3-15"><a href="#cb3-15"></a>  </span>
+<span id="cb3-16"><a href="#cb3-16"></a>  <span class="co"># create filename with date</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a>  datename <span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">gsub</span>(<span class="st">"[:-]"</span>, <span class="st">""</span>, <span class="fu">Sys.time</span>()), <span class="dv">1</span>, <span class="dv">8</span>)</span>
+<span id="cb3-18"><a href="#cb3-18"></a>  totalname <span class="ot">&lt;-</span> <span class="fu">paste</span>(location, datename, file, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb3-19"><a href="#cb3-19"></a></span>
+<span id="cb3-20"><a href="#cb3-20"></a>  <span class="co"># save file</span></span>
+<span id="cb3-21"><a href="#cb3-21"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"SAVING: "</span>, totalname, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb3-22"><a href="#cb3-22"></a>  <span class="fu">save</span>(x, <span class="at">file =</span> totalname)</span>
+<span id="cb3-23"><a href="#cb3-23"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="save-object-to-dated-rds-file" class="level3">
 <h3 class="anchored" data-anchor-id="save-object-to-dated-rds-file">Save object to dated RDS file</h3>
-<p>Saves an R object to a compressed .Rds file in a processed data directory, automatically prefixing the filename with the current date (YYYYMMDD).</p>
+<p>Saves an R object to a compressed <code>.Rds</code> file in a processed data directory, automatically prefixing the filename with the current date (YYYYMMDD).</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>fsaveRDS <span class="ot">&lt;-</span> <span class="cf">function</span>(x, file, <span class="at">location =</span> <span class="st">"./data/processed/"</span>, ...) {</span>
 <span id="cb4-2"><a href="#cb4-2"></a>  <span class="co"># if directory does not exist, create it</span></span>
@@ -356,7 +510,7 @@ Use it at the start of documents to ensure the required engines are available.</
 </section>
 <section id="read-an-rds-file" class="level3">
 <h3 class="anchored" data-anchor-id="read-an-rds-file">Read an RDS file</h3>
-<p>Thin wrapper around readRDS() for symmetry with fsaveRDS(). Given a file path, it loads and returns the stored object.</p>
+<p>Thin wrapper around <code>readRDS()</code> for symmetry with <code>fsaveRDS()</code>. Given a file path, it loads and returns the stored object.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>freadRDS <span class="ot">=</span> <span class="cf">function</span>(fileName){</span>
 <span id="cb5-2"><a href="#cb5-2"></a>  <span class="co"># load file and return object</span></span>
@@ -366,7 +520,7 @@ Use it at the start of documents to ensure the required engines are available.</
 </section>
 <section id="read-the-most-recent-dated-rds-file-by-name" class="level3">
 <h3 class="anchored" data-anchor-id="read-the-most-recent-dated-rds-file-by-name">Read the most recent dated RDS file by name</h3>
-<p>Loads the latest (most recent by filename) .Rds file in a data subdirectory, based on a base filename and a dated naming convention. Skips old_ files by default.</p>
+<p>Loads the latest (most recent by filename) .Rds file in a data subdirectory, based on a base filename and a dated naming convention. Skips <code>old_</code> files by default.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>freadRDS2 <span class="ot">=</span> <span class="cf">function</span>(file, <span class="at">location =</span> <span class="st">"processed"</span>, ...){</span>
 <span id="cb6-2"><a href="#cb6-2"></a>  <span class="co"># make sure that the location is nested within the data directory</span></span>
@@ -394,7 +548,7 @@ Use it at the start of documents to ensure the required engines are available.</
 </section>
 <section id="load-.rdata-file-and-return-its-object" class="level3">
 <h3 class="anchored" data-anchor-id="load-.rdata-file-and-return-its-object">Load .RData file and return its object</h3>
-<p>Loads a .RData file and returns the loaded object directly, instead of leaving it in the global environment.</p>
+<p>Loads a <code>.RData</code> file and returns the loaded object directly, instead of leaving it in the global environment.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>fload <span class="ot">&lt;-</span> <span class="cf">function</span>(filename) {</span>
 <span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">load</span>(filename)</span>
@@ -426,7 +580,7 @@ Use it at the start of documents to ensure the required engines are available.</
 </section>
 <section id="check-whether-code-should-be-evaluated-quarto-param" class="level3">
 <h3 class="anchored" data-anchor-id="check-whether-code-should-be-evaluated-quarto-param">Check whether code should be evaluated (Quarto param)</h3>
-<p>Utility to check a params<span class="math inline">\(eval (or param\)</span>eval) flag safely. Returns TRUE/FALSE depending on the parameter, and FALSE if the parameter is missing.</p>
+<p>Utility to check a <code>params$eval</code> (or <code>param$eval</code>) flag safely. Returns <code>TRUE/FALSE</code> depending on the parameter, and <code>FALSE</code> if the parameter is missing.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>eval_ok <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">isTRUE</span>(params<span class="sc">$</span>eval), <span class="at">error =</span> <span class="cf">function</span>(...) {</span>
 <span id="cb9-2"><a href="#cb9-2"></a>  <span class="fu">tryCatch</span>(<span class="fu">isTRUE</span>(param<span class="sc">$</span>eval), <span class="at">error =</span> <span class="cf">function</span>(...) <span class="cn">FALSE</span>)</span>
@@ -440,6 +594,19 @@ Use it at the start of documents to ensure the required engines are available.</
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -839,6 +1006,19 @@ Use it at the start of documents to ensure the required engines are available.</
   });
   </script>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Copyright © 2025 | Jos Slabbekoorn</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
 
 
 
