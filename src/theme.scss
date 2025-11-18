@@ -46,15 +46,25 @@ $h6-scale: calc($h6-font-size / $font-size-base / 1)!default;
     min-width: calc($grid-body-width + $grid-margin-width + $grid-column-gutter-width + 150px)
   ){
   #quarto-back-to-top {
-  display: none;
-  position: fixed;
-  width: $grid-margin-width;
+    display: none;
+    position: fixed;
+    width: $grid-margin-width;
 
-  /* move reference point 200px to the right of center */
-  left: calc(
-    50% + calc(($grid-body-width + $grid-margin-width)/2)
-    - calc($grid-margin-width / 3) 
-    + calc($grid-column-gutter-width * 1.5));
-  transform: translateX(-50%);
+    /* move reference point 200px to the right of center */
+    left: calc(
+      50% + calc(($grid-body-width + $grid-margin-width)/2)
+      - calc($grid-margin-width / 3) 
+      + calc($grid-column-gutter-width * 1.5));
+    transform: translateX(-50%);
+  }
 }
+
+// Minimum viewport height at which we allow the back-to-top button
+$back-to-top-min-height: 700px;
+
+// When the window height is smaller than this, always hide the button
+@media (max-height: $back-to-top-min-height) {
+  #quarto-back-to-top {
+    display: none !important;
+  }
 }

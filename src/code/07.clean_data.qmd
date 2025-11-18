@@ -13,15 +13,17 @@ execute:
   eval: false
 ---
 
-
 ## Getting Started
 
 ```{r}
 #| warning: false
 #| output: false
-# clear the global environment
-rm(list = ls())
-gc()
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
 ```
 
 ```{r}
@@ -33,13 +35,20 @@ library(tidyverse)
 library(stringr)
 library(lubridate)
 library(purrr)
-
-# load custom functions 
-source("src/utils/custom_functions.r")
-.load_quarto_dependencies()
 ```
 
 ## Functions
+
+### `prune_invalid_publication_types()`
+Filter out rare or irregular publication types and sort yearly counts.
+
+#### Arguments
+**`data`**  
+
+> Named list that contains a `works` element, where `data[['works']]` is a named list of tibbles with OpenAlex works per scholar.
+
+#### Method
+The function first inspects all works by binding `data[['works']]` into one tibble and counting how often each `type` occurs. It defines a vector of valid types by keeping only types with at least 50 occurrences and explicitly excluding `dataset`. It then loops over the first ten elements of `data[['works']]`, skipping empty or invalid tibbles, and filters each scholar’s works to only those with a valid `type`. If a `counts_by_year` column is present, it carefully reorders each nested data frame by `year`, guarding against malformed or NULL entries. The updated per-scholar tibbles are written back into `data[['works']]`, and the pruned list is returned.
 
 ```{r}
 prune_invalid_publication_types = function(data) {
@@ -84,6 +93,17 @@ prune_invalid_publication_types = function(data) {
 }
 ```
 
+### `get_author_id_lookup()`
+Construct a lookup of intra-network co-authors across all works.
+
+#### Arguments
+**`data`**  
+
+> Named list containing a `works` element, where `data[['works']]` is a named list of tibbles with OpenAlex works per scholar (including `uid`, `author_id`, and nested `authorships`).
+
+#### Method
+The function iterates over `data[['works']]` and, for each focal scholar `id`, first builds a global lookup of all `(uid, author_id)` pairs present in the combined works, excluding rows where `uid == id`. It then unnests each scholar’s `authorships` into a flat table and filters rows where `authors__author_id` is present in this global co-author lookup. Empty results are reset to `NULL`. After processing all scholars, the function binds all intermediate tables, de-duplicates `(uid, author_id, authors__author_id)` triples, and drops self-ties (`author_id != authors__author_id`). The resulting tibble captures pairs of focal authors and their intra-network co-authors, and is used downstream to prune works to scholars with co-publishing ties inside the observed network.
+
 ```{r}
 get_author_id_lookup = function(data){
 
@@ -115,7 +135,20 @@ get_author_id_lookup = function(data){
 
   return(res)
 }
+```
 
+### `prune_works_by_author_id()`
+Restrict works to scholars and author IDs with intra-network ties and fix types.
+
+#### Arguments
+**`data`**  
+
+> Named list containing a `works` element (list of tibbles with `uid`, `author_id`, `doi`, `counts_by_year`, `oa_url`) and other components such as demographics and scholars.
+
+#### Method
+The function first calls `get_author_id_lookup()` to identify combinations of `uid` and `author_id` that participate in intra-network co-authorships. It then iterates over `data[['works']]`, filtering each scholar’s works to those rows where `uid` and `author_id` appear in this lookup. To avoid type inconsistencies across authors, it coerces logical `doi` values to `NA_character_`, logical `counts_by_year` to empty lists, and logical `oa_url` to `NA_character_`. If a filtered table ends up empty, it is replaced by an empty tibble. The pruned list of works is written back into `data[['works']]`, and the updated list object is returned.
+
+```{r}
 prune_works_by_author_id = function(data){
   lookup = get_author_id_lookup(data)
 
@@ -139,8 +172,18 @@ prune_works_by_author_id = function(data){
   data[['works']] = works
   return(data)
 }
-
 ```
+
+### `prune_demographics()`
+Drop demographic records for scholars without valid works.
+
+#### Arguments
+**`data`**  
+
+> Named list that contains a `works` element (list of works tibbles with `uid`) and a `demographics` tibble keyed by `uid`.
+
+#### Method
+The function constructs a set of valid `uid`s by binding all works into a single tibble and extracting distinct `uid` values. It then filters `data[['demographics']]` to keep only rows with `uid` in this valid set, effectively removing demographic entries for scholars who do not have any retained works after pruning. The updated list is returned.
 
 ```{r}
 prune_demographics = function(data){
@@ -154,6 +197,18 @@ prune_demographics = function(data){
   return(data)
 }
 ```
+
+### `prune_scholars()`
+Remove OpenAlex scholar records that lack valid author IDs after pruning.
+
+#### Arguments
+**`data`**  
+
+> Named list containing a `works` element (with `author_id`) and a `scholars_oa` element, where `data[['scholars_oa']]` is a named list of OpenAlex author tibbles.
+
+#### Method
+The function first collects the set of valid `author_id`s by binding all works and extracting distinct `author_id`. It then loops over each element in `data[['scholars_oa']]`, skipping empty tibbles, and for each keeps only rows whose `author_id` (after stripping the `https://openalex.org/` prefix) is present in this valid set. The pruned per-scholar tibbles are stored in a new list, which replaces `data[['scholars_oa']]`. This ensures that the scholar metadata is consistent with the pruned works.
+
 ```{r}
 prune_scholars = function(data){
   # create list of uids that were succesfully scraped
@@ -178,8 +233,18 @@ prune_scholars = function(data){
 }
 ```
 
-```{r}
+### `clean_demographics()`
+Add region information and standardize demographic variable names.
 
+#### Arguments
+**`data`**  
+
+> Named list with a `demographics` tibble (including `ethnicity`, `prob`, `count`, `universiteit_*`, `email_adres_*`, `functie_*`, `discipline_*`).
+
+#### Method
+The function first reads a country conversion table from `data/utils/country_conversion.csv`, keeps distinct `(alpha_2, region)` pairs, and standardizes the region labels, forcing `NL` to "Netherlands" and merging "Asia" and "Oceania" into "Asia and Oceania". It then left-joins this table onto `data[['demographics']]` by matching `ethnicity` to `alpha_2`, relocates the new `region` column ahead of `ethnicity`, and renames it to `origin`. It also renames several probability/count and longitudinal university/email/position columns to more concise, English variable names. Finally, it selects a compact set of columns from `uid` and `clean_name` through `discipline_25`, writes the cleaned tibble back into `data[['demographics']]`, and returns the updated list.
+
+```{r}
 clean_demographics = function(data) {
   # get country_conversion table
   country_conversion = read_csv(
@@ -214,8 +279,18 @@ clean_demographics = function(data) {
 
   return(data)
 }
-
 ```
+
+### `h_index_vec()`
+Compute the h-index from a vector of citation counts.
+
+#### Arguments
+**`citations`**  
+
+> Numeric or integer vector of citation counts (possibly containing NAs or non-finite values).
+
+#### Method
+The function first handles empty or NULL inputs by returning 0L. It then keeps only finite, non-missing citation counts, coerces them to integers, and sorts them in decreasing order. Using this ordered vector, it computes the h-index as the number of positions `i` where `c[i] >= i`, i.e., the largest value `h` such that at least `h` papers have at least `h` citations. The result is returned as an integer scalar.
 
 ```{r}
 # 1) Core h-index calculator -----------------------------------------------
@@ -226,7 +301,20 @@ h_index_vec = function(citations) {
   # With c sorted desc, h is the count of entries with c_i >= i
   as.integer(sum(c >= seq_along(c)))
 }
+```
 
+### `extract_citations()`
+Robustly extract citation counts from various OpenAlex “works” structures.
+
+#### Arguments
+**`works_obj`**  
+
+> Object containing works data; can be a data frame, a list with a `results` data frame, or a list of individual work objects with a `cited_by_count` element.
+
+#### Method
+The function defines an internal helper `df_to_cites()` that de-duplicates rows by `id` (if present) and then pulls `cited_by_count` as integers. It then branches on the type of `works_obj`. If it is a data frame, it calls `df_to_cites()` directly. If it is a list and has a `results` component, it applies `df_to_cites()` to `works_obj$results`. Otherwise, it assumes a list of work records and maps over them, extracting `cited_by_count` with `tryCatch()` to guard against malformed entries; NAs are dropped. For any unsupported object type, it returns an empty integer vector. The result is a clean integer vector of citation counts ready for index calculations.
+
+```{r}
 # 2) Robust extractor for cited_by_count from different "works" shapes ------
 # Handles:
 # - data.frame/tibble with column `cited_by_count`
@@ -263,7 +351,20 @@ extract_citations = function(works_obj) {
 
   integer()
 }
+```
 
+### `h_index_by_author()`
+Compute h-index and summary citation statistics per author.
+
+#### Arguments
+**`works_by_uid`**  
+
+> Named list where `names(works_by_uid)` are scholar `uid`s and each value is that author’s works object (any structure accepted by `extract_citations()`).
+
+#### Method
+The function iterates over the named list with `imap_dfr()`. For each `(uid, works)` pair, it calls `extract_citations()` to obtain citation counts, then calculates three statistics: the number of works (`n_works`), the total citations (`total_citations`), and the h-index via `h_index_vec()`. These per-author rows are combined into a tibble and sorted in descending order of `h_index` and `total_citations`. The resulting table serves as a compact performance summary by scholar.
+
+```{r}
 # 3) Compute per-author h-index from a named list ---------------------------
 # Input: works_by_uid — a named list where names(works_by_uid) are `uid`s,
 #         each value is that author's OpenAlex works object
@@ -279,8 +380,24 @@ h_index_by_author = function(works_by_uid) {
   }) |>
     arrange(desc(h_index), desc(total_citations))
 }
+```
 
+### `i_index_vec()`
+Compute the iN-index (default i10) from citation counts.
 
+#### Arguments
+**`citations`**  
+
+> Numeric or integer vector of citation counts.
+
+**`threshold`**  
+
+> Integer threshold `N` for the iN-index (default `10L`), counting works with at least this many citations.
+
+#### Method
+The function keeps only finite, non-missing citation counts, coerces them to integers, and returns the number of works whose citation count is greater than or equal to the specified `threshold`. If the filtered vector is empty, it returns 0L. With `threshold = 10`, this corresponds to the classic i10-index.
+
+```{r}
 # 3) Compute per-author i10-index from a named list ---------------------------
 # Input: works_by_uid — a named list where names(works_by_uid) are `uid`s,
 #         each value is that author's OpenAlex works object
@@ -289,7 +406,24 @@ i_index_vec = function(citations, threshold = 10L) {
   if (!length(c)) return(0L)
   sum(c >= as.integer(threshold))
 }
+```
 
+### `i_index_by_author()`
+Compute the per-author iN-index (default i10) and citation summary.
+
+#### Arguments
+**`works_by_uid`**  
+
+> Named list where `names(works_by_uid)` are scholar `uid`s and each value is that author’s works object.
+
+**`threshold`**  
+
+> Integer threshold `N` for the iN-index (default `10L`).
+
+#### Method
+The function constructs a dynamic column name such as `"i10_index"` from the chosen `threshold`. It then iterates over the named list with `imap_dfr()`, extracting citation counts for each author via `extract_citations()`. For each `uid`, it records the number of works, total citations, and the iN-index computed by `i_index_vec(citations, threshold)`. The resulting tibble is sorted by the iN-index (descending) and then by `total_citations`. This table complements the h-index summary by focusing on the volume of works above a fixed citation threshold.
+
+```{r}
 # Per-author iN (defaults to i10). Input: named list 'works_by_uid'
 i_index_by_author = function(works_by_uid, threshold = 10L) {
   colname = paste0("i", threshold, "_index")
@@ -304,7 +438,20 @@ i_index_by_author = function(works_by_uid, threshold = 10L) {
   }) |>
     arrange(desc(.data[[colname]]), desc(total_citations))
 }
+```
 
+### `add_updated_stats_to_demographics()`
+Attach h-index and i10-index statistics to the demographics table.
+
+#### Arguments
+**`data`**  
+
+> Named list containing a `works` element (works per `uid`) and a `demographics` tibble keyed by `uid`.
+
+#### Method
+The function first computes per-author h-index statistics with `h_index_by_author(data[['works']])`. It also computes per-author i10-indices via `i_index_by_author(data[['works']])` and keeps only `uid` and `i10_index`. These two summary tables are then left-joined onto `data[['demographics']]` by `uid`, enriching each scholar’s demographic record with updated citation metrics. The augmented `demographics` tibble is written back into `data`, and the enhanced list object is returned.
+
+```{r}
 # Wrapper function addint these data to demographics
 add_updated_stats_to_demographics = function(data){
   h_index = h_index_by_author(data[['works']]) 
@@ -316,9 +463,18 @@ add_updated_stats_to_demographics = function(data){
 
   return(data)
 }
-
-
 ```
+
+### `add_edge_table()`
+Build an edge table of co-authorships from nested authorship data.
+
+#### Arguments
+**`data`**  
+
+> Named list that contains a `works` element (list of works tibbles with `uid`, `work_id`, `authorships`, `publication_date`, `publication_year`, `type`).
+
+#### Method
+The function binds all per-scholar works together, selecting `uid`, `work_id`, `authorships`, `publication_date`, `publication_year`, and `type`. It renames `authorships` to `a` and fully unnests `a` into separate columns with a names separator. It then filters to rows where `a__uid` (the co-author’s `uid`) is non-missing. The resulting tibble, stored as `data[['edge_table']]`, represents a long edge list that links focal `uid` to their co-authors per work, along with basic publication metadata. The updated list is returned.
 
 ```{r}
 add_edge_table = function(data){
@@ -332,9 +488,7 @@ add_edge_table = function(data){
 
   return(data)
 }
-
 ```
-
 
 ## Application
 
@@ -350,8 +504,3 @@ data = freadRDS2(file="scholars", location = "combined") |>
 
 fsaveRDS(data, 'scholars', location = "./data/clean/")
 ```
-
-
-
-
-

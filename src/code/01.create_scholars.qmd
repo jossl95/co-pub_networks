@@ -13,10 +13,16 @@ format:
 ## Getting Started
 
 ```{r}
-# clear the global environment
-rm(list = ls())
-gc()
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
 ```
+
 ```{r}
 #| warning: false
 #| output: false
@@ -24,28 +30,57 @@ gc()
 # load and activate packages
 library(tidyverse)
 library(readxl)
-library(renv)
 library(stringr)
 library(janitor)
 library(lubridate)
-
-# load custom functions
-source("src/utils/custom_functions.r")
-.load_quarto_dependencies()
 ```
 
 ## Functions
-### Loading in Raw Data
 
-This function loads in Excel files containing information on scholars working in Dutch sociology and political science departments. The data have been collected at three points in time — 19 December 2022, 19 April 2024, and 1 October 2025 — to capture changes in staff composition over time. Each Excel file includes two sheets, one for Sociologie and one for Politicologie, which are read in separately, harmonized, and then concatenated into a single dataset that combines all disciplines and time points.
+### `read_spreadsheet()`
+Read a single Excel sheet for a given discipline.
 
+#### Arguments
+**`filepath`**  
+
+> Character string with the full path to the Excel file.
+
+**`sheet`**  
+
+> Name of the sheet to read from the Excel file (typically `"Sociologie"` or `"Politicologie"`).
+
+#### Method
+This helper function wraps `readxl::read_excel()` to read one specific sheet from a given Excel file. It takes the file path and sheet name, delegates the actual reading to `read_excel()`, and returns the resulting tibble without further modification. It is used inside `fread()` to keep the main loading logic concise.
 
 ```{r}
 # define tailored functions
 read_spreadsheet = function(filepath, sheet){  
   readxl::read_excel(filepath, sheet = sheet) 
 }
+```
 
+---
+
+### `harmonize_columns()`
+Standardize column names and add discipline and date metadata.
+
+#### Arguments
+**`data`**  
+
+> Tibble or data frame read from a single Excel sheet.
+
+**`discipline`**  
+
+> Character string indicating the discipline corresponding to the sheet (e.g., `"Sociologie"` or `"Politicologie"`).
+
+**`date`**  
+
+> Date value (or date-like string) representing the measurement moment for this file.
+
+#### Method
+This helper function first normalizes the column names in `data` using `janitor::clean_names()` so that they follow a consistent, snake_case style. It then adds two new columns, `discipline` and `date`, set to the supplied arguments, and relocates them to the front of the data frame. The result is a harmonized dataset where each row carries explicit information about the discipline and the observation date, ready to be combined across files and sheets.
+
+```{r}
 harmonize_columns = function(data, discipline, date){
   data = data |>
     clean_names() |>
@@ -55,7 +90,34 @@ harmonize_columns = function(data, discipline, date){
     ) |>
     relocate(c(discipline, date), .before = 1)
 }
+```
 
+---
+
+### `fread()`
+Load and combine multiple Excel files of scholars across disciplines and time.
+
+#### Arguments
+**`files`**  
+
+> Character vector of Excel filenames (e.g., `c("2022-12-19_scholarid.xlsx", ...)`) present in the `source` directory.
+
+**`source`**  
+
+> Character string with the directory path where the Excel files are stored.
+
+**`disciplines`**  
+
+> Character vector of sheet names to read from each file. Defaults to `c("Politicologie", "Sociologie")`. Currently, the function always uses these two values internally.
+
+**`language`**  
+
+> Optional language tag (default `"nl"`). Included for future use; not actively used in the current implementation.
+
+#### Method
+The function loops over all provided `files`, constructs the full `filepath` for each, and derives the observation `date` from the filename using `ymd()` and string splitting. For each file, it iterates over the specified `disciplines` (defaulting to `"Politicologie"` and `"Sociologie"`), reads the corresponding sheet with `read_spreadsheet()`, and standardizes it using `harmonize_columns()` to attach both `discipline` and `date`. The two discipline-specific chunks per file are then bound together, and all file-level chunks are concatenated into a single long tibble using `bind_rows()`. The result is a combined dataset that stacks all disciplines and time points while preserving when and in which field each record was observed.
+
+```{r}
 fread = function(
     files, 
     source,
@@ -84,17 +146,22 @@ fread = function(
 
   data = bind_rows(hold)
 
-  if (!language %in% c('nl', 'en')) stop("language should be nl or en")
-  # implement rename function for english column namesac
-  
-
   return(data)
 }
 ```
 
-### Fix Scholar Names
+---
 
-This step standardizes scholar names to ensure consistent matching across sources. It first normalizes name particles common in Dutch and related languages (e.g., van, de, der, ten, ’t, le, el, op den) by converting them to lowercase when they appear between spaces (e.g., “Jan van Dijk”). Next, it corrects a curated set of frequent typos and formatting inconsistencies - such as fixing misplaced or missing initials, diacritics, and misspellings (e.g., “AJGM van Montfort” to “A.J.G.M. van Montfort,” “Lea Kroner” to “Lea Kröner”). The result is a cleaned naam field with harmonized capitalization and corrected names, improving join accuracy and downstream deduplication.
+### `fix_scholar_names()`
+Standardize and correct scholar names to improve matching across sources.
+
+#### Arguments
+**`data`**  
+
+> Tibble or data frame containing a `naam` column with raw scholar names.
+
+#### Method
+The function first defines a set of common particles (e.g., `van`, `de`, `der`, `ten`, `'t`, `le`, `el`, `op den`) and builds a case-insensitive regex to match them when they appear surrounded by whitespace. It then lowercases these matched particles in `naam` to ensure consistent capitalization across the dataset. Next, it applies a series of targeted corrections with `case_when()` to fix known typos and formatting issues in specific names (e.g., adding missing dots in initials, correcting diacritics, fixing misspellings like `"Jan Willen"` to `"Jan Willem"`). The result is a cleaned `naam` field with harmonized particles and corrected person-specific names, which improves the reliability of joins, deduplication, and subsequent linkage to other data.
 
 ```{r}
 fix_scholar_names = function(data){
@@ -138,8 +205,22 @@ fix_scholar_names = function(data){
 }
 ```
 
-### Fixing Google Scholar ID
-This step propagates known Google Scholar IDs across time for the same person. The data are first ordered by naam and date, then grouped by naam so that each individual’s records form a sequence. Within each group, missing values in google_scholar_id are filled using the nearest available value, with the fill direction controlled by the .direction argument (default “updown” fills forward and backward; alternatives like “down” or “up” restrict the fill to one direction). Groups are then ungrouped and the dataset is tidied by universiteit and date. This reduces missing IDs while ensuring values never leak across different people; it assumes that identical names refer to the same scholar, so remaining homonyms should be checked upstream.
+---
+
+### `fix_google_scholar_id()`
+Propagate known Google Scholar IDs over time within the same scholar.
+
+#### Arguments
+**`data`**  
+
+> Tibble or data frame containing at least `naam`, `date`, `universiteit`, and `google_scholar_id`.
+
+**`.direction`**  
+
+> Direction for filling missing `google_scholar_id` values within each person, passed to `tidyr::fill()` (e.g., `"updown"` (default), `"down"`, or `"up"`).
+
+#### Method
+The function orders the data by `naam` and `date` so that each scholar’s records form a coherent time series. It then groups by `naam` and uses `fill(google_scholar_id, .direction = .direction)` to carry non-missing IDs forward and/or backward within each group, depending on the chosen direction. This propagates known IDs to adjacent time points for the same person but never across different people. After ungrouping, the data are sorted by `universiteit` and `date` to restore a tidy ordering. The result is a dataset with fewer missing `google_scholar_id` values, under the assumption that identical names correspond to the same scholar across measurement waves.
 
 ```{r}
 fix_google_scholar_id = function(data, .direction='updown'){
@@ -153,9 +234,22 @@ fix_google_scholar_id = function(data, .direction='updown'){
 }
 ```
 
-### Fixing Email Addresses
+---
 
-This step standardizes and completes the email address information for each scholar. It first applies a practical, case-insensitive regular expression that captures valid email formats, including subdomains, to extract clean addresses from the email_adres field. All extracted emails are then converted to lowercase to ensure consistency. Next, the data are grouped by universiteit and naam, and missing email values are filled using the nearest available information within each group (by default in both directions, controlled by the .direction argument). Finally, the dataset is ungrouped and ordered by universiteit and date, resulting in a harmonized and more complete set of email addresses that align across time points for the same scholar
+### `fix_email_adresses()`
+Standardize and fill email addresses within scholars and universities.
+
+#### Arguments
+**`data`**  
+
+> Tibble or data frame containing `email_adres`, `universiteit`, `naam`, and `date`.
+
+**`.direction`**  
+
+> Direction for filling missing `email_adres` values within each `(universiteit, naam)` group, passed to `tidyr::fill()` (default `"updown"`).
+
+#### Method
+The function defines a practical, case-insensitive regex that matches typical email formats, including subdomains. It first uses `str_extract()` to pull a clean email address out of `email_adres` and converts it to lowercase for consistency. Next, it groups the data by `universiteit` and `naam` and applies `fill(email_adres, .direction = .direction)` to propagate known email addresses across time for the same scholar at the same institution. After ungrouping, the dataset is sorted by `universiteit` and `date`. The result is a harmonized and more complete set of email addresses that are aligned across time points for each scholar, suitable for contacting or linking with other datasets.
 
 ```{r}
 fix_email_adresses = function(data, .direction = "updown"){
@@ -180,9 +274,18 @@ fix_email_adresses = function(data, .direction = "updown"){
 }
 ```
 
-### Fixing Universities
+---
 
-This step harmonizes university affiliations and adds a canonical code alongside the raw label. It first splits multi-valued entries in universiteit (e.g., “UU / UvA”) into separate rows, then trims and normalizes each label. Using a case-insensitive pattern, it maps recognized names/abbreviations to a standard set (EUR, RU, RUG, UU, VU, UvA, UvT, Leiden). If a canonical code is still missing, it infers the affiliation from the email domain (e.g., …`@essb.eur.nl` -> EUR, …`@vu.nl` -> VU, …`@uva.nl` -> UvA, etc.). After removing duplicates, affiliations are re-aggregated per person and date into a list column university, joined back to the original data, and positioned next to universiteit. The result is a consistent, machine-readable university code that supports reliable grouping, filtering, and longitudinal comparison.
+### `clean_universities()`
+Harmonize university labels and derive a canonical university code.
+
+#### Arguments
+**`data`**  
+
+> Tibble or data frame containing `universiteit`, `email_adres`, `naam`, and `date`.
+
+#### Method
+The function first splits multi-valued `universiteit` entries (e.g., `"UU/UvA"` or strings with `?` or `.` separators) into separate rows using `str_split()` and `unnest_longer()`. It then normalizes the labels by trimming whitespace and fixing specific variants (e.g., `"Leiden uni"` to `"Leiden"`). Using a case-insensitive regex and a mapping vector, it attempts to map each cleaned `universiteit` string to a canonical code (EUR, RU, RUG, UU, VU, UvA, UvT, LU). For rows where the canonical code is still missing, it infers the university from the email domain (e.g., `essb.eur.nl` → EUR, `vu.nl` → VU, `uva.nl` → UvA, `ru.nl` → RU, etc.). Duplicate rows are removed, and the data are collapsed by `naam` and `date` to create a list column `university` that can contain multiple affiliations for a given person and time. Finally, the compact `uni` summary is left-joined back onto the original `data`, and `university` is relocated next to `universiteit`. The result is a dataset with both the original free-text label and a consistent, machine-readable university code.
 
 ```{r}
 clean_universities = function(data){
@@ -227,25 +330,18 @@ clean_universities = function(data){
 }
 ```
 
-### Clean `functie`
+---
 
-This step parses free-text job titles in functie into a set of consistent role flags. It first keeps only date, naam, and functie, then lowercases functie for keyword matching. Using targeted patterns in Dutch and English, it creates boolean indicators for common categories:
+### `parse_job_titles()`
+Parse free-text job titles into a set of role flags.
 
-- visiting (e.g., gast, visit),
-- external (buiten, external),
-- professor (incl. typos like proffessor),
-- associate professor (hoofddocent, associate, uhd),
-- assistant professor (universitair docent, assistant),
-- postdoc (postdoc, doctoral),
-- lecturer (docent, lecturer, teacher),
-- researcher (onderzoeker, research), 
-- PhD (phd, promovend), 
-- senior/junior, 
-- emeritus (professor + emiri) or endowed (professor + bijzon), 
-- fellow, 
-- and a broad staff (e.g., advisor, secretary, assistent, medewerker, manager, coordinator, director/directeur). 
+#### Arguments
+**`data`**  
 
-To avoid double counting, several flags are explicitly set to FALSE when a more specific academic rank applies (e.g., assistant/associate/full professor precedence over lecturer/researcher/staff). Missing titles propagate as NA in the corresponding flags. The result is a tidy, machine-readable set of role indicators that standardizes heterogeneous job titles for downstream classification and analysis.
+> Tibble or data frame containing at least `date`, `naam`, and `functie` (free-text job title).
+
+#### Method
+The function keeps only `date`, `naam`, and `functie`, and then constructs a series of boolean indicator variables based on keyword searches in the lowercased `functie`. It flags roles such as visiting and external positions, associate and assistant professors, postdocs, lecturers, researchers, PhD candidates, professors (with tolerance for typos like `proffessor`), senior/junior roles, emeritus and endowed chairs, staff roles, and fellows. To avoid double counting and preserve a hierarchy of roles, some indicators are explicitly set to `FALSE` when a more specific academic rank applies (e.g., assistant or associate professors are not additionally labeled as lecturers or researchers). Missing `functie` values propagate as `NA` in the corresponding flags. The result is a rich set of `is_` flags that encode heterogeneous job titles into structured role indicators.
 
 ```{r}
 parse_job_titles = function(data){
@@ -367,17 +463,18 @@ parse_job_titles = function(data){
 }
 ```
 
-Building on the role flags derived in Clean functie, this step converts those boolean indicators into human-readable position labels and, optionally, a compact string that also captures distinctions.
+---
 
-- `construct_positions()` maps the mutually exclusive academic roles to a canonical position (e.g., Full Professor, Associate Professor, Assistant Professor, Postdoctoral Researcher, PhD Candidate, Lecturer, Researcher, Staff) while separately flagging distinctions as short text labels: Visiting, External, Senior, Junior, Emeritus, Endowed, and Fellow.
+### `construct_positions()`
+Construct canonical position labels and distinction flags from role indicators.
 
-After creating these columns, it drops the original `is_` flags and constructs `position2` by uniting any present distinctions (from visiting through fellow) into a single, comma-separated string (leaving the per-column distinction flags intact for auditing).
+#### Arguments
+**`data`**  
 
-- `clean_functie()` then orchestrates the full cleaning. It first runs parse_job_titles() to produce the role flags, passes the result through construct_positions(), and finally writes the output back into the original data:
-- `.what = "complete"` (default) sets functie to the canonical position (rank only).
-- `.what = "simplified"` sets functie to position2, which includes any distinctions (e.g., Assistant Professor, Visiting; Fellow).
+> Tibble or data frame that already contains the `is_` role flags produced by `parse_job_titles()`.
 
-The result is a consistent functie column suitable either for strict rank analyses (complete) or for descriptive reporting that preserves visiting/external/fellow/etc. qualifiers (simplified).
+#### Method
+The function translates the boolean `is_` flags into two kinds of variables. First, it creates distinction labels such as `visiting`, `external`, `senior`, `junior`, `emeritus`, `endowed`, and `fellow`, which store short text labels for individuals with those attributes (or `NA` otherwise). Second, it collapses the mutually exclusive academic ranks into a single `position` variable (e.g., `"Full Professor"`, `"Associate Professor"`, `"Assistant Professor"`, `"Postdoctoral Researcher"`, `"PhD Candidate"`, `"Lecturer"`, `"Researcher"`, `"Staff"`), giving precedence to the most specific academic categories. After constructing these variables, it drops all columns starting with `is_` and uses `unite()` to build `position2`, which concatenates any non-missing distinction labels into a single, comma-separated string while keeping the underlying distinction columns for inspection. The result is a compact but expressive representation of each person’s academic role and status.
 
 ```{r}
 construct_positions = function(data) {
@@ -407,7 +504,28 @@ construct_positions = function(data) {
     select(!starts_with('is_')) |>
     unite('position2', visiting:fellow, na.rm=TRUE, remove=FALSE)
 }
+```
 
+---
+
+### `clean_functie()`
+Create a cleaned `functie` variable based on parsed job titles and constructed positions.
+
+#### Arguments
+**`data`**  
+
+> Tibble or data frame containing at least `naam`, `date`, and `functie`.
+
+**`.what`**  
+
+> Character string controlling which cleaned representation to write back into `functie`.  
+> `"complete"` (default) uses the core academic rank (`position`);  
+> `"simplified"` uses `position2`, which also includes distinctions such as visiting, external, emeritus, etc.
+
+#### Method
+The function orchestrates the full job-title cleaning pipeline. It first passes `data` through `parse_job_titles()` to derive the set of boolean `is_` indicators. The result is then processed by `construct_positions()`, which creates a canonical `position` and an extended `position2` with concatenated distinctions. Depending on the `.what` argument, `clean_functie()` overwrites the original `functie` column with either `position` (for a strict rank-only variable) or `position2` (for a more descriptive label that retains visiting/external/fellow-type qualifiers). It returns the original dataset with a standardized `functie` column suitable for analysis and reporting.
+
+```{r}
 clean_functie = function(data, .what='complete'){
   test = data |> 
     parse_job_titles() |>
@@ -422,6 +540,8 @@ clean_functie = function(data, .what='complete'){
   return(data)
 }
 ```
+
+---
 
 ## Application
 

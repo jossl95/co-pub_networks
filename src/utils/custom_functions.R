@@ -1,20 +1,37 @@
+KEEP_FUNCTIONS = c(
+  ".clear_global_environment",
+  ".load_quarto_dependencies",
+  "fsave",
+  "fsaveRDS",
+  "fload",
+  "freadRDS",
+  "freadRDS2",
+  "normalize_name",
+  "eval_ok"
+)
+
+.clear_global_environment <- function(keep = KEEP_FUNCTIONS) {
+
+  objs <- ls(envir = .GlobalEnv, all.names = TRUE)
+
+  # also keep the KEEP_FUNCTIONS object itself
+  to_keep <- unique(c(keep, "KEEP_FUNCTIONS"))
+
+  rm(
+    list  = setdiff(objs, to_keep),
+    envir = .GlobalEnv
+  )
+
+  invisible(gc())
+}
+
+
 .load_quarto_dependencies = function(){
   library(knitr)
   library(rmarkdown)
 }
 
 # this function is deprecated for compatibility with the renv package
-
-# fpackage.check <- function(packages) {
-#   # Check for installed packages and install any that are missing
-#   lapply(packages, FUN = function(x) {
-#   if (!require(x, character.only = TRUE)) {
-#     install.packages(x, dependencies = TRUE)
-#     library(x, character.only = TRUE)
-#   }
-#   })
-# }
-
 fpackage.check <- function(packages) {
   lifecycle::deprecate_warn(
     when = "2025-10-27",
@@ -102,7 +119,7 @@ freadRDS2 = function(file, location = "processed", ...){
 
   return(readRDS(file_path))
 }
-
+#todo deprecate
 fload <- function(filename) {
   load(filename)
   get(ls()[ls() != "filename"])

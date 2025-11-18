@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-15">
+<meta name="dcterms.date" content="2025-11-18">
 
 <title>Create patch for institutions – Networks</title>
 <style>
@@ -78,9 +78,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-0f71862d4ab2d6bf69af2cc5f197282f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-80f7ee4e9ac38045aedc42db364c4724.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-0f71862d4ab2d6bf69af2cc5f197282f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-30d20b82645cd210f386addab4f6448d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-8bc95915644b09e823dba8822d382726.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-30d20b82645cd210f386addab4f6448d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -386,6 +386,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
+  <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a>
+  <ul class="collapse">
+  <li><a href="#as_tibble_safe" id="toc-as_tibble_safe" class="nav-link" data-scroll-target="#as_tibble_safe"><code>as_tibble_safe()</code></a></li>
+  <li><a href="#unnest_authors" id="toc-unnest_authors" class="nav-link" data-scroll-target="#unnest_authors"><code>unnest_authors()</code></a></li>
+  <li><a href="#prepare_works_authors" id="toc-prepare_works_authors" class="nav-link" data-scroll-target="#prepare_works_authors"><code>prepare_works_authors()</code></a></li>
+  <li><a href="#derive_affiliation_date_ranges" id="toc-derive_affiliation_date_ranges" class="nav-link" data-scroll-target="#derive_affiliation_date_ranges"><code>derive_affiliation_date_ranges()</code></a></li>
+  <li><a href="#format_institutions" id="toc-format_institutions" class="nav-link" data-scroll-target="#format_institutions"><code>format_institutions()</code></a></li>
+  <li><a href="#build_affiliations_table" id="toc-build_affiliations_table" class="nav-link" data-scroll-target="#build_affiliations_table"><code>build_affiliations_table()</code></a></li>
+  </ul></li>
+  <li><a href="#application" id="toc-application" class="nav-link" data-scroll-target="#application">Application</a></li>
   </ul>
 <div class="quarto-code-links"><h2>Code Links</h2><ul><li><a href="0a.custom_functions.html"><i class="bi bi-file-code"></i>Custom Functions</a></li></ul></div></nav>
     </div>
@@ -406,7 +416,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 15, 2025</p>
+      <p class="date">November 18, 2025</p>
     </div>
   </div>
   
@@ -421,106 +431,193 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="getting-started" class="level2">
 <h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># clear the global environment</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># load custom functions</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co"># clear the global environment and set dependencies</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="fu">.clear_global_environment</span>()</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="fu">.load_quarto_dependencies</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># load and activate packages</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb2-4"><a href="#cb2-4"></a></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="co"># load custom functions</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="fu">.load_quarto_dependencies</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">library</span>(stringr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="functions" class="level2">
+<h2 class="anchored" data-anchor-id="functions">Functions</h2>
+<section id="as_tibble_safe" class="level3">
+<h3 class="anchored" data-anchor-id="as_tibble_safe"><code>as_tibble_safe()</code></h3>
+<p>Safely coerce nested list elements to tibbles.</p>
+<section id="arguments" class="level4">
+<h4 class="anchored" data-anchor-id="arguments">Arguments</h4>
+<p><strong><code>x</code></strong></p>
+<blockquote class="blockquote">
+<p>Object to be converted; may be <code>NULL</code>, a data frame, or another list-like structure.</p>
+</blockquote>
+</section>
+<section id="method" class="level4">
+<h4 class="anchored" data-anchor-id="method">Method</h4>
+<p>This helper inspects <code>x</code> and returns an empty tibble when it is <code>NULL</code>, <code>as_tibble(x)</code> when it is already a data frame, or <code>tibble::as_tibble(x)</code> for other list-like inputs. It is used to robustly normalize nested list columns (e.g., affiliations, last-known institutions) into rectangular structures before unnesting, avoiding errors when encountering <code>NULL</code> or heterogeneous types.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholars'</span>, <span class="at">location=</span><span class="st">'clean'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>as_tibble_safe <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(x)) {</span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="fu">tibble</span>()</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">is.data.frame</span>(x)) {</span>
+<span id="cb3-5"><a href="#cb3-5"></a>    <span class="fu">as_tibble</span>(x)</span>
+<span id="cb3-6"><a href="#cb3-6"></a>  } <span class="cf">else</span> {</span>
+<span id="cb3-7"><a href="#cb3-7"></a>    tibble<span class="sc">::</span><span class="fu">as_tibble</span>(x)</span>
+<span id="cb3-8"><a href="#cb3-8"></a>  }</span>
+<span id="cb3-9"><a href="#cb3-9"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<hr>
+</section>
+</section>
+<section id="unnest_authors" class="level3">
+<h3 class="anchored" data-anchor-id="unnest_authors"><code>unnest_authors()</code></h3>
+<p>Expand works data to one row per author, affiliation, and last-known institution.</p>
+<section id="arguments-1" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-1">Arguments</h4>
+<p><strong><code>works</code></strong></p>
+<blockquote class="blockquote">
+<p>Tibble of works with nested <code>authorships</code>, <code>authorships__affiliations</code>, and <code>last_known_institutions</code> list-columns.</p>
+</blockquote>
+</section>
+<section id="method-1" class="level4">
+<h4 class="anchored" data-anchor-id="method-1">Method</h4>
+<p>The function sequentially normalizes and unnests nested columns. It first ensures that each element of <code>authorships</code> is a tibble using <code>as_tibble_safe()</code>, then unnests to a row-per-author layout. Next it applies the same pattern to <code>authorships__affiliations</code>, yielding one row per author–affiliation combination, and finally to <code>last_known_institutions</code>, yielding one row per last-known institution record. All unnests use <code>keep_empty = TRUE</code> to retain works without authors or affiliations as explicit placeholder rows. The result is a long-format table that exposes authors, current affiliations, and last-known institutions for each work.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>unnest_authors <span class="ot">&lt;-</span> <span class="cf">function</span>(works) {</span>
-<span id="cb4-2"><a href="#cb4-2"></a>  works <span class="ot">=</span> works <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>  works <span class="sc">|&gt;</span></span>
 <span id="cb4-3"><a href="#cb4-3"></a>    <span class="co"># 1) Make sure each element of `authorships` is a tibble (handles NULLs/lists)</span></span>
 <span id="cb4-4"><a href="#cb4-4"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb4-5"><a href="#cb4-5"></a>      <span class="at">authorships =</span> <span class="fu">map</span>(authorships, <span class="sc">~</span></span>
-<span id="cb4-6"><a href="#cb4-6"></a>        <span class="cf">if</span> (<span class="fu">is.null</span>(.x)) <span class="fu">tibble</span>()</span>
-<span id="cb4-7"><a href="#cb4-7"></a>        <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">is.data.frame</span>(.x)) <span class="fu">as_tibble</span>(.x)</span>
-<span id="cb4-8"><a href="#cb4-8"></a>        <span class="cf">else</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>(.x)</span>
-<span id="cb4-9"><a href="#cb4-9"></a>      )</span>
-<span id="cb4-10"><a href="#cb4-10"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb4-11"><a href="#cb4-11"></a>    <span class="co"># 2) One row per author record (keeps works with 0 authors via keep_empty)</span></span>
-<span id="cb4-12"><a href="#cb4-12"></a>    <span class="fu">unnest</span>(authorships, <span class="at">keep_empty =</span> <span class="cn">TRUE</span>, <span class="at">names_sep =</span> <span class="st">"__"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-13"><a href="#cb4-13"></a>    <span class="co"># 3) Make sure each element of `affiliations` is a tibble (handles NULLs/lists)</span></span>
-<span id="cb4-14"><a href="#cb4-14"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb4-15"><a href="#cb4-15"></a>      <span class="at">authorships__affiliations =</span> <span class="fu">map</span>(authorships__affiliations, <span class="sc">~</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a>        <span class="cf">if</span> (<span class="fu">is.null</span>(.x)) <span class="fu">tibble</span>()</span>
-<span id="cb4-17"><a href="#cb4-17"></a>        <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">is.data.frame</span>(.x)) <span class="fu">as_tibble</span>(.x)</span>
-<span id="cb4-18"><a href="#cb4-18"></a>        <span class="cf">else</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>(.x)</span>
-<span id="cb4-19"><a href="#cb4-19"></a>      )</span>
-<span id="cb4-20"><a href="#cb4-20"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb4-21"><a href="#cb4-21"></a>    <span class="co"># 4) One row per author record (keeps works with 0 authors via keep_empty)</span></span>
-<span id="cb4-22"><a href="#cb4-22"></a>    <span class="fu">unnest</span>(authorships__affiliations, <span class="at">keep_empty =</span> <span class="cn">TRUE</span>, <span class="at">names_sep =</span> <span class="st">"_"</span>)  <span class="sc">|&gt;</span></span>
-<span id="cb4-23"><a href="#cb4-23"></a>    <span class="co"># 3) Make sure each element of `affiliations` is a tibble (handles NULLs/lists)</span></span>
-<span id="cb4-24"><a href="#cb4-24"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb4-25"><a href="#cb4-25"></a>      <span class="at">last_known_institutions =</span> <span class="fu">map</span>(last_known_institutions, <span class="sc">~</span></span>
-<span id="cb4-26"><a href="#cb4-26"></a>        <span class="cf">if</span> (<span class="fu">is.null</span>(.x)) <span class="fu">tibble</span>()</span>
-<span id="cb4-27"><a href="#cb4-27"></a>        <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">is.data.frame</span>(.x)) <span class="fu">as_tibble</span>(.x)</span>
-<span id="cb4-28"><a href="#cb4-28"></a>        <span class="cf">else</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>(.x)</span>
-<span id="cb4-29"><a href="#cb4-29"></a>      )</span>
-<span id="cb4-30"><a href="#cb4-30"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb4-31"><a href="#cb4-31"></a>    <span class="co"># 4) One row per author record (keeps works with 0 authors via keep_empty)</span></span>
-<span id="cb4-32"><a href="#cb4-32"></a>    <span class="fu">unnest</span>(last_known_institutions, <span class="at">keep_empty =</span> <span class="cn">TRUE</span>, <span class="at">names_sep =</span> <span class="st">"_"</span>)</span>
-<span id="cb4-33"><a href="#cb4-33"></a></span>
-<span id="cb4-34"><a href="#cb4-34"></a>  <span class="fu">return</span>(works)</span>
-<span id="cb4-35"><a href="#cb4-35"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-5"><a href="#cb4-5"></a>      <span class="at">authorships =</span> <span class="fu">map</span>(authorships, as_tibble_safe)</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>    <span class="co"># 2) One row per author record (keeps works with 0 authors via keep_empty)</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>    <span class="fu">unnest</span>(authorships, <span class="at">keep_empty =</span> <span class="cn">TRUE</span>, <span class="at">names_sep =</span> <span class="st">"__"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>    <span class="co"># 3) Make sure each element of `authorships__affiliations` is a tibble</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb4-11"><a href="#cb4-11"></a>      <span class="at">authorships__affiliations =</span> <span class="fu">map</span>(authorships__affiliations, as_tibble_safe)</span>
+<span id="cb4-12"><a href="#cb4-12"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>    <span class="co"># 4) One row per affiliation record</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a>    <span class="fu">unnest</span>(authorships__affiliations, <span class="at">keep_empty =</span> <span class="cn">TRUE</span>, <span class="at">names_sep =</span> <span class="st">"_"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a>    <span class="co"># 5) Make sure each element of `last_known_institutions` is a tibble</span></span>
+<span id="cb4-16"><a href="#cb4-16"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb4-17"><a href="#cb4-17"></a>      <span class="at">last_known_institutions =</span> <span class="fu">map</span>(last_known_institutions, as_tibble_safe)</span>
+<span id="cb4-18"><a href="#cb4-18"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb4-19"><a href="#cb4-19"></a>    <span class="co"># 6) One row per last-known institution record</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a>    <span class="fu">unnest</span>(last_known_institutions, <span class="at">keep_empty =</span> <span class="cn">TRUE</span>, <span class="at">names_sep =</span> <span class="st">"_"</span>)</span>
+<span id="cb4-21"><a href="#cb4-21"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<hr>
+</section>
+</section>
+<section id="prepare_works_authors" class="level3">
+<h3 class="anchored" data-anchor-id="prepare_works_authors"><code>prepare_works_authors()</code></h3>
+<p>Construct a long works–authors–affiliations table for all scholars.</p>
+<section id="arguments-2" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-2">Arguments</h4>
+<p><strong><code>data</code></strong></p>
+<blockquote class="blockquote">
+<p>List-like object containing at least <code>scholars_oa</code> (OpenAlex author records) and <code>works</code> (OpenAlex works) elements.</p>
+</blockquote>
+</section>
+<section id="method-2" class="level4">
+<h4 class="anchored" data-anchor-id="method-2">Method</h4>
+<p>The function first binds all OpenAlex author records in <code>data[["scholars_oa"]]</code> into a single tibble and merges these with the bound works table from <code>data[["works"]]</code> using a many-to-many join on <code>uid</code>. It then calls <code>unnest_authors()</code> to expand authorships, affiliations, and last-known institutions. Afterwards, it keeps only rows where the scholar’s <code>uid</code> matches <code>authorships__uid</code> (ensuring the row corresponds to the focal scholar) and filters to rows with either a non-missing <code>authorships__affiliations_id</code> or a match between <code>authorships__affiliations_id</code> and <code>last_known_institutions_id</code>. The result is a cleaned, long-format table that reliably links works, authors, and their institutional affiliations over time.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>authors <span class="ot">=</span> data[[<span class="st">'scholars_oa'</span>]] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>()</span>
-<span id="cb5-2"><a href="#cb5-2"></a>works <span class="ot">=</span> data[[<span class="st">'works'</span>]] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>display_name)</span>
-<span id="cb5-3"><a href="#cb5-3"></a></span>
-<span id="cb5-4"><a href="#cb5-4"></a>works_authors <span class="ot">=</span>  works<span class="sc">|&gt;</span></span>
-<span id="cb5-5"><a href="#cb5-5"></a>  <span class="fu">left_join</span>(authors, <span class="at">by =</span> <span class="fu">join_by</span>(uid), <span class="at">relationship =</span> <span class="st">"many-to-many"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a>  <span class="fu">unnest_authors</span>() <span class="sc">|&gt;</span></span>
-<span id="cb5-7"><a href="#cb5-7"></a>  <span class="fu">filter</span>(uid <span class="sc">==</span> authorships__uid) <span class="sc">|&gt;</span></span>
-<span id="cb5-8"><a href="#cb5-8"></a>  <span class="fu">filter</span>(</span>
-<span id="cb5-9"><a href="#cb5-9"></a>    <span class="sc">!</span><span class="fu">is.na</span>(authorships__affiliations_id) <span class="sc">|</span></span>
-<span id="cb5-10"><a href="#cb5-10"></a>    authorships__affiliations_id <span class="sc">==</span> last_known_institutions_id</span>
-<span id="cb5-11"><a href="#cb5-11"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>prepare_works_authors <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  authors <span class="ot">&lt;-</span> data[[<span class="st">"scholars_oa"</span>]] <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="fu">bind_rows</span>()</span>
+<span id="cb5-4"><a href="#cb5-4"></a></span>
+<span id="cb5-5"><a href="#cb5-5"></a>  works <span class="ot">&lt;-</span> data[[<span class="st">"works"</span>]] <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>    <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="fu">select</span>(<span class="sc">-</span>display_name)</span>
+<span id="cb5-8"><a href="#cb5-8"></a></span>
+<span id="cb5-9"><a href="#cb5-9"></a>  works <span class="sc">|&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>    <span class="fu">left_join</span>(</span>
+<span id="cb5-11"><a href="#cb5-11"></a>      authors,</span>
+<span id="cb5-12"><a href="#cb5-12"></a>      <span class="at">by =</span> <span class="fu">join_by</span>(uid),</span>
+<span id="cb5-13"><a href="#cb5-13"></a>      <span class="at">relationship =</span> <span class="st">"many-to-many"</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a>    <span class="fu">unnest_authors</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a>    <span class="fu">filter</span>(uid <span class="sc">==</span> authorships__uid) <span class="sc">|&gt;</span></span>
+<span id="cb5-17"><a href="#cb5-17"></a>    <span class="fu">filter</span>(</span>
+<span id="cb5-18"><a href="#cb5-18"></a>      <span class="sc">!</span><span class="fu">is.na</span>(authorships__affiliations_id) <span class="sc">|</span></span>
+<span id="cb5-19"><a href="#cb5-19"></a>        authorships__affiliations_id <span class="sc">==</span> last_known_institutions_id</span>
+<span id="cb5-20"><a href="#cb5-20"></a>    )</span>
+<span id="cb5-21"><a href="#cb5-21"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<hr>
+</section>
+</section>
+<section id="derive_affiliation_date_ranges" class="level3">
+<h3 class="anchored" data-anchor-id="derive_affiliation_date_ranges"><code>derive_affiliation_date_ranges()</code></h3>
+<p>Derive first and last publication dates per university affiliation.</p>
+<section id="arguments-3" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-3">Arguments</h4>
+<p><strong><code>works_authors</code></strong></p>
+<blockquote class="blockquote">
+<p>Long-format tibble as returned by <code>prepare_works_authors()</code> with publication and affiliation information.</p>
+</blockquote>
+<p><strong><code>universities</code></strong></p>
+<blockquote class="blockquote">
+<p>Character vector of OpenAlex institution IDs to restrict the analysis to (e.g., Dutch universities).</p>
+</blockquote>
+</section>
+<section id="method-3" class="level4">
+<h4 class="anchored" data-anchor-id="method-3">Method</h4>
+<p>The function starts from the long <code>works_authors</code> table and collapses it to distinct combinations of display name, author ID, affiliation ID and name, and publication date. It then filters to rows where <code>authorships__affiliations_id</code> is in the supplied <code>universities</code>. After sorting by <code>publication_date</code>, it groups by <code>uid</code>, author, and affiliation, and summarizes the first and last publication dates where that affiliation appears. These dates are then expanded into broader affiliation intervals by subtracting 18 months from <code>first_date</code> and adding 6 months to <code>last_date</code>, capturing plausible entry and exit windows around the observed publication period. The resulting table contains one row per scholar–university pairing with inferred start and end dates of affiliation.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>universities <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb6-2"><a href="#cb6-2"></a>    <span class="st">"https://openalex.org/I865915315"</span>, <span class="st">"https://openalex.org/I887064364"</span>,</span>
-<span id="cb6-3"><a href="#cb6-3"></a>    <span class="st">"https://openalex.org/I121797337"</span>, <span class="st">"https://openalex.org/I145872427"</span>, </span>
-<span id="cb6-4"><a href="#cb6-4"></a>    <span class="st">"https://openalex.org/I193662353"</span>, <span class="st">"https://openalex.org/I913958620"</span>, </span>
-<span id="cb6-5"><a href="#cb6-5"></a>    <span class="st">"https://openalex.org/I193700539"</span>, <span class="st">"https://openalex.org/I169381384"</span>, </span>
-<span id="cb6-6"><a href="#cb6-6"></a>    <span class="st">"https://openalex.org/I913481162"</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a>)</span>
-<span id="cb6-8"><a href="#cb6-8"></a></span>
-<span id="cb6-9"><a href="#cb6-9"></a>dates <span class="ot">=</span> works_authors <span class="sc">|&gt;</span></span>
-<span id="cb6-10"><a href="#cb6-10"></a>    <span class="fu">distinct</span>(</span>
-<span id="cb6-11"><a href="#cb6-11"></a>      authorships__display_name, authorships__author_id, </span>
-<span id="cb6-12"><a href="#cb6-12"></a>      authorships__affiliations_id, authorships__affiliations_display_name, </span>
-<span id="cb6-13"><a href="#cb6-13"></a>      publication_date, <span class="at">.keep_all=</span><span class="cn">TRUE</span></span>
-<span id="cb6-14"><a href="#cb6-14"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb6-15"><a href="#cb6-15"></a>    <span class="fu">filter</span>(authorships__affiliations_id <span class="sc">%in%</span> universities) <span class="sc">|&gt;</span></span>
-<span id="cb6-16"><a href="#cb6-16"></a>    <span class="fu">arrange</span>(publication_date) <span class="sc">|&gt;</span></span>
-<span id="cb6-17"><a href="#cb6-17"></a>    <span class="fu">group_by</span>(</span>
-<span id="cb6-18"><a href="#cb6-18"></a>      uid, authorships__author_id, authorships__affiliations_display_name, </span>
-<span id="cb6-19"><a href="#cb6-19"></a>      authorships__affiliations_id</span>
-<span id="cb6-20"><a href="#cb6-20"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb6-21"><a href="#cb6-21"></a>    <span class="fu">summarize</span>(</span>
-<span id="cb6-22"><a href="#cb6-22"></a>        <span class="at">uid =</span> <span class="fu">first</span>(uid),</span>
-<span id="cb6-23"><a href="#cb6-23"></a>        <span class="at">authorships__display_name =</span> <span class="fu">first</span>(authorships__display_name),</span>
-<span id="cb6-24"><a href="#cb6-24"></a>        <span class="at">first_date =</span> <span class="fu">first</span>(publication_date) ,</span>
-<span id="cb6-25"><a href="#cb6-25"></a>        <span class="at">last_date =</span> <span class="fu">last</span>(publication_date)</span>
-<span id="cb6-26"><a href="#cb6-26"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb6-27"><a href="#cb6-27"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb6-28"><a href="#cb6-28"></a>      <span class="at">first_date =</span> first_date <span class="sc">%m-%</span> <span class="fu">months</span>(<span class="dv">18</span>),</span>
-<span id="cb6-29"><a href="#cb6-29"></a>      <span class="at">last_date =</span> last_date <span class="sc">%m+%</span> <span class="fu">months</span>(<span class="dv">6</span>)</span>
-<span id="cb6-30"><a href="#cb6-30"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>derive_affiliation_date_ranges <span class="ot">&lt;-</span> <span class="cf">function</span>(works_authors, universities) {</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  works_authors <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="fu">distinct</span>(</span>
+<span id="cb6-4"><a href="#cb6-4"></a>      authorships__display_name,</span>
+<span id="cb6-5"><a href="#cb6-5"></a>      authorships__author_id,</span>
+<span id="cb6-6"><a href="#cb6-6"></a>      authorships__affiliations_id,</span>
+<span id="cb6-7"><a href="#cb6-7"></a>      authorships__affiliations_display_name,</span>
+<span id="cb6-8"><a href="#cb6-8"></a>      publication_date,</span>
+<span id="cb6-9"><a href="#cb6-9"></a>      <span class="at">.keep_all =</span> <span class="cn">TRUE</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a>    <span class="fu">filter</span>(authorships__affiliations_id <span class="sc">%in%</span> universities) <span class="sc">|&gt;</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a>    <span class="fu">arrange</span>(publication_date) <span class="sc">|&gt;</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a>    <span class="fu">group_by</span>(</span>
+<span id="cb6-14"><a href="#cb6-14"></a>      uid,</span>
+<span id="cb6-15"><a href="#cb6-15"></a>      authorships__author_id,</span>
+<span id="cb6-16"><a href="#cb6-16"></a>      authorships__affiliations_display_name,</span>
+<span id="cb6-17"><a href="#cb6-17"></a>      authorships__affiliations_id</span>
+<span id="cb6-18"><a href="#cb6-18"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb6-19"><a href="#cb6-19"></a>    <span class="fu">summarize</span>(</span>
+<span id="cb6-20"><a href="#cb6-20"></a>      <span class="at">uid =</span> <span class="fu">first</span>(uid),</span>
+<span id="cb6-21"><a href="#cb6-21"></a>      <span class="at">authorships__display_name =</span> <span class="fu">first</span>(authorships__display_name),</span>
+<span id="cb6-22"><a href="#cb6-22"></a>      <span class="at">first_date =</span> <span class="fu">first</span>(publication_date),</span>
+<span id="cb6-23"><a href="#cb6-23"></a>      <span class="at">last_date =</span> <span class="fu">last</span>(publication_date),</span>
+<span id="cb6-24"><a href="#cb6-24"></a>      <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb6-25"><a href="#cb6-25"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb6-26"><a href="#cb6-26"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb6-27"><a href="#cb6-27"></a>      <span class="at">first_date =</span> first_date <span class="sc">%m-%</span> <span class="fu">months</span>(<span class="dv">18</span>),</span>
+<span id="cb6-28"><a href="#cb6-28"></a>      <span class="at">last_date =</span> last_date <span class="sc">%m+%</span> <span class="fu">months</span>(<span class="dv">6</span>)</span>
+<span id="cb6-29"><a href="#cb6-29"></a>    )</span>
+<span id="cb6-30"><a href="#cb6-30"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<hr>
+</section>
+</section>
+<section id="format_institutions" class="level3">
+<h3 class="anchored" data-anchor-id="format_institutions"><code>format_institutions()</code></h3>
+<p>Convert affiliation histories into a wide panel of timepoint-specific affiliations.</p>
+<section id="arguments-4" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-4">Arguments</h4>
+<p><strong><code>d</code></strong></p>
+<blockquote class="blockquote">
+<p>Tibble containing at least <code>uid</code>, <code>year</code>, and <code>authorships__affiliations_display_name</code>, typically produced by <code>build_affiliations_table()</code> before the final reshape.</p>
+</blockquote>
+</section>
+<section id="method-4" class="level4">
+<h4 class="anchored" data-anchor-id="method-4">Method</h4>
+<p>The function first reduces <code>d</code> to distinct combinations of <code>uid</code>, timepoint <code>year</code>, and affiliation name, keeping only years after 2015. Within each <code>(uid, year)</code> group, it concatenates unique affiliation names into a single <code>affiliations</code> string, separated by <code>"; "</code>. It then pivots the data wider with one row per <code>uid</code> and columns <code>affiliations_&lt;year&gt;</code>, restricting to a predefined set of evaluation years (2019, 2022, 2024, 2025). As a final convenience step, it back-fills <code>affiliations_25</code> with <code>affiliations_24</code> when the 2025 value is missing, ensuring a complete last column where possible. The result is a compact, wide-format table with one row per scholar and affiliation strings at key timepoints.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>format_institutions <span class="ot">=</span> <span class="cf">function</span>(d) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>format_institutions <span class="ot">&lt;-</span> <span class="cf">function</span>(d) {</span>
 <span id="cb7-2"><a href="#cb7-2"></a>  d <span class="sc">|&gt;</span></span>
 <span id="cb7-3"><a href="#cb7-3"></a>    <span class="fu">distinct</span>(uid, year, authorships__affiliations_display_name) <span class="sc">|&gt;</span></span>
 <span id="cb7-4"><a href="#cb7-4"></a>    <span class="fu">filter</span>(year <span class="sc">&gt;</span> <span class="dv">15</span>) <span class="sc">|&gt;</span></span>
@@ -528,41 +625,129 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-6"><a href="#cb7-6"></a>    <span class="fu">group_by</span>(uid, year) <span class="sc">|&gt;</span></span>
 <span id="cb7-7"><a href="#cb7-7"></a>    <span class="fu">reframe</span>(</span>
 <span id="cb7-8"><a href="#cb7-8"></a>      <span class="at">affiliations =</span> <span class="fu">paste</span>(</span>
-<span id="cb7-9"><a href="#cb7-9"></a>        <span class="fu">unique</span>(authorships__affiliations_display_name), <span class="at">collapse =</span> <span class="st">"; "</span></span>
-<span id="cb7-10"><a href="#cb7-10"></a>      )</span>
-<span id="cb7-11"><a href="#cb7-11"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb7-12"><a href="#cb7-12"></a>    <span class="fu">pivot_wider</span>(</span>
-<span id="cb7-13"><a href="#cb7-13"></a>      <span class="at">id_cols =</span> uid, <span class="at">names_from =</span> year, </span>
-<span id="cb7-14"><a href="#cb7-14"></a>      <span class="at">values_from =</span> affiliations, <span class="at">names_prefix =</span> <span class="st">"affiliations_"</span></span>
-<span id="cb7-15"><a href="#cb7-15"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb7-16"><a href="#cb7-16"></a>    <span class="fu">select</span>(</span>
-<span id="cb7-17"><a href="#cb7-17"></a>      uid,</span>
-<span id="cb7-18"><a href="#cb7-18"></a>      <span class="fu">num_range</span>(<span class="st">"affiliations_"</span>, <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">22</span>, <span class="dv">24</span>, <span class="dv">25</span>))</span>
-<span id="cb7-19"><a href="#cb7-19"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb7-20"><a href="#cb7-20"></a>    <span class="fu">mutate</span>(<span class="at">affiliations_25 =</span> <span class="fu">ifelse</span>(</span>
-<span id="cb7-21"><a href="#cb7-21"></a>      <span class="fu">is.na</span>(affiliations_25), affiliations_24, affiliations_25</span>
-<span id="cb7-22"><a href="#cb7-22"></a>    ))</span>
-<span id="cb7-23"><a href="#cb7-23"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-9"><a href="#cb7-9"></a>        <span class="fu">unique</span>(authorships__affiliations_display_name),</span>
+<span id="cb7-10"><a href="#cb7-10"></a>        <span class="at">collapse =</span> <span class="st">"; "</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>      )</span>
+<span id="cb7-12"><a href="#cb7-12"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb7-13"><a href="#cb7-13"></a>    <span class="fu">pivot_wider</span>(</span>
+<span id="cb7-14"><a href="#cb7-14"></a>      <span class="at">id_cols =</span> uid,</span>
+<span id="cb7-15"><a href="#cb7-15"></a>      <span class="at">names_from =</span> year,</span>
+<span id="cb7-16"><a href="#cb7-16"></a>      <span class="at">values_from =</span> affiliations,</span>
+<span id="cb7-17"><a href="#cb7-17"></a>      <span class="at">names_prefix =</span> <span class="st">"affiliations_"</span></span>
+<span id="cb7-18"><a href="#cb7-18"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb7-19"><a href="#cb7-19"></a>    <span class="fu">select</span>(</span>
+<span id="cb7-20"><a href="#cb7-20"></a>      uid,</span>
+<span id="cb7-21"><a href="#cb7-21"></a>      <span class="fu">num_range</span>(<span class="st">"affiliations_"</span>, <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">22</span>, <span class="dv">24</span>, <span class="dv">25</span>))</span>
+<span id="cb7-22"><a href="#cb7-22"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb7-23"><a href="#cb7-23"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb7-24"><a href="#cb7-24"></a>      <span class="at">affiliations_25 =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb7-25"><a href="#cb7-25"></a>        <span class="fu">is.na</span>(affiliations_25),</span>
+<span id="cb7-26"><a href="#cb7-26"></a>        affiliations_24,</span>
+<span id="cb7-27"><a href="#cb7-27"></a>        affiliations_25</span>
+<span id="cb7-28"><a href="#cb7-28"></a>      )</span>
+<span id="cb7-29"><a href="#cb7-29"></a>    )</span>
+<span id="cb7-30"><a href="#cb7-30"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="build_affiliations_table" class="level3">
+<h3 class="anchored" data-anchor-id="build_affiliations_table"><code>build_affiliations_table()</code></h3>
+<p>Construct a timepoint-based affiliation panel from inferred date ranges.</p>
+<section id="arguments-5" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-5">Arguments</h4>
+<p><strong><code>dates</code></strong></p>
+<blockquote class="blockquote">
+<p>Tibble with inferred <code>first_date</code> and <code>last_date</code> per <code>(uid, affiliation)</code> as returned by <code>derive_affiliation_date_ranges()</code>.</p>
+</blockquote>
+<p><strong><code>timepoints</code></strong></p>
+<blockquote class="blockquote">
+<p>Character vector of evaluation dates (e.g., <code>"2019-09-01"</code>, <code>"2022-12-19"</code>) to use as panel timepoints.</p>
+</blockquote>
+</section>
+<section id="method-5" class="level4">
+<h4 class="anchored" data-anchor-id="method-5">Method</h4>
+<p>The function first converts <code>timepoints</code> to dates and forms their cartesian product with <code>dates</code> using <code>expand_grid()</code>. For each scholar–affiliation–timepoint combination, it flags whether the timepoint falls within the inferred interval <code>[first_date, last_date]</code> and computes a short two-digit <code>year</code> label. It then filters to in-range observations, deduplicates by scholar, author, affiliation name, and year, and drops rows with missing affiliation names. The resulting long-format table is passed to <code>format_institutions()</code>, which reshapes it into a wide panel of affiliations at key timepoints. The final output is an affiliation patch table suitable for merging into the main scholars dataset.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>build_affiliations_table <span class="ot">&lt;-</span> <span class="cf">function</span>(dates, timepoints) {</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  tp <span class="ot">&lt;-</span> <span class="fu">ymd</span>(timepoints)</span>
+<span id="cb8-3"><a href="#cb8-3"></a></span>
+<span id="cb8-4"><a href="#cb8-4"></a>  dates <span class="sc">|&gt;</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a>    tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">timepoint =</span> tp) <span class="sc">|&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a>    <span class="fu">arrange</span>(timepoint) <span class="sc">|&gt;</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb8-8"><a href="#cb8-8"></a>      <span class="at">in_range =</span> <span class="fu">between</span>(timepoint, first_date, last_date),</span>
+<span id="cb8-9"><a href="#cb8-9"></a>      <span class="at">year =</span> <span class="fu">as.integer</span>(<span class="fu">year</span>(timepoint) <span class="sc">-</span> <span class="dv">2000</span>)</span>
+<span id="cb8-10"><a href="#cb8-10"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a>    <span class="fu">filter</span>(in_range) <span class="sc">|&gt;</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>    <span class="fu">distinct</span>(</span>
+<span id="cb8-13"><a href="#cb8-13"></a>      uid,</span>
+<span id="cb8-14"><a href="#cb8-14"></a>      authorships__display_name,</span>
+<span id="cb8-15"><a href="#cb8-15"></a>      authorships__author_id,</span>
+<span id="cb8-16"><a href="#cb8-16"></a>      authorships__affiliations_display_name,</span>
+<span id="cb8-17"><a href="#cb8-17"></a>      year</span>
+<span id="cb8-18"><a href="#cb8-18"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(authorships__affiliations_display_name)) <span class="sc">|&gt;</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a>    <span class="fu">format_institutions</span>()</span>
+<span id="cb8-21"><a href="#cb8-21"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+</section>
+<section id="application" class="level2">
+<h2 class="anchored" data-anchor-id="application">Application</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># Load scholars data</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>data <span class="ot">&lt;-</span> <span class="fu">freadRDS2</span>(<span class="st">"scholars"</span>, <span class="at">location =</span> <span class="st">"clean"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3"></a></span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="co"># Build long works–authors–affiliations table</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a>works_authors <span class="ot">&lt;-</span> <span class="fu">prepare_works_authors</span>(data)</span>
+<span id="cb9-6"><a href="#cb9-6"></a></span>
+<span id="cb9-7"><a href="#cb9-7"></a><span class="co"># Define OpenAlex institution IDs for the universities of interest</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a>universities <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb9-9"><a href="#cb9-9"></a>  <span class="st">"https://openalex.org/I865915315"</span>, <span class="st">"https://openalex.org/I887064364"</span>,</span>
+<span id="cb9-10"><a href="#cb9-10"></a>  <span class="st">"https://openalex.org/I121797337"</span>, <span class="st">"https://openalex.org/I145872427"</span>,</span>
+<span id="cb9-11"><a href="#cb9-11"></a>  <span class="st">"https://openalex.org/I193662353"</span>, <span class="st">"https://openalex.org/I913958620"</span>,</span>
+<span id="cb9-12"><a href="#cb9-12"></a>  <span class="st">"https://openalex.org/I193700539"</span>, <span class="st">"https://openalex.org/I169381384"</span>,</span>
+<span id="cb9-13"><a href="#cb9-13"></a>  <span class="st">"https://openalex.org/I913481162"</span></span>
+<span id="cb9-14"><a href="#cb9-14"></a>)</span>
+<span id="cb9-15"><a href="#cb9-15"></a></span>
+<span id="cb9-16"><a href="#cb9-16"></a><span class="co"># Derive first and last dates of university affiliations</span></span>
+<span id="cb9-17"><a href="#cb9-17"></a>dates <span class="ot">&lt;-</span> <span class="fu">derive_affiliation_date_ranges</span>(</span>
+<span id="cb9-18"><a href="#cb9-18"></a>  <span class="at">works_authors =</span> works_authors,</span>
+<span id="cb9-19"><a href="#cb9-19"></a>  <span class="at">universities =</span> universities</span>
+<span id="cb9-20"><a href="#cb9-20"></a>)</span>
+<span id="cb9-21"><a href="#cb9-21"></a></span>
+<span id="cb9-22"><a href="#cb9-22"></a><span class="co"># Define evaluation timepoints</span></span>
+<span id="cb9-23"><a href="#cb9-23"></a>timepoints <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb9-24"><a href="#cb9-24"></a>  <span class="st">"2019-09-01"</span>,</span>
+<span id="cb9-25"><a href="#cb9-25"></a>  <span class="st">"2022-12-19"</span>,</span>
+<span id="cb9-26"><a href="#cb9-26"></a>  <span class="st">"2024-04-19"</span>,</span>
+<span id="cb9-27"><a href="#cb9-27"></a>  <span class="st">"2025-10-02"</span></span>
+<span id="cb9-28"><a href="#cb9-28"></a>)</span>
+<span id="cb9-29"><a href="#cb9-29"></a></span>
+<span id="cb9-30"><a href="#cb9-30"></a><span class="co"># Build final affiliations table</span></span>
+<span id="cb9-31"><a href="#cb9-31"></a>affiliations <span class="ot">&lt;-</span> <span class="fu">build_affiliations_table</span>(</span>
+<span id="cb9-32"><a href="#cb9-32"></a>  <span class="at">dates =</span> dates,</span>
+<span id="cb9-33"><a href="#cb9-33"></a>  <span class="at">timepoints =</span> timepoints</span>
+<span id="cb9-34"><a href="#cb9-34"></a>)</span>
+<span id="cb9-35"><a href="#cb9-35"></a></span>
+<span id="cb9-36"><a href="#cb9-36"></a><span class="co"># Save to disk</span></span>
+<span id="cb9-37"><a href="#cb9-37"></a><span class="fu">fsaveRDS</span>(affiliations, <span class="st">"affiliations"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "SAVING: ./data/processed/20251118affiliations.Rds"</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>timepoints <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"2019-09-01"</span>, <span class="st">"2022-12-19"</span>, <span class="st">"2024-04-19"</span>, <span class="st">"2025-10-02"</span>)</span>
-<span id="cb8-2"><a href="#cb8-2"></a>tp <span class="ot">&lt;-</span> <span class="fu">ymd</span>(timepoints)</span>
-<span id="cb8-3"><a href="#cb8-3"></a></span>
-<span id="cb8-4"><a href="#cb8-4"></a>d <span class="ot">=</span> dates <span class="sc">|&gt;</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a>  tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">timepoint =</span> tp) <span class="sc">|&gt;</span></span>
-<span id="cb8-6"><a href="#cb8-6"></a>  <span class="fu">arrange</span>(timepoint) <span class="sc">|&gt;</span></span>
-<span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb8-8"><a href="#cb8-8"></a>    <span class="at">in_range =</span> <span class="fu">between</span>(timepoint, first_date, last_date),</span>
-<span id="cb8-9"><a href="#cb8-9"></a>    <span class="at">year =</span> <span class="fu">as.integer</span>(<span class="fu">year</span>(timepoint) <span class="sc">-</span> <span class="dv">2000</span>) </span>
-<span id="cb8-10"><a href="#cb8-10"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb8-11"><a href="#cb8-11"></a>  <span class="fu">filter</span>(in_range) <span class="sc">|&gt;</span></span>
-<span id="cb8-12"><a href="#cb8-12"></a>  <span class="fu">distinct</span>(uid, authorships__display_name, authorships__author_id, authorships__display_name, authorships__affiliations_display_name, year) <span class="sc">|&gt;</span></span>
-<span id="cb8-13"><a href="#cb8-13"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(authorships__affiliations_display_name)) <span class="sc">|&gt;</span></span>
-<span id="cb8-14"><a href="#cb8-14"></a>  <span class="fu">format_institutions</span>()</span>
-<span id="cb8-15"><a href="#cb8-15"></a></span>
-<span id="cb8-16"><a href="#cb8-16"></a><span class="fu">fsaveRDS</span>(d, <span class="st">'affiliations'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>affiliations <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["uid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["affiliations_19"],"name":[2],"type":["chr"],"align":["left"]},{"label":["affiliations_22"],"name":[3],"type":["chr"],"align":["left"]},{"label":["affiliations_24"],"name":[4],"type":["chr"],"align":["left"]},{"label":["affiliations_25"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"2B3tY5XM6f","2":"Vrije Universiteit Amsterdam","3":"Vrije Universiteit Amsterdam","4":"Vrije Universiteit Amsterdam","5":"Vrije Universiteit Amsterdam"},{"1":"2F9kY5XM6f","2":"Leiden University","3":"Leiden University","4":"Leiden University","5":"Leiden University"},{"1":"2G6bY5XM6f","2":"University of Groningen","3":"University of Groningen","4":"University of Groningen","5":"University of Groningen"},{"1":"2fbTY5XM6f","2":"Radboud University Nijmegen","3":"Radboud University Nijmegen; Vrije Universiteit Amsterdam","4":"Vrije Universiteit Amsterdam","5":"Vrije Universiteit Amsterdam"},{"1":"2fhUY5XM6f","2":"University of Amsterdam","3":"University of Amsterdam","4":"University of Amsterdam","5":"University of Amsterdam"},{"1":"2h5Y5XM6fr","2":"NA","3":"University of Groningen","4":"University of Groningen","5":"University of Groningen"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
-<!-- get publication date disseration (reasonable coverage) -->
+</div>
+</div>
 
 
 </section>

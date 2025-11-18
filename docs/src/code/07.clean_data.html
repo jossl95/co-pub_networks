@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-15">
+<meta name="dcterms.date" content="2025-11-18">
 
 <title>Prune Scrape Data – Networks</title>
 <style>
@@ -78,9 +78,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-0f71862d4ab2d6bf69af2cc5f197282f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-80f7ee4e9ac38045aedc42db364c4724.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-0f71862d4ab2d6bf69af2cc5f197282f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-30d20b82645cd210f386addab4f6448d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-8bc95915644b09e823dba8822d382726.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-30d20b82645cd210f386addab4f6448d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -386,7 +386,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
-  <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a></li>
+  <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a>
+  <ul class="collapse">
+  <li><a href="#prune_invalid_publication_types" id="toc-prune_invalid_publication_types" class="nav-link" data-scroll-target="#prune_invalid_publication_types"><code>prune_invalid_publication_types()</code></a></li>
+  <li><a href="#get_author_id_lookup" id="toc-get_author_id_lookup" class="nav-link" data-scroll-target="#get_author_id_lookup"><code>get_author_id_lookup()</code></a></li>
+  <li><a href="#prune_works_by_author_id" id="toc-prune_works_by_author_id" class="nav-link" data-scroll-target="#prune_works_by_author_id"><code>prune_works_by_author_id()</code></a></li>
+  <li><a href="#prune_demographics" id="toc-prune_demographics" class="nav-link" data-scroll-target="#prune_demographics"><code>prune_demographics()</code></a></li>
+  <li><a href="#prune_scholars" id="toc-prune_scholars" class="nav-link" data-scroll-target="#prune_scholars"><code>prune_scholars()</code></a></li>
+  <li><a href="#clean_demographics" id="toc-clean_demographics" class="nav-link" data-scroll-target="#clean_demographics"><code>clean_demographics()</code></a></li>
+  <li><a href="#h_index_vec" id="toc-h_index_vec" class="nav-link" data-scroll-target="#h_index_vec"><code>h_index_vec()</code></a></li>
+  <li><a href="#extract_citations" id="toc-extract_citations" class="nav-link" data-scroll-target="#extract_citations"><code>extract_citations()</code></a></li>
+  <li><a href="#h_index_by_author" id="toc-h_index_by_author" class="nav-link" data-scroll-target="#h_index_by_author"><code>h_index_by_author()</code></a></li>
+  <li><a href="#i_index_vec" id="toc-i_index_vec" class="nav-link" data-scroll-target="#i_index_vec"><code>i_index_vec()</code></a></li>
+  <li><a href="#i_index_by_author" id="toc-i_index_by_author" class="nav-link" data-scroll-target="#i_index_by_author"><code>i_index_by_author()</code></a></li>
+  <li><a href="#add_updated_stats_to_demographics" id="toc-add_updated_stats_to_demographics" class="nav-link" data-scroll-target="#add_updated_stats_to_demographics"><code>add_updated_stats_to_demographics()</code></a></li>
+  <li><a href="#add_edge_table" id="toc-add_edge_table" class="nav-link" data-scroll-target="#add_edge_table"><code>add_edge_table()</code></a></li>
+  </ul></li>
   <li><a href="#application" id="toc-application" class="nav-link" data-scroll-target="#application">Application</a></li>
   </ul>
 <div class="quarto-code-links"><h2>Code Links</h2><ul><li><a href="0a.custom_functions.html"><i class="bi bi-file-code"></i>Custom Functions</a></li></ul></div></nav>
@@ -408,7 +423,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 15, 2025</p>
+      <p class="date">November 18, 2025</p>
     </div>
   </div>
   
@@ -423,24 +438,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="getting-started" class="level2">
 <h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># clear the global environment</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># load custom functions</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co"># clear the global environment and set dependencies</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="fu">.clear_global_environment</span>()</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="fu">.load_quarto_dependencies</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># load and activate packages</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb2-3"><a href="#cb2-3"></a><span class="fu">library</span>(stringr)</span>
 <span id="cb2-4"><a href="#cb2-4"></a><span class="fu">library</span>(lubridate)</span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="fu">library</span>(purrr)</span>
-<span id="cb2-6"><a href="#cb2-6"></a></span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="co"># load custom functions </span></span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="fu">.load_quarto_dependencies</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="fu">library</span>(purrr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="functions" class="level2">
 <h2 class="anchored" data-anchor-id="functions">Functions</h2>
+<section id="prune_invalid_publication_types" class="level3">
+<h3 class="anchored" data-anchor-id="prune_invalid_publication_types"><code>prune_invalid_publication_types()</code></h3>
+<p>Filter out rare or irregular publication types and sort yearly counts.</p>
+<section id="arguments" class="level4">
+<h4 class="anchored" data-anchor-id="arguments">Arguments</h4>
+<p><strong><code>data</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list that contains a <code>works</code> element, where <code>data[['works']]</code> is a named list of tibbles with OpenAlex works per scholar.</p>
+</blockquote>
+</section>
+<section id="method" class="level4">
+<h4 class="anchored" data-anchor-id="method">Method</h4>
+<p>The function first inspects all works by binding <code>data[['works']]</code> into one tibble and counting how often each <code>type</code> occurs. It defines a vector of valid types by keeping only types with at least 50 occurrences and explicitly excluding <code>dataset</code>. It then loops over the first ten elements of <code>data[['works']]</code>, skipping empty or invalid tibbles, and filters each scholar’s works to only those with a valid <code>type</code>. If a <code>counts_by_year</code> column is present, it carefully reorders each nested data frame by <code>year</code>, guarding against malformed or NULL entries. The updated per-scholar tibbles are written back into <code>data[['works']]</code>, and the pruned list is returned.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>prune_invalid_publication_types <span class="ot">=</span> <span class="cf">function</span>(data) {</span>
 <span id="cb3-2"><a href="#cb3-2"></a>  <span class="co"># excluding rare or irregular publication types from the works object. </span></span>
@@ -483,6 +510,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-39"><a href="#cb3-39"></a>  <span class="fu">return</span>(data)</span>
 <span id="cb3-40"><a href="#cb3-40"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+</section>
+<section id="get_author_id_lookup" class="level3">
+<h3 class="anchored" data-anchor-id="get_author_id_lookup"><code>get_author_id_lookup()</code></h3>
+<p>Construct a lookup of intra-network co-authors across all works.</p>
+<section id="arguments-1" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-1">Arguments</h4>
+<p><strong><code>data</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list containing a <code>works</code> element, where <code>data[['works']]</code> is a named list of tibbles with OpenAlex works per scholar (including <code>uid</code>, <code>author_id</code>, and nested <code>authorships</code>).</p>
+</blockquote>
+</section>
+<section id="method-1" class="level4">
+<h4 class="anchored" data-anchor-id="method-1">Method</h4>
+<p>The function iterates over <code>data[['works']]</code> and, for each focal scholar <code>id</code>, first builds a global lookup of all <code>(uid, author_id)</code> pairs present in the combined works, excluding rows where <code>uid == id</code>. It then unnests each scholar’s <code>authorships</code> into a flat table and filters rows where <code>authors__author_id</code> is present in this global co-author lookup. Empty results are reset to <code>NULL</code>. After processing all scholars, the function binds all intermediate tables, de-duplicates <code>(uid, author_id, authors__author_id)</code> triples, and drops self-ties (<code>author_id != authors__author_id</code>). The resulting tibble captures pairs of focal authors and their intra-network co-authors, and is used downstream to prune works to scholars with co-publishing ties inside the observed network.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>get_author_id_lookup <span class="ot">=</span> <span class="cf">function</span>(data){</span>
 <span id="cb4-2"><a href="#cb4-2"></a></span>
@@ -513,230 +555,410 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-27"><a href="#cb4-27"></a>    <span class="fu">filter</span>(author_id <span class="sc">!=</span> authors__author_id)</span>
 <span id="cb4-28"><a href="#cb4-28"></a></span>
 <span id="cb4-29"><a href="#cb4-29"></a>  <span class="fu">return</span>(res)</span>
-<span id="cb4-30"><a href="#cb4-30"></a>}</span>
-<span id="cb4-31"><a href="#cb4-31"></a></span>
-<span id="cb4-32"><a href="#cb4-32"></a>prune_works_by_author_id <span class="ot">=</span> <span class="cf">function</span>(data){</span>
-<span id="cb4-33"><a href="#cb4-33"></a>  lookup <span class="ot">=</span> <span class="fu">get_author_id_lookup</span>(data)</span>
-<span id="cb4-34"><a href="#cb4-34"></a></span>
-<span id="cb4-35"><a href="#cb4-35"></a>  works <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb4-36"><a href="#cb4-36"></a>  <span class="cf">for</span> (id <span class="cf">in</span> <span class="fu">names</span>(data[[<span class="st">'works'</span>]])){</span>
-<span id="cb4-37"><a href="#cb4-37"></a>    tab <span class="ot">=</span> data[[<span class="st">'works'</span>]][[id]] <span class="sc">|&gt;</span></span>
-<span id="cb4-38"><a href="#cb4-38"></a>      <span class="fu">filter</span>(</span>
-<span id="cb4-39"><a href="#cb4-39"></a>        uid <span class="sc">%in%</span> <span class="fu">unique</span>(lookup<span class="sc">$</span>uid)</span>
-<span id="cb4-40"><a href="#cb4-40"></a>        <span class="sc">&amp;</span> author_id <span class="sc">%in%</span> <span class="fu">unique</span>(lookup<span class="sc">$</span>author_id)</span>
-<span id="cb4-41"><a href="#cb4-41"></a>      ) <span class="sc">|&gt;</span></span>
-<span id="cb4-42"><a href="#cb4-42"></a>      <span class="fu">mutate</span>(</span>
-<span id="cb4-43"><a href="#cb4-43"></a>        <span class="at">doi =</span> <span class="fu">ifelse</span>(<span class="fu">is.logical</span>(doi), <span class="cn">NA_character_</span>, doi),</span>
-<span id="cb4-44"><a href="#cb4-44"></a>        <span class="at">counts_by_year =</span> <span class="fu">ifelse</span>(<span class="fu">is.logical</span>(counts_by_year), <span class="fu">list</span>(), counts_by_year),</span>
-<span id="cb4-45"><a href="#cb4-45"></a>        <span class="at">oa_url =</span> <span class="fu">ifelse</span>(<span class="fu">is.logical</span>(oa_url), <span class="cn">NA_character_</span>, oa_url)</span>
-<span id="cb4-46"><a href="#cb4-46"></a>      )</span>
-<span id="cb4-47"><a href="#cb4-47"></a></span>
-<span id="cb4-48"><a href="#cb4-48"></a>    <span class="cf">if</span> (<span class="fu">nrow</span>(tab) <span class="sc">==</span> <span class="dv">0</span>) tab <span class="ot">=</span> <span class="fu">tibble</span>()</span>
-<span id="cb4-49"><a href="#cb4-49"></a>    works[[id]] <span class="ot">=</span> tab</span>
-<span id="cb4-50"><a href="#cb4-50"></a>  }</span>
-<span id="cb4-51"><a href="#cb4-51"></a></span>
-<span id="cb4-52"><a href="#cb4-52"></a>  data[[<span class="st">'works'</span>]] <span class="ot">=</span> works</span>
-<span id="cb4-53"><a href="#cb4-53"></a>  <span class="fu">return</span>(data)</span>
-<span id="cb4-54"><a href="#cb4-54"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-30"><a href="#cb4-30"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+</section>
+<section id="prune_works_by_author_id" class="level3">
+<h3 class="anchored" data-anchor-id="prune_works_by_author_id"><code>prune_works_by_author_id()</code></h3>
+<p>Restrict works to scholars and author IDs with intra-network ties and fix types.</p>
+<section id="arguments-2" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-2">Arguments</h4>
+<p><strong><code>data</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list containing a <code>works</code> element (list of tibbles with <code>uid</code>, <code>author_id</code>, <code>doi</code>, <code>counts_by_year</code>, <code>oa_url</code>) and other components such as demographics and scholars.</p>
+</blockquote>
+</section>
+<section id="method-2" class="level4">
+<h4 class="anchored" data-anchor-id="method-2">Method</h4>
+<p>The function first calls <code>get_author_id_lookup()</code> to identify combinations of <code>uid</code> and <code>author_id</code> that participate in intra-network co-authorships. It then iterates over <code>data[['works']]</code>, filtering each scholar’s works to those rows where <code>uid</code> and <code>author_id</code> appear in this lookup. To avoid type inconsistencies across authors, it coerces logical <code>doi</code> values to <code>NA_character_</code>, logical <code>counts_by_year</code> to empty lists, and logical <code>oa_url</code> to <code>NA_character_</code>. If a filtered table ends up empty, it is replaced by an empty tibble. The pruned list of works is written back into <code>data[['works']]</code>, and the updated list object is returned.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>prune_demographics <span class="ot">=</span> <span class="cf">function</span>(data){</span>
-<span id="cb5-2"><a href="#cb5-2"></a>  <span class="co"># create list of uids that were succesfully scraped</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a>  valid_uids <span class="ot">=</span> data[[<span class="st">'works'</span>]] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">distinct</span>(uid) <span class="sc">|&gt;</span> <span class="fu">pull</span>()</span>
-<span id="cb5-4"><a href="#cb5-4"></a></span>
-<span id="cb5-5"><a href="#cb5-5"></a>  <span class="co"># read in affiliations</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a>  data[[<span class="st">'demographics'</span>]] <span class="ot">=</span> data[[<span class="st">'demographics'</span>]] <span class="sc">|&gt;</span></span>
-<span id="cb5-7"><a href="#cb5-7"></a>    <span class="fu">filter</span>(uid <span class="sc">%in%</span> valid_uids)</span>
-<span id="cb5-8"><a href="#cb5-8"></a></span>
-<span id="cb5-9"><a href="#cb5-9"></a>  <span class="fu">return</span>(data)</span>
-<span id="cb5-10"><a href="#cb5-10"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>prune_works_by_author_id <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  lookup <span class="ot">=</span> <span class="fu">get_author_id_lookup</span>(data)</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a>  works <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb5-5"><a href="#cb5-5"></a>  <span class="cf">for</span> (id <span class="cf">in</span> <span class="fu">names</span>(data[[<span class="st">'works'</span>]])){</span>
+<span id="cb5-6"><a href="#cb5-6"></a>    tab <span class="ot">=</span> data[[<span class="st">'works'</span>]][[id]] <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>      <span class="fu">filter</span>(</span>
+<span id="cb5-8"><a href="#cb5-8"></a>        uid <span class="sc">%in%</span> <span class="fu">unique</span>(lookup<span class="sc">$</span>uid)</span>
+<span id="cb5-9"><a href="#cb5-9"></a>        <span class="sc">&amp;</span> author_id <span class="sc">%in%</span> <span class="fu">unique</span>(lookup<span class="sc">$</span>author_id)</span>
+<span id="cb5-10"><a href="#cb5-10"></a>      ) <span class="sc">|&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb5-12"><a href="#cb5-12"></a>        <span class="at">doi =</span> <span class="fu">ifelse</span>(<span class="fu">is.logical</span>(doi), <span class="cn">NA_character_</span>, doi),</span>
+<span id="cb5-13"><a href="#cb5-13"></a>        <span class="at">counts_by_year =</span> <span class="fu">ifelse</span>(<span class="fu">is.logical</span>(counts_by_year), <span class="fu">list</span>(), counts_by_year),</span>
+<span id="cb5-14"><a href="#cb5-14"></a>        <span class="at">oa_url =</span> <span class="fu">ifelse</span>(<span class="fu">is.logical</span>(oa_url), <span class="cn">NA_character_</span>, oa_url)</span>
+<span id="cb5-15"><a href="#cb5-15"></a>      )</span>
+<span id="cb5-16"><a href="#cb5-16"></a></span>
+<span id="cb5-17"><a href="#cb5-17"></a>    <span class="cf">if</span> (<span class="fu">nrow</span>(tab) <span class="sc">==</span> <span class="dv">0</span>) tab <span class="ot">=</span> <span class="fu">tibble</span>()</span>
+<span id="cb5-18"><a href="#cb5-18"></a>    works[[id]] <span class="ot">=</span> tab</span>
+<span id="cb5-19"><a href="#cb5-19"></a>  }</span>
+<span id="cb5-20"><a href="#cb5-20"></a></span>
+<span id="cb5-21"><a href="#cb5-21"></a>  data[[<span class="st">'works'</span>]] <span class="ot">=</span> works</span>
+<span id="cb5-22"><a href="#cb5-22"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb5-23"><a href="#cb5-23"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+</section>
+<section id="prune_demographics" class="level3">
+<h3 class="anchored" data-anchor-id="prune_demographics"><code>prune_demographics()</code></h3>
+<p>Drop demographic records for scholars without valid works.</p>
+<section id="arguments-3" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-3">Arguments</h4>
+<p><strong><code>data</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list that contains a <code>works</code> element (list of works tibbles with <code>uid</code>) and a <code>demographics</code> tibble keyed by <code>uid</code>.</p>
+</blockquote>
+</section>
+<section id="method-3" class="level4">
+<h4 class="anchored" data-anchor-id="method-3">Method</h4>
+<p>The function constructs a set of valid <code>uid</code>s by binding all works into a single tibble and extracting distinct <code>uid</code> values. It then filters <code>data[['demographics']]</code> to keep only rows with <code>uid</code> in this valid set, effectively removing demographic entries for scholars who do not have any retained works after pruning. The updated list is returned.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>prune_scholars <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>prune_demographics <span class="ot">=</span> <span class="cf">function</span>(data){</span>
 <span id="cb6-2"><a href="#cb6-2"></a>  <span class="co"># create list of uids that were succesfully scraped</span></span>
-<span id="cb6-3"><a href="#cb6-3"></a>  valid_uids <span class="ot">=</span> data[[<span class="st">'works'</span>]] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">distinct</span>(author_id) <span class="sc">|&gt;</span> <span class="fu">pull</span>()</span>
+<span id="cb6-3"><a href="#cb6-3"></a>  valid_uids <span class="ot">=</span> data[[<span class="st">'works'</span>]] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">distinct</span>(uid) <span class="sc">|&gt;</span> <span class="fu">pull</span>()</span>
 <span id="cb6-4"><a href="#cb6-4"></a></span>
 <span id="cb6-5"><a href="#cb6-5"></a>  <span class="co"># read in affiliations</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a>  hold <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb6-7"><a href="#cb6-7"></a>  <span class="cf">for</span> (id <span class="cf">in</span> <span class="fu">names</span>(data[[<span class="st">'scholars_oa'</span>]])) {</span>
-<span id="cb6-8"><a href="#cb6-8"></a>    tab <span class="ot">=</span> data[[<span class="st">'scholars_oa'</span>]][[id]]</span>
-<span id="cb6-9"><a href="#cb6-9"></a>    <span class="cf">if</span> (<span class="fu">nrow</span>(tab) <span class="sc">==</span> <span class="dv">0</span>) {</span>
-<span id="cb6-10"><a href="#cb6-10"></a>      hold[[id]] <span class="ot">=</span> tab</span>
-<span id="cb6-11"><a href="#cb6-11"></a>      <span class="cf">next</span></span>
-<span id="cb6-12"><a href="#cb6-12"></a>    }</span>
-<span id="cb6-13"><a href="#cb6-13"></a></span>
-<span id="cb6-14"><a href="#cb6-14"></a>    hold[[id]] <span class="ot">=</span> tab <span class="sc">|&gt;</span></span>
-<span id="cb6-15"><a href="#cb6-15"></a>      <span class="fu">mutate</span>(<span class="at">author_id =</span> <span class="fu">str_remove</span>(author_id, <span class="st">"^https://openalex.org/"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb6-16"><a href="#cb6-16"></a>      <span class="fu">filter</span>(author_id <span class="sc">%in%</span> valid_uids)</span>
-<span id="cb6-17"><a href="#cb6-17"></a>  }</span>
-<span id="cb6-18"><a href="#cb6-18"></a></span>
-<span id="cb6-19"><a href="#cb6-19"></a>  data[[<span class="st">'scholars_oa'</span>]] <span class="ot">=</span> hold</span>
-<span id="cb6-20"><a href="#cb6-20"></a>  <span class="fu">return</span>(data)</span>
-<span id="cb6-21"><a href="#cb6-21"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-6"><a href="#cb6-6"></a>  data[[<span class="st">'demographics'</span>]] <span class="ot">=</span> data[[<span class="st">'demographics'</span>]] <span class="sc">|&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>    <span class="fu">filter</span>(uid <span class="sc">%in%</span> valid_uids)</span>
+<span id="cb6-8"><a href="#cb6-8"></a></span>
+<span id="cb6-9"><a href="#cb6-9"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb6-10"><a href="#cb6-10"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+</section>
+<section id="prune_scholars" class="level3">
+<h3 class="anchored" data-anchor-id="prune_scholars"><code>prune_scholars()</code></h3>
+<p>Remove OpenAlex scholar records that lack valid author IDs after pruning.</p>
+<section id="arguments-4" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-4">Arguments</h4>
+<p><strong><code>data</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list containing a <code>works</code> element (with <code>author_id</code>) and a <code>scholars_oa</code> element, where <code>data[['scholars_oa']]</code> is a named list of OpenAlex author tibbles.</p>
+</blockquote>
+</section>
+<section id="method-4" class="level4">
+<h4 class="anchored" data-anchor-id="method-4">Method</h4>
+<p>The function first collects the set of valid <code>author_id</code>s by binding all works and extracting distinct <code>author_id</code>. It then loops over each element in <code>data[['scholars_oa']]</code>, skipping empty tibbles, and for each keeps only rows whose <code>author_id</code> (after stripping the <code>https://openalex.org/</code> prefix) is present in this valid set. The pruned per-scholar tibbles are stored in a new list, which replaces <code>data[['scholars_oa']]</code>. This ensures that the scholar metadata is consistent with the pruned works.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>clean_demographics <span class="ot">=</span> <span class="cf">function</span>(data) {</span>
-<span id="cb7-2"><a href="#cb7-2"></a>  <span class="co"># get country_conversion table</span></span>
-<span id="cb7-3"><a href="#cb7-3"></a>  country_conversion <span class="ot">=</span> <span class="fu">read_csv</span>(</span>
-<span id="cb7-4"><a href="#cb7-4"></a>      <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'country_conversion.csv'</span>),</span>
-<span id="cb7-5"><a href="#cb7-5"></a>      <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb7-7"><a href="#cb7-7"></a>    <span class="fu">distinct</span>(alpha_2, region) <span class="sc">|&gt;</span></span>
-<span id="cb7-8"><a href="#cb7-8"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb7-9"><a href="#cb7-9"></a>      <span class="at">region =</span> <span class="fu">ifelse</span>(<span class="fu">str_detect</span>(alpha_2, <span class="st">'NL'</span>), <span class="st">'Netherlands'</span>, region) <span class="sc">|&gt;</span></span>
-<span id="cb7-10"><a href="#cb7-10"></a>        <span class="fu">str_replace</span>(<span class="st">'(Asia|Oceania)'</span>, <span class="st">'Asia and Oceania'</span>) </span>
-<span id="cb7-11"><a href="#cb7-11"></a>    )</span>
-<span id="cb7-12"><a href="#cb7-12"></a></span>
-<span id="cb7-13"><a href="#cb7-13"></a>  <span class="co"># add region to demographics and clean the dataframe</span></span>
-<span id="cb7-14"><a href="#cb7-14"></a>  data[[<span class="st">'demographics'</span>]] <span class="ot">=</span> data[[<span class="st">'demographics'</span>]] <span class="sc">|&gt;</span> </span>
-<span id="cb7-15"><a href="#cb7-15"></a>    <span class="fu">left_join</span>(country_conversion, <span class="at">by=</span><span class="fu">join_by</span>(ethnicity <span class="sc">==</span> alpha_2)) <span class="sc">|&gt;</span></span>
-<span id="cb7-16"><a href="#cb7-16"></a>    <span class="fu">relocate</span>(region, <span class="at">.before =</span> ethnicity) <span class="sc">|&gt;</span></span>
-<span id="cb7-17"><a href="#cb7-17"></a>    <span class="fu">rename</span>(</span>
-<span id="cb7-18"><a href="#cb7-18"></a>      <span class="at">origin =</span> region,</span>
-<span id="cb7-19"><a href="#cb7-19"></a>      <span class="at">gender_prob =</span> prob,</span>
-<span id="cb7-20"><a href="#cb7-20"></a>      <span class="at">gender_count =</span> count,</span>
-<span id="cb7-21"><a href="#cb7-21"></a>      <span class="at">university_22 =</span> universiteit_22,</span>
-<span id="cb7-22"><a href="#cb7-22"></a>      <span class="at">university_24 =</span> universiteit_24,</span>
-<span id="cb7-23"><a href="#cb7-23"></a>      <span class="at">university_25 =</span> universiteit_25,</span>
-<span id="cb7-24"><a href="#cb7-24"></a>      <span class="at">email_22 =</span> email_adres_22,</span>
-<span id="cb7-25"><a href="#cb7-25"></a>      <span class="at">email_24 =</span> email_adres_24,</span>
-<span id="cb7-26"><a href="#cb7-26"></a>      <span class="at">email_25 =</span> email_adres_25,</span>
-<span id="cb7-27"><a href="#cb7-27"></a>      <span class="at">position_22 =</span> functie_22,</span>
-<span id="cb7-28"><a href="#cb7-28"></a>      <span class="at">position_24 =</span> functie_24,</span>
-<span id="cb7-29"><a href="#cb7-29"></a>      <span class="at">position_25 =</span> functie_25,</span>
-<span id="cb7-30"><a href="#cb7-30"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb7-31"><a href="#cb7-31"></a>    <span class="fu">select</span>(uid, clean_name, gender, origin, ethnicity, email_22<span class="sc">:</span>discipline_25)</span>
-<span id="cb7-32"><a href="#cb7-32"></a></span>
-<span id="cb7-33"><a href="#cb7-33"></a>  <span class="fu">return</span>(data)</span>
-<span id="cb7-34"><a href="#cb7-34"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>prune_scholars <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="co"># create list of uids that were succesfully scraped</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>  valid_uids <span class="ot">=</span> data[[<span class="st">'works'</span>]] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">distinct</span>(author_id) <span class="sc">|&gt;</span> <span class="fu">pull</span>()</span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="co"># read in affiliations</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>  hold <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb7-7"><a href="#cb7-7"></a>  <span class="cf">for</span> (id <span class="cf">in</span> <span class="fu">names</span>(data[[<span class="st">'scholars_oa'</span>]])) {</span>
+<span id="cb7-8"><a href="#cb7-8"></a>    tab <span class="ot">=</span> data[[<span class="st">'scholars_oa'</span>]][[id]]</span>
+<span id="cb7-9"><a href="#cb7-9"></a>    <span class="cf">if</span> (<span class="fu">nrow</span>(tab) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb7-10"><a href="#cb7-10"></a>      hold[[id]] <span class="ot">=</span> tab</span>
+<span id="cb7-11"><a href="#cb7-11"></a>      <span class="cf">next</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a>    }</span>
+<span id="cb7-13"><a href="#cb7-13"></a></span>
+<span id="cb7-14"><a href="#cb7-14"></a>    hold[[id]] <span class="ot">=</span> tab <span class="sc">|&gt;</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a>      <span class="fu">mutate</span>(<span class="at">author_id =</span> <span class="fu">str_remove</span>(author_id, <span class="st">"^https://openalex.org/"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-16"><a href="#cb7-16"></a>      <span class="fu">filter</span>(author_id <span class="sc">%in%</span> valid_uids)</span>
+<span id="cb7-17"><a href="#cb7-17"></a>  }</span>
+<span id="cb7-18"><a href="#cb7-18"></a></span>
+<span id="cb7-19"><a href="#cb7-19"></a>  data[[<span class="st">'scholars_oa'</span>]] <span class="ot">=</span> hold</span>
+<span id="cb7-20"><a href="#cb7-20"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb7-21"><a href="#cb7-21"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+</section>
+<section id="clean_demographics" class="level3">
+<h3 class="anchored" data-anchor-id="clean_demographics"><code>clean_demographics()</code></h3>
+<p>Add region information and standardize demographic variable names.</p>
+<section id="arguments-5" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-5">Arguments</h4>
+<p><strong><code>data</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list with a <code>demographics</code> tibble (including <code>ethnicity</code>, <code>prob</code>, <code>count</code>, <code>universiteit_*</code>, <code>email_adres_*</code>, <code>functie_*</code>, <code>discipline_*</code>).</p>
+</blockquote>
+</section>
+<section id="method-5" class="level4">
+<h4 class="anchored" data-anchor-id="method-5">Method</h4>
+<p>The function first reads a country conversion table from <code>data/utils/country_conversion.csv</code>, keeps distinct <code>(alpha_2, region)</code> pairs, and standardizes the region labels, forcing <code>NL</code> to “Netherlands” and merging “Asia” and “Oceania” into “Asia and Oceania”. It then left-joins this table onto <code>data[['demographics']]</code> by matching <code>ethnicity</code> to <code>alpha_2</code>, relocates the new <code>region</code> column ahead of <code>ethnicity</code>, and renames it to <code>origin</code>. It also renames several probability/count and longitudinal university/email/position columns to more concise, English variable names. Finally, it selects a compact set of columns from <code>uid</code> and <code>clean_name</code> through <code>discipline_25</code>, writes the cleaned tibble back into <code>data[['demographics']]</code>, and returns the updated list.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># 1) Core h-index calculator -----------------------------------------------</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a>h_index_vec <span class="ot">=</span> <span class="cf">function</span>(citations) {</span>
-<span id="cb8-3"><a href="#cb8-3"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(citations) <span class="sc">||</span> <span class="fu">length</span>(citations) <span class="sc">==</span> <span class="dv">0</span>L) <span class="fu">return</span>(<span class="dv">0</span>L)</span>
-<span id="cb8-4"><a href="#cb8-4"></a>  c <span class="ot">=</span> <span class="fu">sort</span>(<span class="fu">as.integer</span>(citations[<span class="fu">is.finite</span>(citations) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(citations)]), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-5"><a href="#cb8-5"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">length</span>(c)) <span class="fu">return</span>(<span class="dv">0</span>L)</span>
-<span id="cb8-6"><a href="#cb8-6"></a>  <span class="co"># With c sorted desc, h is the count of entries with c_i &gt;= i</span></span>
-<span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">as.integer</span>(<span class="fu">sum</span>(c <span class="sc">&gt;=</span> <span class="fu">seq_along</span>(c)))</span>
-<span id="cb8-8"><a href="#cb8-8"></a>}</span>
-<span id="cb8-9"><a href="#cb8-9"></a></span>
-<span id="cb8-10"><a href="#cb8-10"></a><span class="co"># 2) Robust extractor for cited_by_count from different "works" shapes ------</span></span>
-<span id="cb8-11"><a href="#cb8-11"></a><span class="co"># Handles:</span></span>
-<span id="cb8-12"><a href="#cb8-12"></a><span class="co"># - data.frame/tibble with column `cited_by_count`</span></span>
-<span id="cb8-13"><a href="#cb8-13"></a><span class="co"># - list with element `results` that is a data.frame (e.g., API wrappers)</span></span>
-<span id="cb8-14"><a href="#cb8-14"></a><span class="co"># - list of work-objects where each has $cited_by_count</span></span>
-<span id="cb8-15"><a href="#cb8-15"></a><span class="co"># - optional de-duplication by `id` if present</span></span>
-<span id="cb8-16"><a href="#cb8-16"></a>extract_citations <span class="ot">=</span> <span class="cf">function</span>(works_obj) {</span>
-<span id="cb8-17"><a href="#cb8-17"></a>  <span class="co"># helper to deduplicate &amp; pull citations from a data.frame</span></span>
-<span id="cb8-18"><a href="#cb8-18"></a>  df_to_cites <span class="ot">=</span> <span class="cf">function</span>(df) {</span>
-<span id="cb8-19"><a href="#cb8-19"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.data.frame</span>(df)) <span class="fu">return</span>(<span class="fu">integer</span>())</span>
-<span id="cb8-20"><a href="#cb8-20"></a>    <span class="cf">if</span> (<span class="st">"id"</span> <span class="sc">%in%</span> <span class="fu">names</span>(df)) df <span class="ot">=</span> <span class="fu">distinct</span>(df, id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-21"><a href="#cb8-21"></a>    <span class="cf">if</span> (<span class="st">"cited_by_count"</span> <span class="sc">%in%</span> <span class="fu">names</span>(df)) <span class="fu">return</span>(<span class="fu">as.integer</span>(df<span class="sc">$</span>cited_by_count))</span>
-<span id="cb8-22"><a href="#cb8-22"></a>    <span class="fu">integer</span>()</span>
-<span id="cb8-23"><a href="#cb8-23"></a>  }</span>
-<span id="cb8-24"><a href="#cb8-24"></a></span>
-<span id="cb8-25"><a href="#cb8-25"></a>  <span class="cf">if</span> (<span class="fu">is.data.frame</span>(works_obj)) {</span>
-<span id="cb8-26"><a href="#cb8-26"></a>    <span class="fu">return</span>(<span class="fu">df_to_cites</span>(works_obj))</span>
-<span id="cb8-27"><a href="#cb8-27"></a>  }</span>
-<span id="cb8-28"><a href="#cb8-28"></a></span>
-<span id="cb8-29"><a href="#cb8-29"></a>  <span class="cf">if</span> (<span class="fu">is.list</span>(works_obj)) {</span>
-<span id="cb8-30"><a href="#cb8-30"></a>    <span class="co"># common wrapper: list(results = data.frame(...))</span></span>
-<span id="cb8-31"><a href="#cb8-31"></a>    <span class="cf">if</span> (<span class="st">"results"</span> <span class="sc">%in%</span> <span class="fu">names</span>(works_obj)) <span class="fu">return</span>(<span class="fu">df_to_cites</span>(works_obj<span class="sc">$</span>results))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>clean_demographics <span class="ot">=</span> <span class="cf">function</span>(data) {</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="co"># get country_conversion table</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>  country_conversion <span class="ot">=</span> <span class="fu">read_csv</span>(</span>
+<span id="cb8-4"><a href="#cb8-4"></a>      <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'country_conversion.csv'</span>),</span>
+<span id="cb8-5"><a href="#cb8-5"></a>      <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>    <span class="fu">distinct</span>(alpha_2, region) <span class="sc">|&gt;</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb8-9"><a href="#cb8-9"></a>      <span class="at">region =</span> <span class="fu">ifelse</span>(<span class="fu">str_detect</span>(alpha_2, <span class="st">'NL'</span>), <span class="st">'Netherlands'</span>, region) <span class="sc">|&gt;</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a>        <span class="fu">str_replace</span>(<span class="st">'(Asia|Oceania)'</span>, <span class="st">'Asia and Oceania'</span>) </span>
+<span id="cb8-11"><a href="#cb8-11"></a>    )</span>
+<span id="cb8-12"><a href="#cb8-12"></a></span>
+<span id="cb8-13"><a href="#cb8-13"></a>  <span class="co"># add region to demographics and clean the dataframe</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a>  data[[<span class="st">'demographics'</span>]] <span class="ot">=</span> data[[<span class="st">'demographics'</span>]] <span class="sc">|&gt;</span> </span>
+<span id="cb8-15"><a href="#cb8-15"></a>    <span class="fu">left_join</span>(country_conversion, <span class="at">by=</span><span class="fu">join_by</span>(ethnicity <span class="sc">==</span> alpha_2)) <span class="sc">|&gt;</span></span>
+<span id="cb8-16"><a href="#cb8-16"></a>    <span class="fu">relocate</span>(region, <span class="at">.before =</span> ethnicity) <span class="sc">|&gt;</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>    <span class="fu">rename</span>(</span>
+<span id="cb8-18"><a href="#cb8-18"></a>      <span class="at">origin =</span> region,</span>
+<span id="cb8-19"><a href="#cb8-19"></a>      <span class="at">gender_prob =</span> prob,</span>
+<span id="cb8-20"><a href="#cb8-20"></a>      <span class="at">gender_count =</span> count,</span>
+<span id="cb8-21"><a href="#cb8-21"></a>      <span class="at">university_22 =</span> universiteit_22,</span>
+<span id="cb8-22"><a href="#cb8-22"></a>      <span class="at">university_24 =</span> universiteit_24,</span>
+<span id="cb8-23"><a href="#cb8-23"></a>      <span class="at">university_25 =</span> universiteit_25,</span>
+<span id="cb8-24"><a href="#cb8-24"></a>      <span class="at">email_22 =</span> email_adres_22,</span>
+<span id="cb8-25"><a href="#cb8-25"></a>      <span class="at">email_24 =</span> email_adres_24,</span>
+<span id="cb8-26"><a href="#cb8-26"></a>      <span class="at">email_25 =</span> email_adres_25,</span>
+<span id="cb8-27"><a href="#cb8-27"></a>      <span class="at">position_22 =</span> functie_22,</span>
+<span id="cb8-28"><a href="#cb8-28"></a>      <span class="at">position_24 =</span> functie_24,</span>
+<span id="cb8-29"><a href="#cb8-29"></a>      <span class="at">position_25 =</span> functie_25,</span>
+<span id="cb8-30"><a href="#cb8-30"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb8-31"><a href="#cb8-31"></a>    <span class="fu">select</span>(uid, clean_name, gender, origin, ethnicity, email_22<span class="sc">:</span>discipline_25)</span>
 <span id="cb8-32"><a href="#cb8-32"></a></span>
-<span id="cb8-33"><a href="#cb8-33"></a>    <span class="co"># otherwise assume a list of work records</span></span>
-<span id="cb8-34"><a href="#cb8-34"></a>    cites <span class="ot">=</span> <span class="fu">map_dbl</span>(works_obj, <span class="sc">~</span> <span class="fu">tryCatch</span>(</span>
-<span id="cb8-35"><a href="#cb8-35"></a>      {</span>
-<span id="cb8-36"><a href="#cb8-36"></a>        v <span class="ot">=</span> .x[[<span class="st">"cited_by_count"</span>]]</span>
-<span id="cb8-37"><a href="#cb8-37"></a>        <span class="cf">if</span> (<span class="fu">is.null</span>(v)) <span class="cn">NA_real_</span> <span class="cf">else</span> <span class="fu">as.numeric</span>(v)</span>
-<span id="cb8-38"><a href="#cb8-38"></a>      },</span>
-<span id="cb8-39"><a href="#cb8-39"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA_real_</span></span>
-<span id="cb8-40"><a href="#cb8-40"></a>    ))</span>
-<span id="cb8-41"><a href="#cb8-41"></a>    <span class="fu">return</span>(<span class="fu">as.integer</span>(cites[<span class="sc">!</span><span class="fu">is.na</span>(cites)]))</span>
-<span id="cb8-42"><a href="#cb8-42"></a>  }</span>
-<span id="cb8-43"><a href="#cb8-43"></a></span>
-<span id="cb8-44"><a href="#cb8-44"></a>  <span class="fu">integer</span>()</span>
-<span id="cb8-45"><a href="#cb8-45"></a>}</span>
-<span id="cb8-46"><a href="#cb8-46"></a></span>
-<span id="cb8-47"><a href="#cb8-47"></a><span class="co"># 3) Compute per-author h-index from a named list ---------------------------</span></span>
-<span id="cb8-48"><a href="#cb8-48"></a><span class="co"># Input: works_by_uid — a named list where names(works_by_uid) are `uid`s,</span></span>
-<span id="cb8-49"><a href="#cb8-49"></a><span class="co">#         each value is that author's OpenAlex works object</span></span>
-<span id="cb8-50"><a href="#cb8-50"></a>h_index_by_author <span class="ot">=</span> <span class="cf">function</span>(works_by_uid) {</span>
-<span id="cb8-51"><a href="#cb8-51"></a>  <span class="fu">imap_dfr</span>(works_by_uid, <span class="cf">function</span>(works, uid) {</span>
-<span id="cb8-52"><a href="#cb8-52"></a>    cites <span class="ot">=</span> <span class="fu">extract_citations</span>(works)</span>
-<span id="cb8-53"><a href="#cb8-53"></a>    <span class="fu">tibble</span>(</span>
-<span id="cb8-54"><a href="#cb8-54"></a>      <span class="at">uid             =</span> uid,</span>
-<span id="cb8-55"><a href="#cb8-55"></a>      <span class="at">n_works         =</span> <span class="fu">length</span>(cites),</span>
-<span id="cb8-56"><a href="#cb8-56"></a>      <span class="at">total_citations =</span> <span class="fu">sum</span>(cites, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-57"><a href="#cb8-57"></a>      <span class="at">h_index         =</span> <span class="fu">h_index_vec</span>(cites)</span>
-<span id="cb8-58"><a href="#cb8-58"></a>    )</span>
-<span id="cb8-59"><a href="#cb8-59"></a>  }) <span class="sc">|&gt;</span></span>
-<span id="cb8-60"><a href="#cb8-60"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(h_index), <span class="fu">desc</span>(total_citations))</span>
-<span id="cb8-61"><a href="#cb8-61"></a>}</span>
-<span id="cb8-62"><a href="#cb8-62"></a></span>
-<span id="cb8-63"><a href="#cb8-63"></a></span>
-<span id="cb8-64"><a href="#cb8-64"></a><span class="co"># 3) Compute per-author i10-index from a named list ---------------------------</span></span>
-<span id="cb8-65"><a href="#cb8-65"></a><span class="co"># Input: works_by_uid — a named list where names(works_by_uid) are `uid`s,</span></span>
-<span id="cb8-66"><a href="#cb8-66"></a><span class="co">#         each value is that author's OpenAlex works object</span></span>
-<span id="cb8-67"><a href="#cb8-67"></a>i_index_vec <span class="ot">=</span> <span class="cf">function</span>(citations, <span class="at">threshold =</span> <span class="dv">10</span>L) {</span>
-<span id="cb8-68"><a href="#cb8-68"></a>  c <span class="ot">=</span> <span class="fu">as.integer</span>(citations[<span class="fu">is.finite</span>(citations) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(citations)])</span>
-<span id="cb8-69"><a href="#cb8-69"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">length</span>(c)) <span class="fu">return</span>(<span class="dv">0</span>L)</span>
-<span id="cb8-70"><a href="#cb8-70"></a>  <span class="fu">sum</span>(c <span class="sc">&gt;=</span> <span class="fu">as.integer</span>(threshold))</span>
-<span id="cb8-71"><a href="#cb8-71"></a>}</span>
-<span id="cb8-72"><a href="#cb8-72"></a></span>
-<span id="cb8-73"><a href="#cb8-73"></a><span class="co"># Per-author iN (defaults to i10). Input: named list 'works_by_uid'</span></span>
-<span id="cb8-74"><a href="#cb8-74"></a>i_index_by_author <span class="ot">=</span> <span class="cf">function</span>(works_by_uid, <span class="at">threshold =</span> <span class="dv">10</span>L) {</span>
-<span id="cb8-75"><a href="#cb8-75"></a>  colname <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"i"</span>, threshold, <span class="st">"_index"</span>)</span>
-<span id="cb8-76"><a href="#cb8-76"></a>  <span class="fu">imap_dfr</span>(works_by_uid, <span class="cf">function</span>(works, uid) {</span>
-<span id="cb8-77"><a href="#cb8-77"></a>    cites <span class="ot">=</span> <span class="fu">extract_citations</span>(works)</span>
-<span id="cb8-78"><a href="#cb8-78"></a>    <span class="fu">tibble</span>(</span>
-<span id="cb8-79"><a href="#cb8-79"></a>      <span class="at">uid             =</span> uid,</span>
-<span id="cb8-80"><a href="#cb8-80"></a>      <span class="at">n_works         =</span> <span class="fu">length</span>(cites),</span>
-<span id="cb8-81"><a href="#cb8-81"></a>      <span class="at">total_citations =</span> <span class="fu">sum</span>(cites, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-82"><a href="#cb8-82"></a>      <span class="sc">!!</span><span class="at">colname       :=</span> <span class="fu">i_index_vec</span>(cites, <span class="at">threshold =</span> threshold)</span>
-<span id="cb8-83"><a href="#cb8-83"></a>    )</span>
-<span id="cb8-84"><a href="#cb8-84"></a>  }) <span class="sc">|&gt;</span></span>
-<span id="cb8-85"><a href="#cb8-85"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(.data[[colname]]), <span class="fu">desc</span>(total_citations))</span>
-<span id="cb8-86"><a href="#cb8-86"></a>}</span>
-<span id="cb8-87"><a href="#cb8-87"></a></span>
-<span id="cb8-88"><a href="#cb8-88"></a><span class="co"># Wrapper function addint these data to demographics</span></span>
-<span id="cb8-89"><a href="#cb8-89"></a>add_updated_stats_to_demographics <span class="ot">=</span> <span class="cf">function</span>(data){</span>
-<span id="cb8-90"><a href="#cb8-90"></a>  h_index <span class="ot">=</span> <span class="fu">h_index_by_author</span>(data[[<span class="st">'works'</span>]]) </span>
-<span id="cb8-91"><a href="#cb8-91"></a>  i10_index <span class="ot">=</span> <span class="fu">i_index_by_author</span>(data[[<span class="st">'works'</span>]]) <span class="sc">|&gt;</span> <span class="fu">select</span>(uid, i10_index)</span>
-<span id="cb8-92"><a href="#cb8-92"></a></span>
-<span id="cb8-93"><a href="#cb8-93"></a>  data[[<span class="st">'demographics'</span>]] <span class="ot">=</span> data[[<span class="st">'demographics'</span>]] <span class="sc">|&gt;</span> </span>
-<span id="cb8-94"><a href="#cb8-94"></a>    <span class="fu">left_join</span>(h_index) <span class="sc">|&gt;</span></span>
-<span id="cb8-95"><a href="#cb8-95"></a>    <span class="fu">left_join</span>(i10_index)</span>
-<span id="cb8-96"><a href="#cb8-96"></a></span>
-<span id="cb8-97"><a href="#cb8-97"></a>  <span class="fu">return</span>(data)</span>
-<span id="cb8-98"><a href="#cb8-98"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-33"><a href="#cb8-33"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb8-34"><a href="#cb8-34"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+</section>
+<section id="h_index_vec" class="level3">
+<h3 class="anchored" data-anchor-id="h_index_vec"><code>h_index_vec()</code></h3>
+<p>Compute the h-index from a vector of citation counts.</p>
+<section id="arguments-6" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-6">Arguments</h4>
+<p><strong><code>citations</code></strong></p>
+<blockquote class="blockquote">
+<p>Numeric or integer vector of citation counts (possibly containing NAs or non-finite values).</p>
+</blockquote>
+</section>
+<section id="method-6" class="level4">
+<h4 class="anchored" data-anchor-id="method-6">Method</h4>
+<p>The function first handles empty or NULL inputs by returning 0L. It then keeps only finite, non-missing citation counts, coerces them to integers, and sorts them in decreasing order. Using this ordered vector, it computes the h-index as the number of positions <code>i</code> where <code>c[i] &gt;= i</code>, i.e., the largest value <code>h</code> such that at least <code>h</code> papers have at least <code>h</code> citations. The result is returned as an integer scalar.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>add_edge_table <span class="ot">=</span> <span class="cf">function</span>(data){</span>
-<span id="cb9-2"><a href="#cb9-2"></a>  data[[<span class="st">'edge_table'</span>]] <span class="ot">=</span> data[[<span class="st">'works'</span>]] <span class="sc">|&gt;</span></span>
-<span id="cb9-3"><a href="#cb9-3"></a>    <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span></span>
-<span id="cb9-4"><a href="#cb9-4"></a>    <span class="fu">select</span>(uid, work_id, authorships, publication_date, publication_year, type) <span class="sc">|&gt;</span></span>
-<span id="cb9-5"><a href="#cb9-5"></a>    <span class="co"># mutate(a = authorships, .after=authorships) |&gt;</span></span>
-<span id="cb9-6"><a href="#cb9-6"></a>    <span class="fu">rename</span>(<span class="at">a =</span> authorships) <span class="sc">|&gt;</span></span>
-<span id="cb9-7"><a href="#cb9-7"></a>    <span class="fu">unnest</span>(a, <span class="at">names_sep =</span> <span class="st">"__"</span>, <span class="at">keep_empty=</span><span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-8"><a href="#cb9-8"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(a__uid))</span>
-<span id="cb9-9"><a href="#cb9-9"></a></span>
-<span id="cb9-10"><a href="#cb9-10"></a>  <span class="fu">return</span>(data)</span>
-<span id="cb9-11"><a href="#cb9-11"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># 1) Core h-index calculator -----------------------------------------------</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>h_index_vec <span class="ot">=</span> <span class="cf">function</span>(citations) {</span>
+<span id="cb9-3"><a href="#cb9-3"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(citations) <span class="sc">||</span> <span class="fu">length</span>(citations) <span class="sc">==</span> <span class="dv">0</span>L) <span class="fu">return</span>(<span class="dv">0</span>L)</span>
+<span id="cb9-4"><a href="#cb9-4"></a>  c <span class="ot">=</span> <span class="fu">sort</span>(<span class="fu">as.integer</span>(citations[<span class="fu">is.finite</span>(citations) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(citations)]), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-5"><a href="#cb9-5"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">length</span>(c)) <span class="fu">return</span>(<span class="dv">0</span>L)</span>
+<span id="cb9-6"><a href="#cb9-6"></a>  <span class="co"># With c sorted desc, h is the count of entries with c_i &gt;= i</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>  <span class="fu">as.integer</span>(<span class="fu">sum</span>(c <span class="sc">&gt;=</span> <span class="fu">seq_along</span>(c)))</span>
+<span id="cb9-8"><a href="#cb9-8"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+</section>
+<section id="extract_citations" class="level3">
+<h3 class="anchored" data-anchor-id="extract_citations"><code>extract_citations()</code></h3>
+<p>Robustly extract citation counts from various OpenAlex “works” structures.</p>
+<section id="arguments-7" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-7">Arguments</h4>
+<p><strong><code>works_obj</code></strong></p>
+<blockquote class="blockquote">
+<p>Object containing works data; can be a data frame, a list with a <code>results</code> data frame, or a list of individual work objects with a <code>cited_by_count</code> element.</p>
+</blockquote>
+</section>
+<section id="method-7" class="level4">
+<h4 class="anchored" data-anchor-id="method-7">Method</h4>
+<p>The function defines an internal helper <code>df_to_cites()</code> that de-duplicates rows by <code>id</code> (if present) and then pulls <code>cited_by_count</code> as integers. It then branches on the type of <code>works_obj</code>. If it is a data frame, it calls <code>df_to_cites()</code> directly. If it is a list and has a <code>results</code> component, it applies <code>df_to_cites()</code> to <code>works_obj$results</code>. Otherwise, it assumes a list of work records and maps over them, extracting <code>cited_by_count</code> with <code>tryCatch()</code> to guard against malformed entries; NAs are dropped. For any unsupported object type, it returns an empty integer vector. The result is a clean integer vector of citation counts ready for index calculations.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># 2) Robust extractor for cited_by_count from different "works" shapes ------</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="co"># Handles:</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="co"># - data.frame/tibble with column `cited_by_count`</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="co"># - list with element `results` that is a data.frame (e.g., API wrappers)</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="co"># - list of work-objects where each has $cited_by_count</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="co"># - optional de-duplication by `id` if present</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>extract_citations <span class="ot">=</span> <span class="cf">function</span>(works_obj) {</span>
+<span id="cb10-8"><a href="#cb10-8"></a>  <span class="co"># helper to deduplicate &amp; pull citations from a data.frame</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a>  df_to_cites <span class="ot">=</span> <span class="cf">function</span>(df) {</span>
+<span id="cb10-10"><a href="#cb10-10"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.data.frame</span>(df)) <span class="fu">return</span>(<span class="fu">integer</span>())</span>
+<span id="cb10-11"><a href="#cb10-11"></a>    <span class="cf">if</span> (<span class="st">"id"</span> <span class="sc">%in%</span> <span class="fu">names</span>(df)) df <span class="ot">=</span> <span class="fu">distinct</span>(df, id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-12"><a href="#cb10-12"></a>    <span class="cf">if</span> (<span class="st">"cited_by_count"</span> <span class="sc">%in%</span> <span class="fu">names</span>(df)) <span class="fu">return</span>(<span class="fu">as.integer</span>(df<span class="sc">$</span>cited_by_count))</span>
+<span id="cb10-13"><a href="#cb10-13"></a>    <span class="fu">integer</span>()</span>
+<span id="cb10-14"><a href="#cb10-14"></a>  }</span>
+<span id="cb10-15"><a href="#cb10-15"></a></span>
+<span id="cb10-16"><a href="#cb10-16"></a>  <span class="cf">if</span> (<span class="fu">is.data.frame</span>(works_obj)) {</span>
+<span id="cb10-17"><a href="#cb10-17"></a>    <span class="fu">return</span>(<span class="fu">df_to_cites</span>(works_obj))</span>
+<span id="cb10-18"><a href="#cb10-18"></a>  }</span>
+<span id="cb10-19"><a href="#cb10-19"></a></span>
+<span id="cb10-20"><a href="#cb10-20"></a>  <span class="cf">if</span> (<span class="fu">is.list</span>(works_obj)) {</span>
+<span id="cb10-21"><a href="#cb10-21"></a>    <span class="co"># common wrapper: list(results = data.frame(...))</span></span>
+<span id="cb10-22"><a href="#cb10-22"></a>    <span class="cf">if</span> (<span class="st">"results"</span> <span class="sc">%in%</span> <span class="fu">names</span>(works_obj)) <span class="fu">return</span>(<span class="fu">df_to_cites</span>(works_obj<span class="sc">$</span>results))</span>
+<span id="cb10-23"><a href="#cb10-23"></a></span>
+<span id="cb10-24"><a href="#cb10-24"></a>    <span class="co"># otherwise assume a list of work records</span></span>
+<span id="cb10-25"><a href="#cb10-25"></a>    cites <span class="ot">=</span> <span class="fu">map_dbl</span>(works_obj, <span class="sc">~</span> <span class="fu">tryCatch</span>(</span>
+<span id="cb10-26"><a href="#cb10-26"></a>      {</span>
+<span id="cb10-27"><a href="#cb10-27"></a>        v <span class="ot">=</span> .x[[<span class="st">"cited_by_count"</span>]]</span>
+<span id="cb10-28"><a href="#cb10-28"></a>        <span class="cf">if</span> (<span class="fu">is.null</span>(v)) <span class="cn">NA_real_</span> <span class="cf">else</span> <span class="fu">as.numeric</span>(v)</span>
+<span id="cb10-29"><a href="#cb10-29"></a>      },</span>
+<span id="cb10-30"><a href="#cb10-30"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA_real_</span></span>
+<span id="cb10-31"><a href="#cb10-31"></a>    ))</span>
+<span id="cb10-32"><a href="#cb10-32"></a>    <span class="fu">return</span>(<span class="fu">as.integer</span>(cites[<span class="sc">!</span><span class="fu">is.na</span>(cites)]))</span>
+<span id="cb10-33"><a href="#cb10-33"></a>  }</span>
+<span id="cb10-34"><a href="#cb10-34"></a></span>
+<span id="cb10-35"><a href="#cb10-35"></a>  <span class="fu">integer</span>()</span>
+<span id="cb10-36"><a href="#cb10-36"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="h_index_by_author" class="level3">
+<h3 class="anchored" data-anchor-id="h_index_by_author"><code>h_index_by_author()</code></h3>
+<p>Compute h-index and summary citation statistics per author.</p>
+<section id="arguments-8" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-8">Arguments</h4>
+<p><strong><code>works_by_uid</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list where <code>names(works_by_uid)</code> are scholar <code>uid</code>s and each value is that author’s works object (any structure accepted by <code>extract_citations()</code>).</p>
+</blockquote>
+</section>
+<section id="method-8" class="level4">
+<h4 class="anchored" data-anchor-id="method-8">Method</h4>
+<p>The function iterates over the named list with <code>imap_dfr()</code>. For each <code>(uid, works)</code> pair, it calls <code>extract_citations()</code> to obtain citation counts, then calculates three statistics: the number of works (<code>n_works</code>), the total citations (<code>total_citations</code>), and the h-index via <code>h_index_vec()</code>. These per-author rows are combined into a tibble and sorted in descending order of <code>h_index</code> and <code>total_citations</code>. The resulting table serves as a compact performance summary by scholar.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># 3) Compute per-author h-index from a named list ---------------------------</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="co"># Input: works_by_uid — a named list where names(works_by_uid) are `uid`s,</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="co">#         each value is that author's OpenAlex works object</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a>h_index_by_author <span class="ot">=</span> <span class="cf">function</span>(works_by_uid) {</span>
+<span id="cb11-5"><a href="#cb11-5"></a>  <span class="fu">imap_dfr</span>(works_by_uid, <span class="cf">function</span>(works, uid) {</span>
+<span id="cb11-6"><a href="#cb11-6"></a>    cites <span class="ot">=</span> <span class="fu">extract_citations</span>(works)</span>
+<span id="cb11-7"><a href="#cb11-7"></a>    <span class="fu">tibble</span>(</span>
+<span id="cb11-8"><a href="#cb11-8"></a>      <span class="at">uid             =</span> uid,</span>
+<span id="cb11-9"><a href="#cb11-9"></a>      <span class="at">n_works         =</span> <span class="fu">length</span>(cites),</span>
+<span id="cb11-10"><a href="#cb11-10"></a>      <span class="at">total_citations =</span> <span class="fu">sum</span>(cites, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb11-11"><a href="#cb11-11"></a>      <span class="at">h_index         =</span> <span class="fu">h_index_vec</span>(cites)</span>
+<span id="cb11-12"><a href="#cb11-12"></a>    )</span>
+<span id="cb11-13"><a href="#cb11-13"></a>  }) <span class="sc">|&gt;</span></span>
+<span id="cb11-14"><a href="#cb11-14"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(h_index), <span class="fu">desc</span>(total_citations))</span>
+<span id="cb11-15"><a href="#cb11-15"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="i_index_vec" class="level3">
+<h3 class="anchored" data-anchor-id="i_index_vec"><code>i_index_vec()</code></h3>
+<p>Compute the iN-index (default i10) from citation counts.</p>
+<section id="arguments-9" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-9">Arguments</h4>
+<p><strong><code>citations</code></strong></p>
+<blockquote class="blockquote">
+<p>Numeric or integer vector of citation counts.</p>
+</blockquote>
+<p><strong><code>threshold</code></strong></p>
+<blockquote class="blockquote">
+<p>Integer threshold <code>N</code> for the iN-index (default <code>10L</code>), counting works with at least this many citations.</p>
+</blockquote>
+</section>
+<section id="method-9" class="level4">
+<h4 class="anchored" data-anchor-id="method-9">Method</h4>
+<p>The function keeps only finite, non-missing citation counts, coerces them to integers, and returns the number of works whose citation count is greater than or equal to the specified <code>threshold</code>. If the filtered vector is empty, it returns 0L. With <code>threshold = 10</code>, this corresponds to the classic i10-index.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># 3) Compute per-author i10-index from a named list ---------------------------</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="co"># Input: works_by_uid — a named list where names(works_by_uid) are `uid`s,</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="co">#         each value is that author's OpenAlex works object</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a>i_index_vec <span class="ot">=</span> <span class="cf">function</span>(citations, <span class="at">threshold =</span> <span class="dv">10</span>L) {</span>
+<span id="cb12-5"><a href="#cb12-5"></a>  c <span class="ot">=</span> <span class="fu">as.integer</span>(citations[<span class="fu">is.finite</span>(citations) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(citations)])</span>
+<span id="cb12-6"><a href="#cb12-6"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">length</span>(c)) <span class="fu">return</span>(<span class="dv">0</span>L)</span>
+<span id="cb12-7"><a href="#cb12-7"></a>  <span class="fu">sum</span>(c <span class="sc">&gt;=</span> <span class="fu">as.integer</span>(threshold))</span>
+<span id="cb12-8"><a href="#cb12-8"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="i_index_by_author" class="level3">
+<h3 class="anchored" data-anchor-id="i_index_by_author"><code>i_index_by_author()</code></h3>
+<p>Compute the per-author iN-index (default i10) and citation summary.</p>
+<section id="arguments-10" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-10">Arguments</h4>
+<p><strong><code>works_by_uid</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list where <code>names(works_by_uid)</code> are scholar <code>uid</code>s and each value is that author’s works object.</p>
+</blockquote>
+<p><strong><code>threshold</code></strong></p>
+<blockquote class="blockquote">
+<p>Integer threshold <code>N</code> for the iN-index (default <code>10L</code>).</p>
+</blockquote>
+</section>
+<section id="method-10" class="level4">
+<h4 class="anchored" data-anchor-id="method-10">Method</h4>
+<p>The function constructs a dynamic column name such as <code>"i10_index"</code> from the chosen <code>threshold</code>. It then iterates over the named list with <code>imap_dfr()</code>, extracting citation counts for each author via <code>extract_citations()</code>. For each <code>uid</code>, it records the number of works, total citations, and the iN-index computed by <code>i_index_vec(citations, threshold)</code>. The resulting tibble is sorted by the iN-index (descending) and then by <code>total_citations</code>. This table complements the h-index summary by focusing on the volume of works above a fixed citation threshold.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Per-author iN (defaults to i10). Input: named list 'works_by_uid'</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>i_index_by_author <span class="ot">=</span> <span class="cf">function</span>(works_by_uid, <span class="at">threshold =</span> <span class="dv">10</span>L) {</span>
+<span id="cb13-3"><a href="#cb13-3"></a>  colname <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"i"</span>, threshold, <span class="st">"_index"</span>)</span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="fu">imap_dfr</span>(works_by_uid, <span class="cf">function</span>(works, uid) {</span>
+<span id="cb13-5"><a href="#cb13-5"></a>    cites <span class="ot">=</span> <span class="fu">extract_citations</span>(works)</span>
+<span id="cb13-6"><a href="#cb13-6"></a>    <span class="fu">tibble</span>(</span>
+<span id="cb13-7"><a href="#cb13-7"></a>      <span class="at">uid             =</span> uid,</span>
+<span id="cb13-8"><a href="#cb13-8"></a>      <span class="at">n_works         =</span> <span class="fu">length</span>(cites),</span>
+<span id="cb13-9"><a href="#cb13-9"></a>      <span class="at">total_citations =</span> <span class="fu">sum</span>(cites, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb13-10"><a href="#cb13-10"></a>      <span class="sc">!!</span><span class="at">colname       :=</span> <span class="fu">i_index_vec</span>(cites, <span class="at">threshold =</span> threshold)</span>
+<span id="cb13-11"><a href="#cb13-11"></a>    )</span>
+<span id="cb13-12"><a href="#cb13-12"></a>  }) <span class="sc">|&gt;</span></span>
+<span id="cb13-13"><a href="#cb13-13"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(.data[[colname]]), <span class="fu">desc</span>(total_citations))</span>
+<span id="cb13-14"><a href="#cb13-14"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="add_updated_stats_to_demographics" class="level3">
+<h3 class="anchored" data-anchor-id="add_updated_stats_to_demographics"><code>add_updated_stats_to_demographics()</code></h3>
+<p>Attach h-index and i10-index statistics to the demographics table.</p>
+<section id="arguments-11" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-11">Arguments</h4>
+<p><strong><code>data</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list containing a <code>works</code> element (works per <code>uid</code>) and a <code>demographics</code> tibble keyed by <code>uid</code>.</p>
+</blockquote>
+</section>
+<section id="method-11" class="level4">
+<h4 class="anchored" data-anchor-id="method-11">Method</h4>
+<p>The function first computes per-author h-index statistics with <code>h_index_by_author(data[['works']])</code>. It also computes per-author i10-indices via <code>i_index_by_author(data[['works']])</code> and keeps only <code>uid</code> and <code>i10_index</code>. These two summary tables are then left-joined onto <code>data[['demographics']]</code> by <code>uid</code>, enriching each scholar’s demographic record with updated citation metrics. The augmented <code>demographics</code> tibble is written back into <code>data</code>, and the enhanced list object is returned.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># Wrapper function addint these data to demographics</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>add_updated_stats_to_demographics <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb14-3"><a href="#cb14-3"></a>  h_index <span class="ot">=</span> <span class="fu">h_index_by_author</span>(data[[<span class="st">'works'</span>]]) </span>
+<span id="cb14-4"><a href="#cb14-4"></a>  i10_index <span class="ot">=</span> <span class="fu">i_index_by_author</span>(data[[<span class="st">'works'</span>]]) <span class="sc">|&gt;</span> <span class="fu">select</span>(uid, i10_index)</span>
+<span id="cb14-5"><a href="#cb14-5"></a></span>
+<span id="cb14-6"><a href="#cb14-6"></a>  data[[<span class="st">'demographics'</span>]] <span class="ot">=</span> data[[<span class="st">'demographics'</span>]] <span class="sc">|&gt;</span> </span>
+<span id="cb14-7"><a href="#cb14-7"></a>    <span class="fu">left_join</span>(h_index) <span class="sc">|&gt;</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a>    <span class="fu">left_join</span>(i10_index)</span>
+<span id="cb14-9"><a href="#cb14-9"></a></span>
+<span id="cb14-10"><a href="#cb14-10"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb14-11"><a href="#cb14-11"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="add_edge_table" class="level3">
+<h3 class="anchored" data-anchor-id="add_edge_table"><code>add_edge_table()</code></h3>
+<p>Build an edge table of co-authorships from nested authorship data.</p>
+<section id="arguments-12" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-12">Arguments</h4>
+<p><strong><code>data</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list that contains a <code>works</code> element (list of works tibbles with <code>uid</code>, <code>work_id</code>, <code>authorships</code>, <code>publication_date</code>, <code>publication_year</code>, <code>type</code>).</p>
+</blockquote>
+</section>
+<section id="method-12" class="level4">
+<h4 class="anchored" data-anchor-id="method-12">Method</h4>
+<p>The function binds all per-scholar works together, selecting <code>uid</code>, <code>work_id</code>, <code>authorships</code>, <code>publication_date</code>, <code>publication_year</code>, and <code>type</code>. It renames <code>authorships</code> to <code>a</code> and fully unnests <code>a</code> into separate columns with a names separator. It then filters to rows where <code>a__uid</code> (the co-author’s <code>uid</code>) is non-missing. The resulting tibble, stored as <code>data[['edge_table']]</code>, represents a long edge list that links focal <code>uid</code> to their co-authors per work, along with basic publication metadata. The updated list is returned.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>add_edge_table <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb15-2"><a href="#cb15-2"></a>  data[[<span class="st">'edge_table'</span>]] <span class="ot">=</span> data[[<span class="st">'works'</span>]] <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>    <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a>    <span class="fu">select</span>(uid, work_id, authorships, publication_date, publication_year, type) <span class="sc">|&gt;</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a>    <span class="co"># mutate(a = authorships, .after=authorships) |&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a>    <span class="fu">rename</span>(<span class="at">a =</span> authorships) <span class="sc">|&gt;</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a>    <span class="fu">unnest</span>(a, <span class="at">names_sep =</span> <span class="st">"__"</span>, <span class="at">keep_empty=</span><span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(a__uid))</span>
+<span id="cb15-9"><a href="#cb15-9"></a></span>
+<span id="cb15-10"><a href="#cb15-10"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb15-11"><a href="#cb15-11"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
 </section>
 <section id="application" class="level2">
 <h2 class="anchored" data-anchor-id="application">Application</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="at">file=</span><span class="st">"scholars"</span>, <span class="at">location =</span> <span class="st">"combined"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">prune_invalid_publication_types</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">prune_works_by_author_id</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">prune_demographics</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a>  <span class="fu">prune_scholars</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-6"><a href="#cb10-6"></a>  <span class="fu">clean_demographics</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-7"><a href="#cb10-7"></a>  <span class="fu">add_updated_stats_to_demographics</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-8"><a href="#cb10-8"></a>  <span class="fu">add_edge_table</span>()</span>
-<span id="cb10-9"><a href="#cb10-9"></a></span>
-<span id="cb10-10"><a href="#cb10-10"></a><span class="fu">fsaveRDS</span>(data, <span class="st">'scholars'</span>, <span class="at">location =</span> <span class="st">"./data/clean/"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="at">file=</span><span class="st">"scholars"</span>, <span class="at">location =</span> <span class="st">"combined"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">prune_invalid_publication_types</span>() <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a>  <span class="fu">prune_works_by_author_id</span>() <span class="sc">|&gt;</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a>  <span class="fu">prune_demographics</span>() <span class="sc">|&gt;</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a>  <span class="fu">prune_scholars</span>() <span class="sc">|&gt;</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>  <span class="fu">clean_demographics</span>() <span class="sc">|&gt;</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a>  <span class="fu">add_updated_stats_to_demographics</span>() <span class="sc">|&gt;</span></span>
+<span id="cb16-8"><a href="#cb16-8"></a>  <span class="fu">add_edge_table</span>()</span>
+<span id="cb16-9"><a href="#cb16-9"></a></span>
+<span id="cb16-10"><a href="#cb16-10"></a><span class="fu">fsaveRDS</span>(data, <span class="st">'scholars'</span>, <span class="at">location =</span> <span class="st">"./data/clean/"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 

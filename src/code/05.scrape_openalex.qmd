@@ -18,9 +18,12 @@ execute:
 ```{r}
 #| warning: false
 #| output: false
-# clear the global environment
-rm(list = ls())
-gc()
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
 ```
 
 ```{r}
@@ -39,14 +42,29 @@ library(cli)
 library(stringi)
 library(stringdist)
 
-# load custom functions
-source("src/utils/custom_functions.r")
-.load_quarto_dependencies()
-
+# set global options
 options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
 ```
 
 ## Functions
+
+### `normalize_university_names()`
+
+Normalize and standardize university labels to English and native-name variants.
+
+#### Arguments
+`df`
+
+> Tibble or data frame containing at least `uid`, `naam`, `clean_name`, and a `university` column (as a list-column of one or more raw affiliation strings per row).
+
+#### Method
+The function first defines a lookup list that maps patterns in the raw university field (e.g., "VU", "UvA", "Leiden", "RUG", "Gothenburg") to a pair of names: an English label and a native-language label. Some entries only specify the native name, and some (e.g., "Politie", "UvH") are explicitly mapped to NA.
+
+It then standardizes the structure of the input by collapsing the university list-column to a single character string per row (taking the first element when multiple are present), normalizing occurrences of "Uni "/"uni " to "University ", and setting two working columns: `university_name` (default English name, initialized as the original university) and `university_name2` (default native name, initialized to NA).
+
+Next, it iterates over each regex pattern in the lookup. For rows where the pattern matches university, it overwrites `university_name` with the English label (if provided and still equal to the original value) and fills `university_name2` with the native label when it is missing.
+
+Finally, the two name columns are stacked with `pivot_longer()`, yielding a long format with one row per (`uid`, `naam`, `clean_name`, `university`, `university_name`) combination (where `university_name` can be either the English or native variant, or `NA` for explicitly excluded cases). The function returns this tidy table, which can be used downstream to choose a preferred representation or to handle multilingual labeling of university affiliations.
 
 ```{r}
 normalize_university_names = function(df){
@@ -135,6 +153,28 @@ normalize_university_names = function(df){
 
 ```
 
+---
+
+### `oa_fetch_institutions()`
+
+Fetch and disambiguate OpenAlex institution records for a vector of institution names.
+
+#### Arguments
+`institutions`
+
+> Character vector of institution names to look up in OpenAlex (e.g., "Utrecht University", "Radboud University Nijmegen").
+
+`pause`
+
+> Numeric number of seconds to sleep between successive API calls (default 0). Use this to throttle requests when scraping many institutions.
+
+#### Method
+The function starts by reporting the current time with `cli_alert()` and initializing a progress bar via `cli_progress_bar()`. It then loops over all elements of institutions, optionally sleeping pause seconds before each request. For every institution name, it calls `oa_fetch(entity = "institutions", search = institution)` inside `tryCatch()`, converting any errors or warnings to `NULL` so that failures do not interrupt the loop.
+
+If the result is a non-null tibble, it first renames the OpenAlex columns `id` and `display_name` to `institution_id` and `institution_name`. For single-row results, that row is stored directly in `hold[[institution]]`. For multi-row results, it constructs a regular expression `^<institution>$` and checks for exact matches on `institution_name`. When there are no exact matches, the full result is kept (for later manual inspection); when there is exactly one match, only that row is kept; when there are multiple exact matches, the first matching row is retained as the most relevant hit. The progress bar is updated on each iteration.
+
+After processing all names, the function binds all stored tibbles with `bind_rows()`, removes duplicate institutions using `distinct(institution_id, .keep_all = TRUE)`, and keeps only `institution_name` and `institution_id`. It then adds an `institution_url` column equal to the original OpenAlex URL and converts `institution_id` to a compact identifier by stripping the `"https://openalex.org/"` prefix. The function returns this tidy tibble of unique, disambiguated OpenAlex institution records.
+
 ```{r}
 oa_fetch_institutions = function(institutions, pause=0){
   k = length(institutions)
@@ -207,8 +247,21 @@ oa_fetch_institutions = function(institutions, pause=0){
 
 ```
 
-```{r}
+---
 
+### `add_institution_id()`
+
+Attach OpenAlex institution IDs to normalized university records.
+
+#### Arguments
+`df`
+
+Tibble or data frame containing at least `uid`, `university`, and `university_name`, where `university_name` holds cleaned institution labels and university stores the original or raw affiliation.
+
+#### Method
+The function first extracts all unique, non-missing values of `university_name` and passes them to `oa_fetch_institutions()` to obtain a disambiguated lookup table of OpenAlex institutions, including `institution_name`, `institution_id`, and `institution_url`. It then renames `university_name` to `institution_name` and `university` to `institution` in `df` so that the columns align with the lookup, and performs a `left_join()` on `institution_name`. After the join, it filters out any rows where `institution_id` is missing (i.e., cases where no OpenAlex match was found) and removes duplicate (`uid`, `institution_id`) combinations to ensure each person–institution pair is unique. The resulting tibble retains the original information along with harmonized institution identifiers suitable for linkage to OpenAlex metadata.
+
+```{r}
 add_institution_id = function(df){
   # create a vector all the unique university names
   institutions = df$university_name |> unique() |> na.omit()
@@ -228,6 +281,20 @@ add_institution_id = function(df){
 }
 ```
 
+---
+
+### `normalize_name()`
+
+Normalize personal or institutional names for robust matching.
+
+#### Arguments
+`x`
+
+> Character vector (or coercible to character) with raw names or labels.
+
+#### Method
+The function first coerces `x` to character. It then detects which elements contain Cyrillic characters using `stri_detect_charclass()`. For those elements only, it transliterates Cyrillic to Latin script via `stri_trans_general(x, "Cyrillic-Latin")`, preserving the others as-is. Next, it removes accents/diacritics from all entries using `"Latin-ASCII"`, converts the result to lowercase, and collapses multiple spaces into a single space with `str_squish()`. Finally, leading and trailing whitespace is removed using `trimws()`. The output is a character vector of normalized, ASCII-only, lowercase names that are suitable for fuzzy matching and string distance calculations across languages and scripts.
+
 ```{r}
 normalize_name = function(x) {
   x = as.character(x)
@@ -245,6 +312,21 @@ normalize_name = function(x) {
   trimws(x)
 }
 
+```
+
+### `add_query_similarity()`
+
+Compute a Jaro–Winkler similarity score between OpenAlex display names and query names.
+
+#### Arguments
+`data`
+
+> Tibble or data frame containing at least `display_name` (e.g., OpenAlex entity label) and `query_name` (the original search string).
+
+#### Method
+The function creates two temporary normalized versions of the names: `dn` as the normalized `display_name` and `qn` as the normalized `query_name`, both produced by `normalize_name()`. It then calculates the Jaro–Winkler string distance between `dn` and `qn` using `stringdist(..., method = "jw")` and converts this distance to a similarity measure via `1 - distance`. The resulting value is stored in a new column `query_similarity`, which ranges from `0` (completely dissimilar) to `1` (identical after normalization). Finally, the temporary helper columns `dn` and `qn` are dropped, and the augmented data frame is returned with an interpretable similarity metric that can be used for ranking or filtering matches.
+
+```{r}
 add_query_similarity = function(data){
   data |>
     mutate(
@@ -256,8 +338,24 @@ add_query_similarity = function(data){
 }
 ```
 
-```{r}
+---
 
+### `oa_fetch_authors()`
+Fetch candidate OpenAlex author records for each scholar and score name similarity
+
+#### Arguments
+**`df`**  
+
+> Tibble or data frame containing at least `uid`, `clean_name`, and `institution_id` for each scholar to query.
+
+**`pause`**  
+
+> Numeric number of seconds reserved for throttling between requests (default `0`). Currently not used inside the function.
+
+#### Method
+The function first extracts the vector of unique, non-missing `uid` values from `df` and initializes a progress bar with `cli_alert()` and `cli_progress_bar()`. For each `uid`, it subsets `df` to the corresponding rows, pulls the scholar’s `clean_name`, and collects the associated `institution_id` values. It then calls `oa_fetch(entity = "author", search = clean_name, affiliations.institution.id = institution_ids)` inside `tryCatch()` so that HTTP or API errors return `NULL` instead of stopping execution. If this institution-constrained query returns `NULL`, it falls back to a second `oa_fetch()` call that omits the affiliation filter and searches only on `clean_name`. After updating the progress bar, the function skips to the next `uid` if the result is not a non-empty tibble. Otherwise, it renames `id` to `author_id`, removes duplicate `author_id` rows, and adds `uid` and `query_name` (set to `clean_name`) columns. It then calls `add_query_similarity()` to compute a Jaro–Winkler similarity between `display_name` and `query_name`, and finally orders the candidates by descending `relevance_score`. Each processed result tibble is stored in `hold[[uid]]`, and at the end the function returns the `hold` list containing scored OpenAlex author candidates for all requested scholars.
+
+```{r}
 oa_fetch_authors = function(df, pause = 0){
   # configure iterator and other looping variables
   uids = df |> pull(uid) |> na.omit()
@@ -273,11 +371,6 @@ oa_fetch_authors = function(df, pause = 0){
     # pull the required information
     clean_name = tab |> distinct(clean_name) |> pull()
     institution_ids = tab |> distinct(institution_id) |> pull()
-
-    # if (length(institution_ids) == 0L) next 
-    # # skip cases without any institutions
-    # # TODO: rework code to include cases without institution.
-    # # TODO: implement fetch for cases without institutions
 
     res = tryCatch(
       oa_fetch(
@@ -321,6 +414,18 @@ oa_fetch_authors = function(df, pause = 0){
 
 ```
 
+---
+
+### `unnest_institutions()`
+Unnest and clean OpenAlex institution data per author in a nested list of tibbles
+
+#### Arguments
+**`data`**  
+
+> Named list of tibbles, where each element corresponds to a `uid` and contains at least `uid`, `author_id`, and `last_known_institutions` (a list-column of data frames with OpenAlex institution info).
+
+#### Method
+The function iterates over each element of the input list `data`, treating the list names as author `uid`s. For every element, it first checks whether the object is a non-empty tibble; invalid entries are skipped. For valid tibbles, it filters rows to the current `uid`, removes duplicate `(uid, author_id)` combinations, and then processes the `last_known_institutions` list-column. Within each element of `last_known_institutions`, it keeps unique rows, derives a compact `institution_id` by stripping the `"https://openalex.org/"` prefix from `id`, and creates a readable `institution_name` from `display_name`, retaining `id`, `institution_id`, `institution_name`, and `country_code`. In addition, it constructs an `institution_ids` column that stores, per row, the unique set of associated institution IDs as a character vector. The modified tibble is written back into the corresponding position in the `hold` list. Finally, the function returns the updated list, preserving its original structure but with institution information consistently unpacked and enriched.
 
 ```{r}
 unnest_institutions = function(data){
@@ -356,6 +461,23 @@ unnest_institutions = function(data){
   return(hold)
 }
 ```
+
+---
+
+### `match_institutions()`
+Filter OpenAlex author candidates by institutional match and name similarity
+
+#### Arguments
+**`data`**  
+
+> Named list of tibbles with OpenAlex author candidates per `uid`, typically already enriched with `institution_ids`, `query_name`, `display_name`, `query_similarity`, and `orcid`.
+
+**`df`**  
+
+> Tibble or data frame containing at least `uid` and `institution_id`, representing the verified institution mappings from your own data.
+
+#### Method
+For each element in `data`, the function first checks that the entry is a non-empty tibble and skips invalid ones. It then looks up all unique `institution_id` values in `df` for the current `uid`, skipping authors without any known institutions. For valid entries, it augments the candidate table by computing `institution_match`, which is `TRUE` when at least one of the candidate’s `institution_ids` overlaps with the known institution IDs for that `uid`. It then defines `keep` using a two-stage rule: candidates with `query_similarity == 1.0` are always kept; otherwise, candidates are kept if they have high similarity without an institution match (`query_similarity ≥ 0.60`) or moderate similarity with an institution match (`query_similarity ≥ 0.45`). In a second pass over `keep`, the function applies a series of hard-coded exceptions that force specific problematic `display_name` and `query_name` combinations to be dropped, even if they otherwise pass the thresholds. The `orcid` column is coerced to character for consistency, and finally only rows with `keep == TRUE` are retained. The filtered tibble is stored back in the corresponding list element, and the updated list of disambiguated author matches is returned.
 
 ```{r}
 
@@ -563,7 +685,6 @@ authors = df |>
 
 fsaveRDS(authors, 'oaauthors', location = "./data/raw_data/")
 ```
-
 
 ```{r}
 authors = freadRDS2('oaauthors', location = 'raw_data')

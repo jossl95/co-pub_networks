@@ -77,9 +77,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-0f71862d4ab2d6bf69af2cc5f197282f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-80f7ee4e9ac38045aedc42db364c4724.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-0f71862d4ab2d6bf69af2cc5f197282f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-30d20b82645cd210f386addab4f6448d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-8bc95915644b09e823dba8822d382726.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-30d20b82645cd210f386addab4f6448d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -386,15 +386,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#functions" id="toc-functions" class="nav-link active" data-scroll-target="#functions">Functions</a>
   <ul class="collapse">
-  <li><a href="#load-core-quarto-dependencies" id="toc-load-core-quarto-dependencies" class="nav-link" data-scroll-target="#load-core-quarto-dependencies">Load core Quarto dependencies</a></li>
-  <li><a href="#deprecated-check-and-load-packages" id="toc-deprecated-check-and-load-packages" class="nav-link" data-scroll-target="#deprecated-check-and-load-packages">(Deprecated) Check and load packages</a></li>
-  <li><a href="#save-object-to-dated-.rdata-file" id="toc-save-object-to-dated-.rdata-file" class="nav-link" data-scroll-target="#save-object-to-dated-.rdata-file">Save object to dated .RData file</a></li>
-  <li><a href="#save-object-to-dated-rds-file" id="toc-save-object-to-dated-rds-file" class="nav-link" data-scroll-target="#save-object-to-dated-rds-file">Save object to dated RDS file</a></li>
-  <li><a href="#read-an-rds-file" id="toc-read-an-rds-file" class="nav-link" data-scroll-target="#read-an-rds-file">Read an RDS file</a></li>
-  <li><a href="#read-the-most-recent-dated-rds-file-by-name" id="toc-read-the-most-recent-dated-rds-file-by-name" class="nav-link" data-scroll-target="#read-the-most-recent-dated-rds-file-by-name">Read the most recent dated RDS file by name</a></li>
-  <li><a href="#load-.rdata-file-and-return-its-object" id="toc-load-.rdata-file-and-return-its-object" class="nav-link" data-scroll-target="#load-.rdata-file-and-return-its-object">Load .RData file and return its object</a></li>
-  <li><a href="#normalise-personal-names" id="toc-normalise-personal-names" class="nav-link" data-scroll-target="#normalise-personal-names">Normalise personal names</a></li>
-  <li><a href="#check-whether-code-should-be-evaluated-quarto-param" id="toc-check-whether-code-should-be-evaluated-quarto-param" class="nav-link" data-scroll-target="#check-whether-code-should-be-evaluated-quarto-param">Check whether code should be evaluated (Quarto param)</a></li>
+  <li><a href="#clear_global_environment" id="toc-clear_global_environment" class="nav-link" data-scroll-target="#clear_global_environment"><code>.clear_global_environment()</code></a></li>
+  <li><a href="#load_quarto_dependencies" id="toc-load_quarto_dependencies" class="nav-link" data-scroll-target="#load_quarto_dependencies"><code>.load_quarto_dependencies()</code></a></li>
+  <li><a href="#fpackage.check" id="toc-fpackage.check" class="nav-link" data-scroll-target="#fpackage.check"><code>fpackage.check()</code></a></li>
+  <li><a href="#fsave" id="toc-fsave" class="nav-link" data-scroll-target="#fsave"><code>fsave()</code></a></li>
+  <li><a href="#fsaverds" id="toc-fsaverds" class="nav-link" data-scroll-target="#fsaverds"><code>fsaveRDS()</code></a></li>
+  <li><a href="#freadrds" id="toc-freadrds" class="nav-link" data-scroll-target="#freadrds"><code>freadRDS()</code></a></li>
+  <li><a href="#freadrds2" id="toc-freadrds2" class="nav-link" data-scroll-target="#freadrds2"><code>freadRDS2()</code></a></li>
+  <li><a href="#fload" id="toc-fload" class="nav-link" data-scroll-target="#fload"><code>fload()</code></a></li>
+  <li><a href="#normalize_name" id="toc-normalize_name" class="nav-link" data-scroll-target="#normalize_name"><code>normalize_name()</code></a></li>
+  <li><a href="#eval_ok" id="toc-eval_ok" class="nav-link" data-scroll-target="#eval_ok"><code>eval_ok()</code></a></li>
   </ul></li>
   </ul>
 </nav>
@@ -424,170 +425,349 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="functions" class="level2">
 <h2 class="anchored" data-anchor-id="functions">Functions</h2>
-<section id="load-core-quarto-dependencies" class="level3">
-<h3 class="anchored" data-anchor-id="load-core-quarto-dependencies">Load core Quarto dependencies</h3>
-<p>This helper loads core packages needed for Quarto rendering (knitr and rmarkdown).<br>
-Use it at the start of documents to ensure the required engines are available.</p>
+<section id="clear_global_environment" class="level3">
+<h3 class="anchored" data-anchor-id="clear_global_environment"><code>.clear_global_environment()</code></h3>
+<p>Clear the global environment while preserving selected helper functions.</p>
+<section id="arguments" class="level4">
+<h4 class="anchored" data-anchor-id="arguments">Arguments</h4>
+<p><strong><code>keep</code></strong></p>
+<blockquote class="blockquote">
+<p>Character vector of object names that should be retained in the global environment (defaults to <code>KEEP_FUNCTIONS</code>).</p>
+</blockquote>
+</section>
+<section id="method" class="level4">
+<h4 class="anchored" data-anchor-id="method">Method</h4>
+<p>The function lists all objects in the global environment (including hidden ones), combines the user-specified <code>keep</code> vector with the internal <code>KEEP_FUNCTIONS</code> object itself, and computes the set difference between all objects and those to keep. It then removes all remaining objects via <code>rm(..., envir = .GlobalEnv)</code> and runs <code>gc()</code> to trigger garbage collection. The result is a cleaned workspace that still contains the core helper functions and the <code>KEEP_FUNCTIONS</code> configuration.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>.load_quarto_dependencies <span class="ot">=</span> <span class="cf">function</span>(){</span>
-<span id="cb1-2"><a href="#cb1-2"></a>  <span class="fu">library</span>(knitr)</span>
-<span id="cb1-3"><a href="#cb1-3"></a>  <span class="fu">library</span>(rmarkdown)</span>
-<span id="cb1-4"><a href="#cb1-4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>KEEP_FUNCTIONS <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb1-2"><a href="#cb1-2"></a>  <span class="st">".clear_global_environment"</span>,</span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="st">".load_quarto_dependencies"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="st">"fsave"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5"></a>  <span class="st">"fsaveRDS"</span>,</span>
+<span id="cb1-6"><a href="#cb1-6"></a>  <span class="st">"fload"</span>,</span>
+<span id="cb1-7"><a href="#cb1-7"></a>  <span class="st">"freadRDS"</span>,</span>
+<span id="cb1-8"><a href="#cb1-8"></a>  <span class="st">"freadRDS2"</span>,</span>
+<span id="cb1-9"><a href="#cb1-9"></a>  <span class="st">"normalize_name"</span>,</span>
+<span id="cb1-10"><a href="#cb1-10"></a>  <span class="st">"eval_ok"</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a>)</span>
+<span id="cb1-12"><a href="#cb1-12"></a></span>
+<span id="cb1-13"><a href="#cb1-13"></a>.clear_global_environment <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">keep =</span> KEEP_FUNCTIONS) {</span>
+<span id="cb1-14"><a href="#cb1-14"></a></span>
+<span id="cb1-15"><a href="#cb1-15"></a>  objs <span class="ot">&lt;-</span> <span class="fu">ls</span>(<span class="at">envir =</span> .GlobalEnv, <span class="at">all.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-16"><a href="#cb1-16"></a></span>
+<span id="cb1-17"><a href="#cb1-17"></a>  <span class="co"># also keep the KEEP_FUNCTIONS object itself</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a>  to_keep <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">c</span>(keep, <span class="st">"KEEP_FUNCTIONS"</span>))</span>
+<span id="cb1-19"><a href="#cb1-19"></a></span>
+<span id="cb1-20"><a href="#cb1-20"></a>  <span class="fu">rm</span>(</span>
+<span id="cb1-21"><a href="#cb1-21"></a>    <span class="at">list  =</span> <span class="fu">setdiff</span>(objs, to_keep),</span>
+<span id="cb1-22"><a href="#cb1-22"></a>    <span class="at">envir =</span> .GlobalEnv</span>
+<span id="cb1-23"><a href="#cb1-23"></a>  )</span>
+<span id="cb1-24"><a href="#cb1-24"></a></span>
+<span id="cb1-25"><a href="#cb1-25"></a>  <span class="fu">invisible</span>(<span class="fu">gc</span>())</span>
+<span id="cb1-26"><a href="#cb1-26"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="deprecated-check-and-load-packages" class="level3">
-<h3 class="anchored" data-anchor-id="deprecated-check-and-load-packages">(Deprecated) Check and load packages</h3>
-<p>Legacy helper for checking and loading packages. It now only issues a deprecation warning and advises using renv plus explicit <code>library()</code> calls instead.</p>
+</section>
+<section id="load_quarto_dependencies" class="level3">
+<h3 class="anchored" data-anchor-id="load_quarto_dependencies"><code>.load_quarto_dependencies()</code></h3>
+<p>Load core Quarto rendering dependencies.</p>
+<section id="arguments-1" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-1">Arguments</h4>
+<p><em>(none)</em></p>
+</section>
+<section id="method-1" class="level4">
+<h4 class="anchored" data-anchor-id="method-1">Method</h4>
+<p>The function simply attaches the <code>knitr</code> and <code>rmarkdown</code> packages using <code>library()</code>. It is intended to be called at the top of Quarto documents to ensure that the standard R Markdown/Quarto rendering engines are available, without cluttering each document with repeated library calls.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>fpackage.check <span class="ot">&lt;-</span> <span class="cf">function</span>(packages) {</span>
-<span id="cb2-2"><a href="#cb2-2"></a>  lifecycle<span class="sc">::</span><span class="fu">deprecate_warn</span>(</span>
-<span id="cb2-3"><a href="#cb2-3"></a>    <span class="at">when =</span> <span class="st">"2025-10-27"</span>,</span>
-<span id="cb2-4"><a href="#cb2-4"></a>    <span class="at">what =</span> <span class="st">"fpackage.check()"</span>,</span>
-<span id="cb2-5"><a href="#cb2-5"></a>    <span class="at">details =</span> <span class="fu">paste0</span>(<span class="st">"Use renv for package installation and library()"</span>,</span>
-<span id="cb2-6"><a href="#cb2-6"></a>                     <span class="st">" for loading packages."</span>)</span>
-<span id="cb2-7"><a href="#cb2-7"></a>  )</span>
-<span id="cb2-8"><a href="#cb2-8"></a>  <span class="fu">message</span>(</span>
-<span id="cb2-9"><a href="#cb2-9"></a>    <span class="st">"⚠️ fpackage.check() is deprecated. Use renv + library() calls instead."</span></span>
-<span id="cb2-10"><a href="#cb2-10"></a>  )</span>
-<span id="cb2-11"><a href="#cb2-11"></a>  </span>
-<span id="cb2-12"><a href="#cb2-12"></a>  <span class="fu">lapply</span>(packages, <span class="at">FUN =</span> <span class="cf">function</span>(x) {</span>
-<span id="cb2-13"><a href="#cb2-13"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(x, <span class="at">character.only =</span> <span class="cn">TRUE</span>)) {</span>
-<span id="cb2-14"><a href="#cb2-14"></a>      <span class="fu">install.packages</span>(x, <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-15"><a href="#cb2-15"></a>      <span class="fu">library</span>(x, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-16"><a href="#cb2-16"></a>    }</span>
-<span id="cb2-17"><a href="#cb2-17"></a>  })</span>
-<span id="cb2-18"><a href="#cb2-18"></a></span>
-<span id="cb2-19"><a href="#cb2-19"></a>  <span class="fu">invisible</span>(<span class="cn">TRUE</span>)</span>
-<span id="cb2-20"><a href="#cb2-20"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>.load_quarto_dependencies <span class="ot">=</span> <span class="cf">function</span>(){</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">library</span>(knitr)</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="fu">library</span>(rmarkdown)</span>
+<span id="cb2-4"><a href="#cb2-4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="save-object-to-dated-.rdata-file" class="level3">
-<h3 class="anchored" data-anchor-id="save-object-to-dated-.rdata-file">Save object to dated .RData file</h3>
-<p>Saves an R object to a .RData file in a processed data directory, automatically prefixing the filename with the current date (YYYYMMDD).</p>
+</section>
+<section id="fpackage.check" class="level3">
+<h3 class="anchored" data-anchor-id="fpackage.check"><code>fpackage.check()</code></h3>
+<p><strong>Deprecated</strong> helper to install and load packages.</p>
+<section id="arguments-2" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-2">Arguments</h4>
+<p><strong><code>packages</code></strong></p>
+<blockquote class="blockquote">
+<p>Character vector of package names to check, install (if missing), and load.</p>
+</blockquote>
+</section>
+<section id="method-2" class="level4">
+<h4 class="anchored" data-anchor-id="method-2">Method</h4>
+<p>The function first emits a lifecycle deprecation warning via <code>lifecycle::deprecate_warn()</code>, advising users to rely on <code>renv</code> and explicit <code>library()</code> calls instead. It then prints a deprecation message and iterates over <code>packages</code> with <code>lapply()</code>. For each package, it attempts to load it with <code>require()</code>. If the package is not installed, it calls <code>install.packages()</code> with dependencies enabled, and then loads the package. The function returns <code>invisible(TRUE)</code> but is retained only for backward compatibility.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>fsave <span class="ot">&lt;-</span> <span class="cf">function</span>(x, file, <span class="at">location =</span> <span class="st">"./data/processed/"</span>, ...) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>fpackage.check <span class="ot">&lt;-</span> <span class="cf">function</span>(packages) {</span>
 <span id="cb3-2"><a href="#cb3-2"></a>  lifecycle<span class="sc">::</span><span class="fu">deprecate_warn</span>(</span>
 <span id="cb3-3"><a href="#cb3-3"></a>    <span class="at">when =</span> <span class="st">"2025-10-27"</span>,</span>
-<span id="cb3-4"><a href="#cb3-4"></a>    <span class="at">what =</span> <span class="st">"fsave()"</span>,</span>
-<span id="cb3-5"><a href="#cb3-5"></a>    <span class="at">details =</span> <span class="fu">paste0</span>(</span>
-<span id="cb3-6"><a href="#cb3-6"></a>      <span class="st">"Use fsaveRDS or fsaveRDS2 to save data instead. function is"</span>,</span>
-<span id="cb3-7"><a href="#cb3-7"></a>      <span class="st">"deprecated in favor of renv support which conflicts with load"</span></span>
-<span id="cb3-8"><a href="#cb3-8"></a>    )</span>
-<span id="cb3-9"><a href="#cb3-9"></a>  )</span>
-<span id="cb3-10"><a href="#cb3-10"></a>  <span class="fu">message</span>(</span>
-<span id="cb3-11"><a href="#cb3-11"></a>    <span class="st">"⚠️ fsave() is deprecated. Use fsaveRDS or fsaveRDS2  calls instead."</span></span>
-<span id="cb3-12"><a href="#cb3-12"></a>  )</span>
-<span id="cb3-13"><a href="#cb3-13"></a>  <span class="co"># if directory does not exist, create it</span></span>
-<span id="cb3-14"><a href="#cb3-14"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(location)) <span class="fu">dir.create</span>(location)</span>
-<span id="cb3-15"><a href="#cb3-15"></a>  </span>
-<span id="cb3-16"><a href="#cb3-16"></a>  <span class="co"># create filename with date</span></span>
-<span id="cb3-17"><a href="#cb3-17"></a>  datename <span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">gsub</span>(<span class="st">"[:-]"</span>, <span class="st">""</span>, <span class="fu">Sys.time</span>()), <span class="dv">1</span>, <span class="dv">8</span>)</span>
-<span id="cb3-18"><a href="#cb3-18"></a>  totalname <span class="ot">&lt;-</span> <span class="fu">paste</span>(location, datename, file, <span class="at">sep =</span> <span class="st">""</span>)</span>
-<span id="cb3-19"><a href="#cb3-19"></a></span>
-<span id="cb3-20"><a href="#cb3-20"></a>  <span class="co"># save file</span></span>
-<span id="cb3-21"><a href="#cb3-21"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"SAVING: "</span>, totalname, <span class="at">sep =</span> <span class="st">""</span>))</span>
-<span id="cb3-22"><a href="#cb3-22"></a>  <span class="fu">save</span>(x, <span class="at">file =</span> totalname)</span>
-<span id="cb3-23"><a href="#cb3-23"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="at">what =</span> <span class="st">"fpackage.check()"</span>,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>    <span class="at">details =</span> <span class="fu">paste0</span>(<span class="st">"Use renv for package installation and library()"</span>,</span>
+<span id="cb3-6"><a href="#cb3-6"></a>                     <span class="st">" for loading packages."</span>)</span>
+<span id="cb3-7"><a href="#cb3-7"></a>  )</span>
+<span id="cb3-8"><a href="#cb3-8"></a>  <span class="fu">message</span>(</span>
+<span id="cb3-9"><a href="#cb3-9"></a>    <span class="st">"⚠️ fpackage.check() is deprecated. Use renv + library() calls instead."</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a>  )</span>
+<span id="cb3-11"><a href="#cb3-11"></a>  </span>
+<span id="cb3-12"><a href="#cb3-12"></a>  <span class="fu">lapply</span>(packages, <span class="at">FUN =</span> <span class="cf">function</span>(x) {</span>
+<span id="cb3-13"><a href="#cb3-13"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(x, <span class="at">character.only =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb3-14"><a href="#cb3-14"></a>      <span class="fu">install.packages</span>(x, <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-15"><a href="#cb3-15"></a>      <span class="fu">library</span>(x, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-16"><a href="#cb3-16"></a>    }</span>
+<span id="cb3-17"><a href="#cb3-17"></a>  })</span>
+<span id="cb3-18"><a href="#cb3-18"></a></span>
+<span id="cb3-19"><a href="#cb3-19"></a>  <span class="fu">invisible</span>(<span class="cn">TRUE</span>)</span>
+<span id="cb3-20"><a href="#cb3-20"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="save-object-to-dated-rds-file" class="level3">
-<h3 class="anchored" data-anchor-id="save-object-to-dated-rds-file">Save object to dated RDS file</h3>
-<p>Saves an R object to a compressed <code>.Rds</code> file in a processed data directory, automatically prefixing the filename with the current date (YYYYMMDD).</p>
+</section>
+<section id="fsave" class="level3">
+<h3 class="anchored" data-anchor-id="fsave"><code>fsave()</code></h3>
+<p><strong>Deprecated</strong>: save an object to a dated <code>.RData</code> file in a processed data folder.</p>
+<section id="arguments-3" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-3">Arguments</h4>
+<p><strong><code>x</code></strong></p>
+<blockquote class="blockquote">
+<p>R object to be saved.</p>
+</blockquote>
+<p><strong><code>file</code></strong></p>
+<blockquote class="blockquote">
+<p>Base filename (without date prefix) to use for the <code>.RData</code> file.</p>
+</blockquote>
+<p><strong><code>location</code></strong></p>
+<blockquote class="blockquote">
+<p>Directory in which to save the file (default <code>"./data/processed/"</code>).</p>
+</blockquote>
+<p><strong><code>...</code></strong></p>
+<blockquote class="blockquote">
+<p>Additional arguments passed through (currently unused).</p>
+</blockquote>
+</section>
+<section id="method-3" class="level4">
+<h4 class="anchored" data-anchor-id="method-3">Method</h4>
+<p>The function first issues a deprecation warning via <code>lifecycle::deprecate_warn()</code> and prints a message recommending <code>fsaveRDS</code>/<code>fsaveRDS2</code> and <code>renv</code>-based workflows instead. It ensures that the target <code>location</code> directory exists (creating it if necessary), constructs a date stamp in <code>YYYYMMDD</code> format from <code>Sys.time()</code>, and concatenates it with <code>file</code> and <code>location</code> to create a full path. It then calls <code>save()</code> on <code>x</code> to write a <code>.RData</code> file to that path and prints the resulting filename for logging. The function does not return the saved object.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>fsaveRDS <span class="ot">&lt;-</span> <span class="cf">function</span>(x, file, <span class="at">location =</span> <span class="st">"./data/processed/"</span>, ...) {</span>
-<span id="cb4-2"><a href="#cb4-2"></a>  <span class="co"># if directory does not exist, create it</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(location)) <span class="fu">dir.create</span>(location)</span>
-<span id="cb4-4"><a href="#cb4-4"></a>  </span>
-<span id="cb4-5"><a href="#cb4-5"></a>  <span class="co"># create filename with date</span></span>
-<span id="cb4-6"><a href="#cb4-6"></a>  datename <span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">gsub</span>(<span class="st">"[:-]"</span>, <span class="st">""</span>, <span class="fu">Sys.time</span>()), <span class="dv">1</span>, <span class="dv">8</span>)</span>
-<span id="cb4-7"><a href="#cb4-7"></a>  totalname <span class="ot">&lt;-</span> <span class="fu">paste</span>(location, datename, file, <span class="st">".Rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
-<span id="cb4-8"><a href="#cb4-8"></a></span>
-<span id="cb4-9"><a href="#cb4-9"></a>  <span class="co"># save file</span></span>
-<span id="cb4-10"><a href="#cb4-10"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"SAVING: "</span>, totalname, <span class="at">sep =</span> <span class="st">""</span>))</span>
-<span id="cb4-11"><a href="#cb4-11"></a>  <span class="fu">saveRDS</span>(x, <span class="at">file =</span> totalname, <span class="at">compress =</span> <span class="st">"bzip2"</span>)</span>
-<span id="cb4-12"><a href="#cb4-12"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>fsave <span class="ot">&lt;-</span> <span class="cf">function</span>(x, file, <span class="at">location =</span> <span class="st">"./data/processed/"</span>, ...) {</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  lifecycle<span class="sc">::</span><span class="fu">deprecate_warn</span>(</span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="at">when =</span> <span class="st">"2025-10-27"</span>,</span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="at">what =</span> <span class="st">"fsave()"</span>,</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="at">details =</span> <span class="fu">paste0</span>(</span>
+<span id="cb4-6"><a href="#cb4-6"></a>      <span class="st">"Use fsaveRDS or fsaveRDS2 to save data instead. function is"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7"></a>      <span class="st">"deprecated in favor of renv support which conflicts with load"</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>    )</span>
+<span id="cb4-9"><a href="#cb4-9"></a>  )</span>
+<span id="cb4-10"><a href="#cb4-10"></a>  <span class="fu">message</span>(</span>
+<span id="cb4-11"><a href="#cb4-11"></a>    <span class="st">"⚠️ fsave() is deprecated. Use fsaveRDS or fsaveRDS2  calls instead."</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a>  )</span>
+<span id="cb4-13"><a href="#cb4-13"></a>  <span class="co"># if directory does not exist, create it</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(location)) <span class="fu">dir.create</span>(location)</span>
+<span id="cb4-15"><a href="#cb4-15"></a>  </span>
+<span id="cb4-16"><a href="#cb4-16"></a>  <span class="co"># create filename with date</span></span>
+<span id="cb4-17"><a href="#cb4-17"></a>  datename <span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">gsub</span>(<span class="st">"[:-]"</span>, <span class="st">""</span>, <span class="fu">Sys.time</span>()), <span class="dv">1</span>, <span class="dv">8</span>)</span>
+<span id="cb4-18"><a href="#cb4-18"></a>  totalname <span class="ot">&lt;-</span> <span class="fu">paste</span>(location, datename, file, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb4-19"><a href="#cb4-19"></a></span>
+<span id="cb4-20"><a href="#cb4-20"></a>  <span class="co"># save file</span></span>
+<span id="cb4-21"><a href="#cb4-21"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"SAVING: "</span>, totalname, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb4-22"><a href="#cb4-22"></a>  <span class="fu">save</span>(x, <span class="at">file =</span> totalname)</span>
+<span id="cb4-23"><a href="#cb4-23"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="read-an-rds-file" class="level3">
-<h3 class="anchored" data-anchor-id="read-an-rds-file">Read an RDS file</h3>
-<p>Thin wrapper around <code>readRDS()</code> for symmetry with <code>fsaveRDS()</code>. Given a file path, it loads and returns the stored object.</p>
+</section>
+<section id="fsaverds" class="level3">
+<h3 class="anchored" data-anchor-id="fsaverds"><code>fsaveRDS()</code></h3>
+<p>Save an object to a dated <code>.Rds</code> file in a processed data folder.</p>
+<section id="arguments-4" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-4">Arguments</h4>
+<p><strong><code>x</code></strong></p>
+<blockquote class="blockquote">
+<p>R object to be saved.</p>
+</blockquote>
+<p><strong><code>file</code></strong></p>
+<blockquote class="blockquote">
+<p>Base filename (without date or extension) for the <code>.Rds</code> file.</p>
+</blockquote>
+<p><strong><code>location</code></strong></p>
+<blockquote class="blockquote">
+<p>Directory in which to save the file (default <code>"./data/processed/"</code>).</p>
+</blockquote>
+<p><strong><code>...</code></strong></p>
+<blockquote class="blockquote">
+<p>Additional arguments passed through (currently unused).</p>
+</blockquote>
+</section>
+<section id="method-4" class="level4">
+<h4 class="anchored" data-anchor-id="method-4">Method</h4>
+<p>The function first checks whether <code>location</code> exists and creates it if necessary. It then builds a date prefix in <code>YYYYMMDD</code> format from <code>Sys.time()</code>, and concatenates it with <code>file</code> and <code>location</code> to form a full filepath ending in <code>.Rds</code>. It prints the target path for logging and uses <code>saveRDS()</code> with <code>compress = "bzip2"</code> to write the object to disk. The function is designed as a simple, date-stamped companion to <code>freadRDS2()</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>freadRDS <span class="ot">=</span> <span class="cf">function</span>(fileName){</span>
-<span id="cb5-2"><a href="#cb5-2"></a>  <span class="co"># load file and return object</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a>  <span class="fu">readRDS</span>(fileName)</span>
-<span id="cb5-4"><a href="#cb5-4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>fsaveRDS <span class="ot">&lt;-</span> <span class="cf">function</span>(x, file, <span class="at">location =</span> <span class="st">"./data/processed/"</span>, ...) {</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="co"># if directory does not exist, create it</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(location)) <span class="fu">dir.create</span>(location)</span>
+<span id="cb5-4"><a href="#cb5-4"></a>  </span>
+<span id="cb5-5"><a href="#cb5-5"></a>  <span class="co"># create filename with date</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>  datename <span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">gsub</span>(<span class="st">"[:-]"</span>, <span class="st">""</span>, <span class="fu">Sys.time</span>()), <span class="dv">1</span>, <span class="dv">8</span>)</span>
+<span id="cb5-7"><a href="#cb5-7"></a>  totalname <span class="ot">&lt;-</span> <span class="fu">paste</span>(location, datename, file, <span class="st">".Rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb5-8"><a href="#cb5-8"></a></span>
+<span id="cb5-9"><a href="#cb5-9"></a>  <span class="co"># save file</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"SAVING: "</span>, totalname, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb5-11"><a href="#cb5-11"></a>  <span class="fu">saveRDS</span>(x, <span class="at">file =</span> totalname, <span class="at">compress =</span> <span class="st">"bzip2"</span>)</span>
+<span id="cb5-12"><a href="#cb5-12"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="read-the-most-recent-dated-rds-file-by-name" class="level3">
-<h3 class="anchored" data-anchor-id="read-the-most-recent-dated-rds-file-by-name">Read the most recent dated RDS file by name</h3>
-<p>Loads the latest (most recent by filename) .Rds file in a data subdirectory, based on a base filename and a dated naming convention. Skips <code>old_</code> files by default.</p>
+</section>
+<section id="freadrds" class="level3">
+<h3 class="anchored" data-anchor-id="freadrds"><code>freadRDS()</code></h3>
+<p>Read a single <code>.Rds</code> file from disk.</p>
+<section id="arguments-5" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-5">Arguments</h4>
+<p><strong><code>fileName</code></strong></p>
+<blockquote class="blockquote">
+<p>Character string giving the path to an <code>.Rds</code> file.</p>
+</blockquote>
+</section>
+<section id="method-5" class="level4">
+<h4 class="anchored" data-anchor-id="method-5">Method</h4>
+<p>This is a very thin wrapper around <code>readRDS()</code>, provided mostly for symmetry with <code>fsaveRDS()</code>. Given <code>fileName</code>, it calls <code>readRDS(fileName)</code> and returns the resulting object directly, without additional checks or transformations.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>freadRDS2 <span class="ot">=</span> <span class="cf">function</span>(file, <span class="at">location =</span> <span class="st">"processed"</span>, ...){</span>
-<span id="cb6-2"><a href="#cb6-2"></a>  <span class="co"># make sure that the location is nested within the data directory</span></span>
-<span id="cb6-3"><a href="#cb6-3"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">str_detect</span>(file, <span class="st">'.Rds'</span>)) file <span class="ot">=</span> <span class="fu">paste0</span>(file, <span class="st">".Rds"</span>)</span>
-<span id="cb6-4"><a href="#cb6-4"></a></span>
-<span id="cb6-5"><a href="#cb6-5"></a>  <span class="co"># format location and create the location if it does not exist</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">str_detect</span>(location, <span class="st">'data/'</span>)) location <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, location)</span>
-<span id="cb6-7"><a href="#cb6-7"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(location)) <span class="fu">warning</span>(<span class="st">"the location does not exist "</span>, location)</span>
-<span id="cb6-8"><a href="#cb6-8"></a></span>
-<span id="cb6-9"><a href="#cb6-9"></a>  <span class="co"># list and filter by literal substring 'file'</span></span>
-<span id="cb6-10"><a href="#cb6-10"></a>  files <span class="ot">=</span> <span class="fu">list.files</span>(location, <span class="at">pattern =</span> file)</span>
-<span id="cb6-11"><a href="#cb6-11"></a>  files <span class="ot">=</span> files[<span class="fu">grepl</span>(file, files, <span class="at">fixed =</span> <span class="cn">TRUE</span>)]</span>
-<span id="cb6-12"><a href="#cb6-12"></a></span>
-<span id="cb6-13"><a href="#cb6-13"></a>  <span class="co"># exclude old_* unless the requested file itself starts with old_</span></span>
-<span id="cb6-14"><a href="#cb6-14"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">startsWith</span>(file, <span class="st">"old_"</span>)) files <span class="ot">=</span> files[<span class="sc">!</span><span class="fu">startsWith</span>(files, <span class="st">"old_"</span>)] </span>
-<span id="cb6-15"><a href="#cb6-15"></a>  <span class="cf">if</span> (<span class="fu">startsWith</span>(file, <span class="st">"old_"</span>)) files <span class="ot">=</span> files[<span class="fu">startsWith</span>(files, <span class="st">"old_"</span>)] </span>
-<span id="cb6-16"><a href="#cb6-16"></a></span>
-<span id="cb6-17"><a href="#cb6-17"></a>  <span class="co"># create file_path for the most recent file</span></span>
-<span id="cb6-18"><a href="#cb6-18"></a>  file_name <span class="ot">=</span> <span class="fu">sort</span>(files, <span class="at">decreasing =</span> <span class="cn">TRUE</span>, <span class="at">na.last =</span> <span class="cn">NA</span>)[<span class="dv">1</span>]</span>
-<span id="cb6-19"><a href="#cb6-19"></a>  file_path <span class="ot">=</span> <span class="fu">file.path</span>(location, file_name)</span>
-<span id="cb6-20"><a href="#cb6-20"></a></span>
-<span id="cb6-21"><a href="#cb6-21"></a>  <span class="fu">return</span>(<span class="fu">readRDS</span>(file_path))</span>
-<span id="cb6-22"><a href="#cb6-22"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>freadRDS <span class="ot">=</span> <span class="cf">function</span>(fileName){</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="co"># load file and return object</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">readRDS</span>(fileName)</span>
+<span id="cb6-4"><a href="#cb6-4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="load-.rdata-file-and-return-its-object" class="level3">
-<h3 class="anchored" data-anchor-id="load-.rdata-file-and-return-its-object">Load .RData file and return its object</h3>
-<p>Loads a <code>.RData</code> file and returns the loaded object directly, instead of leaving it in the global environment.</p>
+</section>
+<section id="freadrds2" class="level3">
+<h3 class="anchored" data-anchor-id="freadrds2"><code>freadRDS2()</code></h3>
+<p>Read the most recent dated <code>.Rds</code> file matching a base name from a data directory.</p>
+<section id="arguments-6" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-6">Arguments</h4>
+<p><strong><code>file</code></strong></p>
+<blockquote class="blockquote">
+<p>Base filename (with or without <code>.Rds</code> extension) used to identify matching files.</p>
+</blockquote>
+<p><strong><code>location</code></strong></p>
+<blockquote class="blockquote">
+<p>Directory (relative or absolute) where the files are stored; if it does not start with <code>"data/"</code>, it is automatically prefixed with <code>data/</code> (default <code>"processed"</code>).</p>
+</blockquote>
+<p><strong><code>...</code></strong></p>
+<blockquote class="blockquote">
+<p>Additional arguments reserved for future use (currently unused).</p>
+</blockquote>
+</section>
+<section id="method-6" class="level4">
+<h4 class="anchored" data-anchor-id="method-6">Method</h4>
+<p>The function first ensures that <code>file</code> ends with <code>.Rds</code>. It then normalizes <code>location</code> so that it points inside the <code>data/</code> directory and warns if the directory does not exist. It lists all files in <code>location</code> whose names contain <code>file</code> as a literal substring, optionally excluding those starting with <code>"old_"</code> (unless the requested <code>file</code> itself starts with <code>"old_"</code>, in which case only old files are considered). Among the remaining candidates, it sorts filenames in descending order and selects the first one, which is assumed to be the most recent based on the date prefix convention. It constructs the full path with <code>file.path()</code> and returns the object loaded via <code>readRDS(file_path)</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>fload <span class="ot">&lt;-</span> <span class="cf">function</span>(filename) {</span>
-<span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">load</span>(filename)</span>
-<span id="cb7-3"><a href="#cb7-3"></a>  <span class="fu">get</span>(<span class="fu">ls</span>()[<span class="fu">ls</span>() <span class="sc">!=</span> <span class="st">"filename"</span>])</span>
-<span id="cb7-4"><a href="#cb7-4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>freadRDS2 <span class="ot">=</span> <span class="cf">function</span>(file, <span class="at">location =</span> <span class="st">"processed"</span>, ...){</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="co"># make sure that the location is nested within the data directory</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">str_detect</span>(file, <span class="st">'.Rds'</span>)) file <span class="ot">=</span> <span class="fu">paste0</span>(file, <span class="st">".Rds"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="co"># format location and create the location if it does not exist</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">str_detect</span>(location, <span class="st">'data/'</span>)) location <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">'data'</span>, location)</span>
+<span id="cb7-7"><a href="#cb7-7"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(location)) <span class="fu">warning</span>(<span class="st">"the location does not exist "</span>, location)</span>
+<span id="cb7-8"><a href="#cb7-8"></a></span>
+<span id="cb7-9"><a href="#cb7-9"></a>  <span class="co"># list and filter by literal substring 'file'</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>  files <span class="ot">=</span> <span class="fu">list.files</span>(location, <span class="at">pattern =</span> file)</span>
+<span id="cb7-11"><a href="#cb7-11"></a>  files <span class="ot">=</span> files[<span class="fu">grepl</span>(file, files, <span class="at">fixed =</span> <span class="cn">TRUE</span>)]</span>
+<span id="cb7-12"><a href="#cb7-12"></a></span>
+<span id="cb7-13"><a href="#cb7-13"></a>  <span class="co"># exclude old_* unless the requested file itself starts with old_</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">startsWith</span>(file, <span class="st">"old_"</span>)) files <span class="ot">=</span> files[<span class="sc">!</span><span class="fu">startsWith</span>(files, <span class="st">"old_"</span>)] </span>
+<span id="cb7-15"><a href="#cb7-15"></a>  <span class="cf">if</span> (<span class="fu">startsWith</span>(file, <span class="st">"old_"</span>)) files <span class="ot">=</span> files[<span class="fu">startsWith</span>(files, <span class="st">"old_"</span>)] </span>
+<span id="cb7-16"><a href="#cb7-16"></a></span>
+<span id="cb7-17"><a href="#cb7-17"></a>  <span class="co"># create file_path for the most recent file</span></span>
+<span id="cb7-18"><a href="#cb7-18"></a>  file_name <span class="ot">=</span> <span class="fu">sort</span>(files, <span class="at">decreasing =</span> <span class="cn">TRUE</span>, <span class="at">na.last =</span> <span class="cn">NA</span>)[<span class="dv">1</span>]</span>
+<span id="cb7-19"><a href="#cb7-19"></a>  file_path <span class="ot">=</span> <span class="fu">file.path</span>(location, file_name)</span>
+<span id="cb7-20"><a href="#cb7-20"></a></span>
+<span id="cb7-21"><a href="#cb7-21"></a>  <span class="fu">return</span>(<span class="fu">readRDS</span>(file_path))</span>
+<span id="cb7-22"><a href="#cb7-22"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="normalise-personal-names" class="level3">
-<h3 class="anchored" data-anchor-id="normalise-personal-names">Normalise personal names</h3>
-<p>Normalises name strings by transliterating Cyrillic to Latin, stripping accents, lowercasing, and trimming whitespace for robust matching.</p>
+</section>
+<section id="fload" class="level3">
+<h3 class="anchored" data-anchor-id="fload"><code>fload()</code></h3>
+<p><strong>Deprecated</strong>: Load an <code>.RData</code> file and return the loaded object.</p>
+<section id="arguments-7" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-7">Arguments</h4>
+<p><strong><code>filename</code></strong></p>
+<blockquote class="blockquote">
+<p>Character string giving the path to a <code>.RData</code> file.</p>
+</blockquote>
+</section>
+<section id="method-7" class="level4">
+<h4 class="anchored" data-anchor-id="method-7">Method</h4>
+<p>The function calls <code>load(filename)</code>, which loads one or more objects into the current environment. It then identifies the name of the loaded object by taking all objects in the environment except <code>"filename"</code> and uses <code>get()</code> to retrieve that object and return it. This avoids leaving the caller to search the environment for the object name; instead, <code>fload()</code> directly returns the loaded object. It assumes that the <code>.RData</code> file contains a single relevant object.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>normalize_name <span class="ot">=</span> <span class="cf">function</span>(x) {</span>
-<span id="cb8-2"><a href="#cb8-2"></a>  x <span class="ot">=</span> <span class="fu">as.character</span>(x)</span>
-<span id="cb8-3"><a href="#cb8-3"></a></span>
-<span id="cb8-4"><a href="#cb8-4"></a>  <span class="co"># mark Cyrillic</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a>  has_cyr <span class="ot">=</span> stringi<span class="sc">::</span><span class="fu">stri_detect_charclass</span>(x, <span class="st">"</span><span class="sc">\\</span><span class="st">p{Script=Cyrillic}"</span>)</span>
-<span id="cb8-6"><a href="#cb8-6"></a></span>
-<span id="cb8-7"><a href="#cb8-7"></a>  <span class="co"># transliterate only Cyrillic -&gt; Latin</span></span>
-<span id="cb8-8"><a href="#cb8-8"></a>  x[has_cyr] <span class="ot">=</span> stringi<span class="sc">::</span><span class="fu">stri_trans_general</span>(x[has_cyr], <span class="st">"Cyrillic-Latin"</span>)</span>
-<span id="cb8-9"><a href="#cb8-9"></a></span>
-<span id="cb8-10"><a href="#cb8-10"></a>  <span class="co"># strip accents for all, lowercase, trim, squish</span></span>
-<span id="cb8-11"><a href="#cb8-11"></a>  x <span class="ot">=</span> stringi<span class="sc">::</span><span class="fu">stri_trans_general</span>(x, <span class="st">"Latin-ASCII"</span>)</span>
-<span id="cb8-12"><a href="#cb8-12"></a>  x <span class="ot">=</span> <span class="fu">tolower</span>(x)</span>
-<span id="cb8-13"><a href="#cb8-13"></a>  x <span class="ot">=</span> <span class="fu">str_squish</span>(x)</span>
-<span id="cb8-14"><a href="#cb8-14"></a>  <span class="fu">trimws</span>(x)</span>
-<span id="cb8-15"><a href="#cb8-15"></a>}</span>
-<span id="cb8-16"><a href="#cb8-16"></a><span class="co"># colorize &lt;- function(x, color) {sprintf("&lt;span style='color: %s;'&gt;%s&lt;/span&gt;", color, x) }</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>fload <span class="ot">&lt;-</span> <span class="cf">function</span>(filename) {</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  lifecycle<span class="sc">::</span><span class="fu">deprecate_warn</span>(</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="at">when =</span> <span class="st">"2025-11-18"</span>,</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="at">what =</span> <span class="st">"fload()"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5"></a>    <span class="at">details =</span> <span class="fu">paste0</span>(<span class="st">"Use freadRDS instead"</span>)</span>
+<span id="cb8-6"><a href="#cb8-6"></a>  )</span>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">message</span>(</span>
+<span id="cb8-8"><a href="#cb8-8"></a>    <span class="st">"⚠️ fload() is deprecated. Use freadRDS calls instead."</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a>  )</span>
+<span id="cb8-10"><a href="#cb8-10"></a></span>
+<span id="cb8-11"><a href="#cb8-11"></a>  <span class="fu">load</span>(filename)</span>
+<span id="cb8-12"><a href="#cb8-12"></a>  <span class="fu">get</span>(<span class="fu">ls</span>()[<span class="fu">ls</span>() <span class="sc">!=</span> <span class="st">"filename"</span>])</span>
+<span id="cb8-13"><a href="#cb8-13"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="check-whether-code-should-be-evaluated-quarto-param" class="level3">
-<h3 class="anchored" data-anchor-id="check-whether-code-should-be-evaluated-quarto-param">Check whether code should be evaluated (Quarto param)</h3>
-<p>Utility to check a <code>params$eval</code> (or <code>param$eval</code>) flag safely. Returns <code>TRUE/FALSE</code> depending on the parameter, and <code>FALSE</code> if the parameter is missing.</p>
+</section>
+<section id="normalize_name" class="level3">
+<h3 class="anchored" data-anchor-id="normalize_name"><code>normalize_name()</code></h3>
+<p>Normalize personal names for robust matching across scripts and spellings.</p>
+<section id="arguments-8" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-8">Arguments</h4>
+<p><strong><code>x</code></strong></p>
+<blockquote class="blockquote">
+<p>Character vector (or coercible to character) containing raw name strings.</p>
+</blockquote>
+</section>
+<section id="method-8" class="level4">
+<h4 class="anchored" data-anchor-id="method-8">Method</h4>
+<p>The function coerces <code>x</code> to character and uses <code>stringi::stri_detect_charclass()</code> to detect elements containing Cyrillic characters. For those elements only, it transliterates Cyrillic to Latin script via <code>stringi::stri_trans_general(..., "Cyrillic-Latin")</code>. Next, it strips accents and diacritics from all elements using <code>stringi::stri_trans_general(..., "Latin-ASCII")</code>, converts everything to lowercase, collapses multiple spaces into a single space with <code>str_squish()</code>, and trims leading/trailing whitespace via <code>trimws()</code>. The result is a normalized, ASCII-only, lowercase representation of names that is well-suited for string matching, distance calculations, and cross-language comparisons.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>eval_ok <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">isTRUE</span>(params<span class="sc">$</span>eval), <span class="at">error =</span> <span class="cf">function</span>(...) {</span>
-<span id="cb9-2"><a href="#cb9-2"></a>  <span class="fu">tryCatch</span>(<span class="fu">isTRUE</span>(param<span class="sc">$</span>eval), <span class="at">error =</span> <span class="cf">function</span>(...) <span class="cn">FALSE</span>)</span>
-<span id="cb9-3"><a href="#cb9-3"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>normalize_name <span class="ot">=</span> <span class="cf">function</span>(x) {</span>
+<span id="cb9-2"><a href="#cb9-2"></a>  x <span class="ot">=</span> <span class="fu">as.character</span>(x)</span>
+<span id="cb9-3"><a href="#cb9-3"></a></span>
+<span id="cb9-4"><a href="#cb9-4"></a>  <span class="co"># mark Cyrillic</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a>  has_cyr <span class="ot">=</span> stringi<span class="sc">::</span><span class="fu">stri_detect_charclass</span>(x, <span class="st">"</span><span class="sc">\\</span><span class="st">p{Script=Cyrillic}"</span>)</span>
+<span id="cb9-6"><a href="#cb9-6"></a></span>
+<span id="cb9-7"><a href="#cb9-7"></a>  <span class="co"># transliterate only Cyrillic -&gt; Latin</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a>  x[has_cyr] <span class="ot">=</span> stringi<span class="sc">::</span><span class="fu">stri_trans_general</span>(x[has_cyr], <span class="st">"Cyrillic-Latin"</span>)</span>
+<span id="cb9-9"><a href="#cb9-9"></a></span>
+<span id="cb9-10"><a href="#cb9-10"></a>  <span class="co"># strip accents for all, lowercase, trim, squish</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a>  x <span class="ot">=</span> stringi<span class="sc">::</span><span class="fu">stri_trans_general</span>(x, <span class="st">"Latin-ASCII"</span>)</span>
+<span id="cb9-12"><a href="#cb9-12"></a>  x <span class="ot">=</span> <span class="fu">tolower</span>(x)</span>
+<span id="cb9-13"><a href="#cb9-13"></a>  x <span class="ot">=</span> <span class="fu">str_squish</span>(x)</span>
+<span id="cb9-14"><a href="#cb9-14"></a>  <span class="fu">trimws</span>(x)</span>
+<span id="cb9-15"><a href="#cb9-15"></a>}</span>
+<span id="cb9-16"><a href="#cb9-16"></a><span class="co"># colorize &lt;- function(x, color) {sprintf("&lt;span style='color: %s;'&gt;%s&lt;/span&gt;", color, x) }</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="eval_ok" class="level3">
+<h3 class="anchored" data-anchor-id="eval_ok"><code>eval_ok()</code></h3>
+<p>Check whether Quarto parameters allow code evaluation.</p>
+<section id="arguments-9" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-9">Arguments</h4>
+<p><em>(none)</em></p>
+<blockquote class="blockquote">
+<p>This expression does not take arguments; it evaluates Quarto parameter objects in the surrounding environment.</p>
+</blockquote>
+</section>
+<section id="method-9" class="level4">
+<h4 class="anchored" data-anchor-id="method-9">Method</h4>
+<p>The object is defined via <code>tryCatch()</code> to safely inspect common Quarto parameter locations. It first attempts to evaluate <code>isTRUE(params$eval)</code>; if that fails (e.g., <code>params</code> is missing), it falls back to checking <code>isTRUE(param$eval)</code>. If both attempts error, it returns <code>FALSE</code>. The result is a single logical value that can be used to guard evaluation of expensive or external calls (e.g., API requests, scraping) depending on the document’s <code>params$eval</code>/<code>param$eval</code> setting.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>eval_ok <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">isTRUE</span>(params<span class="sc">$</span>eval), <span class="at">error =</span> <span class="cf">function</span>(...) {</span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">tryCatch</span>(<span class="fu">isTRUE</span>(param<span class="sc">$</span>eval), <span class="at">error =</span> <span class="cf">function</span>(...) <span class="cn">FALSE</span>)</span>
+<span id="cb10-3"><a href="#cb10-3"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 
+</section>
 </section>
 </section>
 

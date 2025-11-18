@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-15">
+<meta name="dcterms.date" content="2025-11-18">
 
 <title>Data Processing Names – Networks</title>
 <style>
@@ -78,9 +78,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-0f71862d4ab2d6bf69af2cc5f197282f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-80f7ee4e9ac38045aedc42db364c4724.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-0f71862d4ab2d6bf69af2cc5f197282f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-30d20b82645cd210f386addab4f6448d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-8bc95915644b09e823dba8822d382726.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-30d20b82645cd210f386addab4f6448d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -388,12 +388,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
   <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a>
   <ul class="collapse">
-  <li><a href="#parse-names" id="toc-parse-names" class="nav-link" data-scroll-target="#parse-names">Parse Names</a></li>
-  <li><a href="#extract-initials" id="toc-extract-initials" class="nav-link" data-scroll-target="#extract-initials">Extract Initials</a></li>
-  <li><a href="#patch-names" id="toc-patch-names" class="nav-link" data-scroll-target="#patch-names">Patch Names</a></li>
-  <li><a href="#extract-maiden-name" id="toc-extract-maiden-name" class="nav-link" data-scroll-target="#extract-maiden-name">Extract Maiden Name</a></li>
-  <li><a href="#format-names" id="toc-format-names" class="nav-link" data-scroll-target="#format-names">Format names</a></li>
-  <li><a href="#add-unique-identifier" id="toc-add-unique-identifier" class="nav-link" data-scroll-target="#add-unique-identifier">Add unique identifier</a></li>
+  <li><a href="#parse_names" id="toc-parse_names" class="nav-link" data-scroll-target="#parse_names"><code>parse_names()</code></a></li>
+  <li><a href="#extract_initials" id="toc-extract_initials" class="nav-link" data-scroll-target="#extract_initials"><code>extract_initials()</code></a></li>
+  <li><a href="#patch_names" id="toc-patch_names" class="nav-link" data-scroll-target="#patch_names"><code>patch_names()</code></a></li>
+  <li><a href="#extract_maiden_name" id="toc-extract_maiden_name" class="nav-link" data-scroll-target="#extract_maiden_name"><code>extract_maiden_name()</code></a></li>
+  <li><a href="#format_names" id="toc-format_names" class="nav-link" data-scroll-target="#format_names"><code>format_names()</code></a></li>
+  <li><a href="#add_uid" id="toc-add_uid" class="nav-link" data-scroll-target="#add_uid"><code>add_uid()</code></a></li>
   </ul></li>
   <li><a href="#application" id="toc-application" class="nav-link" data-scroll-target="#application">Application</a></li>
   </ul>
@@ -416,7 +416,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 15, 2025</p>
+      <p class="date">November 18, 2025</p>
     </div>
   </div>
   
@@ -431,9 +431,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="getting-started" class="level2">
 <h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># clear the global environment</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">gc</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># load custom functions</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co"># clear the global environment and set dependencies</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="fu">.clear_global_environment</span>()</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="fu">.load_quarto_dependencies</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># load and activate packages</span></span>
@@ -442,19 +445,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-4"><a href="#cb2-4"></a><span class="fu">library</span>(stringr)</span>
 <span id="cb2-5"><a href="#cb2-5"></a><span class="fu">library</span>(lubridate)</span>
 <span id="cb2-6"><a href="#cb2-6"></a><span class="fu">library</span>(stringi)</span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="fu">library</span>(sqids)</span>
-<span id="cb2-8"><a href="#cb2-8"></a></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="co"># load custom functions</span></span>
-<span id="cb2-10"><a href="#cb2-10"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="fu">.load_quarto_dependencies</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="fu">library</span>(sqids)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="functions" class="level2">
 <h2 class="anchored" data-anchor-id="functions">Functions</h2>
-<section id="parse-names" class="level3">
-<h3 class="anchored" data-anchor-id="parse-names">Parse Names</h3>
-<p><strong><code>parse_names()</code></strong> — split full names into given name(s), surname particle, and surname</p>
-<p>This function takes a data frame with a column <code>naam</code> (full name as a single string) and returns a tibble with columns <code>naam, first_name, particle, and last_name</code>. It recognizes multi-word surname particles common in Dutch/German/Romance names (e.g., <em>van, van der, ’t, von der, de la, del, di, da, zu, op de</em>). For matching, it normalizes whitespace, unifies curly/straight apostrophes, lowercases, and transliterates diacritics to ASCII; the <strong>longest</strong> particle immediately before the final token (up to 3 words) is selected. The detected particle is returned in lowercase; first_name contains all tokens before the particle (or before the last token if none). If no particle is present, particle = NA. Single-token names are returned with that token as both first_name and last_name.</p>
+<section id="parse_names" class="level3">
+<h3 class="anchored" data-anchor-id="parse_names"><code>parse_names()</code></h3>
+<p>Split full names into given name(s), surname particle, and surname.</p>
+<section id="arguments" class="level4">
+<h4 class="anchored" data-anchor-id="arguments">Arguments</h4>
+<p><strong><code>names</code></strong></p>
+<blockquote class="blockquote">
+<p>Tibble or data frame containing a column <code>naam</code> with full names stored as a single string.</p>
+</blockquote>
+</section>
+<section id="method" class="level4">
+<h4 class="anchored" data-anchor-id="method">Method</h4>
+<p>The function defines a set of common surname particles (e.g., <code>van</code>, <code>van der</code>, <code>de la</code>, <code>von der</code>, <code>op de</code>) and a helper <code>.normalize()</code> that trims whitespace, unifies apostrophes, lowercases, and transliterates characters to ASCII. For each <code>naam</code>, it splits the name into tokens, normalizes them, and searches immediately before the final token for the <strong>longest matching particle</strong> of length 1–3 tokens. Using the detected particle position, it constructs <code>first_name</code> (all tokens before the particle, or before the last token if there is no particle), <code>particle</code> (the matched particle, returned in lowercase), and <code>last_name</code> (the final token). Single-token names are treated as both <code>first_name</code> and <code>last_name</code>. The function returns a tibble with <code>naam</code>, <code>first_name</code>, <code>particle</code>, and <code>last_name</code>.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>parse_names <span class="ot">=</span> <span class="cf">function</span>(names){</span>
 <span id="cb3-2"><a href="#cb3-2"></a>  particles <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
@@ -528,11 +536,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-70"><a href="#cb3-70"></a>    <span class="fu">select</span>(naam, first_name, particle, last_name)</span>
 <span id="cb3-71"><a href="#cb3-71"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<hr>
 </section>
-<section id="extract-initials" class="level3">
-<h3 class="anchored" data-anchor-id="extract-initials">Extract Initials</h3>
-<p><strong><code>extract_initials()</code></strong> — detect leading initials and store them in initials</p>
-<p>This function scans the start of the naam string for compact initials and writes them to a new column <code>initials</code>. It recognizes one- or two-letter uppercase blocks followed by a dot, repeated (e.g., J., J.F., A.B.), with optional hyphenated blocks (e.g., J.-P., J.F.-K.). A match is only made when these initials are immediately followed by whitespace. If initials are found, the existing first_name is set to NA (so we don’t misclassify initials as given names). Finally, initials is relocated to sit right after <code>naam</code>.</p>
+</section>
+<section id="extract_initials" class="level3">
+<h3 class="anchored" data-anchor-id="extract_initials"><code>extract_initials()</code></h3>
+<p>Detect leading initials in <code>naam</code> and store them in a separate <code>initials</code> column.</p>
+<section id="arguments-1" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-1">Arguments</h4>
+<p><strong><code>names</code></strong></p>
+<blockquote class="blockquote">
+<p>Tibble or data frame containing at least <code>naam</code> and <code>first_name</code> columns.</p>
+</blockquote>
+</section>
+<section id="method-1" class="level4">
+<h4 class="anchored" data-anchor-id="method-1">Method</h4>
+<p>The function uses a regular expression to detect compact leading initials at the start of <code>naam</code>, such as <code>J.</code>, <code>J.F.</code>, <code>A.B.</code>, or hyphenated variants like <code>J.-P.</code> or <code>J.F.-K.</code>. A match is only made when these initials are followed by whitespace, ensuring that only true initials are captured. The extracted string is stored in a new column <code>initials</code>. When initials are found, <code>first_name</code> is set to <code>NA</code> to avoid misclassifying initials as given names. Finally, the <code>initials</code> column is relocated to sit immediately after <code>naam</code>, leaving the rest of the structure unchanged.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>extract_initials <span class="ot">=</span> <span class="cf">function</span>(names){</span>
 <span id="cb4-2"><a href="#cb4-2"></a>  names <span class="sc">|&gt;</span></span>
@@ -545,11 +564,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-9"><a href="#cb4-9"></a>    <span class="fu">relocate</span>(initials, <span class="at">.after=</span>naam)</span>
 <span id="cb4-10"><a href="#cb4-10"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<hr>
 </section>
-<section id="patch-names" class="level3">
-<h3 class="anchored" data-anchor-id="patch-names">Patch Names</h3>
-<p><strong><code>patch_names()</code></strong> — apply manual corrections to name fields by key (naam)</p>
-<p>This function loads a table of curated fixes and updates matching rows in names using <code>dplyr::rows_update()</code>. For each value of naam that appears in the corrections file, overlapping columns (e.g., <code>first_name, particle, last_name, initials</code>, etc.) are overwritten with the corrected values. Rows without a match are left unchanged; no new rows are added and the original row order is preserved.</p>
+</section>
+<section id="patch_names" class="level3">
+<h3 class="anchored" data-anchor-id="patch_names"><code>patch_names()</code></h3>
+<p>Apply curated manual corrections to name fields by matching on <code>naam</code>.</p>
+<section id="arguments-2" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-2">Arguments</h4>
+<p><strong><code>names</code></strong></p>
+<blockquote class="blockquote">
+<p>Tibble or data frame with a <code>naam</code> column and corresponding name components (e.g., <code>first_name</code>, <code>particle</code>, <code>last_name</code>, <code>initials</code>) that may require correction.</p>
+</blockquote>
+</section>
+<section id="method-2" class="level4">
+<h4 class="anchored" data-anchor-id="method-2">Method</h4>
+<p>The function reads a pre-compiled corrections table from <code>data/utils/name_corrections.Rds</code>. This table contains corrected values for specific <code>naam</code> entries and overlapping columns (such as <code>first_name</code>, <code>particle</code>, <code>last_name</code>, <code>initials</code>, etc.). Using <code>dplyr::rows_update()</code> with <code>by = "naam"</code> and <code>unmatched = "ignore"</code>, it overwrites the relevant columns in <code>names</code> wherever a matching <code>naam</code> is found, while leaving non-matching rows unchanged. No new rows are created and the original order of <code>names</code> is preserved. The result is a version of <code>names</code> where known problematic cases have been fixed using curated corrections.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>patch_names <span class="ot">=</span> <span class="cf">function</span>(names){</span>
 <span id="cb5-2"><a href="#cb5-2"></a>  <span class="co"># read in dataset with corrections for name information</span></span>
@@ -568,11 +598,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<hr>
 </section>
-<section id="extract-maiden-name" class="level3">
-<h3 class="anchored" data-anchor-id="extract-maiden-name">Extract Maiden Name</h3>
-<p><strong><code>extract_maiden_name()</code></strong> — split hyphenated surnames into last_name and maiden_name</p>
-<p>This function looks for a hyphen (-) in the <code>last_name</code> column and, when present, assigns the part <strong>before</strong> the first hyphen back to last_name and the part <strong>after</strong> it to a new column maiden_name. If no second part exists (i.e., no hyphen), <code>maiden_name</code> is set to <code>NA</code>. All other columns are left unchanged.</p>
+</section>
+<section id="extract_maiden_name" class="level3">
+<h3 class="anchored" data-anchor-id="extract_maiden_name"><code>extract_maiden_name()</code></h3>
+<p>Split hyphenated surnames into <code>last_name</code> and <code>maiden_name</code>.</p>
+<section id="arguments-3" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-3">Arguments</h4>
+<p><strong><code>names</code></strong></p>
+<blockquote class="blockquote">
+<p>Tibble or data frame containing a <code>last_name</code> column with surnames, some of which may be hyphenated (e.g., <code>"Jansen-Smits"</code>).</p>
+</blockquote>
+</section>
+<section id="method-3" class="level4">
+<h4 class="anchored" data-anchor-id="method-3">Method</h4>
+<p>The function splits each <code>last_name</code> on the first hyphen using <code>str_split(..., simplify = TRUE)</code>. The part before the hyphen is written back to <code>last_name</code>, and the part after the hyphen is stored in a new column <code>maiden_name</code>. When no second part exists (i.e., no hyphen in the surname), <code>maiden_name</code> is set to <code>NA_character_</code>. All other columns in <code>names</code> are left unchanged. The updated data frame, now carrying both <code>last_name</code> and <code>maiden_name</code>, is returned.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>extract_maiden_name <span class="ot">=</span> <span class="cf">function</span>(names){</span>
 <span id="cb7-2"><a href="#cb7-2"></a>  <span class="co"># split last names</span></span>
@@ -589,11 +630,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-13"><a href="#cb7-13"></a>  <span class="fu">return</span>(names)</span>
 <span id="cb7-14"><a href="#cb7-14"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<hr>
 </section>
-<section id="format-names" class="level3">
-<h3 class="anchored" data-anchor-id="format-names">Format names</h3>
-<p><strong><code>format_names()</code></strong> — normalize characters, standardize case, and build composite name fields</p>
-<p>This function harmonizes name components and constructs two cleaned display fields. It transliterates diacritics to ASCII for <code>initials</code>, <code>first_name</code>, <code>particle</code>, <code>last_name</code>, and <code>maiden_name</code> (using ICU via <code>stri_trans_general()</code>), lowercases particle, and then: 1. creates <code>clean_name</code> by uniting <code>initials:last_name</code> with spaces while skipping missing parts; 2. creates <code>clean_name_full</code> by appending <code>maiden_name</code> to <code>clean_name</code> with a hyphen (skipping if maiden_name is NA); 3. when both <code>initials</code> and <code>first_name</code> are present, removes the leading “initials” from both clean_name and <code>clean_name_full</code> to avoid duplication; 4. drops temporary helper columns.</p>
+</section>
+<section id="format_names" class="level3">
+<h3 class="anchored" data-anchor-id="format_names"><code>format_names()</code></h3>
+<p>Normalize characters, standardize case, and construct cleaned composite name fields.</p>
+<section id="arguments-4" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-4">Arguments</h4>
+<p><strong><code>data</code></strong></p>
+<blockquote class="blockquote">
+<p>Tibble or data frame containing at least <code>initials</code>, <code>first_name</code>, <code>particle</code>, <code>last_name</code>, and optionally <code>maiden_name</code>.</p>
+</blockquote>
+</section>
+<section id="method-4" class="level4">
+<h4 class="anchored" data-anchor-id="method-4">Method</h4>
+<p>The function first transliterates diacritics to ASCII for <code>initials</code>, <code>first_name</code>, <code>particle</code>, <code>last_name</code>, and <code>maiden_name</code> using <code>stri_trans_general("Latin-ASCII")</code>. The <code>particle</code> is additionally forced to lowercase. It then creates two composite display fields:<br>
+1. <code>clean_name</code> by uniting <code>initials:last_name</code> into a single string, skipping missing parts and using spaces as separators;<br>
+2. <code>clean_name_full</code> by appending <code>maiden_name</code> to <code>clean_name</code> with a hyphen, again skipping missing values.</p>
+<p>Because some names may contain both <code>initials</code> and <code>first_name</code>, the function removes the leading <code>"initials "</code> from both <code>clean_name</code> and <code>clean_name_full</code> to avoid duplication (e.g., <code>"J. Jan Jansen"</code> becomes <code>"Jan Jansen"</code>). This is done via temporary helper columns <code>temp</code> and <code>temp_full</code>, which are then used to conditionally overwrite the clean name fields and subsequently removed. The function returns the input data with two additional harmonized name display columns: <code>clean_name</code> and <code>clean_name_full</code>.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>format_names <span class="ot">=</span> <span class="cf">function</span>(data){</span>
 <span id="cb8-2"><a href="#cb8-2"></a>  data <span class="sc">|&gt;</span></span>
@@ -626,11 +681,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-29"><a href="#cb8-29"></a>    </span>
 <span id="cb8-30"><a href="#cb8-30"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<hr>
 </section>
-<section id="add-unique-identifier" class="level3">
-<h3 class="anchored" data-anchor-id="add-unique-identifier">Add unique identifier</h3>
-<p><strong><code>add_uid()</code></strong> — generate short unique IDs for each clean_name and attach them</p>
-<p>This function creates a lookup table that maps every distinct clean_name to a short, URL-safe identifier uid using sqids. IDs are generated by encoding the sequence <code>i * 25</code> (for <code>i = 1..n</code>) with <code>sqids::encode()</code> and a minimum length of 10 characters, then joined back to the data and placed as the first column. The lookup is also saved to disk for external reuse.</p>
+</section>
+<section id="add_uid" class="level3">
+<h3 class="anchored" data-anchor-id="add_uid"><code>add_uid()</code></h3>
+<p>Generate short unique identifiers for each <code>clean_name</code> and attach them as <code>uid</code>.</p>
+<section id="arguments-5" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-5">Arguments</h4>
+<p><strong><code>names</code></strong></p>
+<blockquote class="blockquote">
+<p>Tibble or data frame containing a <code>clean_name</code> column with standardized name strings.</p>
+</blockquote>
+</section>
+<section id="method-5" class="level4">
+<h4 class="anchored" data-anchor-id="method-5">Method</h4>
+<p>The function first configures sqids with a minimum length of 10 characters and extracts the set of unique <code>clean_name</code> values. For each distinct <code>clean_name</code>, it generates a deterministic numeric sequence <code>i * 25</code> (for <code>i = 1..n</code>) and encodes this number into a short, URL-safe string <code>uid</code> using <code>sqids::encode()</code>. These are collected into a lookup tibble with columns <code>clean_name</code> and <code>uid</code>, which is saved to <code>data/utils/uid_key.Rds</code> for reuse outside this script. The original <code>names</code> data is then left-joined with the lookup on <code>clean_name</code>, and the resulting <code>uid</code> column is relocated to the first position. The function returns the input data augmented with a stable, compact identifier per unique name.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>add_uid <span class="ot">=</span> <span class="cf">function</span>(names){</span>
 <span id="cb9-2"><a href="#cb9-2"></a>  <span class="co"># configure sqids</span></span>
@@ -656,6 +722,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-22"><a href="#cb9-22"></a>    <span class="fu">relocate</span>(uid, <span class="at">.before=</span><span class="dv">1</span>)</span>
 <span id="cb9-23"><a href="#cb9-23"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
 </section>
 </section>
 <section id="application" class="level2">

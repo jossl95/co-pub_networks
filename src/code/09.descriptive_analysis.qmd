@@ -17,9 +17,12 @@ format:
 ```{r}
 #| warning: false
 #| output: false
-# clear the global environment
-rm(list = ls())
-gc()
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
 ```
 
 ```{r}
@@ -30,14 +33,9 @@ gc()
 library(tidyverse)
 library(tidyplots)
 
-# load custom functions 
-source("src/utils/custom_functions.r")
-.load_quarto_dependencies()
-
+# set global options
 options(knitr.graphics.fig.width = 25)
-tidyplots_options(
-  unit = "cm"
-)
+tidyplots_options(unit = "cm")
 ```
 
 ## Application
