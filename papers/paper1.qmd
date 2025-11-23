@@ -33,6 +33,9 @@ author:
 
 date: today
 
+excluded:
+  - paper1/_archive
+
 # keywords: 
 #   - Academic Collaboration
 #   - Science of Science
@@ -42,6 +45,7 @@ date: today
 ---
 
 {{< include paper1/introduction.qmd >}}
+{{< include paper1/methods.qmd >}}
 
 ## References {.unnumbered}
 
