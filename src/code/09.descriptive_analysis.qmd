@@ -23,392 +23,214 @@ source("src/utils/custom_functions.r")
 # clear the global environment and set dependencies
 .clear_global_environment()
 .load_quarto_dependencies()
-```
-
-```{r}
-#| warning: false
-#| output: false
 
 # load and activate packages
 library(tidyverse)
-library(tidyplots)
+library(igraph)
+library(Matrix)
+library(psych)
+library(visNetwork)
+```
 
-# set global options
-options(knitr.graphics.fig.width = 25)
-tidyplots_options(unit = "cm")
+```{r}
+filter_valid_publication_types = function(data){
+  # define list of valid data types
+  valid_publication_types <- c(
+    'article', 'book', 'book-chapter', 'dissertation', 
+    'editorial', 'report', 'review',
+    # optional, to consider:
+    'erratum', 'letter', 'other', 'preprint'
+  )
+
+  # using `purrr` function mapping to select valid types in list of dfs
+  data[["works"]] <- data[["works"]] |>
+    map(~ {
+      # skip elements that are not data frames / tibbles
+      if (is.null(.x) || !is.data.frame(.x)) {
+        return(.x)
+      }
+      
+      # if there is no `type` column, just return as-is
+      if (!"type" %in% names(.x)) {
+        return(.x)
+      }
+      
+      filter(.x, type %in% valid_publication_types)
+    })
+
+  # filter edge_list
+  data[["edge_table"]] <- data[["edge_table"]] |>
+    filter(type %in% valid_publication_types)
+
+  return(data)
+}
+```
+
+```{r}
+coalesce_scholar_data = function(data){
+  # define priority list
+  priority <- c("UVA","EUR","RUG","VU","Leiden","RU","UU","Tilburg")
+
+  # coalesce and harmonize position and university
+  data[['demographics']] <- data[['demographics']] %>%
+    mutate(
+      position = coalesce(!!!select(., starts_with("position_"))),
+      university = coalesce(!!!select(., starts_with("university_")))
+    ) |>
+    mutate(
+      s = str_to_lower(str_squish(university)),
+      university = case_when(
+        str_detect(s, "\\brug\\b|groningen") ~ "RUG",
+        str_detect(s, "\\bvu\\b|vrij\\s*e?\\s*universiteit") ~ "VU",
+        str_detect(s, "\\buva\\b|universiteit van amsterdam|univ(?:ersity)? of amsterdam") ~ "UVA",
+        str_detect(s, "\\beur\\b|erasmus") ~ "EUR",
+        str_detect(s, "\\bleiden\\b") ~ "LU",
+        str_detect(s, "\\bru\\b|radboud") ~ "RU",
+        str_detect(s, "\\buu\\b|utrecht") ~ "UU",
+        str_detect(s, "\\buvt\\b|universiteit tilburg|\\btilburg\\b") ~ "TU",
+        TRUE ~ NA_character_
+      )
+    )
+    
+  return(data) 
+}
+```
+
+```{r}
+limit_observation_period = function(data, start_date = "2019-01-01"){
+  data[['edge_table']] = data[['edge_table']] |>
+    filter(publication_date > ymd(start_date))
+
+  return(data)
+}
+```
+
+```{r}
+build_matrices <- function(data, 
+                           directed_type = NULL, sign_incidence = TRUE, exclude_isolates = TRUE, exclude_edge_with_self=TRUE) {
+  stopifnot("uid" %in% colnames(data[['demographics']]))
+  stopifnot(all(c("uid", "a__uid") %in% colnames(data[['edge_table']])))
+
+  # 1) create list of node uids
+  N_uids <- data[['demographics']] |> distinct(uid) |> pull()
+
+  # 2)clean edges
+  E <- data[['edge_table']] |>
+    mutate(uid = as.character(uid), a__uid = as.character(a__uid)) |>
+    filter(uid %in% N_uids, a__uid %in% N_uids) |>
+    relocate(a__uid, .after = uid)
+
+  is_directed <- if(!is.null(directed_type)) TRUE else FALSE
+
+  E = if(exclude_edge_with_self) E |> filter(uid != a__uid) else E
+  E = if(is_directed) E |> filter(!(a__author_position == directed_type)) else E
+
+  N_uids <- E |> distinct(uid) |> pull()
+
+  # 3) build graph from edge table
+  g <- graph_from_data_frame(
+      E,
+      directed = !is_directed,
+      # vertices = tibble(name = N_uids)
+    )
+
+  # (optional) excludes isolates
+  if (exclude_isolates) {
+      deg <- degree(g, mode = if (is_directed) "all" else "total")
+      g   <- induced_subgraph(g, vids = which(deg > 0))
+    }
+
+  N_uids <- igraph::V(g)$name
+  n      <- length(N_uids)
+
+  # 4) adjacency matrix
+  A <- igraph::as_adjacency_matrix(g, sparse = TRUE)
+  if (!is_directed) A <- Matrix::forceSymmetric(A, uplo = "U")
+
+  # 5) incidence matrix
+  el <- igraph::as_data_frame(g, what = "edges")
+  m  <- nrow(el)
+
+  if (m == 0L) {
+    B <- sparseMatrix(
+      i = integer(), j = integer(), x = numeric(),
+      dims     = c(n, 0),
+      dimnames = list(N_uids, character())
+    )
+  } else {
+    tail_idx <- match(el$from, N_uids)
+    head_idx <- match(el$to,   N_uids)
+
+    vals <- if (is_directed && sign_incidence) {
+      c(rep(-1, m), rep(+1, m))
+    } else {
+      rep(1, 2L * m)
+    }
+
+    B <- sparseMatrix(
+      i        = c(tail_idx, head_idx),
+      j        = rep(seq_len(m), each = 2L),
+      x        = vals,
+      dims     = c(n, m),
+      dimnames = list(N_uids, paste0("e", seq_len(m)))
+    )
+  }
+
+  # 6) ego × alter counts (still counts of edges in raw Eclean)
+  E2 <- E |>
+    filter(uid %in% N_uids, a__uid %in% N_uids) |>
+    mutate(
+      uid    = factor(uid,    levels = N_uids),
+      a__uid = factor(a__uid, levels = N_uids)
+    )
+
+  E_mat <- if (nrow(E2) == 0L) {
+    Matrix::Matrix(
+      0,
+      nrow = n, ncol = n,
+      dimnames = list(N_uids, N_uids),
+      sparse   = TRUE
+    )
+  } else {
+    Matrix::Matrix(
+      stats::xtabs(~ uid + a__uid, E2),
+      sparse = TRUE
+    )
+  }
+
+  E = E2 |> distinct(uid, a__uid, .keep_all = TRUE)
+
+  # 7) filter demographics to nodes kept
+  D = data[['demographics']] |> filter(uid %in% N_uids)
+
+  return(list(
+    graph = g,
+    A     = A,
+    B     = B,
+    D     = D,
+    E     = E,
+    E_mat = E_mat
+  ))
+}
 ```
 
 ## Application
 
-
 ```{r}
-data = freadRDS2(file="scholars", location = "clean")
-```
-
-
-### Number of publications
-
-To check the data quality of OpenAlex entries I inspect the number of
-publications per year. This is a crude but common used strategy to assess the
-completeness of repositories such as OpenAlex.
-
-```{r}
-#| warning: false
-#| fig.width: 9.99
-
-works = data[['works']] |>
-  bind_rows() |>
-  distinct(work_id, .keep_all = TRUE) 
-  
-works_count = works |>
-  group_by(publication_year, type) |>
-  summarise(n = n()) |>
-  ungroup() |>
-  filter(publication_year >= 1960)
-
-works_count_plot = works_count |>
-  tidyplot(x = publication_year, y = n, color = type) |>
-  add_barstack_absolute() |>
-  adjust_size(width = 15, height = 7) |>
-  adjust_x_axis_title("Publication Year") |>
-  adjust_x_axis(limits = c(1960, 2026)) |>
-  adjust_y_axis_title("Number of publications") |>
-  adjust_legend_title("Publication Types")
-
-works_count_plot
-
-```
-
-
-In 2019 there is an unusual spike in the number of publication. This is
-predominantly driven by a couple of scholars publishing numerous datasets. Also,
-there are a number of publication types that might not constitute a valid type
-of publication. Therefore, I select only valid types and check the distribution
-of publications again.
-
-```{r}
-#| warning: false
-#| fig.width: 10.5
-valid_publication_types = c(
-  'article', 'book', 'book-chapter', 'dissertation', 
-  'editorial', 'report', 'review',
-  # optional, to consider:
-  'erratum', 'letter', 'other', 'preprint'
-)
-
-works_count_plot2 = works_count |>
-  filter(type %in% valid_publication_types)|>
-  tidyplot(x = publication_year, y = n, color = type) |>
-  add_barstack_absolute() |>
-  adjust_size(width = 15, height = 7) |>
-  adjust_x_axis_title("Publication Year") |>
-  adjust_x_axis(limits = c(1960, 2026)) |>
-  adjust_y_axis_title("Number of publications") |>
-  adjust_legend_title("Publication Types")
-
-works_count_plot2
-```
-
-### Number of scholars
-
-```{r}
-dems = data[['demographics']] 
-
-dems_long = dems |>
-  pivot_longer(
-    # only the repeated fields:
-    cols = matches("^(email|university|position|discipline)_\\d{2}$"),
-    # split into the base name (becomes columns) and the 2-digit year
-    names_to = c(".value", "year2"),
-    names_pattern = "^(.*)_(\\d{2})$",
-    values_drop_na = TRUE  # drop rows where all new values are NA
-  ) |>
-  mutate(year = as.integer(paste0("20", year2))) |>
-  select(-year2) |>
-  arrange(uid, year) |>
-  mutate(university = na_if(university, "")) |>
-  separate_rows(university, sep = "\\s*/\\s*")
-```
-
-
-```{r}
-dems_long = dems_long |>
-  mutate(
-    uni = str_to_lower(university),
-    university = case_when(
-        str_detect(uni, 'rug') ~ "University of Groningen",
-        str_detect(uni, 'ru') ~ "Radboud University",
-        str_detect(uni, '(uu|ucu)') ~ "Utrecht University",
-        str_detect(uni, 'uva') ~ "University of Amsterdam",
-        str_detect(uni, '(tilburg|uvt)') ~ "Tilburg University",
-        str_detect(uni, 'eur') ~ "Erasmus University Rotterdam",
-        str_detect(uni, 'leiden') ~ "Leiden University",
-        str_detect(uni, 'vu') ~ "Vrije Universiteit",
-        .default = NA_character_
-    )
-  )|>
-  filter(!is.na(university)) |>
-  select(-uni) |>
-  distinct(uid, university, discipline, year, .keep_all = TRUE)
-```
-
-
-```{r}
-#| warning: false
-#| fig.width: 10.5
-dems_long |>
-  group_by(university, discipline, year) |>
-  arrange(university, discipline, year) |>
-  summarise(n = n()) |>
-  filter(n > 5) |>
-  tidyplot(y = discipline, x = n, color = university) |>
-  add_barstack_absolute()  |>
-  adjust_size(width = 8, height = 3)|>
-  split_plot(by = year, ncol = 1)
-```
-
-## Network Statistics
-
-
-```{r}
-library(lubridate)
-library(igraph)
-library(Matrix)
-
-priority <- c("UVA","EUR","RUG","VU","Leiden","RU","UU","Tilburg")
-dems = dems %>%
-  mutate(
-    position = coalesce(!!!select(., starts_with("position_"))),
-    university = coalesce(!!!select(., starts_with("university_")))
-  ) |>
-  mutate(
-    s = str_to_lower(str_squish(university)),
-    university = case_when(
-      str_detect(s, "\\brug\\b|groningen") ~ "RUG",
-      str_detect(s, "\\bvu\\b|vrij\\s*e?\\s*universiteit") ~ "VU",
-      str_detect(s, "\\buva\\b|universiteit van amsterdam|univ(?:ersity)? of amsterdam") ~ "UVA",
-      str_detect(s, "\\beur\\b|erasmus") ~ "EUR",
-      str_detect(s, "\\bleiden\\b") ~ "LU",
-      str_detect(s, "\\bru\\b|radboud") ~ "RU",
-      str_detect(s, "\\buu\\b|utrecht") ~ "UU",
-      str_detect(s, "\\buvt\\b|universiteit tilburg|\\btilburg\\b") ~ "TU",
-      TRUE ~ NA_character_
-    )
-  )
-
-edge = data[['edge_table']] |>
-  filter(publication_date > ymd("2019-01-01"))
-```
-
-
-```{r}
-# deps
-library(dplyr)
-library(igraph)
-library(Matrix)
-
-build_matrices <- function(D, E, directed = FALSE, weighted = TRUE,
-                           sign_incidence = TRUE, exclude_isolates = FALSE) {
-  stopifnot("uid" %in% colnames(D))
-  stopifnot(all(c("uid", "a__uid") %in% colnames(E)))
-
-  # --- 1) Clean edges: only between known nodes, drop NAs & self-loops
-  nodes_vec <- unique(as.character(D$uid))
-  Eclean <- E %>%
-    transmute(uid = as.character(uid), a__uid = as.character(a__uid)) %>%
-    filter(!is.na(uid), !is.na(a__uid),
-           uid %in% nodes_vec, a__uid %in% nodes_vec,
-           uid != a__uid)
-
-  # --- 2) Aggregate parallel edges (counts -> weights if weighted)
-  Eagg <- if (weighted) {
-    Eclean %>% count(uid, a__uid, name = "weight")
-  } else {
-    Eclean %>% distinct(uid, a__uid) %>% mutate(weight = 1L)
-  }
-
-  # --- 3) Build graph (vertex order = nodes_vec)
-  g <- graph_from_data_frame(Eagg, directed = directed,
-                             vertices = tibble(name = nodes_vec))
-
-  # --- 4) Optionally drop isolates (no edges to others)
-  if (exclude_isolates) {
-    keep_vids <- which(degree(g, mode = if (directed) "all" else "total") > 0)
-    g <- induced_subgraph(g, vids = keep_vids)
-  }
-
-  # refresh node vector in case isolates were dropped
-  nodes_vec_keep <- V(g)$name
-  n <- length(nodes_vec_keep)
-
-  # --- 5) Adjacency (sparse)
-  A <- as_adjacency_matrix(
-    g,
-    attr   = if (weighted) "weight" else NULL,
-    sparse = TRUE
-  )
-  if (!directed) A <- forceSymmetric(A, uplo = "U")
-
-  # --- 6) Node × Edge incidence (sparse)
-  el <- as_data_frame(g, what = "edges")
-  m  <- nrow(el)
-
-  if (m == 0L) {
-    B <- sparseMatrix(i = integer(), j = integer(), x = numeric(),
-                      dims = c(n, 0), dimnames = list(nodes_vec_keep, character()))
-    edge_weight <- numeric(0)
-  } else {
-    tail_idx <- match(el$from, nodes_vec_keep)
-    head_idx <- match(el$to,   nodes_vec_keep)
-
-    row_idx <- c(tail_idx, head_idx)
-    col_idx <- rep(seq_len(m), each = 2L)
-
-    vals <- if (directed && sign_incidence) c(rep(-1, m), rep(+1, m)) else rep(1, 2L * m)
-
-    B <- sparseMatrix(
-      i = row_idx, j = col_idx, x = vals,
-      dims = c(n, m),
-      dimnames = list(nodes_vec_keep, paste0("e", seq_len(m)))
-    )
-    edge_weight <- if ("weight" %in% names(el)) el$weight else rep(1, m)
-  }
-
-  # --- 7) Ego × Alter rectangular counts (uid rows × a__uid cols), restricted to kept nodes
-  Eclean_keep <- Eclean %>%
-    filter(uid %in% nodes_vec_keep, a__uid %in% nodes_vec_keep)
-
-  if (nrow(Eclean_keep) == 0L) {
-    EgoAlter <- Matrix(0, nrow = n, ncol = n,
-                       dimnames = list(nodes_vec_keep, nodes_vec_keep), sparse = TRUE)
-  } else {
-    tbl <- xtabs(~ uid + a__uid, Eclean_keep)
-    # ensure full square ordering over nodes_vec_keep
-    EgoAlter <- Matrix(0, nrow = n, ncol = n,
-                       dimnames = list(nodes_vec_keep, nodes_vec_keep), sparse = TRUE)
-    EgoAlter[rownames(tbl), colnames(tbl)] <- Matrix(tbl, sparse = TRUE)
-  }
-
-  # --- 8) Slice D to non-isolates and return as D
-  D_out <- D %>% filter(as.character(uid) %in% nodes_vec_keep)
-
-  list(
-    graph        = g,
-    A            = A,            # adjacency (n × n)
-    B            = B,            # node–edge incidence (n × m)
-    D            = D_out,        # nodes tibble, non-isolates only (if exclude_isolates=TRUE)
-    edge_weight  = edge_weight,  # weights aligned to B's columns
-    EgoAlter     = EgoAlter      # uid × a__uid counts among kept nodes
-  )
-}
-```
-
-
-```{r}
-res <- build_matrices(dems, edge, directed = FALSE, weighted = TRUE, sign_incidence = TRUE, exclude_isolates = TRUE)
-
-A <- res$A          # adjacency (sparse Matrix)
-B <- res$B          # incidence (sparse Matrix)
-w <- res$edge_weight
-GA <- res$graph
-EA <- res$EgoAlter  # uid × a__uid rectangular matrix
-
-# Example: verify dimensions/names
-dim(A); dim(B); head(rownames(A)); head(colnames(B))
-```
-
-
-```{r}
-library(igraph)
-library(ggraph)
-library(ggplot2)
-library(dplyr)
-library(scales)
-
-# ---------------------------------------------------------------
-# 0) Helper: attach node attributes from D by uid
-# ---------------------------------------------------------------
-attach_node_attrs <- function(g, D, id_col = "uid") {
-  # ensure character ids
-  D <- D %>% mutate(!!id_col := as.character(.data[[id_col]]))
-  V(g)$name <- as.character(V(g)$name)
-
-  # align D to vertex order
-  idx  <- match(V(g)$name, D[[id_col]])
-  keep <- !is.na(idx)
-
-  # add every column in D (except id) as a vertex attribute
-  for (col in setdiff(names(D), id_col)) {
-    vals <- D[[col]][idx[keep]]
-
-    # coerce to simple atomic vectors (no tibbles/lists)
-    if (is.factor(vals)) vals <- as.character(vals)
-    if (is.list(vals)) {
-      vals <- vapply(vals, function(z)
-        if (length(z) == 0) NA_character_
-        else if (length(z) == 1) as.character(z)
-        else paste(z, collapse = "; "), character(1))
-    }
-
-    g <- set_vertex_attr(g, name = col, index = which(keep), value = vals)
-  }
-  g
-}
-# ---------------------------------------------------------------
-# 1) One-mode plot from adjacency or existing GA
-#    - sizes = strength (weighted degree)
-#    - colors = gender; shapes = position; facets possible by university
-# ---------------------------------------------------------------
-plot_from_adjacency <- function(g, title = "Network (one-mode)", directed = FALSE) {
-  # compute basic metrics for aesthetics
-  V(g)$strength  <- graph.strength(g, weights = E(g)$weight %||% NULL) 
-  V(g)$degree    <- degree(g, mode = if (directed) "all" else "total")
-  E(g)$ewidth    <- rescale(E(g)$weight %||% rep(1, gsize(g)), to = c(0.2, 1.8))
-
-  set.seed(42)
-  ggraph(g, layout = "fr") +
-    geom_edge_link(aes(width = ewidth),
-                   edge_alpha = 0.25,
-                   colour = "grey40",
-                   lineend = "round",
-                   arrow = if (directed) arrow(length = unit(2, "mm")) else NULL,
-                   end_cap = if (directed) circle(2, "mm") else square(0.5, "mm")) +
-    geom_node_point(aes(size = degree, color = university, shape = gender),
-                    alpha = 0.9, stroke = 0.3) +
-    scale_size_continuous(range = c(2, 9), breaks = pretty_breaks(4)) +
-    scale_edge_width(range = c(0.2, 1.8), guide = "none") +
-    guides(color = guide_legend(override.aes = list(size = 5)),
-           shape = guide_legend(override.aes = list(size = 5))) +
-    theme_graph(base_family = "sans") +
-    labs(title = title, size = "Strength", shape = "Gender", color = "Position")
-}
-
-
-gA <- graph_from_adjacency_matrix(A, mode = "undirected", weighted = TRUE, diag = FALSE)
-# gA <- attach_node_attrs(A, dems, id_col = "uid")
-# plot_from_adjacency((gA))
-```
-
-
-```{r}
-
-# plotly
-# kateto.net
+data = freadRDS2(file="scholars", location = "clean") |>
+  filter_valid_publication_types() |>
+  coalesce_scholar_data() |>
+  limit_observation_period()
 ```
 
 ```{r}
-library(dplyr)
-library(scales)      # for rescale()
-library(visNetwork)
+nets = build_matrices(data)
+d = toVisNetworkData(as_undirected(nets$graph))
 
-data <- toVisNetworkData(gA)
-
-N <- data$nodes |>
-  inner_join(
-    dems |>
-      distinct(uid, .keep_all = TRUE) |>
-      select(uid, clean_name, gender, origin, h_index, position, university),
-    by = join_by(id == uid)
+N <- d$nodes |>
+  inner_join(nets$D, by = join_by(id == uid)) |>
+  select(
+    id, label, clean_name, gender, origin, h_index, position, university
   ) |>
   # build per-node aesthetics
   mutate(
@@ -416,25 +238,28 @@ N <- data$nodes |>
     university = ifelse(is.na(university) | !nzchar(university), "(Unknown)", university)
   )
 
-# ---- color by university ----
-uni_levels <- sort(unique(N$university))
+uni_levels <- sort(unique(nets$D$university))
 pal <- scales::hue_pal()(length(uni_levels))
 col_map <- setNames(pal, uni_levels)
 
-# ---- size by h_index + shape by gender ----
-N <- N |>
+N = N |>
   mutate(
     color = unname(col_map[university]),
-    size  = if (all(is.na(h_index))) 20 else
-              suppressWarnings(rescale(h_index, to = c(12, 40),
+    size  = if (all(is.na(h_index))) 15 else
+              suppressWarnings(scales::rescale(h_index, to = c(20, 80),
                                        from = range(h_index, na.rm = TRUE))),
-    size  = ifelse(is.na(size), 12, size),
+    size  = ifelse(is.na(size), 10, size),
     gender_clean = tolower(as.character(gender)),
-    shape = dplyr::recode(
+    shape = recode(
       gender_clean,
       "male" = "triangle",
       "female" = "dot",
       .default = "square"
+    ),
+    label = ifelse(
+      !is.na(clean_name) & nzchar(clean_name), 
+      clean_name, 
+      as.character(id)
     ),
     title = paste0(
       "<b>", label, "</b>",
@@ -443,274 +268,511 @@ N <- N |>
       "<br/>h-index: ", ifelse(is.na(h_index), "NA", h_index)
     )
   ) |>
-  select(-gender_clean)  # cleanup helper col
+  select(-gender_clean) |>
+  distinct(id, .keep_all = TRUE)
 
-E <- data$edges
+E = d$edges
 
-p = visNetwork(nodes = N, edges = E, height = "800px", width = "100%") |>
+visNetwork(nodes = N, edges = E, height = "800px", width = "100%") |>
   visNodes(borderWidth = 1) |>
   visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) |>
-  visPhysics(solver = "barnesHut") |>
-  visLayout(randomSeed = 42) |>
-  visLegend()
-
-p |> visSave(file = "full_network.html")
-p
-# library(webshot)
-# webshot("full_network.html", zoom = 2, delay = 80, file = "full_network.png")
+  visPhysics(
+    solver = "barnesHut", 
+    barnesHut = list(
+      theta = 0.25,
+      avoidOverlap = 0.25,
+      centralGravity = 0.35,
+      gravitationalConstant = -9000,
+      dampening = 0.06,
+      springLength = 125,
+      springConstant = 0.04
+    ),
+    stabilization = TRUE) |>
+  visLayout(randomSeed = 42)
 ```
 
+```{r}
+describe_categorical <- function(data, vars) {
+  data |>
+    select(all_of(vars)) |>
+    # long format: variable + value
+    tidyr::pivot_longer(
+      cols      = everything(),
+      names_to  = "variable",
+      values_to = "value"
+    ) |>
+    group_by(variable) |>
+    mutate(
+      n_total   = n(),
+      n_missing = sum(is.na(value)),
+      n_nonmiss = n_total - n_missing
+    ) |>
+    filter(!is.na(value)) |>
+    count(variable, value, n_total, n_missing, n_nonmiss, name = "n") |>
+    group_by(variable) |>
+    mutate(
+      prop        = n / n_nonmiss,
+      prop_missing = n_missing / n_total
+    ) |>
+    ungroup() |>
+    arrange(variable, desc(n))
+}
+
+cat_desc <- describe_categorical(
+  nets$D,
+  vars = c("gender", "origin", "university", "position")
+)
+
+cat_desc
+```
 
 ```{r}
-# deps
-library(igraph)
-library(dplyr)
-library(tidyr)
+compute_ego_statistics <- function(nets) {
+  g <- nets$graph
+  stopifnot(inherits(g, "igraph"))
 
-# ---------- helpers (unchanged) ----------
-.harmonic_closeness <- function(g, weights = NULL) {
-  D <- suppressWarnings(distances(g, weights = weights))
-  diag(D) <- Inf
-  (rowSums(1 / D, na.rm = TRUE)) / (vcount(g) - 1)
-}
-.same_attribute_share <- function(g, attr_vec) {
-  if (is.null(attr_vec)) return(rep(NA_real_, vcount(g)))
-  nbrs <- ego(g, order = 1, nodes = V(g), mode = "all")
-  sapply(seq_along(nbrs), function(i) {
-    neigh <- nbrs[[i]]
-    if (length(neigh) == 0) return(NA_real_)
-    mean(attr_vec[neigh] == attr_vec[i])
-  })
-}
+  is_dir <- igraph::is_directed(g)
 
-# ========================================================================
-# A) From res$A / res$graph / res$D  (one-mode adjacency)
-# ========================================================================
-compute_node_stats_from_res_adjacency <- function(
-  res,
-  node_id_col = "uid",
-  use_weights = TRUE,
-  invert_weights_for_paths = TRUE,
-  attr_col = NULL
-){
-  stopifnot(all(c("A","graph","D") %in% names(res)))
-  A     <- res$A
-  nodes <- res$D
-  mode  <- if (is_directed(res$graph)) "directed" else "undirected"
-
-  g <- graph_from_adjacency_matrix(
-    A,
-    mode     = mode,
-    weighted = use_weights,
-    diag     = FALSE
+  # 1) Basic degrees
+  degree_total <- igraph::degree(
+    g,
+    mode = if (is_dir) "all" else "total"
   )
-  V(g)$name <- rownames(A)
 
-  w_strength <- if (use_weights && "weight" %in% edge_attr_names(g)) E(g)$weight else NULL
-  w_dist <- if (!is.null(w_strength) && invert_weights_for_paths) {
-    if (any(w_strength <= 0, na.rm = TRUE)) NULL else 1 / w_strength
-  } else w_strength
-
-  gu <- simplify(as_undirected(g, mode = "collapse", edge.attr.comb = "sum"),
-                 remove.multiple = TRUE, remove.loops = TRUE)
-
-  deg_all <- degree(g, mode = "all")
-  str_all <- graph.strength(g, mode = "all", weights = w_strength)
-  deg_in  <- if (mode == "directed") degree(g, mode = "in")  else NULL
-  deg_out <- if (mode == "directed") degree(g, mode = "out") else NULL
-  str_in  <- if (mode == "directed") graph.strength(g, mode = "in",  weights = w_strength) else NULL
-  str_out <- if (mode == "directed") graph.strength(g, mode = "out", weights = w_strength) else NULL
-
-  btw <- betweenness(g, directed = (mode == "directed"), weights = w_dist, normalized = TRUE)
-  clo_harm <- .harmonic_closeness(g, weights = w_dist)
-
-  eig  <- tryCatch(eigen_centrality(g, directed = (mode == "directed"), weights = w_strength)$vector,
-                   error = function(e) rep(NA_real_, vcount(g)))
-  pr   <- page_rank(g, directed = (mode == "directed"), weights = w_strength)$vector
-  hubs <- if (mode == "directed") hub_score(g, weights = w_strength)$vector else rep(NA_real_, vcount(g))
-  auth <- if (mode == "directed") authority_score(g, weights = w_strength)$vector else rep(NA_real_, vcount(g))
-
-  clustering_local <- transitivity(gu, type = "local", isolates = "zero")
-  triangles_cnt    <- count_triangles(gu, vids = V(gu))
-  coreness_k       <- coreness(gu, mode = "all")
-  constraint_burt  <- constraint(g, weights = w_strength)
-  knn_vec          <- knn(gu)$knn
-  ecc <- suppressWarnings(tryCatch(eccentricity(g, weights = w_dist),
-                                   error = function(e) rep(NA_real_, vcount(g))))
-  comp <- components(g)$membership
-  comm_louvain <- membership(cluster_louvain(gu, weights = E(gu)$weight))
-
-  same_attr_share <- {
-    if (is.null(attr_col) || !(attr_col %in% names(nodes))) rep(NA_real_, vcount(g)) else {
-      attr_vec <- nodes[[attr_col]][match(V(g)$name, nodes[[node_id_col]])]
-      .same_attribute_share(gu, attr_vec)
-    }
+  degree_in <- if (is_dir) {
+    igraph::degree(g, mode = "in")
+  } else {
+    rep(NA_real_, igraph::vcount(g))
   }
 
-  out <- tibble(
-    !!node_id_col := V(g)$name,
-    degree        = as.numeric(deg_all),
-    strength      = as.numeric(str_all),
-    degree_in     = if (!is.null(deg_in))  as.numeric(deg_in)  else NA_real_,
-    degree_out    = if (!is.null(deg_out)) as.numeric(deg_out) else NA_real_,
-    strength_in   = if (!is.null(str_in))  as.numeric(str_in)  else NA_real_,
-    strength_out  = if (!is.null(str_out)) as.numeric(str_out) else NA_real_,
-    betweenness   = as.numeric(btw),
-    closeness_harmonic = as.numeric(clo_harm),
-    eigenvector   = as.numeric(eig),
-    pagerank      = as.numeric(pr),
-    hubs          = as.numeric(hubs),
-    authorities   = as.numeric(auth),
-    clustering_local = as.numeric(clustering_local),
-    triangles     = as.numeric(triangles_cnt),
-    coreness_k    = as.numeric(coreness_k),
-    constraint_burt = as.numeric(constraint_burt),
-    avg_neighbor_degree = as.numeric(knn_vec),
-    eccentricity  = as.numeric(ecc),
-    component     = as.integer(comp),
-    community_louvain = as.integer(comm_louvain),
-    same_attr_share = as.numeric(same_attr_share)
-  )
-
-  nodes %>% left_join(out, by = setNames(node_id_col, node_id_col))
-}
-
-# ========================================================================
-# B) From res$B / res$D  (two-mode incidence -> one-mode projection)
-#     project = "rows" uses node rows (recommended here)
-# ========================================================================
-compute_node_stats_from_res_incidence <- function(
-  res,
-  node_id_col = "uid",
-  project = c("rows","cols"),
-  invert_weights_for_paths = TRUE,
-  attr_col = NULL
-){
-  stopifnot(all(c("B","D") %in% names(res)))
-  project <- match.arg(project)
-  B     <- res$B
-  nodes <- res$D
-
-  g_bi <- graph_from_biadjacency_matrix(B, weighted = TRUE)
-  V(g_bi)$name <- c(rownames(B), colnames(B))
-
-  pr <- bipartite_projection(g_bi, multiplicity = TRUE)
-  g1 <- if (project == "rows") pr$proj1 else pr$proj2
-
-  gu <- simplify(g1, remove.multiple = TRUE, remove.loops = TRUE)
-  w_strength <- if ("weight" %in% edge_attr_names(gu)) E(gu)$weight else NULL
-  w_dist <- if (!is.null(w_strength) && invert_weights_for_paths) {
-    if (any(w_strength <= 0, na.rm = TRUE)) NULL else 1 / w_strength
-  } else w_strength
-
-  deg   <- degree(gu)
-  stren <- graph.strength(gu, weights = E(gu)$weight)
-  btw   <- betweenness(gu, directed = FALSE, weights = w_dist, normalized = TRUE)
-  clo_h <- .harmonic_closeness(gu, weights = w_dist)
-  eig   <- eigen_centrality(gu, directed = FALSE, weights = E(gu)$weight)$vector
-  pr    <- page_rank(gu, directed = FALSE, weights = E(gu)$weight)$vector
-  clust <- transitivity(gu, type = "local", isolates = "zero")
-  tri   <- count_triangles(gu, vids = V(gu))
-  corek <- coreness(gu)
-  cons  <- constraint(gu, weights = E(gu)$weight)
-  knn_v <- knn(gu)$knn
-  ecc   <- suppressWarnings(tryCatch(eccentricity(gu, weights = w_dist),
-                                     error = function(e) rep(NA_real_, vcount(gu))))
-  comp  <- components(gu)$membership
-  comm  <- membership(cluster_louvain(gu, weights = E(gu)$weight))
-
-  same_attr_share <- {
-    if (is.null(attr_col) || !(attr_col %in% names(nodes))) rep(NA_real_, vcount(gu)) else {
-      attr_vec <- nodes[[attr_col]][match(V(gu)$name, nodes[[node_id_col]])]
-      .same_attribute_share(gu, attr_vec)
-    }
+  degree_out <- if (is_dir) {
+    igraph::degree(g, mode = "out")
+  } else {
+    rep(NA_real_, igraph::vcount(g))
   }
 
-  out <- tibble(
-    !!node_id_col := V(gu)$name,
-    degree        = as.numeric(deg),
-    strength      = as.numeric(stren),
-    betweenness   = as.numeric(btw),
-    closeness_harmonic = as.numeric(clo_h),
-    eigenvector   = as.numeric(eig),
-    pagerank      = as.numeric(pr),
-    clustering_local = as.numeric(clust),
-    triangles     = as.numeric(tri),
-    coreness_k    = as.numeric(corek),
-    constraint_burt = as.numeric(cons),
-    avg_neighbor_degree = as.numeric(knn_v),
-    eccentricity  = as.numeric(ecc),
-    component     = as.integer(comp),
-    community_louvain = as.integer(comm),
-    same_attr_share = as.numeric(same_attr_share)
+  # 2) Betweenness (normalized)
+  betweenness <- igraph::betweenness(
+    g,
+    directed   = is_dir,
+    normalized = TRUE
   )
 
-  nodes %>% left_join(out, by = setNames(node_id_col, node_id_col))
+  # 3) Closeness (normalized)
+  closeness <- suppressWarnings(
+    igraph::closeness(
+      g,
+      mode       = if (is_dir) "all" else "all",
+      normalized = TRUE
+    )
+  )
+
+  # 4) Burt’s constraint (structural holes / brokerage)
+  constraint <- igraph::constraint(g)
+
+  # 5) Local clustering / transitivity (ego-level)
+  clustering <- igraph::transitivity(
+    g,
+    type = if (is_dir) "local" else "localundirected"
+  )
+  clustering[is.nan(clustering)] <- NA_real_
+
+  # 6) Eigenvector centrality (prestige / popularity via popular neighbors)
+  eig <- igraph::eigen_centrality(
+    g,
+    directed = is_dir,
+    scale    = TRUE
+  )$vector
+
+  # 7) k-core number (embeddedness in the dense core)
+  kcore <- igraph::coreness(
+    g,
+    mode = if (is_dir) "all" else "all"
+  )
+
+  # 8) Assemble into a tibble
+  stats <- tibble::tibble(
+    uid          = igraph::V(g)$name,
+    degree       = as.numeric(degree_total),
+    indegree     = as.numeric(degree_in),
+    outdegree    = as.numeric(degree_out),
+    betweenness  = as.numeric(betweenness),
+    closeness    = as.numeric(closeness),
+    constraint   = as.numeric(constraint),
+    clustering   = as.numeric(clustering),
+    eigenvector  = as.numeric(eig),
+    kcore        = as.numeric(kcore)
+  )
+
+  # 9) Optionally add demographics stored in nets$D
+  if (!is.null(nets$D) && "uid" %in% colnames(nets$D)) {
+    stats <- nets$D |>
+      right_join(stats, by = "uid") |>
+      arrange(uid) |>
+      select(-email_22:-discipline_25)
+  }
+
+  return(stats)
+}
+
+summarise_ego_statistics <- function(ego_stats) {
+  # which columns are ego-level stats
+  ego_stat_vars <- c(
+    "degree",
+    "indegree",
+    "outdegree",
+    "betweenness",
+    "closeness",
+    "constraint",
+    "clustering",
+    "eigenvector",
+    "kcore"
+  )
+
+  # 1) Overall averages for the full sample
+  ego_overall <- ego_stats |>
+    summarise(
+      n = n(),
+      across(
+        all_of(ego_stat_vars),
+        ~ mean(.x, na.rm = TRUE)
+      )
+    ) |>
+    mutate(
+      attribute = "scholars",
+      level = "all",
+      .before = 1
+    )
+
+  # 2) Helper for grouped averages (group_var is a *string*)
+  summarise_ego_by <- function(data, group_var) {
+    res <- data |>
+      group_by(.data[[group_var]]) |>
+      summarise(
+        n = n(),
+        across(
+          all_of(ego_stat_vars),
+          ~ mean(.x, na.rm = TRUE)
+        ),
+        .groups = "drop"
+      )
+
+    res |>
+      mutate(
+        attribute = group_var,
+        level     = .data[[group_var]]
+      ) |>
+      select(
+        attribute,
+        level,
+        everything(),
+        -all_of(group_var)
+      )
+  }
+
+  # 3) All groupings stacked in one table
+  ego_by_all <- bind_rows(
+    summarise_ego_by(ego_stats, "gender"),
+    summarise_ego_by(ego_stats, "origin"),
+    summarise_ego_by(ego_stats, "position"),
+    summarise_ego_by(ego_stats, "university")
+  )
+
+  # 4) Return as a list
+  return(list(
+    ego_overall = ego_overall,
+    ego_by_all  = ego_by_all
+  ))
+}
+
+```
+
+
+```{r}
+ego_stats = compute_ego_statistics(nets) |>
+  summarise_ego_statistics() |>
+  bind_rows()
+
+ego_stats
+```
+
+
+```{r}
+compute_network_statistics <- function(nets) {
+  g <- nets$graph
+  stopifnot(inherits(g, "igraph"))
+  
+  is_dir <- igraph::is_directed(g)
+  
+  # Optionally copy attributes from nets$D onto vertices
+  if (!is.null(nets$D) && "uid" %in% colnames(nets$D)) {
+    D   <- nets$D
+    idx <- match(igraph::V(g)$name, D$uid)
+    
+    for (v in c("gender", "origin", "university", "position")) {
+      if (v %in% colnames(D)) {
+        vals <- D[[v]][idx]
+        g <- igraph::set_vertex_attr(g, v, value = vals)
+      }
+    }
+  }
+  
+  # --- Core structural properties (full graph) ---
+  comp  <- igraph::components(g)
+  gc_id <- which.max(comp$csize)
+  gc_v  <- which(comp$membership == gc_id)
+  g_gc  <- igraph::induced_subgraph(g, gc_v)
+  
+  n_nodes <- igraph::vcount(g)
+  n_edges <- igraph::ecount(g)
+  
+  density <- igraph::edge_density(g, loops = FALSE)
+  avg_degree <- mean(
+    igraph::degree(g, mode = if (is_dir) "all" else "total")
+  )
+  
+  trans_global <- igraph::transitivity(
+    g,
+    type = if (is_dir) "global" else "globalundirected"
+  )
+  
+  trans_local_vec <- igraph::transitivity(
+    g,
+    type = if (is_dir) "local" else "localundirected"
+  )
+  trans_local_mean <- mean(trans_local_vec, na.rm = TRUE)
+  
+  avg_path_gc <- suppressWarnings(
+    igraph::mean_distance(g_gc, directed = is_dir)
+  )
+  diam_gc <- suppressWarnings(
+    igraph::diameter(g_gc, directed = is_dir, unconnected = FALSE)
+  )
+  
+  # --- Simple small-world indicators via ER baseline (full graph) ---
+  p <- density
+  if (is.finite(p) && !is.na(p) && p > 0) {
+    g_rand <- igraph::sample_gnp(
+      n       = n_nodes,
+      p       = p,
+      directed = is_dir,
+      loops   = FALSE
+    )
+    
+    trans_rand <- igraph::transitivity(
+      g_rand,
+      type = if (is_dir) "global" else "globalundirected"
+    )
+    avg_path_rand <- suppressWarnings(
+      igraph::mean_distance(g_rand, directed = is_dir)
+    )
+    
+    smallworld_C_ratio <- trans_global / trans_rand
+    smallworld_L_ratio <- avg_path_gc / avg_path_rand
+  } else {
+    smallworld_C_ratio <- NA_real_
+    smallworld_L_ratio <- NA_real_
+  }
+  
+  overall <- tibble::tibble(
+    # Size / connectivity
+    attribute            = "scholars",
+    level                = "all",
+    n_nodes              = n_nodes,
+    n_edges              = n_edges,
+    density              = density,
+    avg_degree           = avg_degree,
+    
+    # Clustering & paths
+    transitivity_global       = trans_global,
+    transitivity_local_mean   = trans_local_mean,
+    avg_path_length_giantcomp = avg_path_gc,
+    diameter_giantcomp        = diam_gc,
+    
+    # Small-world-ish indicators (relative to ER baseline)
+    smallworld_C_ratio = smallworld_C_ratio,
+    smallworld_L_ratio = smallworld_L_ratio
+  )
+  
+  # --- Helper: compute the same stats on an induced subgraph ---
+  compute_structural_stats <- function(g_sub) {
+    if (igraph::vcount(g_sub) < 2 || igraph::ecount(g_sub) < 1) {
+      return(
+        list(
+          n_nodes                    = igraph::vcount(g_sub),
+          n_edges                    = igraph::ecount(g_sub),
+          density                    = NA_real_,
+          avg_degree                 = NA_real_,
+          transitivity_global        = NA_real_,
+          transitivity_local_mean    = NA_real_,
+          avg_path_length_giantcomp  = NA_real_,
+          diameter_giantcomp         = NA_real_,
+          smallworld_C_ratio         = NA_real_,
+          smallworld_L_ratio         = NA_real_
+        )
+      )
+    }
+    
+    comp_sub  <- igraph::components(g_sub)
+    gc_id_sub <- which.max(comp_sub$csize)
+    gc_v_sub  <- which(comp_sub$membership == gc_id_sub)
+    g_gc_sub  <- igraph::induced_subgraph(g_sub, gc_v_sub)
+    
+    n_nodes_sub <- igraph::vcount(g_sub)
+    n_edges_sub <- igraph::ecount(g_sub)
+    
+    density_sub <- igraph::edge_density(g_sub, loops = FALSE)
+    avg_degree_sub <- mean(
+      igraph::degree(g_sub, mode = if (is_dir) "all" else "total")
+    )
+    
+    trans_global_sub <- igraph::transitivity(
+      g_sub,
+      type = if (is_dir) "global" else "globalundirected"
+    )
+    
+    trans_local_vec_sub <- igraph::transitivity(
+      g_sub,
+      type = if (is_dir) "local" else "localundirected"
+    )
+    trans_local_mean_sub <- mean(trans_local_vec_sub, na.rm = TRUE)
+    
+    avg_path_gc_sub <- suppressWarnings(
+      igraph::mean_distance(g_gc_sub, directed = is_dir)
+    )
+    diam_gc_sub <- suppressWarnings(
+      igraph::diameter(g_gc_sub, directed = is_dir, unconnected = FALSE)
+    )
+    
+    # Small-world baseline within group
+    p_sub <- density_sub
+    if (is.finite(p_sub) && !is.na(p_sub) && p_sub > 0) {
+      g_rand_sub <- igraph::sample_gnp(
+        n       = n_nodes_sub,
+        p       = p_sub,
+        directed = is_dir,
+        loops   = FALSE
+      )
+      trans_rand_sub <- igraph::transitivity(
+        g_rand_sub,
+        type = if (is_dir) "global" else "globalundirected"
+      )
+      avg_path_rand_sub <- suppressWarnings(
+        igraph::mean_distance(g_rand_sub, directed = is_dir)
+      )
+      
+      smallworld_C_ratio_sub <- trans_global_sub / trans_rand_sub
+      smallworld_L_ratio_sub <- avg_path_gc_sub / avg_path_rand_sub
+    } else {
+      smallworld_C_ratio_sub <- NA_real_
+      smallworld_L_ratio_sub <- NA_real_
+    }
+    
+    list(
+      n_nodes                    = n_nodes_sub,
+      n_edges                    = n_edges_sub,
+      density                    = density_sub,
+      avg_degree                 = avg_degree_sub,
+      transitivity_global        = trans_global_sub,
+      transitivity_local_mean    = trans_local_mean_sub,
+      avg_path_length_giantcomp  = avg_path_gc_sub,
+      diameter_giantcomp         = diam_gc_sub,
+      smallworld_C_ratio         = smallworld_C_ratio_sub,
+      smallworld_L_ratio         = smallworld_L_ratio_sub
+    )
+  }
+  
+  # --- Helper: apply those stats by levels of a vertex attribute ---
+  compute_by_attribute <- function(attr_name) {
+    vals <- igraph::vertex_attr(g, attr_name)
+    if (is.null(vals)) {
+      return(tibble::tibble())
+    }
+    
+    vals_chr <- as.character(vals)
+    levels_attr <- sort(unique(vals_chr[!is.na(vals_chr)]))
+    if (length(levels_attr) == 0) {
+      return(tibble::tibble())
+    }
+    
+    res <- lapply(levels_attr, function(lv) {
+      vids <- which(vals_chr == lv)
+      if (length(vids) < 2) {
+        stats <- compute_structural_stats(
+          igraph::induced_subgraph(g, vids)
+        )
+      } else {
+        stats <- compute_structural_stats(
+          igraph::induced_subgraph(g, vids)
+        )
+      }
+      
+      tibble::tibble(
+        attribute                 = attr_name,
+        level                     = lv,
+        n_nodes                   = stats$n_nodes,
+        n_edges                   = stats$n_edges,
+        density                   = stats$density,
+        avg_degree                = stats$avg_degree,
+        transitivity_global       = stats$transitivity_global,
+        transitivity_local_mean   = stats$transitivity_local_mean,
+        avg_path_length_giantcomp = stats$avg_path_length_giantcomp,
+        diameter_giantcomp        = stats$diameter_giantcomp,
+        smallworld_C_ratio        = stats$smallworld_C_ratio,
+        smallworld_L_ratio        = stats$smallworld_L_ratio
+      )
+    })
+    
+    bind_rows(res)
+  }
+  
+  by_group <- bind_rows(
+    compute_by_attribute("gender"),
+    compute_by_attribute("origin"),
+    compute_by_attribute("position"),
+    compute_by_attribute("university")
+  )
+  
+  # Return both
+  list(
+    overall  = overall,
+    by_group = by_group
+  )
 }
 ```
 
 
 ```{r}
-# # adjacency-based (uses res$A, res$graph, res$D)
-# stats_adj <- compute_node_stats_from_res_adjacency(res, attr_col = "gender")
-
-# # incidence-based row projection (uses res$B, res$D)
-# stats_inc <- compute_node_stats_from_res_incidence(res, project = "rows", attr_col = "gender")
+net_stats = compute_network_statistics(nets) |> 
+  bind_rows() |>
+  relocate(attribute, level, .before = 1)
+net_stats
 ```
 
 
 ```{r}
-# stats_adj |>
-#   group_by(gender) |>
-#   summarise(
-#     degree = mean(degree),
-#     betweenness = mean(betweenness),
-#     closeness_harmonic = mean(closeness_harmonic),
-#     eigenvector = mean(eigenvector),
-#     clustering_local = mean(clustering_local),
-#     coreness_k = mean(coreness_k),
-#     constraint_burt = mean(constraint_burt)
-#   )
+# get list of scholars in final sample
+copub_sample = nets$E |> pull(uid) |> unique()
+
+# get list of scholars with valid openalex id
+openalex_sample = freadRDS2(file="scholars", location = "clean")[['demographics']] |>
+  bind_rows() |>
+  distinct(uid) |> pull()
+
+# get list of 
+sample_attrition = freadRDS2('scholars', location = 'combined')[['demographics']] |>
+  bind_rows() |>
+  distinct(uid) |>
+  mutate(
+    miss_openalex = !uid %in% openalex_sample,
+    miss_copub = !uid %in% copub_sample
+  ) |>
+  arrange(miss_openalex, miss_copub)
 ```
 
-```{r}
-# stats_adj |>
-#   group_by(origin) |>
-#   summarise(
-#     degree = mean(degree),
-#     betweenness = mean(betweenness),
-#     closeness_harmonic = mean(closeness_harmonic),
-#     eigenvector = mean(eigenvector),
-#     clustering_local = mean(clustering_local),
-#     coreness_k = mean(coreness_k),
-#     constraint_burt = mean(constraint_burt)
-#   )
-```
 
 ```{r}
-# stats_adj |>
-#   group_by(position) |>
-#   summarise(
-#     degree = mean(degree),
-#     betweenness = mean(betweenness),
-#     closeness_harmonic = mean(closeness_harmonic),
-#     eigenvector = mean(eigenvector),
-#     clustering_local = mean(clustering_local),
-#     coreness_k = mean(coreness_k),
-#     constraint_burt = mean(constraint_burt)
-#   )
-```
+# sample_attrition |> filter(!miss_openalex & !miss_copub)
 
-```{r}
-# stats_adj |>
-#   group_by(university) |>
-#   summarise(
-#     degree = mean(degree),
-#     betweenness = mean(betweenness),
-#     closeness_harmonic = mean(closeness_harmonic),
-#     eigenvector = mean(eigenvector),
-#     clustering_local = mean(clustering_local),
-#     coreness_k = mean(coreness_k),
-#     constraint_burt = mean(constraint_burt)
-#   )
+# TODO: Check counting descrepancy 10 pax.
 ```
