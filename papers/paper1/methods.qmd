@@ -12,6 +12,10 @@ Fourth, all works associated with the selected author IDs are downloaded from Op
 
 :::{.callout-note}
 Add note on sample selection and sample size. Potentially add flow-chart
+
+see `sample_attrition` in descriptive statistics for a numeric overview
+
+Voor `work` or `edges` I'd like to make a similar overview.
 :::
 
 ### Variables
@@ -28,6 +32,10 @@ Add note on sample selection and sample size. Potentially add flow-chart
 
 :::{.callout-note}
 Add note over aggregation of this variable
+
+currently origin is aggregated to continent.
+
+I'm considering to further aggregate it to netherlands, europe, other. (other suggestions?)
 :::
 
 *Position* was operationalized as an indicator of scholars’ academic rank/role within the Dutch university system. Starting from the free-text job titles collected from departmental staff pages, we first cleaned and standardized these titles (e.g., “universitair docent”, “universitair hoofddocent”, “hoogleraar”, “postdoc-onderzoeker”, “promovendus”) and translated them into a common English terminology. We then mapped all titles to a set of seven analytically meaningful categories: *PhD student*, *Postdoc*, *Lecturer*, *Researcher*, *Assistant professor*, *Associate professor*, and *Full professor*. In cases where multiple roles were listed for the same individual (e.g., combined teaching and research appointments or endowed/visiting positions), we applied a simple priority hierarchy that privileges structural career rank (professor > associate professor > assistant professor > researcher/postdoc > lecturer > PhD student). The resulting harmonized variable therefore captures each scholar’s primary academic position. 
@@ -44,4 +52,13 @@ Currently the H-index is calculated for the full sample, but could be calculated
 
 *Discipline* indicates whether a scholar is employed in sociology or political science, derived from the manually coded departmental information in the initial staff rosters and coded as a binary indicator for sociology versus political science. We include discipline as a control variable to capture field-specific norms in publishing, collaboration rates, and typical team sizes that could otherwise confound observed differences in network positions and outcomes.
 
+:::{.callout-note}
+See `cat_desc` for a summary statistics table
+:::
+
 ### Analytical Approach
+
+:::{.callout-tip}
+@ jochem zouden wij hierover kunnen praten en samen het werk verdelen voor het
+beschrijven van de analytische strategie
+:::
