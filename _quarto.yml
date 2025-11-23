@@ -47,7 +47,7 @@ website:
   
 
 execute:
-  freeze: true
+  # freeze: true
   warning: false
 
 format:
@@ -66,6 +66,8 @@ format:
 
 excluded:
   - papers/
+
+resources: papers/_output/paper1.pdf
 
 
 
