@@ -23,6 +23,7 @@ Voor `work` or `edges` I'd like to make a similar overview.
 *Collaboration ties*, the dependent variable, was operationalized as a binary co-publishing tie between pairs of scholars. Using the OpenAlex publications, we identified all works in which any two scholars in our roster of sociologists and political scientists appeared together in the authorship list. For each pair of scholars, we then coded a tie as present (1) if they had coauthored at least one publication within an observation window, and absent (0) otherwise. This information was assembled into a series of adjacency matrices in which nodes represent scholars and undirected edges represent observed co-publishing relationships in each timepoint. These longitudinal collaboration networks form the outcome in our models, capturing both the existence and evolution of co-authorship ties over time.
 
 <!--- Questions:
+
 - dichotomizing the right way? what do we loose if we do so?
 - 1 OR: from first author to all other authors?
 - 2 OR: from last author to all other authors?

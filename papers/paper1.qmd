@@ -45,6 +45,7 @@ excluded:
 ---
 
 {{< include paper1/introduction.qmd >}}
+{{< include paper1/theory.qmd >}}
 {{< include paper1/methods.qmd >}}
 
 ## References {.unnumbered}
