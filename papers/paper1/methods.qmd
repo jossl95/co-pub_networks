@@ -25,19 +25,30 @@ Voor `work` or `edges` I'd like to make a similar overview.
 :::{.callout-note}
 
 ```
-Questions:
 - dichotomizing the right way? what do we loose if we do so?
 - 1 OR: from first author to all other authors?
 - 2 OR: from last author to all other authors?
-- 3 OR: a bipartite network of people in a paper that are then linked through that higher order entity? Creating more variation in this way? 
+- 3 OR: a bipartite network of people in a paper that are then linked through 
+  that higher order entity? Creating more variation in this way? 
 - 4 OR: a giant ERGM just looking at it as a single network?
-- So we should think about: what are the underlying data generating processes that are most important to answering our research question. Perhaps we also need to 1 and 2 at the very elast and show how differents assumptions on how collaborating starts does not really matter for the main results, though if it does we should intuite why.
-- As to 3, we cast the problematization of collaboration in an entirely different way, as the higher order entity (papers) also has a topic, time, length, outlet, potential to impact, etc.  It does show us how topical foci perhaps drive some of the collaboration.
+- So we should think about: what are the underlying data generating processes
+  that are most important to answering our research question. Perhaps we also
+  need to 1 and 2 at the very elast and show how differents assumptions on how 
+  collaborating starts does not really matter for the main results, though if 
+  it does we should intuite why.
+- As to 3, we cast the problematization of collaboration in an entirely 
+different way, as the higher order entity (papers) also has a topic, time, 
+length, outlet, potential to impact, etc.  It does show us how topical foci 
+perhaps drive some of the collaboration.
 - tldr: Important decisions that we should all agree on.
 
 More practical:
-- are these isolated communities WITHIN departments? or are links between departments allowed? which one is fair as to our research question?
-- and are links allowed between political science and sociology? or do we analyze them as separate networks? what is the consequence of this decision? That we basically expand the opportunity set with many resulting nonlinks if we allow them to crosslink. Do we want that?
+- are these isolated communities WITHIN departments? or are links between 
+departments allowed? which one is fair as to our research question?
+- and are links allowed between political science and sociology? or do we
+analyze them as separate networks? what is the consequence of this decision?
+That we basically expand the opportunity set with many resulting nonlinks if
+we allow them to crosslink. Do we want that?
 ```
 :::
 
