@@ -1,0 +1,179 @@
+## Theory (Outline)
+
+- Bas: here something on our discpline selection as the site (or in methods, but nice to also introduce substantively)
+- Bas: here something about the Dutch system, publishing PhDs, timeline
+- Bas: I would expect
+
+
+<!--- these and the next sets of bulletpoint reflect what we already do in the introduction, no? So what would be the added benefit of a theory section? I think we need to synthesize the data generating mechanisms that cause gender/ethnic differences in coauthorships, processes of homophily in there, and how intersectionality may lead to somewhat surprising hypotheses. What are processesin departments and disciplines that lead to coauthorship? So not only focusing on outcomes, but on explanations --->
+
+
+- GENDER: PhD-to-non-PhD coauthor tie formation dynamics
+- consequences for inequality and homophily and second order effects?
+- more homophily for non-phd to non-phd? --> implicitly, are folks hired gender homophilously on a phd project given their gender and the advisor gender? probably not, so less homophily there
+- when people are "free" or more free to choose than in their phd, homophily will be more prevalent?
+- so phd women/men --> equal co authorship tie chances (node characteristics)
+- so phd rank * equal gender == not significant for homophily covariates
+- so non-phd rank * equal gender == significant for homophily covariate
+
+The sites in which we study our questions are the disciplines of Sociology and Political Sciences across all 13 research universities in the Netherlands (if they have any such departments). These are ideal cases, because... In these disciplines and in the Netherlands, PhD students are often a cornerstone of a department's publishing activity, where dissertations are predominantly a collection of (almost) published papers. Sociologists and Political Scientists in the Netherlands -- PhDs and faculty alike -- overwhelmingly publish in English. The fact that PhDs publish papers during their PhD has consequences for how we can approach collaborations in departments. This is because PhDs often publish with their advisors as co-authors -- i.e., some of the "choices" for co-authors are restricted by the PhD project they are engaged in. Contrary to the U.S., PhDs often do not decide on their own PhD topic, but apply to project that are already carved out. Therefore, we carefully nuance our conjectures on co-authorship tie formation to (some of these) dynamics. 
+
+From 20XX onwards (??mulders2024??), gender representation during the PhD is about 50/50, indicating hiring dynamics enabling women to get a foothold into PhD programs. Yet, simultaneously faculty (assistant professor to full professors) wrt gender representation is... What does this imply for coauthorship dynamics? Women--> equal ties, women--> no homophily, given more men? men phds --> more homophily than women phds? for non-phd coauthorship, gender homophily? and perhaps an inequality dynamics that arise from that moment onward (also coinciding with children/care taking responsibilities) so non PhDs --> less coauthorship ties (We already know they publish less, so the output in other papers is known to be less among non-phd women faculty, so here we get at the EXACT underlying dynamic, they find less co authors given XXXsome mechanismXXX). Also more homophily among non-PhD/faculty with respect to gender.
+
+
+h1: no difference in ties men and women
+h1_1: women phds no difference in ties men phds
+h1_2: women NON-phds less ties than men NON-PhDs --> this indicates we can actually get at some of the sources of where inequality arises in scientific careers! We should highlight this in the introduction...
+
+
+### Gender- and Origin-Based Inequalities in Collaboration Networks  
+*(RQ1: to what extent are there gender- and origin-based differences in collaboration (networks)? — H1a–H1b)*
+
+#### Co-authorship networks as core infrastructure of science  
+- Present scientific collaboration as a small-world, clustered, and stratified system: short paths, heavy-tailed degree distributions, core–periphery structures.  <!--- like all networks? ;-) --->
+  - Draw on co-authorship studies across fields and countries [@newman2001; @moody2004; @baraba2002; @abbasi2011; @ferligoj2015].
+- Position co-authorship networks as a central arena where resources and recognition circulate, linking to classic sociology of science and academic stratification.  
+  - Universalism vs particularism, cumulative advantage, and academic fields as social spaces [@merton1973; @bourdieu1988; @long1995].
+
+
+#### Gendered and ethnic stratification in academic careers  
+- Summarize persistent gender and ethnic inequalities in access to academic positions, productivity, and recognition.  
+  - Early stratification and cumulative advantage [@long1978; @long1979; @long1981; @allison1987; @allison1990].  
+  - Contemporary evidence on gender and ethnic gaps in publishing, tenure, and careers [@hofstra2020; @hofstra2022; @wapman2022; @mulders2024; @tolsma2025].  
+  - Distortions in evaluation and rewards, including cum laude, grants, and media attention [@bol2023; @stadmark2020; @heiberger2025].
+
+#### Gendered inequalities in collaboration and network positions  
+- Argue that women are structurally disadvantaged in collaboration networks: fewer ties, less central positions, and fewer prestigious authorship roles.  
+  - Empirical evidence on gender disparities in authorships and collaboration patterns [@bendels2018; @kwiek2021; @gao2022; @whittington2018; @whittington2024].  
+  - Review work on “pipeline leakage” and chilly climates in STEM that shape opportunities to collaborate [@cabay2018; @greska2023; @dasgupta2015; @dennehy2017].
+- Introduce the idea that networks themselves become mechanisms of inequality, not just reflections of individual productivity.  
+  - Network-based explanations of gender gaps in productivity, prominence, and career success [@li2022; @collischon2021a; @lutter2015; @woehler2021; @vanderwal2021].
+
+#### Ethnicity / origin and inequalities in collaboration  
+- Motivate an origin-based dimension: ethnic and migration background shape opportunities to participate in academic networks and to be recognized.  
+  - Evidence on ethnic inequalities in academic outcomes [@fuligni2005; @mulders2024; @kim2022; @kozlowski2022; @hofstra2020].
+- Highlight analogies with racialized labor-market networks (job leads, informal support) to argue why minority-origin scholars may have fewer or less advantageous ties.  
+  - Old-boy networks and racialized access to social capital [@huffman2002; @mcdonald2011; @mcguire2002; @lutter2015; @lalanne2022].
+
+#### Co-authorship networks as social capital  
+- Connect structural position in co-authorship networks to social capital: access to information, collaboration opportunities, and visibility.  
+  - Structural holes, brokerage, and returns to network position [@burt1998; @yan2009a; @ebadi2015; @li2022; @liu2025].
+- Argue that women and minority-origin scholars have both fewer and differently configured network resources, implying lower degree centrality and less central positions on average.
+
+#### Hypotheses  
+- **H1a** On average, women scholars have fewer co-authorship ties, lower degree centrality, and occupy less central network positions than men.  
+- **H1b** On average, scholars with a (migration) minority origin have fewer co-authorship ties, lower degree centrality, and occupy less central network positions than scholars with a majority origin.
+
+<!--- hmm, so this is a t-test analytically? Can we simply input gender/background as a node level characteristic and see whether women/minoritized folks generate fewer coauthorship ties? One mediating factor can then be homophily. --->
+
+
+---
+
+### Gender and Origin Homophily in Collaboration Choices  
+*(RQ2: to what extent are there gender- and origin-based differences in homophily? — H2a–H2b)*
+
+#### Homophily as a key mechanism in collaboration  
+- Introduce the concept of homophily (similarity-based tie formation) as central to understanding co-authorship.  
+  - General homophily in social and work networks [@ibarra1992; @ibarra1995; @huffman2002; @mcdonald2011; @zhang2017].
+- In scientific collaboration, homophily interacts with transitivity and preferential attachment.  
+  - ERGM-based and dynamic analyses of collaboration formation [@gondal2011; @zhang2018; @purwitasari2020; @leifeld2018; @stark2020].
+
+<!--- important to distinguish homophily from homogeneity/segregatin: so homophily is not similarity-based tie formation, which can be a result from other dynamics than homophily, homophily is the micro-level tie generating mechanism indicating a preference for similar others. A pet peeve of me, but many do this wrong. --->
+
+#### Gender homophily in collaboration networks  
+- Summarize evidence that co-authorship often follows gender lines, though constrained by male-majority contexts.  
+  - Gendered patterns of collaboration, prestige positions, and team roles [@gao2022; @kretschmer2015; @kwiek2021; @whittington2018; @whittington2024].  
+  - Studies of female peers, majority-female groups, and mentors enhancing women’s participation and persistence [@dasgupta2015; @dennehy2017; @hofstra2022].
+- Combine this with work on gendered networks and returns to argue why we expect gender homophily in co-authorship choices (H2a), with implications for inequality [@woehler2021; @lutter2015; @lalanne2022].
+
+#### Origin / nationality homophily  
+- Present national, ethnic, and origin-based homophily as a robust mechanism in friendship and collaboration networks.  
+  - Empirical evidence on national / ethnic homophily [@pillai2019; @ibarra1995; @hancean2014; @santos2024].  
+  - Studies of departmental and field-level specializations and exchanges (which often map onto national and origin-based lines) [@gondal2018; @heiberger2019; @ferligoj2015; @abbasi2011].
+- Argue that shared origin can lower barriers of trust, language, and informal communication, motivating H2b (higher likelihood of co-authorship among same-origin scholars).
+
+#### Homophily, polarization, and the reproduction of inequality  
+- Link homophily to segmentation and polarization in scientific collaboration.  
+  - Polarization and assortative mixing in social science co-authorship [@leifeld2018; @moody2004; @hancean2014].
+- Argue that gender and origin homophily, operating in a structurally unequal field, can reinforce existing disparities in centrality and access to high-status collaborators.
+
+#### Hypotheses  
+- **H2a** Co-authorship ties are more likely between scholars who share the same gender than between scholars of different genders.  
+- **H2b** Co-authorship ties are more likely between scholars who share the same origin than between scholars with different origins.
+
+---
+
+### Intersectional Homophily: Joint Patterns of Gender and Origin  
+*(RQ3: to what extent does gender- and origin-based homophily intersect? — H3a–H3c)*
+
+#### Intersectionality in science and knowledge production  
+- Introduce an intersectional perspective: inequalities in science are not simply additive by gender and origin, but emerge at their intersections.  
+  - Large-scale evidence on intersectional inequalities in science and knowledge production [@hofstra2020; @kozlowski2022; @kim2022; @mulders2024].
+- Emphasize that group positions (e.g., majority-origin men vs minority-origin women) differ in both the opportunities to collaborate and the payoffs to collaboration.
+
+#### Intersectional patterns in collaboration networks  
+- Discuss how network-based inequalities can be intersectional: some intersections occupy dense, high-status cores; others are more peripheral.  
+  - Work on stratification in collaboration networks and status hierarchies [@moody2004; @ferligoj2015; @heiberger2019; @wapman2022; @stark2020].  
+  - Evidence that collaboration structures and returns differ across gender and regions/fields [@whittington2018; @whittington2024; @vanderwal2021; @li2022].
+- Argue that majority-origin men are overrepresented in central, well-connected cores, making same-gender and same-origin collaboration both easier and more rewarding.
+
+#### Constraints and strategies of minority-origin women  
+- Draw on research suggesting that women and ethnic minorities face structural constraints that reduce their ability to rely exclusively on homophilous networks.  
+  - Old-boy networks, lower-status contacts, and constrained access to high-quality ties [@huffman2002; @mcdonald2011; @mcguire2002; @lutter2015; @woehler2021].  
+  - Intersectional disadvantages in science and academic careers [@kozlowski2022; @mulders2024; @hofstra2020].
+- Combine this with work showing that minority and women actors often develop mixed or bridging collaboration strategies to navigate exclusionary structures.  
+  - Women’s networking strategies and gendered returns in executive and digital networks [@contreras2025; @lalanne2022; @woehler2021].
+- From this, reason that minority-origin women may show weaker intersectional homophily than majority-origin men, because they must diversify collaborators across gender and origin to maintain careers (H3c), even while still facing subtle penalties.
+
+#### Intersectional homophily as a mechanism of cumulative advantage  
+- Link back to cumulative advantage and status closure: homophily along intersecting lines of gender and origin can magnify existing differences in degree centrality, h-index evolution, and access to high-prestige venues.  
+  - Cumulative advantage and status closure in academia [@merton1973; @long1995; @hofstra2020; @wapman2022; @simko2015].
+- This motivates modeling joint gender–origin configurations rather than separate effects.
+
+#### Hypotheses  
+- **H3a** Co-authorship ties are especially likely between scholars who share both gender and origin (e.g., majority-origin men with majority-origin men; minority-origin women with minority-origin women), over and above the separate effects of gender and origin homophily.  
+- **H3b** Majority-origin men exhibit the highest levels of intersectional homophily (preferring other majority-origin men), reinforcing their dominance in central parts of the network.  
+- **H3c** Minority-origin women show weaker intersectional homophily than majority-origin men, because structural constraints and limited opportunities push them into more mixed-gender and mixed-origin collaborations.
+
+---
+
+### Second-Order Social Capital and Unequal Returns Across Gender–Origin Intersections  
+*(RQ4: to what extent do network aspects of second-order social capital (h-index, degree centrality, academic position) operate differently across gender–origin intersections? — H4a–H4b)*
+
+#### Conceptualizing second-order social capital  
+- Define second-order social capital as the quality and embeddedness of an ego’s collaborators: collaborators’ productivity, impact, and positions (e.g., their h-indices, centralities, academic ranks).  
+  - h-index as a key indicator of an individual’s cumulative impact [@hirsch2005].  
+  - Impact of co-author networks, centrality, and structural position on scientific productivity and citations [@yan2009a; @ductor2015; @ebadi2015; @wu2019; @liu2025].
+- Connect to the social capital and structural holes literatures: who you are connected to (and who they are connected to) shapes access to resources.  
+  - Structural holes, brokerage, and returns [@burt1998; @bojanowski2020; @collischon2021a; @mahmood2021].
+
+#### Academic position and departmental context as network resources  
+- Situate academic position (PhD, postdoc, assistant, associate, full professor) as both a marker of status and a generator of collaboration opportunities.  
+  - Classic work on productivity, position, and departmental context [@long1978; @long1979; @long1981; @long1995; @allison1990].  
+  - Contemporary evidence on tenure and professorship in sociology [@lutter2016].
+- Link academic rank to visibility and attractiveness as a collaborator: higher positions typically have more collaborators and more central roles in networks.
+
+#### How second-order social capital affects tie formation  
+- Argue that scholars with higher second-order social capital (high-impact, central, high-rank collaborators) become more attractive collaboration partners, increasing their chances of gaining new ties (H4a).  
+  - Preferential attachment and cumulative advantage in collaboration [@baraba2002; @abbasi2011; @ferligoj2015; @kim2016; @zhang2018].  
+  - Project-team and network studies linking structural properties to impact and innovation [@liu2025; @lungeanu2015].
+
+#### Unequal returns to networks: gender and origin differences  
+- Introduce the unequal network returns (UNR) perspective: even when women and minority scholars have similar network structures, they may receive lower payoffs in terms of career outcomes.  
+  - Framework and review of UNC vs UNR [@woehler2021].  
+  - Evidence of gendered returns to networks and professional ties [@lutter2015; @lalanne2022; @whittington2018; @whittington2024; @contreras2025].  
+  - Labor-market analogues showing gendered and racialized differences in job leads and returns to contacts [@huffman2002; @mcdonald2011; @mcguire2002; @lutter2015].
+
+- Connect to research on gendered and intersectional returns to productivity and innovation:  
+  - Diversity–innovation paradox and devaluation of minority innovations [@hofstra2020; @kozlowski2022].  
+  - Gender disparities in high-impact publication, grant success, and recognition [@bendels2018; @stadmark2020; @heiberger2025; @tolsma2025].
+
+#### Intersectional differences in second-order returns  
+- Argue that majority-origin men are most likely to be embedded in high-status, high-impact collaboration neighborhoods, and that evaluators interpret their networks more favorably.  
+  - Hierarchy and prestige in hiring and retention [@wapman2022; @heiberger2019].  
+  - Gendered knowledge and topic valuation [@kim2022; @hofstra2020; @kozlowski2022].
+- Women and minority-origin scholars may have less access to high second-order capital and/or receive lower marginal returns to similar second-order profiles, because their collaborators’ prestige is discounted or because evaluators interpret the same network signals differently.
+
+#### Hypotheses  
+- **H4a** Higher levels of second-order social capital (higher h-index, higher degree centrality, and higher academic position) are associated with a greater likelihood of attracting new co-authorship ties for all scholars.  
+- **H4b** The positive association between second-order social capital and attracting new co-authorship ties is stronger for men and majority-origin scholars than for women and minority-origin scholars.
