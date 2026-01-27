@@ -1,0 +1,178 @@
+---
+title: Prune Scrape Data
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+
+execute: 
+  eval: false
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(slider)
+```
+
+## Functions
+
+:::{.callout-note}
+- h-index (jaarlijks)
+- DONE vluchtige reputatie
+  - citations
+- DONE carriere leeftijd
+  - years since first publication
+- topic (node of edge)
+- university
+- gender
+- herkomst
+- ?? all metrics??
+  - plaatsen (geographic distance)
+  - afkomst,
+
+- beurzen
+- DONE productiviteit
+  - yearly
+  - window average < 3years
+- topic similarity
+:::
+
+met descriptives
+(varieren over tijd, gender, herkomst, positie)
+
+## Application
+
+```{r}
+data = freadRDS2('scholars', location = "./data/clean/")
+```
+
+
+```{r}
+select_works = function(data){
+  # define list of valid data types
+  valid_publication_types <- c(
+    'article', 'book', 'book-chapter', 'dissertation', 
+    'editorial', 'report', 'review',
+    # optional, to consider:
+    'erratum', 'letter', 'other', 'preprint'
+  )
+
+  selected_works <- data$works |>
+    bind_rows() |> 
+    filter(
+      !is_retracted,
+      type %in% valid_publication_types,
+      !is.na(publication_year)
+    ) |>
+    select(
+      uid, work_id, publication_year, publication_date, 
+      type, counts_by_year) |>
+    distinct(uid, work_id, .keep_all = TRUE)
+
+  return(selected_works)
+}
+ 
+```
+
+
+```{r}
+publications_by_year = function(selected_works){
+  pubs_by_year <- selected_works |>
+    rename(year = publication_year) |>
+    # complete date ranges per author
+    group_by(uid, year) |>
+    summarise(publications = n())|>
+    arrange(uid, year) |>
+    # count the number of publications per author year
+    group_by(uid) |>
+    complete(
+      year = full_seq(range(year, na.rm = TRUE), 1),
+      fill = list(publications = 0)
+    ) |>
+    mutate(
+      year = as.integer(year),
+      carreer_age = year - min(year),
+      cum_publications = cumsum(publications),
+      `2yr_publications` = slide_dbl(publications, sum, .before = 1, .complete=TRUE)
+    ) |>
+    ungroup() 
+
+  return(pubs_by_year)
+}
+
+```
+
+
+```{r}
+
+citations_by_year = function(selected_works) {
+  cited_by_year = selected_works |>
+    unnest(counts_by_year) |>
+    # complete date ranges per author
+    arrange(uid, year) |>
+    group_by(uid, year) |>
+    summarise(citations = sum(cited_by_count)) |>
+    drop_na(citations) |>
+    # count the number of citations per author year
+    group_by(uid) |>
+    complete(
+      year = full_seq(range(year, na.rm = TRUE), 1),
+      fill = list(citations = 0)
+    ) |>
+    mutate(
+      year = as.integer(year),
+      cum_citations = cumsum(citations),
+      `2yr_citations` = slide_dbl(citations, sum, .before = 1, .complete=TRUE)
+    )
+
+  return(cited_by_year)
+}
+
+```
+
+```{r}
+
+add_yearly_work_counts = function(data){
+  pubs = data |> select_works() |> publications_by_year()
+  cites = data |> select_works() |> citations_by_year()
+
+  #combine publications and citations, and count relative statistics
+  data$work_counts = pubs |>
+    left_join(cites) |>
+    # slicing data based on OpenAlex's citation data availability
+    filter(year >= 2015) |>
+    mutate(
+      cited_by_cumpub = cum_citations / cum_publications,
+      cited_by_pub = `citations` / `publications`
+    )
+
+  return(data)
+}
+
+```
+
+
+```{r}
+data = data |> add_yearly_work_counts()
+```
