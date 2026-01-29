@@ -38,20 +38,22 @@ library(slider)
 ## Functions
 
 :::{.callout-note}
-- h-index (jaarlijks)
+
 - DONE vluchtige reputatie
   - citations
 - DONE carriere leeftijd
   - years since first publication
 - topic (node of edge)
-- university
-- gender
-- herkomst
+- DONE university
+- DONE position
+- DONE gender
+- DONE herkomst 
 - ?? all metrics??
   - plaatsen (geographic distance)
-  - afkomst,
-
-- beurzen
+  - h-index (yearly)
+  - 2yr_mean_citedness (impact)
+  - i10-index (yearly)
+- beurzen [external data required]
 - DONE productiviteit
   - yearly
   - window average < 3years
@@ -125,7 +127,6 @@ publications_by_year = function(selected_works){
 
 
 ```{r}
-
 citations_by_year = function(selected_works) {
   cited_by_year = selected_works |>
     unnest(counts_by_year) |>
@@ -175,4 +176,138 @@ add_yearly_work_counts = function(data){
 
 ```{r}
 data = data |> add_yearly_work_counts()
+```
+
+
+```{r}
+
+categorize_ethnicity = function(data){
+  minority_codes =  c('MA', 'TR', 'BQ', 'CW', 'SX', 'AW', 'SR')
+
+  data$demographics = data$demographics |>
+    mutate(migrant = case_when(
+      str_detect(coalesce(ethnicity, ""), "NL") ~ "majority",
+      ethnicity %in% minority_codes ~ "minority",
+      is.na(ethnicity) ~ NA_character_,
+      .default = "other"
+    )) |>
+    relocate(migrant, .after = 'ethnicity')
+
+  return(data)
+}
+
+data = categorize_ethnicity(data)
+
+```
+
+```{r}
+h_index_vec = function(citations) {
+  if (is.null(citations) || length(citations) == 0L) return(0L)
+  c = sort(as.integer(citations[is.finite(citations) & !is.na(citations)]), decreasing = TRUE)
+  if (!length(c)) return(0L)
+  # With c sorted desc, h is the count of entries with c_i >= i
+  as.integer(sum(c >= seq_along(c)))
+}
+
+extract_citations = function(works_obj) {
+  # helper to deduplicate & pull citations from a data.frame
+  df_to_cites = function(df) {
+    if (!is.data.frame(df)) return(integer())
+    if ("id" %in% names(df)) df = distinct(df, id, .keep_all = TRUE)
+    if ("cited_by_count" %in% names(df)) return(as.integer(df$cited_by_count))
+    integer()
+  }
+
+  if (is.data.frame(works_obj)) {
+    return(df_to_cites(works_obj))
+  }
+
+  if (is.list(works_obj)) {
+    # common wrapper: list(results = data.frame(...))
+    if ("results" %in% names(works_obj)) return(df_to_cites(works_obj$results))
+
+    # otherwise assume a list of work records
+    cites = map_dbl(works_obj, ~ tryCatch(
+      {
+        v = .x[["cited_by_count"]]
+        if (is.null(v)) NA_real_ else as.numeric(v)
+      },
+      error = function(e) NA_real_
+    ))
+    return(as.integer(cites[!is.na(cites)]))
+  }
+
+  integer()
+}
+
+```
+
+```{r}
+cites <- data$works |>
+  bind_rows() |>
+  unnest_longer(counts_by_year) |>
+  unnest_wider(counts_by_year, names_sep = "_") |>
+  rename(
+    year = counts_by_year_year,
+    citations = counts_by_year_cited_by_count
+  ) |>
+  mutate(
+    publication_year = as.integer(publication_year),
+    year = as.integer(year),
+    citations = as.integer(citations),
+    citations = coalesce(citations, 0L),
+    year = coalesce(year, publication_year)  # <-- key line
+  ) |>
+  arrange(uid, publication_year, year) |>
+  select(uid, work_id, publication_year, year, citations) |>
+  group_by(uid, work_id) |>
+  complete(
+    year = full_seq(range(year, na.rm = TRUE), 1),
+    fill = list(citations = 0L)
+  ) |>
+  fill(publication_year, .direction = "downup") |>
+  arrange(year, .by_group = TRUE) |>
+  mutate(cum_citations = cumsum(citations)) |>
+  ungroup() |>
+  mutate(year = as.integer(year))
+```
+
+ ```{r}
+ i10_index_by_year = cites |>
+  mutate(i10 = cum_citations > 10) |>
+  group_by(uid, year) |>
+  summarise(i10_index = sum(i10))
+ ```
+
+
+```{r}
+pubs = data |> 
+  select_works() |> 
+  publications_by_year() |>
+  select(uid, year, publications) |>
+  group_by(uid) |>
+  mutate(k_publications = sum(publications)) |>
+  ungroup()
+```
+
+
+```{r}
+h_index_by_year = cites |>
+  left_join(pubs) |>
+  group_by(work_id) |>
+  arrange(year, .by_group = TRUE) |>
+  fill(cum_citations, .direction = 'down') |>
+  group_by(uid, year) |>
+  fill(k_publications, .direction = 'down') |>
+  summarise(h_index_by_year = sum(cum_citations >= k_publications)) |>
+  group_by(uid) |> 
+  arrange(year, .by_group = TRUE) |>
+  fill(h_index_by_year, .direction = 'down') 
+```
+
+There is almost no variability in h-index over the years.
+
+
+```{r}
+
 ```
