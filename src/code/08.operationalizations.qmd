@@ -50,9 +50,9 @@ library(slider)
 - DONE herkomst 
 - ?? all metrics??
   - plaatsen (geographic distance)
-  - h-index (yearly)
-  - 2yr_mean_citedness (impact)
-  - i10-index (yearly)
+  - DONE h-index (yearly)
+  - DONE 2yr_mean_citedness (impact)
+  - DONE i10-index (yearly)
 - beurzen [external data required]
 - DONE productiviteit
   - yearly
@@ -243,71 +243,62 @@ extract_citations = function(works_obj) {
 ```
 
 ```{r}
-cites <- data$works |>
+data$works |>
   bind_rows() |>
-  unnest_longer(counts_by_year) |>
+  select(work_id, counts_by_year) |>
+  unnest_longer(counts_by_year)  |>
   unnest_wider(counts_by_year, names_sep = "_") |>
   rename(
     year = counts_by_year_year,
     citations = counts_by_year_cited_by_count
-  ) |>
-  mutate(
-    publication_year = as.integer(publication_year),
-    year = as.integer(year),
-    citations = as.integer(citations),
-    citations = coalesce(citations, 0L),
-    year = coalesce(year, publication_year)  # <-- key line
-  ) |>
-  arrange(uid, publication_year, year) |>
-  select(uid, work_id, publication_year, year, citations) |>
-  group_by(uid, work_id) |>
-  complete(
-    year = full_seq(range(year, na.rm = TRUE), 1),
-    fill = list(citations = 0L)
-  ) |>
-  fill(publication_year, .direction = "downup") |>
-  arrange(year, .by_group = TRUE) |>
-  mutate(cum_citations = cumsum(citations)) |>
-  ungroup() |>
-  mutate(year = as.integer(year))
+  )
 ```
 
- ```{r}
- i10_index_by_year = cites |>
-  mutate(i10 = cum_citations > 10) |>
-  group_by(uid, year) |>
-  summarise(i10_index = sum(i10))
- ```
-
+----
 
 ```{r}
-pubs = data |> 
-  select_works() |> 
-  publications_by_year() |>
-  select(uid, year, publications) |>
-  group_by(uid) |>
-  mutate(k_publications = sum(publications)) |>
-  ungroup()
+add_stats_by_year = function(data){
+  cites = extract_citations_by_year(data)
+
+  # calculate i10_indices
+  i10_index_by_year = cites |>
+    mutate(i10 = i > 10) |>
+    group_by(uid, year) |>
+    summarise(i10_index = sum(i10)) |>
+    mutate(year = as.integer(year))
+
+  # calculate h_indices
+  h_index_by_year = cites |> 
+    group_by(uid, year) |>
+    summarise(h_index = sum(i > k)) |>
+    mutate(year = as.integer(year))
+
+  # aggregate citations and publications
+  counts = cites |> 
+    group_by(uid, year) |>
+    summarize(
+      citations = sum(i),
+      publications = n_distinct(work_id)
+    )
+
+  # combine statistics in variable of data.frames
+  statistics <- h_index_by_year |>
+    full_join(i10_index_by_year, by = c("uid", "year")) |>
+    full_join(counts, by = c("uid", "year")) |>
+    filter(year > 2015, year < 2026) |>
+    arrange(uid, year) |>
+    group_by(uid) |>
+    nest(stats_by_year = c(year, h_index, i10_index, citations, publications)) |>
+    ungroup()
+
+  data$demographics <- data$demographics |>
+    left_join(statistics)
+
+  return(data)
+}
+
 ```
 
-
 ```{r}
-h_index_by_year = cites |>
-  left_join(pubs) |>
-  group_by(work_id) |>
-  arrange(year, .by_group = TRUE) |>
-  fill(cum_citations, .direction = 'down') |>
-  group_by(uid, year) |>
-  fill(k_publications, .direction = 'down') |>
-  summarise(h_index_by_year = sum(cum_citations >= k_publications)) |>
-  group_by(uid) |> 
-  arrange(year, .by_group = TRUE) |>
-  fill(h_index_by_year, .direction = 'down') 
-```
-
-There is almost no variability in h-index over the years.
-
-
-```{r}
-
+data = add_stats_by_year(data)
 ```

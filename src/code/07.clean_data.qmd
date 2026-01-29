@@ -161,7 +161,6 @@ prune_works_by_author_id = function(data){
       ) |>
       mutate(
         doi = ifelse(is.logical(doi), NA_character_, doi),
-        counts_by_year = ifelse(is.logical(counts_by_year), list(), counts_by_year),
         oa_url = ifelse(is.logical(oa_url), NA_character_, oa_url)
       )
 
