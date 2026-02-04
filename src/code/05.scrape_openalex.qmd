@@ -43,7 +43,7 @@ library(stringi)
 library(stringdist)
 
 # set global options
-options(openalexR.mailto = "jos.slabbekoorn@ru.nl")
+options(openalexR.mailto = "jos.slabbekoorn@outlook.com")
 ```
 
 ## Functions
@@ -428,6 +428,37 @@ Unnest and clean OpenAlex institution data per author in a nested list of tibble
 The function iterates over each element of the input list `data`, treating the list names as author `uid`s. For every element, it first checks whether the object is a non-empty tibble; invalid entries are skipped. For valid tibbles, it filters rows to the current `uid`, removes duplicate `(uid, author_id)` combinations, and then processes the `last_known_institutions` list-column. Within each element of `last_known_institutions`, it keeps unique rows, derives a compact `institution_id` by stripping the `"https://openalex.org/"` prefix from `id`, and creates a readable `institution_name` from `display_name`, retaining `id`, `institution_id`, `institution_name`, and `country_code`. In addition, it constructs an `institution_ids` column that stores, per row, the unique set of associated institution IDs as a character vector. The modified tibble is written back into the corresponding position in the `hold` list. Finally, the function returns the updated list, preserving its original structure but with institution information consistently unpacked and enriched.
 
 ```{r}
+
+clean_last_known_institutions <- function(tab){
+  empty_inst <- tibble(
+    id = character(),
+    display_name = character(),
+    country_code = character()
+  )
+
+  # 1) If the column is not present, create it (one empty tibble per row)
+  if (!"last_known_institutions" %in% names(tab)) {
+    tab <- tab %>%
+      mutate(last_known_institutions = replicate(
+        n(), empty_inst, simplify = FALSE)) |>
+      relocate(last_known_institutions, .before = topics)
+  }
+
+  # 2) If entries are missing/NULL/NA/list(NA), replace them with empty_inst
+  tab <- tab %>%
+    mutate(
+      last_known_institutions = map(last_known_institutions, \(x) {
+        if (is.null(x) || length(x) == 0 || (length(x) == 1 && all(is.na(x)))) {
+          empty_inst
+        } else {
+          x
+        }
+      })
+    )
+
+  return(tab)
+}
+
 unnest_institutions = function(data){
   hold = data
   for (id in names(data)) {
@@ -439,12 +470,14 @@ unnest_institutions = function(data){
     hold[[id]] = tab |>
       filter(uid == id) |>
       distinct(uid, author_id, .keep_all=TRUE) |>
+      clean_last_known_institutions() |>
       mutate(
         # unpacks the dataframes found in last_known_institutions
         last_known_institutions = map(
           last_known_institutions,
           ~ .x |>
             distinct(.keep_all = TRUE) |>
+            drop_na() |>
             mutate(
               institution_id   = str_remove(id, "^https://openalex.org/"),
               institution_name = display_name
@@ -687,10 +720,6 @@ fsaveRDS(authors, 'oaauthors', location = "./data/raw_data/")
 ```
 
 ```{r}
-authors = freadRDS2('oaauthors', location = 'raw_data')
-```
-
-```{r}
 a = bind_rows(authors)
 a |> head()
 ```
@@ -704,5 +733,9 @@ fsaveRDS(works, 'oaworks', location = "./data/raw_data/")
 ```{r}
 w = bind_rows(works)
 w |> head()
+```
+
+```{r}
+
 ```
 

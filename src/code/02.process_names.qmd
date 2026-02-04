@@ -33,7 +33,7 @@ library(readxl)
 library(stringr)
 library(lubridate)
 library(stringi)
-library(sqids)
+library(squids)
 ```
 
 ## Functions
@@ -268,19 +268,18 @@ Generate short unique identifiers for each `clean_name` and attach them as `uid`
 > Tibble or data frame containing a `clean_name` column with standardized name strings.
 
 #### Method
-The function first configures sqids with a minimum length of 10 characters and extracts the set of unique `clean_name` values. For each distinct `clean_name`, it generates a deterministic numeric sequence `i * 25` (for `i = 1..n`) and encodes this number into a short, URL-safe string `uid` using `sqids::encode()`. These are collected into a lookup tibble with columns `clean_name` and `uid`, which is saved to `data/utils/uid_key.Rds` for reuse outside this script. The original `names` data is then left-joined with the lookup on `clean_name`, and the resulting `uid` column is relocated to the first position. The function returns the input data augmented with a stable, compact identifier per unique name.
+The function first configures sqids with a minimum length of 10 characters and extracts the set of unique `clean_name` values. For each distinct `clean_name`, it generates a random squid. These are collected into a lookup tibble with columns `clean_name` and `uid`, which is saved to `data/utils/uid_key.Rds` for reuse outside this script. The original `names` data is then left-joined with the lookup on `clean_name`, and the resulting `uid` column is relocated to the first position. The function returns the input data augmented with a stable, compact identifier per unique name.
 
 ```{r}
 add_uid = function(names){
-  # configure sqids
-  settings <- sqids::sqids_options(min_length = 10)
   unique_names = names$clean_name |> unique()
+  unique_squids = squids::random_squids(length(unique_names), followBy=4)
 
   # generate a id for all names
   lookup = list()
   for (i in 1:length(unique_names)){
     name = unique_names[[i]]
-    id = sqids::encode(i * 25, settings)
+    id = unique_squids[[i]]
     lookup[[i]] = tibble(
       clean_name = name,
       uid = id
@@ -294,7 +293,6 @@ add_uid = function(names){
     left_join(lookup) |>
     relocate(uid, .before=1)
 }
-
 ```
 
 ## Application

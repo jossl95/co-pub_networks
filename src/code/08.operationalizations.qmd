@@ -302,3 +302,89 @@ add_stats_by_year = function(data){
 ```{r}
 data = add_stats_by_year(data)
 ```
+
+
+```{r}
+topic_data = data$works |>
+  bind_rows() |>
+  select(uid, work_id, publication_year, topics) |>
+  unnest_longer(topics) |>
+  unnest_wider(topics) |>
+  mutate(
+    id = str_remove(id, 'https://openalex.org/') |>
+      str_replace('subfields/', 'S') |>
+      str_replace('fields/', 'F') |>
+      str_replace('domains/', 'D')
+  )
+```
+
+
+```{r}
+domains = topic_data |>
+  filter(type == 'domain') |>
+  select(uid, work_id, publication_year, id) |>
+  arrange(id) |>
+  mutate(value = 1L) |>
+  pivot_wider(
+    id_cols = c(uid, work_id, publication_year),
+    names_from = id,
+    values_from = value,
+    values_fn = sum,
+    values_fill = 0L
+  )
+
+domains
+```
+
+
+```{r}
+fields = topic_data |>
+  filter(type == 'field') |>
+  select(uid, work_id, publication_year, id) |>
+  arrange(id) |>
+  mutate(value = 1L) |>
+  pivot_wider(
+    id_cols = c(uid, work_id, publication_year),
+    names_from = id,
+    values_from = value,
+    values_fn = sum,
+    values_fill = 0L
+  )
+
+fields
+```
+
+
+```{r}
+subfields = topic_data |>
+  filter(type == 'subfield') |>
+  select(uid, work_id, publication_year, id) |>
+  arrange(id) |>
+  mutate(value = 1L) |>
+  pivot_wider(
+    id_cols = c(uid, work_id, publication_year),
+    names_from = id,
+    values_from = value,
+    values_fn = sum,
+    values_fill = 0L
+  )
+
+subfields
+```
+
+```{r}
+topics = topic_data |>
+  filter(type == 'topic') |>
+  select(uid, work_id, publication_year, id) |>
+  arrange(id) |>
+  mutate(value = 1L) |>
+  pivot_wider(
+    id_cols = c(uid, work_id, publication_year),
+    names_from = id,
+    values_from = value,
+    values_fn = sum,
+    values_fill = 0L
+  )
+
+topics
+```
