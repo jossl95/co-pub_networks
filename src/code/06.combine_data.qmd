@@ -217,5 +217,5 @@ fsaveRDS(scholars, file="scholars", location = "./data/combined/")
 ```
 
 ```{r}
-scholars |> head()
+scholars$scholars_oa |> bind_rows() |> head()
 ```

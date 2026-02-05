@@ -49,7 +49,7 @@ library(slider)
 - DONE gender
 - DONE herkomst 
 - ?? all metrics??
-  - plaatsen (geographic distance)
+  - (TODO) plaatsen (geographic distance)
   - DONE h-index (yearly)
   - DONE 2yr_mean_citedness (impact)
   - DONE i10-index (yearly)
@@ -58,6 +58,7 @@ library(slider)
   - yearly
   - window average < 3years
 - topic similarity
+- interdisciplinariteit
 :::
 
 met descriptives
@@ -300,7 +301,7 @@ add_stats_by_year = function(data){
 ```
 
 ```{r}
-data = add_stats_by_year(data)
+# data = add_stats_by_year(data)
 ```
 
 
@@ -316,11 +317,13 @@ topic_data = data$works |>
       str_replace('fields/', 'F') |>
       str_replace('domains/', 'D')
   )
+
+topics = list()
 ```
 
 
 ```{r}
-domains = topic_data |>
+topics$counts$domains = topic_data |>
   filter(type == 'domain') |>
   select(uid, work_id, publication_year, id) |>
   arrange(id) |>
@@ -333,12 +336,12 @@ domains = topic_data |>
     values_fill = 0L
   )
 
-domains
+topics$counts$domains
 ```
 
 
 ```{r}
-fields = topic_data |>
+topics$counts$fields = topic_data |>
   filter(type == 'field') |>
   select(uid, work_id, publication_year, id) |>
   arrange(id) |>
@@ -351,12 +354,12 @@ fields = topic_data |>
     values_fill = 0L
   )
 
-fields
+topics$counts$fields
 ```
 
 
 ```{r}
-subfields = topic_data |>
+topics$counts$subfields = topic_data |>
   filter(type == 'subfield') |>
   select(uid, work_id, publication_year, id) |>
   arrange(id) |>
@@ -369,11 +372,11 @@ subfields = topic_data |>
     values_fill = 0L
   )
 
-subfields
+topics$counts$subfields
 ```
 
 ```{r}
-topics = topic_data |>
+topics$counts$topics = topic_data |>
   filter(type == 'topic') |>
   select(uid, work_id, publication_year, id) |>
   arrange(id) |>
@@ -386,5 +389,41 @@ topics = topic_data |>
     values_fill = 0L
   )
 
-topics
+topics$counts$topics
+```
+
+
+```{r}
+counts = topics$counts |>
+  reduce(~ left_join(.x, .y))
+
+valid_topics = counts |>
+  select(matches("\\d$")) |>
+  summarise(across(everything(), ~ sum(as.numeric(.x), na.rm = TRUE))) |>
+  unlist(use.names = TRUE) |>
+  (\(x) names(x)[x > 20])()
+```
+
+
+```{r}
+topics_counts_cum <- counts |>
+  select(-work_id) |>
+  group_by(uid, publication_year) |>
+  summarise(
+    across(
+      all_of(valid_topics),
+      ~ sum(.x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  ) |>
+  arrange(publication_year, .by_group = FALSE) |>
+  group_by(uid) |>
+  mutate(
+    across(
+      where(is.numeric) & !any_of(c("publication_year")),
+      cumsum
+    )
+  ) |>
+  ungroup()
+
 ```
