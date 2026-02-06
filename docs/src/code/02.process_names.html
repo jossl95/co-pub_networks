@@ -2,11 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.25">
+<meta name="generator" content="quarto-1.9.14">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-23">
+<meta name="dcterms.date" content="2026-02-06">
 
 <title>Data Processing Names – Networks</title>
 <style>
@@ -73,14 +73,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-4f72c1afe59a4edb82ad8e59b4b7d712.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-cada5050e646ab9f5721bf60d918d5a1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-4f72c1afe59a4edb82ad8e59b4b7d712.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-30d20b82645cd210f386addab4f6448d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-8bc95915644b09e823dba8822d382726.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-30d20b82645cd210f386addab4f6448d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-89b8ddf5ef4096b39ef33ee4d6e393de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6f9f77ecbc4ee60efa7fbe137cac528c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-89b8ddf5ef4096b39ef33ee4d6e393de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -292,8 +292,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
-    </a>
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Networks</span>
     </a>
@@ -416,7 +414,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 23, 2025</p>
+      <p class="date">February 6, 2026</p>
     </div>
   </div>
   
@@ -445,7 +443,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-4"><a href="#cb2-4"></a><span class="fu">library</span>(stringr)</span>
 <span id="cb2-5"><a href="#cb2-5"></a><span class="fu">library</span>(lubridate)</span>
 <span id="cb2-6"><a href="#cb2-6"></a><span class="fu">library</span>(stringi)</span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="fu">library</span>(sqids)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="fu">library</span>(squids)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="functions" class="level2">
@@ -696,31 +694,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="method-5" class="level4">
 <h4 class="anchored" data-anchor-id="method-5">Method</h4>
-<p>The function first configures sqids with a minimum length of 10 characters and extracts the set of unique <code>clean_name</code> values. For each distinct <code>clean_name</code>, it generates a deterministic numeric sequence <code>i * 25</code> (for <code>i = 1..n</code>) and encodes this number into a short, URL-safe string <code>uid</code> using <code>sqids::encode()</code>. These are collected into a lookup tibble with columns <code>clean_name</code> and <code>uid</code>, which is saved to <code>data/utils/uid_key.Rds</code> for reuse outside this script. The original <code>names</code> data is then left-joined with the lookup on <code>clean_name</code>, and the resulting <code>uid</code> column is relocated to the first position. The function returns the input data augmented with a stable, compact identifier per unique name.</p>
+<p>The function first configures sqids with a minimum length of 10 characters and extracts the set of unique <code>clean_name</code> values. For each distinct <code>clean_name</code>, it generates a random squid. These are collected into a lookup tibble with columns <code>clean_name</code> and <code>uid</code>, which is saved to <code>data/utils/uid_key.Rds</code> for reuse outside this script. The original <code>names</code> data is then left-joined with the lookup on <code>clean_name</code>, and the resulting <code>uid</code> column is relocated to the first position. The function returns the input data augmented with a stable, compact identifier per unique name.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>add_uid <span class="ot">=</span> <span class="cf">function</span>(names){</span>
-<span id="cb9-2"><a href="#cb9-2"></a>  <span class="co"># configure sqids</span></span>
-<span id="cb9-3"><a href="#cb9-3"></a>  settings <span class="ot">&lt;-</span> sqids<span class="sc">::</span><span class="fu">sqids_options</span>(<span class="at">min_length =</span> <span class="dv">10</span>)</span>
-<span id="cb9-4"><a href="#cb9-4"></a>  unique_names <span class="ot">=</span> names<span class="sc">$</span>clean_name <span class="sc">|&gt;</span> <span class="fu">unique</span>()</span>
-<span id="cb9-5"><a href="#cb9-5"></a></span>
-<span id="cb9-6"><a href="#cb9-6"></a>  <span class="co"># generate a id for all names</span></span>
-<span id="cb9-7"><a href="#cb9-7"></a>  lookup <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb9-8"><a href="#cb9-8"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(unique_names)){</span>
-<span id="cb9-9"><a href="#cb9-9"></a>    name <span class="ot">=</span> unique_names[[i]]</span>
-<span id="cb9-10"><a href="#cb9-10"></a>    id <span class="ot">=</span> sqids<span class="sc">::</span><span class="fu">encode</span>(i <span class="sc">*</span> <span class="dv">25</span>, settings)</span>
-<span id="cb9-11"><a href="#cb9-11"></a>    lookup[[i]] <span class="ot">=</span> <span class="fu">tibble</span>(</span>
-<span id="cb9-12"><a href="#cb9-12"></a>      <span class="at">clean_name =</span> name,</span>
-<span id="cb9-13"><a href="#cb9-13"></a>      <span class="at">uid =</span> id</span>
-<span id="cb9-14"><a href="#cb9-14"></a>    )</span>
-<span id="cb9-15"><a href="#cb9-15"></a>  }</span>
-<span id="cb9-16"><a href="#cb9-16"></a></span>
-<span id="cb9-17"><a href="#cb9-17"></a>  lookup <span class="ot">=</span> <span class="fu">bind_rows</span>(lookup)</span>
-<span id="cb9-18"><a href="#cb9-18"></a>  <span class="fu">saveRDS</span>(lookup, <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'uid_key.Rds'</span>))</span>
-<span id="cb9-19"><a href="#cb9-19"></a></span>
-<span id="cb9-20"><a href="#cb9-20"></a>  names <span class="sc">|&gt;</span></span>
-<span id="cb9-21"><a href="#cb9-21"></a>    <span class="fu">left_join</span>(lookup) <span class="sc">|&gt;</span></span>
-<span id="cb9-22"><a href="#cb9-22"></a>    <span class="fu">relocate</span>(uid, <span class="at">.before=</span><span class="dv">1</span>)</span>
-<span id="cb9-23"><a href="#cb9-23"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-2"><a href="#cb9-2"></a>  unique_names <span class="ot">=</span> names<span class="sc">$</span>clean_name <span class="sc">|&gt;</span> <span class="fu">unique</span>()</span>
+<span id="cb9-3"><a href="#cb9-3"></a>  unique_squids <span class="ot">=</span> squids<span class="sc">::</span><span class="fu">random_squids</span>(<span class="fu">length</span>(unique_names), <span class="at">followBy=</span><span class="dv">4</span>)</span>
+<span id="cb9-4"><a href="#cb9-4"></a></span>
+<span id="cb9-5"><a href="#cb9-5"></a>  <span class="co"># generate a id for all names</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a>  lookup <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb9-7"><a href="#cb9-7"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(unique_names)){</span>
+<span id="cb9-8"><a href="#cb9-8"></a>    name <span class="ot">=</span> unique_names[[i]]</span>
+<span id="cb9-9"><a href="#cb9-9"></a>    id <span class="ot">=</span> unique_squids[[i]]</span>
+<span id="cb9-10"><a href="#cb9-10"></a>    lookup[[i]] <span class="ot">=</span> <span class="fu">tibble</span>(</span>
+<span id="cb9-11"><a href="#cb9-11"></a>      <span class="at">clean_name =</span> name,</span>
+<span id="cb9-12"><a href="#cb9-12"></a>      <span class="at">uid =</span> id</span>
+<span id="cb9-13"><a href="#cb9-13"></a>    )</span>
+<span id="cb9-14"><a href="#cb9-14"></a>  }</span>
+<span id="cb9-15"><a href="#cb9-15"></a></span>
+<span id="cb9-16"><a href="#cb9-16"></a>  lookup <span class="ot">=</span> <span class="fu">bind_rows</span>(lookup)</span>
+<span id="cb9-17"><a href="#cb9-17"></a>  <span class="fu">saveRDS</span>(lookup, <span class="fu">file.path</span>(<span class="st">'data'</span>, <span class="st">'utils'</span>, <span class="st">'uid_key.Rds'</span>))</span>
+<span id="cb9-18"><a href="#cb9-18"></a></span>
+<span id="cb9-19"><a href="#cb9-19"></a>  names <span class="sc">|&gt;</span></span>
+<span id="cb9-20"><a href="#cb9-20"></a>    <span class="fu">left_join</span>(lookup) <span class="sc">|&gt;</span></span>
+<span id="cb9-21"><a href="#cb9-21"></a>    <span class="fu">relocate</span>(uid, <span class="at">.before=</span><span class="dv">1</span>)</span>
+<span id="cb9-22"><a href="#cb9-22"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
@@ -749,7 +746,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["uid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["naam"],"name":[2],"type":["chr"],"align":["left"]},{"label":["clean_name_full"],"name":[3],"type":["chr"],"align":["left"]},{"label":["clean_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["initials"],"name":[5],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[6],"type":["chr"],"align":["left"]},{"label":["particle"],"name":[7],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[8],"type":["chr"],"align":["left"]},{"label":["maiden_name"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"kOKT9MVfb0","2":"A. Micheli","3":"A. Micheli","4":"A. Micheli","5":"A.","6":"NA","7":"NA","8":"Micheli","9":"NA"},{"1":"Kj5Q8YFGzd","2":"A. Scheuer","3":"Alisha Scheuer","4":"Alisha Scheuer","5":"A.","6":"Alisha","7":"NA","8":"Scheuer","9":"NA"},{"1":"2h5Y5XM6fr","2":"A.B. Bieleman","3":"Bert Bieleman","4":"Bert Bieleman","5":"A.B.","6":"Bert","7":"NA","8":"Bieleman","9":"NA"},{"1":"86uR0I7fEb","2":"A.J. Venema","3":"A.J. Venema","4":"A.J. Venema","5":"A.J.","6":"NA","7":"NA","8":"Venema","9":"NA"},{"1":"UK5LWZg9DA","2":"A.J.D. de Lacey","3":"Alex de Lacey","4":"Alex de Lacey","5":"A.J.D.","6":"Alex","7":"de","8":"Lacey","9":"NA"},{"1":"31YWpPTcf5","2":"A.J.G.M. van Montfort","3":"Andre van Montfort","4":"Andre van Montfort","5":"A.J.G.M.","6":"Andre","7":"van","8":"Montfort","9":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["uid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["naam"],"name":[2],"type":["chr"],"align":["left"]},{"label":["clean_name_full"],"name":[3],"type":["chr"],"align":["left"]},{"label":["clean_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["initials"],"name":[5],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[6],"type":["chr"],"align":["left"]},{"label":["particle"],"name":[7],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[8],"type":["chr"],"align":["left"]},{"label":["maiden_name"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"82tg3wp6","2":"A. Micheli","3":"A. Micheli","4":"A. Micheli","5":"A.","6":"NA","7":"NA","8":"Micheli","9":"NA"},{"1":"82tg3xb5","2":"A. Scheuer","3":"Alisha Scheuer","4":"Alisha Scheuer","5":"A.","6":"Alisha","7":"NA","8":"Scheuer","9":"NA"},{"1":"82tg3xbj","2":"A.B. Bieleman","3":"Bert Bieleman","4":"Bert Bieleman","5":"A.B.","6":"Bert","7":"NA","8":"Bieleman","9":"NA"},{"1":"82tg3xtf","2":"A.J. Venema","3":"A.J. Venema","4":"A.J. Venema","5":"A.J.","6":"NA","7":"NA","8":"Venema","9":"NA"},{"1":"82tg3wkg","2":"A.J.D. de Lacey","3":"Alex de Lacey","4":"Alex de Lacey","5":"A.J.D.","6":"Alex","7":"de","8":"Lacey","9":"NA"},{"1":"82tg3xp3","2":"A.J.G.M. van Montfort","3":"Andre van Montfort","4":"Andre van Montfort","5":"A.J.G.M.","6":"Andre","7":"van","8":"Montfort","9":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>

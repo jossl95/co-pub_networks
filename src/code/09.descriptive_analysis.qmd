@@ -9,7 +9,7 @@ format:
         icon: file-code
         text: Custom Functions
         
-# eval: false
+eval: false
 ---
 
 ## Getting Started
@@ -104,6 +104,8 @@ limit_observation_period = function(data, start_date = "2019-01-01"){
   return(data)
 }
 ```
+
+<!---
 
 ```{r}
 build_matrices <- function(data, 
@@ -776,3 +778,5 @@ sample_attrition = freadRDS2('scholars', location = 'combined')[['demographics']
 
 # TODO: Check counting descrepancy 10 pax.
 ```
+
+--->

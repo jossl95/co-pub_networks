@@ -2,11 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.25">
+<meta name="generator" content="quarto-1.9.14">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-23">
+<meta name="dcterms.date" content="2026-02-06">
 
 <title>Data Preparation OpenAlex-ID – Networks</title>
 <style>
@@ -73,14 +73,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-4f72c1afe59a4edb82ad8e59b4b7d712.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-cada5050e646ab9f5721bf60d918d5a1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-4f72c1afe59a4edb82ad8e59b4b7d712.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-30d20b82645cd210f386addab4f6448d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-8bc95915644b09e823dba8822d382726.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-30d20b82645cd210f386addab4f6448d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-89b8ddf5ef4096b39ef33ee4d6e393de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6f9f77ecbc4ee60efa7fbe137cac528c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-89b8ddf5ef4096b39ef33ee4d6e393de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -292,8 +292,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
-    </a>
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Networks</span>
     </a>
@@ -418,7 +416,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 23, 2025</p>
+      <p class="date">February 6, 2026</p>
     </div>
   </div>
   
@@ -454,7 +452,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-11"><a href="#cb2-11"></a><span class="fu">library</span>(stringdist)</span>
 <span id="cb2-12"><a href="#cb2-12"></a></span>
 <span id="cb2-13"><a href="#cb2-13"></a><span class="co"># set global options</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a><span class="fu">options</span>(<span class="at">openalexR.mailto =</span> <span class="st">"jos.slabbekoorn@ru.nl"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="fu">options</span>(<span class="at">openalexR.mailto =</span> <span class="st">"jos.slabbekoorn@outlook.com"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="functions" class="level2">
@@ -838,38 +836,70 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="anchored" data-anchor-id="method-6">Method</h4>
 <p>The function iterates over each element of the input list <code>data</code>, treating the list names as author <code>uid</code>s. For every element, it first checks whether the object is a non-empty tibble; invalid entries are skipped. For valid tibbles, it filters rows to the current <code>uid</code>, removes duplicate <code>(uid, author_id)</code> combinations, and then processes the <code>last_known_institutions</code> list-column. Within each element of <code>last_known_institutions</code>, it keeps unique rows, derives a compact <code>institution_id</code> by stripping the <code>"https://openalex.org/"</code> prefix from <code>id</code>, and creates a readable <code>institution_name</code> from <code>display_name</code>, retaining <code>id</code>, <code>institution_id</code>, <code>institution_name</code>, and <code>country_code</code>. In addition, it constructs an <code>institution_ids</code> column that stores, per row, the unique set of associated institution IDs as a character vector. The modified tibble is written back into the corresponding position in the <code>hold</code> list. Finally, the function returns the updated list, preserving its original structure but with institution information consistently unpacked and enriched.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>unnest_institutions <span class="ot">=</span> <span class="cf">function</span>(data){</span>
-<span id="cb9-2"><a href="#cb9-2"></a>  hold <span class="ot">=</span> data</span>
-<span id="cb9-3"><a href="#cb9-3"></a>  <span class="cf">for</span> (id <span class="cf">in</span> <span class="fu">names</span>(data)) {</span>
-<span id="cb9-4"><a href="#cb9-4"></a>    <span class="co"># extract information for each author and skip if invalid</span></span>
-<span id="cb9-5"><a href="#cb9-5"></a>    tab <span class="ot">=</span> data[[id]]</span>
-<span id="cb9-6"><a href="#cb9-6"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(tab) <span class="sc">||</span> <span class="sc">!</span><span class="fu">is_tibble</span>(tab) <span class="sc">||</span> <span class="sc">!</span>(<span class="fu">nrow</span>(tab) <span class="sc">&gt;</span> <span class="dv">0</span>)) <span class="cf">next</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>clean_last_known_institutions <span class="ot">&lt;-</span> <span class="cf">function</span>(tab){</span>
+<span id="cb9-2"><a href="#cb9-2"></a>  empty_inst <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb9-3"><a href="#cb9-3"></a>    <span class="at">id =</span> <span class="fu">character</span>(),</span>
+<span id="cb9-4"><a href="#cb9-4"></a>    <span class="at">display_name =</span> <span class="fu">character</span>(),</span>
+<span id="cb9-5"><a href="#cb9-5"></a>    <span class="at">country_code =</span> <span class="fu">character</span>()</span>
+<span id="cb9-6"><a href="#cb9-6"></a>  )</span>
 <span id="cb9-7"><a href="#cb9-7"></a></span>
-<span id="cb9-8"><a href="#cb9-8"></a>    <span class="co"># clean authors data and unnests institution information</span></span>
-<span id="cb9-9"><a href="#cb9-9"></a>    hold[[id]] <span class="ot">=</span> tab <span class="sc">|&gt;</span></span>
-<span id="cb9-10"><a href="#cb9-10"></a>      <span class="fu">filter</span>(uid <span class="sc">==</span> id) <span class="sc">|&gt;</span></span>
-<span id="cb9-11"><a href="#cb9-11"></a>      <span class="fu">distinct</span>(uid, author_id, <span class="at">.keep_all=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-12"><a href="#cb9-12"></a>      <span class="fu">mutate</span>(</span>
-<span id="cb9-13"><a href="#cb9-13"></a>        <span class="co"># unpacks the dataframes found in last_known_institutions</span></span>
-<span id="cb9-14"><a href="#cb9-14"></a>        <span class="at">last_known_institutions =</span> <span class="fu">map</span>(</span>
-<span id="cb9-15"><a href="#cb9-15"></a>          last_known_institutions,</span>
-<span id="cb9-16"><a href="#cb9-16"></a>          <span class="sc">~</span> .x <span class="sc">|&gt;</span></span>
-<span id="cb9-17"><a href="#cb9-17"></a>            <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-18"><a href="#cb9-18"></a>            <span class="fu">mutate</span>(</span>
-<span id="cb9-19"><a href="#cb9-19"></a>              <span class="at">institution_id   =</span> <span class="fu">str_remove</span>(id, <span class="st">"^https://openalex.org/"</span>),</span>
-<span id="cb9-20"><a href="#cb9-20"></a>              <span class="at">institution_name =</span> display_name</span>
-<span id="cb9-21"><a href="#cb9-21"></a>            ) <span class="sc">|&gt;</span></span>
-<span id="cb9-22"><a href="#cb9-22"></a>            <span class="fu">select</span>(id, institution_id, institution_name, country_code)</span>
-<span id="cb9-23"><a href="#cb9-23"></a>        ),</span>
-<span id="cb9-24"><a href="#cb9-24"></a>        <span class="co"># unnests the institution_ids</span></span>
-<span id="cb9-25"><a href="#cb9-25"></a>        <span class="at">institution_ids =</span> <span class="fu">map</span>(</span>
-<span id="cb9-26"><a href="#cb9-26"></a>          last_known_institutions, </span>
-<span id="cb9-27"><a href="#cb9-27"></a>          <span class="sc">~</span> .x <span class="sc">|&gt;</span> <span class="fu">pull</span>(institution_id) <span class="sc">|&gt;</span> <span class="fu">unique</span>()</span>
-<span id="cb9-28"><a href="#cb9-28"></a>        )    </span>
-<span id="cb9-29"><a href="#cb9-29"></a>      )</span>
-<span id="cb9-30"><a href="#cb9-30"></a>  }</span>
-<span id="cb9-31"><a href="#cb9-31"></a>  <span class="fu">return</span>(hold)</span>
-<span id="cb9-32"><a href="#cb9-32"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-8"><a href="#cb9-8"></a>  <span class="co"># 1) If the column is not present, create it (one empty tibble per row)</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="st">"last_known_institutions"</span> <span class="sc">%in%</span> <span class="fu">names</span>(tab)) {</span>
+<span id="cb9-10"><a href="#cb9-10"></a>    tab <span class="ot">&lt;-</span> tab <span class="sc">%&gt;%</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a>      <span class="fu">mutate</span>(<span class="at">last_known_institutions =</span> <span class="fu">replicate</span>(</span>
+<span id="cb9-12"><a href="#cb9-12"></a>        <span class="fu">n</span>(), empty_inst, <span class="at">simplify =</span> <span class="cn">FALSE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb9-13"><a href="#cb9-13"></a>      <span class="fu">relocate</span>(last_known_institutions, <span class="at">.before =</span> topics)</span>
+<span id="cb9-14"><a href="#cb9-14"></a>  }</span>
+<span id="cb9-15"><a href="#cb9-15"></a></span>
+<span id="cb9-16"><a href="#cb9-16"></a>  <span class="co"># 2) If entries are missing/NULL/NA/list(NA), replace them with empty_inst</span></span>
+<span id="cb9-17"><a href="#cb9-17"></a>  tab <span class="ot">&lt;-</span> tab <span class="sc">%&gt;%</span></span>
+<span id="cb9-18"><a href="#cb9-18"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb9-19"><a href="#cb9-19"></a>      <span class="at">last_known_institutions =</span> <span class="fu">map</span>(last_known_institutions, \(x) {</span>
+<span id="cb9-20"><a href="#cb9-20"></a>        <span class="cf">if</span> (<span class="fu">is.null</span>(x) <span class="sc">||</span> <span class="fu">length</span>(x) <span class="sc">==</span> <span class="dv">0</span> <span class="sc">||</span> (<span class="fu">length</span>(x) <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;&amp;</span> <span class="fu">all</span>(<span class="fu">is.na</span>(x)))) {</span>
+<span id="cb9-21"><a href="#cb9-21"></a>          empty_inst</span>
+<span id="cb9-22"><a href="#cb9-22"></a>        } <span class="cf">else</span> {</span>
+<span id="cb9-23"><a href="#cb9-23"></a>          x</span>
+<span id="cb9-24"><a href="#cb9-24"></a>        }</span>
+<span id="cb9-25"><a href="#cb9-25"></a>      })</span>
+<span id="cb9-26"><a href="#cb9-26"></a>    )</span>
+<span id="cb9-27"><a href="#cb9-27"></a></span>
+<span id="cb9-28"><a href="#cb9-28"></a>  <span class="fu">return</span>(tab)</span>
+<span id="cb9-29"><a href="#cb9-29"></a>}</span>
+<span id="cb9-30"><a href="#cb9-30"></a></span>
+<span id="cb9-31"><a href="#cb9-31"></a>unnest_institutions <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb9-32"><a href="#cb9-32"></a>  hold <span class="ot">=</span> data</span>
+<span id="cb9-33"><a href="#cb9-33"></a>  <span class="cf">for</span> (id <span class="cf">in</span> <span class="fu">names</span>(data)) {</span>
+<span id="cb9-34"><a href="#cb9-34"></a>    <span class="co"># extract information for each author and skip if invalid</span></span>
+<span id="cb9-35"><a href="#cb9-35"></a>    tab <span class="ot">=</span> data[[id]]</span>
+<span id="cb9-36"><a href="#cb9-36"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(tab) <span class="sc">||</span> <span class="sc">!</span><span class="fu">is_tibble</span>(tab) <span class="sc">||</span> <span class="sc">!</span>(<span class="fu">nrow</span>(tab) <span class="sc">&gt;</span> <span class="dv">0</span>)) <span class="cf">next</span></span>
+<span id="cb9-37"><a href="#cb9-37"></a></span>
+<span id="cb9-38"><a href="#cb9-38"></a>    <span class="co"># clean authors data and unnests institution information</span></span>
+<span id="cb9-39"><a href="#cb9-39"></a>    hold[[id]] <span class="ot">=</span> tab <span class="sc">|&gt;</span></span>
+<span id="cb9-40"><a href="#cb9-40"></a>      <span class="fu">filter</span>(uid <span class="sc">==</span> id) <span class="sc">|&gt;</span></span>
+<span id="cb9-41"><a href="#cb9-41"></a>      <span class="fu">distinct</span>(uid, author_id, <span class="at">.keep_all=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-42"><a href="#cb9-42"></a>      <span class="fu">clean_last_known_institutions</span>() <span class="sc">|&gt;</span></span>
+<span id="cb9-43"><a href="#cb9-43"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb9-44"><a href="#cb9-44"></a>        <span class="co"># unpacks the dataframes found in last_known_institutions</span></span>
+<span id="cb9-45"><a href="#cb9-45"></a>        <span class="at">last_known_institutions =</span> <span class="fu">map</span>(</span>
+<span id="cb9-46"><a href="#cb9-46"></a>          last_known_institutions,</span>
+<span id="cb9-47"><a href="#cb9-47"></a>          <span class="sc">~</span> .x <span class="sc">|&gt;</span></span>
+<span id="cb9-48"><a href="#cb9-48"></a>            <span class="fu">distinct</span>(<span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-49"><a href="#cb9-49"></a>            <span class="fu">drop_na</span>() <span class="sc">|&gt;</span></span>
+<span id="cb9-50"><a href="#cb9-50"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb9-51"><a href="#cb9-51"></a>              <span class="at">institution_id   =</span> <span class="fu">str_remove</span>(id, <span class="st">"^https://openalex.org/"</span>),</span>
+<span id="cb9-52"><a href="#cb9-52"></a>              <span class="at">institution_name =</span> display_name</span>
+<span id="cb9-53"><a href="#cb9-53"></a>            ) <span class="sc">|&gt;</span></span>
+<span id="cb9-54"><a href="#cb9-54"></a>            <span class="fu">select</span>(id, institution_id, institution_name, country_code)</span>
+<span id="cb9-55"><a href="#cb9-55"></a>        ),</span>
+<span id="cb9-56"><a href="#cb9-56"></a>        <span class="co"># unnests the institution_ids</span></span>
+<span id="cb9-57"><a href="#cb9-57"></a>        <span class="at">institution_ids =</span> <span class="fu">map</span>(</span>
+<span id="cb9-58"><a href="#cb9-58"></a>          last_known_institutions, </span>
+<span id="cb9-59"><a href="#cb9-59"></a>          <span class="sc">~</span> .x <span class="sc">|&gt;</span> <span class="fu">pull</span>(institution_id) <span class="sc">|&gt;</span> <span class="fu">unique</span>()</span>
+<span id="cb9-60"><a href="#cb9-60"></a>        )    </span>
+<span id="cb9-61"><a href="#cb9-61"></a>      )</span>
+<span id="cb9-62"><a href="#cb9-62"></a>  }</span>
+<span id="cb9-63"><a href="#cb9-63"></a>  <span class="fu">return</span>(hold)</span>
+<span id="cb9-64"><a href="#cb9-64"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
@@ -1094,20 +1124,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-7"><a href="#cb14-7"></a><span class="fu">fsaveRDS</span>(authors, <span class="st">'oaauthors'</span>, <span class="at">location =</span> <span class="st">"./data/raw_data/"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>authors <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'oaauthors'</span>, <span class="at">location =</span> <span class="st">'raw_data'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>a <span class="ot">=</span> <span class="fu">bind_rows</span>(authors)</span>
+<span id="cb15-2"><a href="#cb15-2"></a>a <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>a <span class="ot">=</span> <span class="fu">bind_rows</span>(authors)</span>
-<span id="cb16-2"><a href="#cb16-2"></a>a <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="co"># create a works table</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>works <span class="ot">=</span> <span class="fu">oa_fetch_works</span>(authors)</span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="fu">fsaveRDS</span>(works, <span class="st">'oaworks'</span>, <span class="at">location =</span> <span class="st">"./data/raw_data/"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># create a works table</span></span>
-<span id="cb17-2"><a href="#cb17-2"></a>works <span class="ot">=</span> <span class="fu">oa_fetch_works</span>(authors)</span>
-<span id="cb17-3"><a href="#cb17-3"></a><span class="fu">fsaveRDS</span>(works, <span class="st">'oaworks'</span>, <span class="at">location =</span> <span class="st">"./data/raw_data/"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>w <span class="ot">=</span> <span class="fu">bind_rows</span>(works)</span>
-<span id="cb18-2"><a href="#cb18-2"></a>w <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>w <span class="ot">=</span> <span class="fu">bind_rows</span>(works)</span>
+<span id="cb17-2"><a href="#cb17-2"></a>w <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 

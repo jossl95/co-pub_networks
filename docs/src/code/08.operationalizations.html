@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.14">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-02-06">
+
+<title>Prune Scrape Data – Networks</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-4f72c1afe59a4edb82ad8e59b4b7d712.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-cada5050e646ab9f5721bf60d918d5a1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-4f72c1afe59a4edb82ad8e59b4b7d712.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-89b8ddf5ef4096b39ef33ee4d6e393de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6f9f77ecbc4ee60efa7fbe137cac528c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-89b8ddf5ef4096b39ef33ee4d6e393de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const queryPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeDefault = queryPrefersDark.matches;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    queryPrefersDark.addEventListener("change", e => {
+      if(window.localStorage.getItem("quarto-color-scheme") !== null)
+        return;
+      const alternate = e.matches
+      toggleColorMode(alternate);
+      localAlternateSentinel = e.matches ? 'alternate' : 'default'; // this is used alongside local storage!
+      toggleGiscusIfUsed(alternate, darkModeDefault);
+    });
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Networks</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-data-processing" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Data Processing</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-data-processing">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/01.create_scholars.html">
+ <span class="dropdown-text">Create Scholars</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/02.process_names.html">
+ <span class="dropdown-text">Process Names</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/03.process_gender.html">
+ <span class="dropdown-text">Process Gender</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/04.process_ethnicity.html">
+ <span class="dropdown-text">Process Ethnicity</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-data-scraping" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Data Scraping</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-data-scraping">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/05.scrape_openalex.html">
+ <span class="dropdown-text">Scrape Information from OpenAlex</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/06.combine_data.html">
+ <span class="dropdown-text">Combine OpenAlex data</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/07.clean_data.html">
+ <span class="dropdown-text">Data Cleaning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/08.process_affiliations.html">
+ <span class="dropdown-text">Process Affiliations</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-analyses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Analyses</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-analyses">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/09.descriptive_analysis.html">
+ <span class="dropdown-text">Descriptive Analyses</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jossl95/co-pub_networks"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
+  <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a></li>
+  <li><a href="#application" id="toc-application" class="nav-link" data-scroll-target="#application">Application</a></li>
+  </ul>
+<div class="quarto-code-links"><h2>Code Links</h2><ul><li><a href="0a.custom_functions.html"><i class="bi bi-file-code"></i>Custom Functions</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Prune Scrape Data</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 6, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="getting-started" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># load custom functions</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">source</span>(<span class="st">"src/utils/custom_functions.r"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co"># clear the global environment and set dependencies</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="fu">.clear_global_environment</span>()</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="fu">.load_quarto_dependencies</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># load and activate packages</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">library</span>(slider)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="functions" class="level2">
+<h2 class="anchored" data-anchor-id="functions">Functions</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>DONE vluchtige reputatie
+<ul>
+<li>citations</li>
+</ul></li>
+<li>DONE carriere leeftijd
+<ul>
+<li>years since first publication</li>
+</ul></li>
+<li>topic (node of edge)</li>
+<li>DONE university</li>
+<li>DONE position</li>
+<li>DONE gender</li>
+<li>DONE herkomst</li>
+<li>?? all metrics??
+<ul>
+<li>(TODO) plaatsen (geographic distance)</li>
+<li>DONE h-index (yearly)</li>
+<li>DONE 2yr_mean_citedness (impact)</li>
+<li>DONE i10-index (yearly)</li>
+</ul></li>
+<li>beurzen [external data required]</li>
+<li>DONE productiviteit
+<ul>
+<li>yearly</li>
+<li>window average &lt; 3years</li>
+</ul></li>
+<li>topic similarity</li>
+<li>interdisciplinariteit</li>
+</ul>
+</div>
+</div>
+<p>met descriptives (varieren over tijd, gender, herkomst, positie)</p>
+</section>
+<section id="application" class="level2">
+<h2 class="anchored" data-anchor-id="application">Application</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholars'</span>, <span class="at">location =</span> <span class="st">"./data/clean/"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>select_works <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="co"># define list of valid data types</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>  valid_publication_types <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="st">'article'</span>, <span class="st">'book'</span>, <span class="st">'book-chapter'</span>, <span class="st">'dissertation'</span>, </span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="st">'editorial'</span>, <span class="st">'report'</span>, <span class="st">'review'</span>,</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="co"># optional, to consider:</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>    <span class="st">'erratum'</span>, <span class="st">'letter'</span>, <span class="st">'other'</span>, <span class="st">'preprint'</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>  )</span>
+<span id="cb4-9"><a href="#cb4-9"></a></span>
+<span id="cb4-10"><a href="#cb4-10"></a>  selected_works <span class="ot">&lt;-</span> data<span class="sc">$</span>works <span class="sc">|&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a>    <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-12"><a href="#cb4-12"></a>    <span class="fu">filter</span>(</span>
+<span id="cb4-13"><a href="#cb4-13"></a>      <span class="sc">!</span>is_retracted,</span>
+<span id="cb4-14"><a href="#cb4-14"></a>      type <span class="sc">%in%</span> valid_publication_types,</span>
+<span id="cb4-15"><a href="#cb4-15"></a>      <span class="sc">!</span><span class="fu">is.na</span>(publication_year)</span>
+<span id="cb4-16"><a href="#cb4-16"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb4-17"><a href="#cb4-17"></a>    <span class="fu">select</span>(</span>
+<span id="cb4-18"><a href="#cb4-18"></a>      uid, work_id, publication_year, publication_date, </span>
+<span id="cb4-19"><a href="#cb4-19"></a>      type, counts_by_year) <span class="sc">|&gt;</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a>    <span class="fu">distinct</span>(uid, work_id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-21"><a href="#cb4-21"></a></span>
+<span id="cb4-22"><a href="#cb4-22"></a>  <span class="fu">return</span>(selected_works)</span>
+<span id="cb4-23"><a href="#cb4-23"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>publications_by_year <span class="ot">=</span> <span class="cf">function</span>(selected_works){</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  pubs_by_year <span class="ot">&lt;-</span> selected_works <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="fu">rename</span>(<span class="at">year =</span> publication_year) <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="co"># complete date ranges per author</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="fu">group_by</span>(uid, year) <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>    <span class="fu">summarise</span>(<span class="at">publications =</span> <span class="fu">n</span>())<span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="fu">arrange</span>(uid, year) <span class="sc">|&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="co"># count the number of publications per author year</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>    <span class="fu">group_by</span>(uid) <span class="sc">|&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>    <span class="fu">complete</span>(</span>
+<span id="cb5-11"><a href="#cb5-11"></a>      <span class="at">year =</span> <span class="fu">full_seq</span>(<span class="fu">range</span>(year, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">1</span>),</span>
+<span id="cb5-12"><a href="#cb5-12"></a>      <span class="at">fill =</span> <span class="fu">list</span>(<span class="at">publications =</span> <span class="dv">0</span>)</span>
+<span id="cb5-13"><a href="#cb5-13"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb5-15"><a href="#cb5-15"></a>      <span class="at">year =</span> <span class="fu">as.integer</span>(year),</span>
+<span id="cb5-16"><a href="#cb5-16"></a>      <span class="at">carreer_age =</span> year <span class="sc">-</span> <span class="fu">min</span>(year),</span>
+<span id="cb5-17"><a href="#cb5-17"></a>      <span class="at">cum_publications =</span> <span class="fu">cumsum</span>(publications),</span>
+<span id="cb5-18"><a href="#cb5-18"></a>      <span class="st">`</span><span class="at">2yr_publications</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">slide_dbl</span>(publications, sum, <span class="at">.before =</span> <span class="dv">1</span>, <span class="at">.complete=</span><span class="cn">TRUE</span>)</span>
+<span id="cb5-19"><a href="#cb5-19"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a>    <span class="fu">ungroup</span>() </span>
+<span id="cb5-21"><a href="#cb5-21"></a></span>
+<span id="cb5-22"><a href="#cb5-22"></a>  <span class="fu">return</span>(pubs_by_year)</span>
+<span id="cb5-23"><a href="#cb5-23"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>citations_by_year <span class="ot">=</span> <span class="cf">function</span>(selected_works) {</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  cited_by_year <span class="ot">=</span> selected_works <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="fu">unnest</span>(counts_by_year) <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="co"># complete date ranges per author</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>    <span class="fu">arrange</span>(uid, year) <span class="sc">|&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>    <span class="fu">group_by</span>(uid, year) <span class="sc">|&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>    <span class="fu">summarise</span>(<span class="at">citations =</span> <span class="fu">sum</span>(cited_by_count)) <span class="sc">|&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>    <span class="fu">drop_na</span>(citations) <span class="sc">|&gt;</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>    <span class="co"># count the number of citations per author year</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a>    <span class="fu">group_by</span>(uid) <span class="sc">|&gt;</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a>    <span class="fu">complete</span>(</span>
+<span id="cb6-12"><a href="#cb6-12"></a>      <span class="at">year =</span> <span class="fu">full_seq</span>(<span class="fu">range</span>(year, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">1</span>),</span>
+<span id="cb6-13"><a href="#cb6-13"></a>      <span class="at">fill =</span> <span class="fu">list</span>(<span class="at">citations =</span> <span class="dv">0</span>)</span>
+<span id="cb6-14"><a href="#cb6-14"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb6-16"><a href="#cb6-16"></a>      <span class="at">year =</span> <span class="fu">as.integer</span>(year),</span>
+<span id="cb6-17"><a href="#cb6-17"></a>      <span class="at">cum_citations =</span> <span class="fu">cumsum</span>(citations),</span>
+<span id="cb6-18"><a href="#cb6-18"></a>      <span class="st">`</span><span class="at">2yr_citations</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">slide_dbl</span>(citations, sum, <span class="at">.before =</span> <span class="dv">1</span>, <span class="at">.complete=</span><span class="cn">TRUE</span>)</span>
+<span id="cb6-19"><a href="#cb6-19"></a>    )</span>
+<span id="cb6-20"><a href="#cb6-20"></a></span>
+<span id="cb6-21"><a href="#cb6-21"></a>  <span class="fu">return</span>(cited_by_year)</span>
+<span id="cb6-22"><a href="#cb6-22"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>add_yearly_work_counts <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  pubs <span class="ot">=</span> data <span class="sc">|&gt;</span> <span class="fu">select_works</span>() <span class="sc">|&gt;</span> <span class="fu">publications_by_year</span>()</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  cites <span class="ot">=</span> data <span class="sc">|&gt;</span> <span class="fu">select_works</span>() <span class="sc">|&gt;</span> <span class="fu">citations_by_year</span>()</span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="co">#combine publications and citations, and count relative statistics</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>  data<span class="sc">$</span>work_counts <span class="ot">=</span> pubs <span class="sc">|&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>    <span class="fu">left_join</span>(cites) <span class="sc">|&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>    <span class="co"># slicing data based on OpenAlex's citation data availability</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a>    <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="dv">2015</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb7-11"><a href="#cb7-11"></a>      <span class="at">cited_by_cumpub =</span> cum_citations <span class="sc">/</span> cum_publications,</span>
+<span id="cb7-12"><a href="#cb7-12"></a>      <span class="at">cited_by_pub =</span> <span class="st">`</span><span class="at">citations</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">publications</span><span class="st">`</span></span>
+<span id="cb7-13"><a href="#cb7-13"></a>    )</span>
+<span id="cb7-14"><a href="#cb7-14"></a></span>
+<span id="cb7-15"><a href="#cb7-15"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb7-16"><a href="#cb7-16"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>data <span class="ot">=</span> data <span class="sc">|&gt;</span> <span class="fu">add_yearly_work_counts</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>categorize_ethnicity <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb9-2"><a href="#cb9-2"></a>  minority_codes <span class="ot">=</span>  <span class="fu">c</span>(<span class="st">'MA'</span>, <span class="st">'TR'</span>, <span class="st">'BQ'</span>, <span class="st">'CW'</span>, <span class="st">'SX'</span>, <span class="st">'AW'</span>, <span class="st">'SR'</span>)</span>
+<span id="cb9-3"><a href="#cb9-3"></a></span>
+<span id="cb9-4"><a href="#cb9-4"></a>  data<span class="sc">$</span>demographics <span class="ot">=</span> data<span class="sc">$</span>demographics <span class="sc">|&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a>    <span class="fu">mutate</span>(<span class="at">migrant =</span> <span class="fu">case_when</span>(</span>
+<span id="cb9-6"><a href="#cb9-6"></a>      <span class="fu">str_detect</span>(<span class="fu">coalesce</span>(ethnicity, <span class="st">""</span>), <span class="st">"NL"</span>) <span class="sc">~</span> <span class="st">"majority"</span>,</span>
+<span id="cb9-7"><a href="#cb9-7"></a>      ethnicity <span class="sc">%in%</span> minority_codes <span class="sc">~</span> <span class="st">"minority"</span>,</span>
+<span id="cb9-8"><a href="#cb9-8"></a>      <span class="fu">is.na</span>(ethnicity) <span class="sc">~</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb9-9"><a href="#cb9-9"></a>      <span class="at">.default =</span> <span class="st">"other"</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a>    )) <span class="sc">|&gt;</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a>    <span class="fu">relocate</span>(migrant, <span class="at">.after =</span> <span class="st">'ethnicity'</span>)</span>
+<span id="cb9-12"><a href="#cb9-12"></a></span>
+<span id="cb9-13"><a href="#cb9-13"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb9-14"><a href="#cb9-14"></a>}</span>
+<span id="cb9-15"><a href="#cb9-15"></a></span>
+<span id="cb9-16"><a href="#cb9-16"></a>data <span class="ot">=</span> <span class="fu">categorize_ethnicity</span>(data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>h_index_vec <span class="ot">=</span> <span class="cf">function</span>(citations) {</span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(citations) <span class="sc">||</span> <span class="fu">length</span>(citations) <span class="sc">==</span> <span class="dv">0</span>L) <span class="fu">return</span>(<span class="dv">0</span>L)</span>
+<span id="cb10-3"><a href="#cb10-3"></a>  c <span class="ot">=</span> <span class="fu">sort</span>(<span class="fu">as.integer</span>(citations[<span class="fu">is.finite</span>(citations) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(citations)]), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">length</span>(c)) <span class="fu">return</span>(<span class="dv">0</span>L)</span>
+<span id="cb10-5"><a href="#cb10-5"></a>  <span class="co"># With c sorted desc, h is the count of entries with c_i &gt;= i</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>  <span class="fu">as.integer</span>(<span class="fu">sum</span>(c <span class="sc">&gt;=</span> <span class="fu">seq_along</span>(c)))</span>
+<span id="cb10-7"><a href="#cb10-7"></a>}</span>
+<span id="cb10-8"><a href="#cb10-8"></a></span>
+<span id="cb10-9"><a href="#cb10-9"></a>extract_citations <span class="ot">=</span> <span class="cf">function</span>(works_obj) {</span>
+<span id="cb10-10"><a href="#cb10-10"></a>  <span class="co"># helper to deduplicate &amp; pull citations from a data.frame</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a>  df_to_cites <span class="ot">=</span> <span class="cf">function</span>(df) {</span>
+<span id="cb10-12"><a href="#cb10-12"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.data.frame</span>(df)) <span class="fu">return</span>(<span class="fu">integer</span>())</span>
+<span id="cb10-13"><a href="#cb10-13"></a>    <span class="cf">if</span> (<span class="st">"id"</span> <span class="sc">%in%</span> <span class="fu">names</span>(df)) df <span class="ot">=</span> <span class="fu">distinct</span>(df, id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-14"><a href="#cb10-14"></a>    <span class="cf">if</span> (<span class="st">"cited_by_count"</span> <span class="sc">%in%</span> <span class="fu">names</span>(df)) <span class="fu">return</span>(<span class="fu">as.integer</span>(df<span class="sc">$</span>cited_by_count))</span>
+<span id="cb10-15"><a href="#cb10-15"></a>    <span class="fu">integer</span>()</span>
+<span id="cb10-16"><a href="#cb10-16"></a>  }</span>
+<span id="cb10-17"><a href="#cb10-17"></a></span>
+<span id="cb10-18"><a href="#cb10-18"></a>  <span class="cf">if</span> (<span class="fu">is.data.frame</span>(works_obj)) {</span>
+<span id="cb10-19"><a href="#cb10-19"></a>    <span class="fu">return</span>(<span class="fu">df_to_cites</span>(works_obj))</span>
+<span id="cb10-20"><a href="#cb10-20"></a>  }</span>
+<span id="cb10-21"><a href="#cb10-21"></a></span>
+<span id="cb10-22"><a href="#cb10-22"></a>  <span class="cf">if</span> (<span class="fu">is.list</span>(works_obj)) {</span>
+<span id="cb10-23"><a href="#cb10-23"></a>    <span class="co"># common wrapper: list(results = data.frame(...))</span></span>
+<span id="cb10-24"><a href="#cb10-24"></a>    <span class="cf">if</span> (<span class="st">"results"</span> <span class="sc">%in%</span> <span class="fu">names</span>(works_obj)) <span class="fu">return</span>(<span class="fu">df_to_cites</span>(works_obj<span class="sc">$</span>results))</span>
+<span id="cb10-25"><a href="#cb10-25"></a></span>
+<span id="cb10-26"><a href="#cb10-26"></a>    <span class="co"># otherwise assume a list of work records</span></span>
+<span id="cb10-27"><a href="#cb10-27"></a>    cites <span class="ot">=</span> <span class="fu">map_dbl</span>(works_obj, <span class="sc">~</span> <span class="fu">tryCatch</span>(</span>
+<span id="cb10-28"><a href="#cb10-28"></a>      {</span>
+<span id="cb10-29"><a href="#cb10-29"></a>        v <span class="ot">=</span> .x[[<span class="st">"cited_by_count"</span>]]</span>
+<span id="cb10-30"><a href="#cb10-30"></a>        <span class="cf">if</span> (<span class="fu">is.null</span>(v)) <span class="cn">NA_real_</span> <span class="cf">else</span> <span class="fu">as.numeric</span>(v)</span>
+<span id="cb10-31"><a href="#cb10-31"></a>      },</span>
+<span id="cb10-32"><a href="#cb10-32"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA_real_</span></span>
+<span id="cb10-33"><a href="#cb10-33"></a>    ))</span>
+<span id="cb10-34"><a href="#cb10-34"></a>    <span class="fu">return</span>(<span class="fu">as.integer</span>(cites[<span class="sc">!</span><span class="fu">is.na</span>(cites)]))</span>
+<span id="cb10-35"><a href="#cb10-35"></a>  }</span>
+<span id="cb10-36"><a href="#cb10-36"></a></span>
+<span id="cb10-37"><a href="#cb10-37"></a>  <span class="fu">integer</span>()</span>
+<span id="cb10-38"><a href="#cb10-38"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>data<span class="sc">$</span>works <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>  <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a>  <span class="fu">select</span>(work_id, counts_by_year) <span class="sc">|&gt;</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a>  <span class="fu">unnest_longer</span>(counts_by_year)  <span class="sc">|&gt;</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>  <span class="fu">unnest_wider</span>(counts_by_year, <span class="at">names_sep =</span> <span class="st">"_"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a>  <span class="fu">rename</span>(</span>
+<span id="cb11-7"><a href="#cb11-7"></a>    <span class="at">year =</span> counts_by_year_year,</span>
+<span id="cb11-8"><a href="#cb11-8"></a>    <span class="at">citations =</span> counts_by_year_cited_by_count</span>
+<span id="cb11-9"><a href="#cb11-9"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>add_stats_by_year <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb12-2"><a href="#cb12-2"></a>  cites <span class="ot">=</span> <span class="fu">extract_citations_by_year</span>(data)</span>
+<span id="cb12-3"><a href="#cb12-3"></a></span>
+<span id="cb12-4"><a href="#cb12-4"></a>  <span class="co"># calculate i10_indices</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a>  i10_index_by_year <span class="ot">=</span> cites <span class="sc">|&gt;</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a>    <span class="fu">mutate</span>(<span class="at">i10 =</span> i <span class="sc">&gt;</span> <span class="dv">10</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a>    <span class="fu">group_by</span>(uid, year) <span class="sc">|&gt;</span></span>
+<span id="cb12-8"><a href="#cb12-8"></a>    <span class="fu">summarise</span>(<span class="at">i10_index =</span> <span class="fu">sum</span>(i10)) <span class="sc">|&gt;</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>    <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">as.integer</span>(year))</span>
+<span id="cb12-10"><a href="#cb12-10"></a></span>
+<span id="cb12-11"><a href="#cb12-11"></a>  <span class="co"># calculate h_indices</span></span>
+<span id="cb12-12"><a href="#cb12-12"></a>  h_index_by_year <span class="ot">=</span> cites <span class="sc">|&gt;</span> </span>
+<span id="cb12-13"><a href="#cb12-13"></a>    <span class="fu">group_by</span>(uid, year) <span class="sc">|&gt;</span></span>
+<span id="cb12-14"><a href="#cb12-14"></a>    <span class="fu">summarise</span>(<span class="at">h_index =</span> <span class="fu">sum</span>(i <span class="sc">&gt;</span> k)) <span class="sc">|&gt;</span></span>
+<span id="cb12-15"><a href="#cb12-15"></a>    <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">as.integer</span>(year))</span>
+<span id="cb12-16"><a href="#cb12-16"></a></span>
+<span id="cb12-17"><a href="#cb12-17"></a>  <span class="co"># aggregate citations and publications</span></span>
+<span id="cb12-18"><a href="#cb12-18"></a>  counts <span class="ot">=</span> cites <span class="sc">|&gt;</span> </span>
+<span id="cb12-19"><a href="#cb12-19"></a>    <span class="fu">group_by</span>(uid, year) <span class="sc">|&gt;</span></span>
+<span id="cb12-20"><a href="#cb12-20"></a>    <span class="fu">summarize</span>(</span>
+<span id="cb12-21"><a href="#cb12-21"></a>      <span class="at">citations =</span> <span class="fu">sum</span>(i),</span>
+<span id="cb12-22"><a href="#cb12-22"></a>      <span class="at">publications =</span> <span class="fu">n_distinct</span>(work_id)</span>
+<span id="cb12-23"><a href="#cb12-23"></a>    )</span>
+<span id="cb12-24"><a href="#cb12-24"></a></span>
+<span id="cb12-25"><a href="#cb12-25"></a>  <span class="co"># combine statistics in variable of data.frames</span></span>
+<span id="cb12-26"><a href="#cb12-26"></a>  statistics <span class="ot">&lt;-</span> h_index_by_year <span class="sc">|&gt;</span></span>
+<span id="cb12-27"><a href="#cb12-27"></a>    <span class="fu">full_join</span>(i10_index_by_year, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"uid"</span>, <span class="st">"year"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb12-28"><a href="#cb12-28"></a>    <span class="fu">full_join</span>(counts, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"uid"</span>, <span class="st">"year"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb12-29"><a href="#cb12-29"></a>    <span class="fu">filter</span>(year <span class="sc">&gt;</span> <span class="dv">2015</span>, year <span class="sc">&lt;</span> <span class="dv">2026</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-30"><a href="#cb12-30"></a>    <span class="fu">arrange</span>(uid, year) <span class="sc">|&gt;</span></span>
+<span id="cb12-31"><a href="#cb12-31"></a>    <span class="fu">group_by</span>(uid) <span class="sc">|&gt;</span></span>
+<span id="cb12-32"><a href="#cb12-32"></a>    <span class="fu">nest</span>(<span class="at">stats_by_year =</span> <span class="fu">c</span>(year, h_index, i10_index, citations, publications)) <span class="sc">|&gt;</span></span>
+<span id="cb12-33"><a href="#cb12-33"></a>    <span class="fu">ungroup</span>()</span>
+<span id="cb12-34"><a href="#cb12-34"></a></span>
+<span id="cb12-35"><a href="#cb12-35"></a>  data<span class="sc">$</span>demographics <span class="ot">&lt;-</span> data<span class="sc">$</span>demographics <span class="sc">|&gt;</span></span>
+<span id="cb12-36"><a href="#cb12-36"></a>    <span class="fu">left_join</span>(statistics)</span>
+<span id="cb12-37"><a href="#cb12-37"></a></span>
+<span id="cb12-38"><a href="#cb12-38"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb12-39"><a href="#cb12-39"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># data = add_stats_by_year(data)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>topic_data <span class="ot">=</span> data<span class="sc">$</span>works <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="fu">select</span>(uid, work_id, publication_year, topics) <span class="sc">|&gt;</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a>  <span class="fu">unnest_longer</span>(topics) <span class="sc">|&gt;</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a>  <span class="fu">unnest_wider</span>(topics) <span class="sc">|&gt;</span></span>
+<span id="cb14-6"><a href="#cb14-6"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb14-7"><a href="#cb14-7"></a>    <span class="at">id =</span> <span class="fu">str_remove</span>(id, <span class="st">'https://openalex.org/'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a>      <span class="fu">str_replace</span>(<span class="st">'subfields/'</span>, <span class="st">'S'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-9"><a href="#cb14-9"></a>      <span class="fu">str_replace</span>(<span class="st">'fields/'</span>, <span class="st">'F'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-10"><a href="#cb14-10"></a>      <span class="fu">str_replace</span>(<span class="st">'domains/'</span>, <span class="st">'D'</span>)</span>
+<span id="cb14-11"><a href="#cb14-11"></a>  )</span>
+<span id="cb14-12"><a href="#cb14-12"></a></span>
+<span id="cb14-13"><a href="#cb14-13"></a>topics <span class="ot">=</span> <span class="fu">list</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>topics<span class="sc">$</span>counts<span class="sc">$</span>domains <span class="ot">=</span> topic_data <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">filter</span>(type <span class="sc">==</span> <span class="st">'domain'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>  <span class="fu">select</span>(uid, work_id, publication_year, id) <span class="sc">|&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a>  <span class="fu">arrange</span>(id) <span class="sc">|&gt;</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> <span class="dv">1</span>L) <span class="sc">|&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb15-7"><a href="#cb15-7"></a>    <span class="at">id_cols =</span> <span class="fu">c</span>(uid, work_id, publication_year),</span>
+<span id="cb15-8"><a href="#cb15-8"></a>    <span class="at">names_from =</span> id,</span>
+<span id="cb15-9"><a href="#cb15-9"></a>    <span class="at">values_from =</span> value,</span>
+<span id="cb15-10"><a href="#cb15-10"></a>    <span class="at">values_fn =</span> sum,</span>
+<span id="cb15-11"><a href="#cb15-11"></a>    <span class="at">values_fill =</span> <span class="dv">0</span>L</span>
+<span id="cb15-12"><a href="#cb15-12"></a>  )</span>
+<span id="cb15-13"><a href="#cb15-13"></a></span>
+<span id="cb15-14"><a href="#cb15-14"></a>topics<span class="sc">$</span>counts<span class="sc">$</span>domains</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>topics<span class="sc">$</span>counts<span class="sc">$</span>fields <span class="ot">=</span> topic_data <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">filter</span>(type <span class="sc">==</span> <span class="st">'field'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a>  <span class="fu">select</span>(uid, work_id, publication_year, id) <span class="sc">|&gt;</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a>  <span class="fu">arrange</span>(id) <span class="sc">|&gt;</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> <span class="dv">1</span>L) <span class="sc">|&gt;</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb16-7"><a href="#cb16-7"></a>    <span class="at">id_cols =</span> <span class="fu">c</span>(uid, work_id, publication_year),</span>
+<span id="cb16-8"><a href="#cb16-8"></a>    <span class="at">names_from =</span> id,</span>
+<span id="cb16-9"><a href="#cb16-9"></a>    <span class="at">values_from =</span> value,</span>
+<span id="cb16-10"><a href="#cb16-10"></a>    <span class="at">values_fn =</span> sum,</span>
+<span id="cb16-11"><a href="#cb16-11"></a>    <span class="at">values_fill =</span> <span class="dv">0</span>L</span>
+<span id="cb16-12"><a href="#cb16-12"></a>  )</span>
+<span id="cb16-13"><a href="#cb16-13"></a></span>
+<span id="cb16-14"><a href="#cb16-14"></a>topics<span class="sc">$</span>counts<span class="sc">$</span>fields</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>topics<span class="sc">$</span>counts<span class="sc">$</span>subfields <span class="ot">=</span> topic_data <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a>  <span class="fu">filter</span>(type <span class="sc">==</span> <span class="st">'subfield'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a>  <span class="fu">select</span>(uid, work_id, publication_year, id) <span class="sc">|&gt;</span></span>
+<span id="cb17-4"><a href="#cb17-4"></a>  <span class="fu">arrange</span>(id) <span class="sc">|&gt;</span></span>
+<span id="cb17-5"><a href="#cb17-5"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> <span class="dv">1</span>L) <span class="sc">|&gt;</span></span>
+<span id="cb17-6"><a href="#cb17-6"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb17-7"><a href="#cb17-7"></a>    <span class="at">id_cols =</span> <span class="fu">c</span>(uid, work_id, publication_year),</span>
+<span id="cb17-8"><a href="#cb17-8"></a>    <span class="at">names_from =</span> id,</span>
+<span id="cb17-9"><a href="#cb17-9"></a>    <span class="at">values_from =</span> value,</span>
+<span id="cb17-10"><a href="#cb17-10"></a>    <span class="at">values_fn =</span> sum,</span>
+<span id="cb17-11"><a href="#cb17-11"></a>    <span class="at">values_fill =</span> <span class="dv">0</span>L</span>
+<span id="cb17-12"><a href="#cb17-12"></a>  )</span>
+<span id="cb17-13"><a href="#cb17-13"></a></span>
+<span id="cb17-14"><a href="#cb17-14"></a>topics<span class="sc">$</span>counts<span class="sc">$</span>subfields</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>topics<span class="sc">$</span>counts<span class="sc">$</span>topics <span class="ot">=</span> topic_data <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a>  <span class="fu">filter</span>(type <span class="sc">==</span> <span class="st">'topic'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a>  <span class="fu">select</span>(uid, work_id, publication_year, id) <span class="sc">|&gt;</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a>  <span class="fu">arrange</span>(id) <span class="sc">|&gt;</span></span>
+<span id="cb18-5"><a href="#cb18-5"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> <span class="dv">1</span>L) <span class="sc">|&gt;</span></span>
+<span id="cb18-6"><a href="#cb18-6"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb18-7"><a href="#cb18-7"></a>    <span class="at">id_cols =</span> <span class="fu">c</span>(uid, work_id, publication_year),</span>
+<span id="cb18-8"><a href="#cb18-8"></a>    <span class="at">names_from =</span> id,</span>
+<span id="cb18-9"><a href="#cb18-9"></a>    <span class="at">values_from =</span> value,</span>
+<span id="cb18-10"><a href="#cb18-10"></a>    <span class="at">values_fn =</span> sum,</span>
+<span id="cb18-11"><a href="#cb18-11"></a>    <span class="at">values_fill =</span> <span class="dv">0</span>L</span>
+<span id="cb18-12"><a href="#cb18-12"></a>  )</span>
+<span id="cb18-13"><a href="#cb18-13"></a></span>
+<span id="cb18-14"><a href="#cb18-14"></a>topics<span class="sc">$</span>counts<span class="sc">$</span>topics</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>counts <span class="ot">=</span> topics<span class="sc">$</span>counts <span class="sc">|&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2"></a>  <span class="fu">reduce</span>(<span class="sc">~</span> <span class="fu">left_join</span>(.x, .y))</span>
+<span id="cb19-3"><a href="#cb19-3"></a></span>
+<span id="cb19-4"><a href="#cb19-4"></a>valid_topics <span class="ot">=</span> counts <span class="sc">|&gt;</span></span>
+<span id="cb19-5"><a href="#cb19-5"></a>  <span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb19-6"><a href="#cb19-6"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span> <span class="fu">sum</span>(<span class="fu">as.numeric</span>(.x), <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb19-7"><a href="#cb19-7"></a>  <span class="fu">unlist</span>(<span class="at">use.names =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-8"><a href="#cb19-8"></a>  (\(x) <span class="fu">names</span>(x)[x <span class="sc">&gt;</span> <span class="dv">20</span>])()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>topics_counts_cum <span class="ot">&lt;-</span> counts <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">select</span>(<span class="sc">-</span>work_id) <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3"></a>  <span class="fu">group_by</span>(uid, publication_year) <span class="sc">|&gt;</span></span>
+<span id="cb20-4"><a href="#cb20-4"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb20-5"><a href="#cb20-5"></a>    <span class="fu">across</span>(</span>
+<span id="cb20-6"><a href="#cb20-6"></a>      <span class="fu">all_of</span>(valid_topics),</span>
+<span id="cb20-7"><a href="#cb20-7"></a>      <span class="sc">~</span> <span class="fu">sum</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb20-8"><a href="#cb20-8"></a>    ),</span>
+<span id="cb20-9"><a href="#cb20-9"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb20-10"><a href="#cb20-10"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb20-11"><a href="#cb20-11"></a>  <span class="fu">arrange</span>(publication_year, <span class="at">.by_group =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb20-12"><a href="#cb20-12"></a>  <span class="fu">group_by</span>(uid) <span class="sc">|&gt;</span></span>
+<span id="cb20-13"><a href="#cb20-13"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-14"><a href="#cb20-14"></a>    <span class="fu">across</span>(</span>
+<span id="cb20-15"><a href="#cb20-15"></a>      <span class="fu">where</span>(is.numeric) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">any_of</span>(<span class="fu">c</span>(<span class="st">"publication_year"</span>)),</span>
+<span id="cb20-16"><a href="#cb20-16"></a>      cumsum</span>
+<span id="cb20-17"><a href="#cb20-17"></a>    )</span>
+<span id="cb20-18"><a href="#cb20-18"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb20-19"><a href="#cb20-19"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Copyright © 2025 | Jos Slabbekoorn</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
