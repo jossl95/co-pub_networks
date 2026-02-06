@@ -70,122 +70,12 @@ met descriptives
 data = freadRDS2('scholars', location = "./data/clean/")
 ```
 
-
-```{r}
-select_works = function(data){
-  # define list of valid data types
-  valid_publication_types <- c(
-    'article', 'book', 'book-chapter', 'dissertation', 
-    'editorial', 'report', 'review',
-    # optional, to consider:
-    'erratum', 'letter', 'other', 'preprint'
-  )
-
-  selected_works <- data$works |>
-    bind_rows() |> 
-    filter(
-      !is_retracted,
-      type %in% valid_publication_types,
-      !is.na(publication_year)
-    ) |>
-    select(
-      uid, work_id, publication_year, publication_date, 
-      type, counts_by_year) |>
-    distinct(uid, work_id, .keep_all = TRUE)
-
-  return(selected_works)
-}
- 
-```
-
-
-```{r}
-publications_by_year = function(selected_works){
-  pubs_by_year <- selected_works |>
-    rename(year = publication_year) |>
-    # complete date ranges per author
-    group_by(uid, year) |>
-    summarise(publications = n())|>
-    arrange(uid, year) |>
-    # count the number of publications per author year
-    group_by(uid) |>
-    complete(
-      year = full_seq(range(year, na.rm = TRUE), 1),
-      fill = list(publications = 0)
-    ) |>
-    mutate(
-      year = as.integer(year),
-      carreer_age = year - min(year),
-      cum_publications = cumsum(publications),
-      `2yr_publications` = slide_dbl(publications, sum, .before = 1, .complete=TRUE)
-    ) |>
-    ungroup() 
-
-  return(pubs_by_year)
-}
-
-```
-
-
-```{r}
-citations_by_year = function(selected_works) {
-  cited_by_year = selected_works |>
-    unnest(counts_by_year) |>
-    # complete date ranges per author
-    arrange(uid, year) |>
-    group_by(uid, year) |>
-    summarise(citations = sum(cited_by_count)) |>
-    drop_na(citations) |>
-    # count the number of citations per author year
-    group_by(uid) |>
-    complete(
-      year = full_seq(range(year, na.rm = TRUE), 1),
-      fill = list(citations = 0)
-    ) |>
-    mutate(
-      year = as.integer(year),
-      cum_citations = cumsum(citations),
-      `2yr_citations` = slide_dbl(citations, sum, .before = 1, .complete=TRUE)
-    )
-
-  return(cited_by_year)
-}
-
-```
-
-```{r}
-
-add_yearly_work_counts = function(data){
-  pubs = data |> select_works() |> publications_by_year()
-  cites = data |> select_works() |> citations_by_year()
-
-  #combine publications and citations, and count relative statistics
-  data$work_counts = pubs |>
-    left_join(cites) |>
-    # slicing data based on OpenAlex's citation data availability
-    filter(year >= 2015) |>
-    mutate(
-      cited_by_cumpub = cum_citations / cum_publications,
-      cited_by_pub = `citations` / `publications`
-    )
-
-  return(data)
-}
-
-```
-
-
-```{r}
-data = data |> add_yearly_work_counts()
-```
-
-
 ```{r}
 
 categorize_ethnicity = function(data){
   minority_codes =  c('MA', 'TR', 'BQ', 'CW', 'SX', 'AW', 'SR')
 
-  data$demographics = data$demographics |>
+  data[['demographics']] = data[['demographics']] |>
     mutate(migrant = case_when(
       str_detect(coalesce(ethnicity, ""), "NL") ~ "majority",
       ethnicity %in% minority_codes ~ "minority",
@@ -198,111 +88,69 @@ categorize_ethnicity = function(data){
 }
 
 data = categorize_ethnicity(data)
-
 ```
 
 ```{r}
-h_index_vec = function(citations) {
-  if (is.null(citations) || length(citations) == 0L) return(0L)
-  c = sort(as.integer(citations[is.finite(citations) & !is.na(citations)]), decreasing = TRUE)
-  if (!length(c)) return(0L)
-  # With c sorted desc, h is the count of entries with c_i >= i
-  as.integer(sum(c >= seq_along(c)))
-}
+top_n <- 25
 
-extract_citations = function(works_obj) {
-  # helper to deduplicate & pull citations from a data.frame
-  df_to_cites = function(df) {
-    if (!is.data.frame(df)) return(integer())
-    if ("id" %in% names(df)) df = distinct(df, id, .keep_all = TRUE)
-    if ("cited_by_count" %in% names(df)) return(as.integer(df$cited_by_count))
-    integer()
-  }
-
-  if (is.data.frame(works_obj)) {
-    return(df_to_cites(works_obj))
-  }
-
-  if (is.list(works_obj)) {
-    # common wrapper: list(results = data.frame(...))
-    if ("results" %in% names(works_obj)) return(df_to_cites(works_obj$results))
-
-    # otherwise assume a list of work records
-    cites = map_dbl(works_obj, ~ tryCatch(
-      {
-        v = .x[["cited_by_count"]]
-        if (is.null(v)) NA_real_ else as.numeric(v)
-      },
-      error = function(e) NA_real_
-    ))
-    return(as.integer(cites[!is.na(cites)]))
-  }
-
-  integer()
-}
-
+data[["demographics"]] |>
+  count(ethnicity, migrant, name = "n") |>
+  arrange(n) |>
+  tail(25) |>
+  mutate(ethnicity = factor(ethnicity, levels = unique(ethnicity))) |>
+  ggplot(aes(x = ethnicity, y = n, fill = migrant)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = NULL, y = "Count", fill = "Migrant", title = "Counts by ethnicity, split by migrant") +
+  theme_minimal()
 ```
 
 ```{r}
-data$works |>
-  bind_rows() |>
-  select(work_id, counts_by_year) |>
-  unnest_longer(counts_by_year)  |>
-  unnest_wider(counts_by_year, names_sep = "_") |>
-  rename(
-    year = counts_by_year_year,
-    citations = counts_by_year_cited_by_count
-  )
+data[['demographics']] |>
+  filter(!is.na(career_start)) |>
+  ggplot(aes(x = career_start)) +
+  geom_density() +
+  labs(x = "Career start (year)", y = "Density", title = "Kernel density of career start") +
+  theme_minimal()
 ```
 
-----
 
 ```{r}
-add_stats_by_year = function(data){
-  cites = extract_citations_by_year(data)
-
-  # calculate i10_indices
-  i10_index_by_year = cites |>
-    mutate(i10 = i > 10) |>
-    group_by(uid, year) |>
-    summarise(i10_index = sum(i10)) |>
-    mutate(year = as.integer(year))
-
-  # calculate h_indices
-  h_index_by_year = cites |> 
-    group_by(uid, year) |>
-    summarise(h_index = sum(i > k)) |>
-    mutate(year = as.integer(year))
-
-  # aggregate citations and publications
-  counts = cites |> 
-    group_by(uid, year) |>
-    summarize(
-      citations = sum(i),
-      publications = n_distinct(work_id)
-    )
-
-  # combine statistics in variable of data.frames
-  statistics <- h_index_by_year |>
-    full_join(i10_index_by_year, by = c("uid", "year")) |>
-    full_join(counts, by = c("uid", "year")) |>
-    filter(year > 2015, year < 2026) |>
-    arrange(uid, year) |>
-    group_by(uid) |>
-    nest(stats_by_year = c(year, h_index, i10_index, citations, publications)) |>
-    ungroup()
-
-  data$demographics <- data$demographics |>
-    left_join(statistics)
-
-  return(data)
-}
-
+data[['demographics']] |>
+  filter(!is.na(h_index_22)) |>
+  ggplot(aes(x = h_index_22)) +
+  geom_density() +
+  labs(x = "h_index", y = "Density", title = "Kernel density of h-index in 2022") +
+  theme_minimal()
 ```
 
 ```{r}
-# data = add_stats_by_year(data)
+data[['demographics']] |>
+  filter(!is.na(i10_index_22)) |>
+  ggplot(aes(x = i10_index_22)) +
+  geom_density() +
+  labs(x = "i10_index", y = "Density", title = "Kernel density of i10-index in 2022") +
+  theme_minimal()
 ```
+
+```{r}
+data[["demographics"]] |>
+  group_by(position_22) |>
+  summarise(has_valid_works = mean(has_valid_works), .groups = "drop") |>
+  arrange(desc(has_valid_works)) |>
+  mutate(position_22 = factor(position_22, levels = position_22)) |>
+  ggplot(aes(x = position_22, y = has_valid_works)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(
+    x = NULL,
+    y = "Share with valid works",
+    title = "Valid works by position (2025)"
+  ) +
+  theme_minimal()
+```
+
 
 
 ```{r}
@@ -426,4 +274,14 @@ topics_counts_cum <- counts |>
   ) |>
   ungroup()
 
+```
+
+
+```{r}
+# alternative function for more 
+
+# dissimilarity = counts |>
+#   select(matches("\\d$")) |>
+#   as.matrix() |>ba
+#   coop::cosine()    # uses coop for optimized computation
 ```

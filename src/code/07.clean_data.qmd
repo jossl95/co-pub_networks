@@ -77,7 +77,7 @@ prune_works <- function(data){
       df |>
         filter(
           type %in% valid_types,
-          publication_year >= 1990
+          publication_year >= 1980
         ) |>
         arrange(publication_year)
     }) |>
@@ -295,19 +295,33 @@ add_annual_statistics <- function(data){
       publications = n_distinct(work_id)
     )
 
-  # nest statistics per uid
-  statistics <- h_index_by_year |>
+  
+  df <- h_index_by_year |>
       full_join(i10_index_by_year, by = c("uid", "year")) |>
-      full_join(counts, by = c("uid", "year")) |>
+      full_join(counts, by = c("uid", "year")) 
+
+  # nest statistics per uid
+  statistics <- df |>
       filter(year > 2015, year < 2026) |>
       arrange(uid, year) |>
       group_by(uid) |>
       nest(stats_by_year = c(year, h_index, i10_index, citations, publications)) |>
       ungroup()
 
+  # aggregate statistics
+  aggregated <- df |>
+    group_by(uid) |>
+    summarise(
+      career_start = min(year, na.rm = TRUE),
+      h_index_22  = h_index[year == 2022][1],
+      i10_index_22 = i10_index[year == 2022][1],
+      .groups = "drop"
+    )
+
   # add statistics to demographics
   data$demographics <- data$demographics |>
-      left_join(statistics)
+    left_join(statistics) |>
+    left_join(aggregated)
 
   return(data)
 }

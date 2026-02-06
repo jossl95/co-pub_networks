@@ -105,8 +105,6 @@ limit_observation_period = function(data, start_date = "2019-01-01"){
 }
 ```
 
-<!---
-
 ```{r}
 build_matrices <- function(data, 
                            directed_type = NULL, sign_incidence = TRUE, exclude_isolates = TRUE, exclude_edge_with_self=TRUE) {
@@ -778,5 +776,3 @@ sample_attrition = freadRDS2('scholars', location = 'combined')[['demographics']
 
 # TODO: Check counting descrepancy 10 pax.
 ```
-
---->
