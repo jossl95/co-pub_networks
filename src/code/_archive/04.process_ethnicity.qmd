@@ -1,0 +1,747 @@
+---
+title: "Data Processing Ethnicity"
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+
+params:
+  eval: false
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(readxl)
+library(stringr)
+library(lubridate)
+library(httr2)
+library(rvest)
+library(xml2)
+library(purrr)
+library(RCurl)
+library(fuzzyjoin)
+library(stringi)
+library(DemografixeR)
+
+```
+
+## Functions
+
+### `nationalize_name()`
+
+Fetch nationality probabilities for names from Nationalize.io with on-disk caching.
+
+#### Arguments
+`idx`
+
+> Tibble or data frame containing at least a `search_name` column with names to be queried.
+
+#### Method
+The function loads an existing cache of name–nationality results from `data/_cache/origin_cache.Rds`. It then filters `idx` to retain only those `search_name` values that are not yet present in `origin_cache$name`. After loading API credentials from `.env` and reading `GENDERIZE_API_KEY` via `Sys.getenv()`, it optionally (depending on the global `eval_ok` flag) loops over the remaining unique `last_names` and calls `nationalize()` for each name, collecting the responses into a list. The new responses are bound to the existing cache and de-duplicated with `distinct(.keep_all = TRUE)`. If a top-level country column is present (from some client variants), it is removed. Finally, the updated cache is written back to disk and returned as a single tibble containing all previously cached and newly fetched results.
+
+```{r}
+nationalize_name = function(idx) {
+  origin_cache = readRDS(file.path('data', '_cache', "origin_cache.Rds"))
+
+  # load api key from secrets file
+  dotenv::load_dot_env()
+  APIKEY <- Sys.getenv("GENDERIZE_API_KEY")
+
+  # select uncached names
+  idx =  idx |> filter(!search_name %in% origin_cache$name)
+
+  # select last_names
+  last_names = idx$search_name |> na.omit() |> unique() |> sort()
+  # last_names = last_names[12:22]
+
+  # fetch nationality results
+  hold = c()
+  if (-eval_ok) {
+    for (name in last_names){
+      resp = nationalize(name, sliced=FALSE, apikey = APIKEY, simplify = FALSE)
+      hold[[name]] = resp 
+    }
+  }
+
+  # combine cache with results and put new cache results
+  origin = bind_rows(origin_cache, bind_rows(hold)) |> 
+    distinct(.keep_all = TRUE)
+
+  if ("country" %in% colnames(origin)) origin = origin |> select(-country)
+
+  saveRDS(origin, file.path('data', '_cache', "origin_cache.Rds"))
+
+  return(origin)
+}
+```
+
+---
+
+### `select_best_match()`
+
+Select the best (first) nationality match per last name from Nationalize results.
+
+#### Arguments
+`res`
+
+> Tibble returned by `nationalize_name()` or `nationalize()` containing a name column and one or more rows per name.
+
+#### Method
+The function renames the name column to `last_name` for clarity, then groups by `last_name` and retains only the first row in each group using `slice(1)`. This assumes that the first row represents the best or primary match for the given surname. The result is a tibble with a single nationality prediction per last name, suitable for merging into downstream data structures.
+
+```{r}
+
+select_best_match = function(res){
+  res |> 
+    rename("last_name" = "name") |>
+    # get the best match
+    group_by(last_name) |>
+    slice(1) 
+}
+
+```
+
+---
+
+### `is_ok()`
+
+Check whether an HTTP response has a successful 2xx status code.
+
+#### Arguments
+`resp`
+
+> `httr2` response object returned by `req_perform()`.
+
+#### Method
+This small helper function reads the HTTP status code from resp using `resp_status()` and returns `TRUE` when the code is in the inclusive range 200–299. It is used throughout the scraping pipeline to gate further parsing and avoid treating error pages as valid responses.
+
+```{r}
+is_ok = function(resp) resp_status(resp) >= 200 && resp_status(resp) < 300
+```
+
+---
+
+### `request_last_name()`
+
+Perform a robust GET request for a surname page with retry and error handling.
+
+#### Arguments
+`base_url`
+
+> Character string containing the full URL to be requested.
+
+`pause`
+
+> Numeric value specifying a base number of seconds to sleep (with added jitter) before issuing the request to throttle scraping. Defaults to `0.5`.
+
+#### Method
+The function constructs an `httr2` request to `base_url` with a realistic Mac Chrome user agent, Dutch/English Accept-Language, broad Accept headers, and a 30-second timeout. It deliberately disables SSL peer verification via `req_options(ssl_verifypeer = 0)` to handle legacy certificate setups. A retry policy is configured that retries up to four times on HTTP 429 or 5xx responses, using a jittered exponential backoff `(runif(1, 0.5, 1.2) * 2^(try - 1))`. Before firing the request, the function sleeps for pause + U(0, 0.4) seconds to be polite. The call to `req_perform()` is wrapped in `tryCatch()` so transport errors do not abort the pipeline. Instead, the function returns a list with standardized fields: `ok` (logical per `is_ok()`), `status` (integer status or `NA` on transport error), `url`, `resp` (the `httr2` response or `NULL`), and `error` (the caught condition, if any). Downstream code can test `res$ok` and inspect res$status or res$error without risking hard failures.
+
+```{r}
+request_last_name = function(base_url, pause=0.5){
+  # configure user agent
+  ua = paste(
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_5)",
+    "AppleWebKit/537.36 (KHTML, like Gecko)",
+    "Chrome/129.0.0.0 Safari/537.36"
+  )
+
+  req = request(base_url) |>
+    req_user_agent(ua) |>
+    # disable SSL verification
+    req_options(ssl_verifypeer = 0) |>
+    req_timeout(30) |>
+    req_headers(
+      "Accept" = paste0("text/html,application/xhtml+xml,",
+                        "application/xml;q=0.9,*/*;q=0.8"),
+      "Accept-Language" = "nl,en;q=0.8"
+    ) |>
+    req_retry(
+      max_tries = 4,
+      backoff = ~ runif(1, 0.5, 1.2) * (2 ^ (.x - 1)),  # jittered exponential
+      is_transient = function(resp) {
+        code <- resp_status(resp)
+        isTRUE(code == 429L || (code >= 500L & code < 600L))
+      }
+    )
+
+  # polite pause + jitter
+  if (pause > 0) Sys.sleep(pause + runif(1, 0, 0.4))
+
+  # CRITICAL: don't throw on transport errors
+  resp <- tryCatch(
+    req_perform(req),
+    error = function(e) {
+      attr(e, "nvb_url") <- url
+      e
+    }
+  )
+
+  # Return a uniform list the caller can inspect
+  if (inherits(resp, "error")) {
+    res = list(
+      ok = FALSE,
+      status = NA_integer_,
+      url = url,
+      resp = NULL,
+      error = resp
+    )
+  } else {
+    res = list(
+      ok = is_ok(resp),
+      status = resp_status(resp),
+      url = url,
+      resp = resp,
+      error = NULL
+    )
+  }
+  return(res)
+}
+```
+
+---
+
+### `format_url()`
+Build a query URL for the CBG Familienamen surnames database.
+
+#### Arguments
+`name`
+
+> Character string with the surname to be queried.
+
+`base`
+
+> Base URL of the CBG surnames site. Defaults to `"https://www.cbgfamilienamen.nl/nfb/detail_naam.php?"`.
+
+`.what`
+
+> Character string specifying which URL variant to return. `"base"` (default) returns the main detail page; `"info"` appends parameters to link directly to the `analysis/etymology` view.
+
+#### Method
+The function first URL-encodes name, then replaces `%20` with `+` to match the site’s query style. It constructs a query string with three parallel name parameters (`gba_naam`, `gba_lcnaam`, `nfd_naam`), filling them with the encoded and lowercased variants of the surname. If `.what` is `"info"`, it further appends &`info=analyse+en+verklaring` to navigate directly to the analysis/etymology section. The result is a browser-ready URL string suitable for use by `request_last_name()`.
+
+```{r}
+format_url = function(
+    name,
+    base = "https://www.cbgfamilienamen.nl/nfb/detail_naam.php?",
+    .what = "base"
+  ){
+  # format_name for URL
+  formatted_name = name |> 
+    URLencode(reserved = TRUE) |>
+    str_replace_all(pattern = "%20", '+')
+
+  # configure url
+  url = paste0(
+    base,
+    "gba_naam=", formatted_name,
+    "&gba_lcnaam=", tolower(formatted_name),
+    "&nfd_naam=", formatted_name
+  )
+
+  if (.what == 'info'){
+    url = paste0(url, "&info=analyse+en+verklaring")
+  }
+  
+  return(url)
+}
+
+```
+
+---
+
+### `extract_info()`
+
+Extract analysis/etymology text from a CBG surnames response.
+
+#### Arguments
+`r`
+
+> List-like response wrapper as returned by `request_last_name()`, containing at least `r$resp` (an `httr2` response).
+
+#### Method
+The function reads the response body as a string and parses it into an HTML document. It extracts the text content from the `<body>` node and searches for the “kenmerken:” or “verklaring:” markers. When such a marker exists, it splits the text to keep only the part following the marker, further splits on runs of whitespace to separate fragments, and trims off any sections starting from the first occurrence of the © footer. Non-empty fragments are concatenated with `"; "` as a separator and returned as a single string. If no relevant section is found, it returns an empty string. The companion helper `safe_info()` wraps `extract_info()` in `tryCatch()` and returns a default value (typically NA_character_) when errors or warnings occur, ensuring robust downstream behaviour.
+
+```{r}
+extract_info = function(r){
+  html = read_html(resp_body_string(r$resp))
+  text = html |>
+    html_element("body") |>
+    html_text()
+
+  info = c("")
+  if (str_detect(text, regex('kenmerken:|verklaring:'))){
+    parts = str_split_fixed(text, pattern=regex('kenmerken:|verklaring:'), 2)[2] |>
+      str_split(pattern = regex("[\\n|\\t|\\s]{3,20}")) |>
+      unlist()
+
+    idx = which(grepl(regex("©"), parts))
+
+    if (length(idx) >= 1) {
+      info = parts[seq_len(idx[1] - 1)]
+      info = as.vector(info[nzchar(info)])
+    }
+  }
+
+  # drop empty strings
+  # info = info[nzchar(info)]
+  return(paste(unname(info), collapse = "; "))
+}
+
+safe_info = function(r, default = NA_character_) {
+  tryCatch(extract_info(r),
+           error = function(e) default,
+           warning = function(w) default)
+}
+
+```
+
+---
+
+### `extract_count()`
+
+Extract national occurrence counts for surnames from CBG tables.
+
+#### Arguments
+`r`
+
+> List-like response wrapper as returned by `request_last_name()`, containing at least `r$resp` (an `httr2` response).
+
+#### Method
+The function parses the response body into HTML and extracts all tables using `html_table()`. If no tables are found, it throws an error, signalling that the page cannot be interpreted. Otherwise, it initializes count as `NA_integer_` and loops over all tables, checking for tables with at least five rows. For such tables, it takes the cell at row 2, column 2, which corresponds to the national count in the expected page layout, and assigns it to count. After the loop, it returns count, which may still be NA if no table matched the expected structure. The helper `safe_count()` wraps `extract_count()` in `tryCatch()` and returns a default (typically `NA_integer_`) when any error or warning occurs.
+
+```{r}
+extract_count = function(r){
+  # extract all tables on the page
+  html = read_html(resp_body_string(r$resp))
+  tables = html_table(html, header=FALSE)
+
+  # select the first table if a table if found
+  if (length(tables) == 0) stop("No tables were found")
+  
+  # set count value
+  count = NA_integer_
+  if (length(tables) >= 4) {
+    for (tab in tables){
+      i = nrow(tab)
+      if (i >= 5){
+        count = tab[2,2] |> pull()
+      }
+    }
+  }
+
+  return(count)
+}
+
+safe_count = function(r, default = NA_integer_) {
+  tryCatch(extract_count(r),
+           error = function(e) default,
+           warning = function(w) default)
+}
+
+```
+
+---
+
+### `get_name_row()`
+
+Retrieve count and etymology information for a single surname from CBG.
+
+#### Arguments
+`name`
+
+> Character string with the surname to query.
+
+`count`
+
+> Optional initial value for count, mainly used for internal testing. Defaults to `NA_character_`.
+
+`info`
+
+> Optional initial value for info, mainly used for internal testing. Defaults to `NA_character_`.
+
+#### Method
+The function first constructs the base detail URL using `format_url(name)` and calls `request_last_name()` to fetch it. If the resulting response wrapper has `ok = TRUE`, it uses `safe_count()` to extract the national occurrence count, casting it to character; otherwise count is set to `NA_character_`. When count is not missing, the function builds the analysis/etymology URL via `format_url(name, .what = "info")`, requests it with `request_last_name()`, and calls `safe_info()` to obtain the etymology text, again casting the result to character. The final output is a one-row tibble with columns `last_name`, `name_count`, and `info`, representing a robust, tidy record for the queried surname.
+
+```{r}
+get_name_row = function(name, count=NA_character_, info=NA_character_){
+  # scrape the count information
+  r1 = format_url(name) |>
+    request_last_name() 
+
+  count = if (isTRUE(r1$ok)) safe_count(r1) else NA_character_
+  count = as.character(count)
+
+  # scrape info if the first scrape yielded success
+  if (!is.na(count)){
+  r2 = format_url(name, .what="info") |>
+    request_last_name()
+
+  info = if (isTRUE(r2$ok) && isTRUE(r1$ok)) safe_info(r2) else NA_character_
+  info = as.character(info)
+  }
+
+
+  as_tibble(list(
+    last_name = name, 
+    name_count = count,
+    info = info
+  ))
+}
+```
+
+---
+
+### `name_to_origin()`
+
+Resolve origin information for surnames using CBG with on-disk caching.
+
+#### Arguments
+`idx`
+
+> Tibble or data frame containing at least a `search_name` column with surnames to be resolved.
+
+#### Method
+The function loads an existing CBG cache from `data/_cache/cbg_cache.Rds`, which is expected to contain a `last_name` column. It filters `idx` to retain only those `search_name` values that are not already present in `ethnicity_cache$last_name`. It then extracts the remaining unique, sorted `last_names` and loops over them, calling `get_name_row(name)` for each surname that is missing from the cache, collecting the results into a list. The newly obtained rows are combined with the existing cache using `bind_rows()`, and the updated cache is saved back to the same RDS file. Finally, the combined tibble (original cache plus new lookups) is returned for further parsing and cleaning.
+
+```{r}
+name_to_origin = function(idx) {
+  ethnicity_cache = readRDS(file.path('data', '_cache', 'cbg_cache.Rds'))
+
+  # select uncached names
+  idx =  idx |> filter(!search_name %in% ethnicity_cache$last_name)
+
+  # select last_names
+  last_names = idx$search_name |> na.omit() |> unique() |> sort()
+
+  # loop over remaining names
+  hold = c()
+  for (name in last_names){
+    if (!name %in% ethnicity_cache$last_name){
+      hold[[name]] = get_name_row(name)
+    }
+  }
+
+  # combine cache with hold
+  res = bind_rows(ethnicity_cache, bind_rows(hold))
+  saveRDS(res,  file.path('data', '_cache', 'cbg_cache.Rds'))
+
+  return(res)
+}
+```
+
+---
+
+### `parse_origin()`
+
+Extract structured origin-related signals from CBG etymology text.
+
+#### Arguments
+`data`
+
+Tibble containing at least info (etymology text) and `last_name` columns, typically produced by `name_to_origin`() and `get_name_row()`.
+
+#### Method
+The function defines several regex patterns to capture different kinds of origin cues: a general `origin_pattern` for adjectives preceding “naam” phrases, a `particles_pattern` for Dutch name particles, a type_pattern for name types (e.g., toponymic, patronymic), a `lang_pattern` for language or adjectival origin labels (e.g., Nederlands(e), Turks(e)), and a `country_pattern` for explicit geographical references (e.g., Turkije, Suriname, China). It then mutates data by extracting primary (`o1`, `t1`, `l1`, `c1`) and secondary (`o2`, `t2`, `l2`, `c2`) matches, indicators for regional names (`r1`) and the presence of a particle (`p1`), and stores multi-matches as list-columns (dropping the first element). The original info column is removed, leaving a richer set of origin-related features (`o1–o2`, `r1`, `p1`, `t1–t2`, `l1–l2`, `c1–c2`) attached to each surname. The function returns this augmented tibble for further patching and cleaning.
+
+```{r}
+parse_origin = function(data){
+  # 1) de herkomst staat vaak voor naam, achternaam, etc.
+  origin_pattern = regex(paste0(
+    "\\b[[:upper:]][[:lower:]]{2,}(?=\\s+(?:achter|familie|beroeps)?naam?\\b)"
+  ))
+
+  # 1c) detect particles
+  particles_pattern = regex(paste0(
+    "(de |den |der |het |te |ten |ter",
+    "|van |van de |van den |van der |van 't |van ’t",
+    "|'t |’t |op de)"
+  ))
+
+  # 2) patroniem/toponiem/etc. en taal/naam-typen in één keer definieren
+  type_pattern <- regex(paste0(
+    "(toponiem|patroniem|herkomstnaam|adresnaam|beroepsnaam|metonymische",
+    "|beroepsnaam|samenstelling met voornaam|metafoor|betrekking)"
+    ), ignore_case = TRUE
+  )
+
+  # 3) bijvoegelijk naamwoord of taal
+  lang_pattern <- regex(paste0(
+      "(Afrikaans(?:e)|Antilliaans(?:e)|Aziatisch(?:e)|Belgisch(?:e)|Catalaans(?:e)",
+      "|Chines(?:e)|Deens(?:e)|Duits(?:e)|Egyptisch(?:e)|Engels(?:e)",
+      "|Frans(?:e)|Fries(?:e)|Germaans(?:e)|Grieks(?:e)|Hongaars(?:e)",
+      "|Iers(?:e)|Indias(?:e)|Indisch(?:e)|Italiaans(?:e)|Joegoslavisch(?:e)",
+      "|Marokkaans(?:e)|Moluks(?:e)|Nederlands(?:e)|Pakistaans(?:e)|Koreaans(?:e)",
+      "|Portuge(?:e)s(?:e)|Surinaams(?:e)|Turks(?:e)|Vietname(?:e)s(?:e))"
+    ), ignore_case = TRUE
+  )
+
+  # 4) landen/gebieden die in jouw voorbeelden voorkomen
+  country_pattern <- regex(paste0(
+      "(Turkije|Pakistan|Afghanistan|India|Brits-Guyana|Suriname|Midden-Oosten",
+      "|Zuidoost-Azi[eë]|Afrika|Antillen|Azi[eë]|Belgi[eë]|Cataloni[eë]",
+      "|China|Denemarken|Duitsland|Egypte|Engeland|Verenigd Koninkrijk",
+      "|Frankrijk|Friesland|Griekenland|Hongarije|Ierland|Itali[eë]",
+      "|Joegoslavi[eë]|Marokko|Molukken|Nederland|Korea|Zuid-Korea|Noord-Korea",
+      "|Portugal|Vietnam)"
+    ), ignore_case = TRUE
+  )
+    
+  # apply regex patterns
+  data = data |>
+    mutate(
+      # 1) extract origin using general pattern
+      o1 = str_extract(info, origin_pattern),
+      o2 = str_extract_all(info, origin_pattern),
+      o2 = map(o2, ~ if (length(.x) >= 1) .x[-1] else NULL),
+
+      # 1b) indicates whether it is a regional name
+      r1 = str_detect(info, paste0(
+        "(dorp)|(plaats)|(gemeente)",
+        "|(graafschap)|(stad)|(deel)|(Friesland)"
+      )),
+      # 1c) indicates whether the name contains a particle
+      p1 = str_detect(last_name, particles_pattern),
+
+      # 2) extract type of name
+      t1 = str_extract(info, type_pattern),
+      t2 = str_extract_all(info, type_pattern),
+      t2 = map(t2, ~ if (length(.x) >= 1) .x[-1] else NULL),
+
+      # 3) extract language or preverb
+      l1 = str_extract(info, lang_pattern),
+      l2 = str_extract_all(info, lang_pattern),
+      l2 = map(l2, ~ if (length(.x) >= 1) .x[-1] else NULL),
+
+      # 4) extract countries
+      c1 = str_extract(info, country_pattern),
+      c2 = str_extract_all(info, country_pattern),
+      c2 = map(c2, ~ if (length(.x) >= 1) .x[-1] else NULL)
+    ) |>
+    select(-info)
+
+  return(data)
+}
+```
+
+---
+
+### `patch_origin()`
+
+Patch origin information using a curated surname-based origin file via fuzzy matching.
+
+#### Arguments
+data
+
+Tibble containing at least last_name and origin-related fields (e.g., `o1`, `l1`, `c1`), typically after `parse_origin()`.
+
+#### Method
+The function loads a manually curated origin patch from `data/utils/origin_patch.xlsx` and creates a normalized version of the `last_name` column using `normalize_name()`, stored as `last_name_norm`. It then normalizes the `last_name` in data in the same way and performs a fuzzy left join with `stringdist_left_join()` on `last_name_norm`, allowing a maximum distance of `0.5`. After the join, it renames `last_name.x` back to `last_name` and renames the patched origin column to `o3`. Any trailing `“ naam”` suffix is removed from o3. Helper columns introduced by the join (normalized `names`, `counts`, and duplicate `last_name` columns) are dropped. The returned tibble preserves all rows from the original data while adding a supplementary origin variable `o3` where a close surname match in the patch file was found.
+
+```{r}
+patch_origin = function(data){
+  # load origin patch
+  ethnicity_patch = readxl::read_excel(
+      file.path('data', 'utils', 'origin_patch.xlsx')
+    ) |>
+    mutate(last_name_norm = normalize_name(last_name))
+
+  # fuzzy match origin patch.
+  data = data |>
+    mutate(last_name_norm = normalize_name(last_name)) |>
+    fuzzyjoin::stringdist_left_join(
+      ethnicity_patch,
+      by = "last_name_norm",
+      max_dist = 0.5
+    ) |>
+    rename(
+      "last_name" = "last_name.x",
+      "o3" = "origin"
+    ) |>
+    mutate(o3 = str_remove(o3, regex('\\ naam', ignore_case = TRUE))) |>
+    select(
+      -last_name_norm.x, -count, 
+      -last_name_norm.y, -last_name.y,
+    )
+
+  return(data)
+}
+```
+
+---
+
+### `clean_origin()`
+
+Collapse and normalize multiple origin signals into a single cleaned origin label.
+
+#### Arguments
+`data`
+
+> Tibble containing last names and various origin-related fields `(o1, l1, c1, o3, p1, r1, t1)`, typically after `parse_origin()` and `patch_origin()`.
+
+#### Method
+The function constructs a unified origin column by applying a series of rules. It first chooses `o1` where present and not containing `“Christelijke”`; if missing, it falls back to `l1` (language adjective), then to `c1` (country reference), and otherwise `NA`. When a name contains a particle (`p1`), when `t1` is non-missing but origin is still missing, or when `r1` indicates a regional place-based name, it defaults origin to `"Nederlandse"`. If `o3` (from the curated patch) is available, it overrides any previous value. Afterwards, origin is post-processed with a series of `str_replace()` calls to standardize phrasing and map some labels to broader categories (e.g., “Azië” → “Aziatisch”, “Germaanse” → “Nederlandse”, “Pakistan” → “Pakistaanse”, “Turkije” → “Turkse”, “Zuid-Korea” → “Zuid-Koreaanse”). Finally, the intermediate fields `o1:o3` are dropped, and the cleaned origin remains next to `last_name`. The function returns this simplified yet information-rich origin label.
+
+```{r}
+clean_origin = function(data){
+  data = data |>
+    mutate(
+      origin = case_when(
+        !is.na(o1) & !str_detect(o1, 'Christelijke') ~ o1,
+        !is.na(l1) ~ l1,
+        !is.na(c1) ~ c1,
+        .default = NA_character_
+      ),
+      origin = ifelse(p1, 'Nederlandse', origin),
+      origin = ifelse(!is.na(t1) & is.na(origin), 'Nederlandse', origin),
+      origin = ifelse(isTRUE(r1) & is.na(origin), 'Nederlandse', origin),
+      origin = ifelse(!is.na(o3), o3, origin),
+      .after = last_name
+    ) |>
+    mutate(
+      origin = str_replace(origin, "Als", "Nederlandse") |>
+        str_replace("Azië", "Aziatisch") |>
+        str_replace("Catalaanse", "Spaanse") |>
+        str_replace("Engelstalig", "Engelse") |>
+        str_replace("Catalaanse", "Spaanse") |>
+        str_replace("germaanse", "Germaanse") |>
+        str_replace("Germaanse", "Nederlandse") |>
+        str_replace("Joegoslavië", "Joegoslavische") |>
+        str_replace("Joodse", "Nederlandse") |>
+        str_replace("nederlandse", "Nederlandse") |>
+        str_replace("Pakistan", "Pakistaanse") |>
+        str_replace("Turkije", "Turkse")|>
+        str_replace("Zuid-Korea", "Zuid-Koreaanse")|>
+        str_replace("Koreaanse", "Zuid-Koreaanse")
+        
+    ) |>
+    select(!o1:o3)
+
+  return(data)
+}  
+```
+
+---
+
+### `harmonize_ethnicity()`
+
+Map origin signals and Nationalize stats to ISO alpha-2 codes and country names.
+
+#### Arguments
+`origin`
+
+> Tibble containing at least `uid`, `search_name`, `origin`, `name_count`, `country_id`, `count`, and `probability`, typically constructed by combining Nationalize.io output with CBG-based origin parsing.
+
+#### Method
+The function first reads ISO 3166-1 codes from `data/utils/iso3611_codes.xlsx`, which includes `alpha_2` and `country_name`. Within origin, it normalizes `name_count` by converting the string `"< 5"` to `"5"`, casting to integer, and replacing `NA` with `0`. It then assigns an initial ethnicity code using heuristic rules based on origin and frequency: when origin contains “Nederlandse”, “Chinese”, “Duitse”, “Marokkaanse”, or “Turkse” and name_count exceeds specified thresholds, it assigns "NL", "CN", "DE", "MA", or "TR" respectively; otherwise it falls back to `country_id` from Nationalize.io. Next, it applies a set of surname-specific overrides based on `search_name` (e.g., “Wachter”, “Das”, “Mos” → "NL", “Metinsoy” → "TR", “Wagner” → "DE", “Phillips” → "BR", “Aspide” → "IT"), ensuring these hand-coded cases take precedence. When the final ethnicity differs from `country_id`, it blanks out count and probability to avoid attributing statistics to a different country than the assigned code. The function then keeps `uid`, `search_name`, `ethnicity`, `count`, and `probability`, removes duplicates at the (`uid`, `search_name`, `ethnicity`) level, and left-joins the ISO table on `ethnicity == alpha_2` to attach the readable `country_name`. The result is a tidy ethnicity table suitable for merging back onto person-level data.
+
+```{r}
+harmonize_ethnicity = function(origin) {
+  iso = readxl::read_xlsx(file.path('data', 'utils', 'iso3611_codes.xlsx'))
+
+  origin = origin |>
+    mutate(
+      name_count = name_count |> str_replace('< 5', '5') |> as.integer(),
+      name_count = ifelse(is.na(name_count), 0, name_count),
+      ethnicity = case_when(
+        str_detect(origin, 'Nederlandse') & (name_count > 400) ~ "NL",
+        str_detect(origin, 'Chinese') & (name_count > 200) ~ "CN",
+        str_detect(origin, 'Duitse') & (name_count > 200) ~ "DE",
+        str_detect(origin, 'Marokkaanse') & (name_count > 200) ~ "MA",
+        str_detect(origin, 'Turkse') & (name_count > 200) ~ "TR",
+        .default = country_id
+      ),
+      ethnicity = case_when(
+        str_detect(search_name, 'Wachter') ~ "NL",
+        str_detect(search_name, 'Das') ~ "NL",
+        str_detect(search_name, "Metinsoy") ~ "TR",
+        str_detect(search_name, "Wagner") ~ "DE",
+        str_detect(search_name, "Mos") ~ "NL",
+        str_detect(search_name, "Vlieg") ~ "NL",
+        str_detect(search_name, "Knigge") ~ "NL",
+        str_detect(search_name, "Bol") ~ "NL",
+        str_detect(search_name, "Deen") ~ "NL",
+        str_detect(search_name, "Vrooman") ~ "NL",
+        str_detect(search_name, "Verdun") ~ "NL",
+        str_detect(search_name, "Merlo") ~ "NL",
+        str_detect(search_name, "Phillips") ~ "BR",
+        str_detect(search_name, "Raekstad") ~ "NL",
+        str_detect(search_name, "Aspide") ~ "IT",
+        .default = ethnicity
+      ),
+      count = case_when(
+        country_id != ethnicity ~ NA,
+        .default = count
+      ),
+      probability = case_when(
+        country_id != ethnicity ~ NA,
+        .default = probability
+      )
+    ) |>
+    select(uid, search_name, ethnicity, count, probability) |>
+    distinct(uid, search_name, ethnicity, .keep_all=TRUE) |>
+    left_join(
+      iso |> select(alpha_2, country_name),
+      by = join_by(ethnicity == alpha_2)
+    )
+}
+```
+
+## Application
+
+```{r}
+#| warning: false
+#| output: false
+
+names = freadRDS2('names')
+
+# create an name index
+idx = names |>
+  distinct(particle, last_name, .keep_all = TRUE) |>
+  unite(search_name, particle:last_name, sep=" ", na.rm=TRUE, remove = FALSE) |>
+  unite(search_name_full, particle:maiden_name, sep=" ", na.rm=TRUE, remove = FALSE) 
+
+# scrape using nationalizer
+res = nationalize_name(idx) |>
+  select_best_match()
+
+# scrape using family name database
+res2 = name_to_origin(idx) |>
+  parse_origin() |>
+  patch_origin() |>
+  clean_origin()
+
+# combine scraped information
+origin = idx |>
+  left_join(res, by=join_by(search_name==last_name)) |>
+  left_join(res2, by=join_by(search_name==last_name)) |>
+  select(uid, last_name, search_name, type:name_count) |>
+  harmonize_ethnicity()
+
+fsaveRDS(origin, 'ethnicity')
+```
+
+```{r}
+origin |> head()
+```

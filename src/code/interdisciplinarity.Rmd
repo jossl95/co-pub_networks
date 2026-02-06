@@ -1,0 +1,635 @@
+---
+title: "Interdisciplinarity measures"
+date: "Last compiled on `r format(Sys.time(), '%B, %Y')`"
+output: 
+  html_document:
+    css: tweaks.css
+    toc:  true
+    toc_float: true
+    number_sections: false
+    code_folding: show
+    code_download: yes
+eval: false
+---
+
+
+
+
+```{r, globalsettings, echo=FALSE, warning=FALSE}
+
+library(knitr)
+#library(rgl)
+opts_chunk$set(tidy.opts=list(width.cutoff=100),tidy=TRUE, warning = FALSE, message = FALSE,comment = "#>", cache=TRUE, class.source=c("test"), class.output=c("test2"), cache.lazy = FALSE)
+options(width = 100)
+rgl::setupKnitr()
+
+colorize <- function(x, color) {sprintf("<span style='color: %s;'>%s</span>", color, x) }
+
+```
+
+```{r klippy, echo=FALSE, include=TRUE, eval=TRUE}
+klippy::klippy(position = c('top', 'right'))
+#klippy::klippy(color = 'darkred')
+#klippy::klippy(tooltip_message = 'Click to copy', tooltip_success = 'Done')
+```
+
+
+----
+
+This lab journal demonstrates how we construct our measures of interdisciplinarity. 
+  
+
+----
+
+Starting with an empty workspace.
+
+```{r, echo=FALSE}
+
+rm(list = ls())
+
+```
+
+
+
+# Custom functions
+
+- `package.check`: Check if packages are installed (and install if not) in R ([source](https://vbaliga.github.io/verify-that-r-packages-are-installed-and-loaded/)).  
+
+
+```{r, results='hide'}
+
+rm(list=ls())
+
+fpackage.check <- function(packages) {
+  lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  })
+}
+
+```
+
+
+---  
+
+# Packages
+
+- `tidyverse`: for tidy data manipulations
+- `slider`: for calculating rolling sums (summing publications and IDR scores over multiple years)
+- `Matrix`: for creating cosine similarity matrices based on cooccurrence of subfields
+- `proxy`: for calculating cosine similarity
+- `car`: for calculating Variance Inflation Matrix
+
+
+
+```{r, results='hide'}
+
+packages = c("tidyverse", "slider", "Matrix", "proxy", "car")
+
+fpackage.check(packages)
+
+```
+
+
+--- 
+
+# Input
+
+
+We load the following datasets:
+
+* [oa_map]("./data/OpenAlex_topic_mapping_table.csv"): mapping table to transform OpenAlex topics into fields and subfields, and vice versa
+
+* [phds_variables]("./data/processed/phds_variables.rda"): processed dataset containing all PhDs with covariates.
+
+* [oa_allpubs_disci]("./data/oa_allpubs_disci.rda"): all publications sourced from OpenAlex with associated subfields and subfield scores, scraping and cleaning of this dataset detailed in [openalex_publications](oa_articles.html)
+    
+
+```{r data}
+
+
+oa_map <- read.csv(file="./data/OpenAlex_topic_mapping_table.csv")
+
+load(file="./data/processed/phds_variables_site.rda")
+
+# renaming so the code works
+phds_variables <- phds_variables_site
+rm(phds_variables_site)
+
+load(file="./data/openalex_pubs/all_publications/oa_allpubs_disci_site.rda")
+
+# same procedure
+oa_allpubs_disci <- oa_allpubs_disci_site
+rm(oa_allpubs_disci_site)
+
+```
+
+
+
+# Publications
+
+Wide to long
+
+
+```{r}
+
+oa_allpubs_disci %>%
+  arrange(id, year) %>%
+  filter(!is.na(id) & !is.na(work_id) & id!="NA" & work_id!="NA") %>%
+  mutate(subfieldid_1 = str_extract(subfield1_id, "[:digit:]{4}"),
+         subfieldid_2 = str_extract(subfield2_id, "[:digit:]{4}"),
+         subfieldid_3 = str_extract(subfield3_id, "[:digit:]{4}"),
+         subfieldscore_1 = subfield1_score,
+         subfieldscore_2 = subfield2_score,
+         subfieldscore_3 = subfield3_score,
+         workid = work_id) %>%
+  select(id, workid, subfieldid_1, subfieldid_2, subfieldid_3, subfieldscore_1, subfieldscore_2, subfieldscore_3) -> pubs
+
+
+# selecting only one row per work ID, so we don't have as much data to work with
+pubs <- pubs %>% select(workid, starts_with("subfield")) %>% distinct(workid, .keep_all=TRUE)
+
+# shaping the data to long
+pubs <- reshape(pubs, direction = "long", varying = c(2:7), sep="_", idvar="workid", timevar="subfield_no")
+
+
+# aggregating the scores of topics with the same subfield 
+pubs %>% 
+  mutate(subfieldscore = as.numeric(subfieldscore)) %>%
+  filter(!is.na(subfieldscore)) %>%
+  arrange(workid, subfield_no) %>%
+  group_by(workid, subfieldid) %>% 
+  summarize(subfieldscore = sum(subfieldscore)) -> pubs
+
+# sorting the subfield scores from high-to-low and naming the subfields (1-3) accordingly 
+pubs %>%
+  group_by(workid) %>%
+  arrange(desc(subfieldscore)) %>%
+  mutate(subfield_n = row_number()) -> pubs
+
+# making our publications dataframe matchable for the subfield data
+oa_allpubs_disci %>%
+  filter(!is.na(id) & !is.na(work_id) & id!="NA" & work_id!="NA") %>%
+  mutate(workid = work_id) %>%
+  select(id, workid, year) %>%
+  arrange(id, year) -> pubs0
+
+# adding the subfield scores
+pubs0 %>%
+  left_join(pubs, by="workid") %>%
+  arrange(id, workid, subfield_n) %>%
+  filter(!is.na(subfield_n)) -> pubs
+
+```
+
+
+
+
+# Summing subfields across publications
+
+
+Summing scores for individuals in the same year, and then calculating a rolling sum of 5 years (7,9 robustness)
+
+
+```{r}
+
+# reshaping back to wide, so we have all subfield scores per work in 1 row
+pubs_wide <- pubs %>%
+  mutate(subfield_col = paste0("subfield_", subfieldid)) %>%
+  pivot_wider(
+    id_cols = c(id, workid, year),  # Variables to retain as identifiers
+    names_from = subfield_col,     # Use the combined subfield information for column names
+    values_from = subfieldscore    # Fill columns with subfield scores
+  )
+
+# First we aggregate subfield scores within years (e.g. multiple works in the same subfield in a year together)
+pubs %>%
+  filter(year > 1985) %>%
+  mutate(subfieldscore = replace_na(subfieldscore, 0)) %>%
+  group_by(id, year, subfieldid) %>%
+  summarize(subfieldscore = sum(subfieldscore)) -> pubs_summ
+
+pubs_summ$year <- as.numeric(pubs_summ$year)
+
+# Create a full grid of all subfields a scholar has published in in their career
+subfields_per_id <- pubs_summ %>%
+  ungroup() %>%
+  select(subfieldid, id) %>%
+  distinct()
+
+# get all id-year combos in our data
+years_per_id <- pubs_summ %>%
+  ungroup() %>%
+  select(id, year) %>%
+  distinct()
+
+# create the full grid of subfields associated with each id
+full_grid <- years_per_id %>%
+  inner_join(subfields_per_id, by="id")
+
+
+# Join original data to this full grid
+pubs_complete <- full_grid %>%
+  left_join(pubs_summ, by = c("id", "year", "subfieldid")) %>%
+  mutate(subfieldscore = replace_na(subfieldscore, 0))
+
+
+# We create a rolling sum for these scores, as we want to make this a bit less dependent on yearly changes
+pubs_complete %>%
+  group_by(id, subfieldid) %>%
+  arrange(id, subfieldid, year) %>%
+  mutate(rolling_sum = slider::slide_dbl(subfieldscore, ~ sum(.x),
+                                 .before = 4,
+                                 .complete = FALSE)) %>%
+  mutate(rolling_sum = ifelse(is.na(rolling_sum), subfieldscore, rolling_sum)) %>% ungroup() -> pubs_roll5
+
+
+pubs_complete %>%
+  group_by(id, subfieldid) %>%
+  arrange(year) %>%
+  mutate(rolling_sum = slider::slide_dbl(subfieldscore, ~ sum(.x),
+                                 .before = 6,
+                                 .complete = FALSE)) %>%
+  mutate(rolling_sum = ifelse(is.na(rolling_sum), subfieldscore, rolling_sum)) %>% ungroup() -> pubs_roll7
+
+
+
+pubs_complete %>%
+  group_by(id, subfieldid) %>%
+  arrange(year) %>%
+  mutate(rolling_sum = slider::slide_dbl(subfieldscore, ~ sum(.x),
+                                 .before = 8,
+                                 .complete = FALSE)) %>%
+ mutate(rolling_sum = ifelse(is.na(rolling_sum), subfieldscore, rolling_sum)) %>% ungroup() -> pubs_roll9
+
+
+# removing rows where the rolling sum is 0
+pubs_roll5 <- pubs_roll5 %>% filter(rolling_sum!=0)
+pubs_roll7 <- pubs_roll7 %>% filter(rolling_sum!=0)
+pubs_roll9 <- pubs_roll9 %>% filter(rolling_sum!=0)
+
+
+head(pubs_summ %>% arrange(id, year))
+
+```
+
+
+
+Calculating a rolling sum of publications (to check correlation with IDR measures)
+
+
+```{r}
+
+pub_counts <- pubs %>%
+  group_by(id, year) %>%
+  summarize(pub_count = n_distinct(workid), .groups = "drop") %>%
+  arrange(id, year)
+
+pub_counts <- pub_counts %>%
+  group_by(id) %>%
+  arrange(year) %>%
+  mutate(pub_count_rolling5 = slider::slide_dbl(pub_count,
+                                               ~ sum(.x),
+                                               .before = 4,
+                                               .complete = FALSE)) %>%
+  ungroup() %>%
+  mutate(year = as.numeric(year))
+
+
+```
+
+
+
+
+# Top 3 subfields
+
+
+```{r}
+
+oa_map %>%
+  distinct(subfield_id, .keep_all = TRUE) %>%
+  select(subfield_id, subfield_name) %>% 
+  mutate(subfield_id = as.character(subfield_id)) %>%
+  right_join(pubs_roll5, by=c("subfield_id"="subfieldid")) -> top3_subfields
+
+
+top3_subfields %>%
+  group_by(id, year) %>%
+  arrange(desc(subfieldscore), .by_group=TRUE) %>%
+  slice_head(n=3) %>%
+  mutate(subfield_no = row_number()) %>%
+  ungroup() -> top3_subfields
+
+top3_wide <- top3_subfields %>%
+  pivot_wider(
+    id_cols = c(id, year),
+    names_from = subfield_no,
+    values_from = c(subfield_id, subfield_name),
+    names_glue = "{.value}{subfield_no}"
+  )
+
+
+```
+
+
+
+## RAFOLS: BALANCE
+
+Evenness of spread across different subfields (HHI)
+
+```{r}
+
+pubs_balance <- pubs_roll5 %>%
+  group_by(id, year) %>%
+  mutate(tot_score = sum(rolling_sum, na.rm=TRUE),
+         share = rolling_sum / tot_score,
+         share_sq = share^2) %>%
+  arrange(id, year) %>%
+  summarise(HHI = sum(share_sq, na.rm=TRUE),
+            balance = 1-HHI) %>% ungroup()
+
+
+
+```
+
+
+
+
+## RAFOLS: DISPARITY
+
+
+### Co-occurrence matrix of subfields in individuals
+
+
+```{r}
+
+# creating a binary dataframe where each existing person-subfield combination has a row, and we indicate that this combination is there by creating the `present` variable
+pubs_summ_binary <- pubs_roll5 %>%
+  mutate(present = 1) %>%
+  select(id, subfieldid, present) %>%
+  distinct()
+
+# sparse matrix, one row per individual, subfields in columns and a 1 if that combination is there
+coocc_mat <- pubs_summ_binary %>%
+  pivot_wider(names_from = subfieldid, values_from = present, values_fill=0)
+
+# removing the id variable, so we have only the subfield pairings in the row
+mat <- as.matrix(coocc_mat[,-1])
+
+# subfields to rows, researchers to cols
+mat_t <- t(mat)
+
+# computing cosine similarity
+cosine_sim_mat <- simil(mat_t, method = "cosine")
+
+
+# converting to matrix format
+cosine_sim_mat <- as.matrix(cosine_sim_mat)
+
+# calculating distance (i.e. 1-similarity)
+cosine_dist_matrix <- 1 - cosine_sim_mat
+
+
+# check if the distribution of cosine distances is somewhat normal
+diff_values <- cosine_dist_matrix[lower.tri(cosine_dist_matrix)]
+summary(diff_values)
+
+# Convert cosine_dist_matrix to a long-format data frame
+dist_df <- as.data.frame(as.table(cosine_dist_matrix))
+colnames(dist_df) <- c("subfield_i", "subfield_j", "d_ij")
+
+
+```
+
+
+
+### Calculating average disparity between combined fields for individuals
+
+
+```{r}
+
+# Getting all unique subfield pairs per author-year
+pubs_disparity <- pubs_roll5 %>%
+  distinct(id, year, subfieldid) %>%
+  inner_join(., ., by = c("id", "year")) %>%
+  filter(subfieldid.x < subfieldid.y) %>%  # avoid duplicates and self-pairs
+  rename(subfield_i = subfieldid.x,
+         subfield_j = subfieldid.y)
+
+# add distance between subfield pairs
+pubs_disparity <- pubs_disparity %>%
+  inner_join(dist_df, by = c("subfield_i", "subfield_j"))
+
+# average distance
+pubs_disparity_summary <- pubs_disparity %>%
+  group_by(id, year) %>%
+  summarise(disparity = mean(d_ij, na.rm = TRUE)) %>%
+  ungroup()
+
+
+```
+
+
+
+
+# RAO-STIRLING
+
+
+Calculating the measures across the 5-year window data specified in `pubs_roll5`
+
+
+```{r}
+
+# calculate the proportion of the total score that is taken up by given subfield in a year
+subfield_props <- pubs_roll5 %>%
+  group_by(id, year, subfieldid) %>%
+  summarise(score = sum(rolling_sum, na.rm = TRUE)) %>%
+  group_by(id, year) %>%
+  mutate(tot_score = sum(score, na.rm = TRUE),
+         p_i = score / tot_score) %>%
+  ungroup()
+
+
+# creating a pair dataframe, where each row is one pair of subfields that co-occur for a person-year
+subfield_pairs <- subfield_props %>%
+  inner_join(subfield_props, by = c("id", "year")) %>%
+  rename(subfield_i = subfieldid.x,
+         subfield_j = subfieldid.y,
+         p_i = p_i.x,
+         p_j = p_i.y)
+
+
+# join distance the subfield pairs
+subfield_pairs <- subfield_pairs %>%
+  inner_join(dist_df, by = c("subfield_i", "subfield_j"))
+
+# calculate pairwise Rao-Stirling diversity (pi*pj*dij = prop subfield i, prop subfield j, distance between i&j)
+subfield_pairs <- subfield_pairs %>%
+  mutate(contribution = p_i * p_j * d_ij)
+
+# summing the pairwise measures for the Rao-Stirling Diversity in a given year
+rao_stirling <- subfield_pairs %>%
+  group_by(id, year) %>%
+  summarise(rao_stirling = sum(contribution, na.rm = TRUE)) %>%
+  ungroup()
+
+
+```
+
+
+
+# Rao-Stirling 7/9
+
+
+Using a 7 years and 9 years window of publications as a robustness check.
+
+
+```{r}
+
+# 7 years
+
+# calculate the proportion of the total score that is taken up by given subfield in a year
+subfield_props <- pubs_roll7 %>%
+  group_by(id, year, subfieldid) %>%
+  summarise(score = sum(rolling_sum, na.rm = TRUE)) %>%
+  group_by(id, year) %>%
+  mutate(tot_score = sum(score, na.rm = TRUE),
+         p_i = score / tot_score) %>%
+  ungroup()
+
+
+# creating a pair dataframe, where each row is one pair of subfields that co-occur for a person-year
+subfield_pairs <- subfield_props %>%
+  inner_join(subfield_props, by = c("id", "year")) %>%
+  rename(subfield_i = subfieldid.x,
+         subfield_j = subfieldid.y,
+         p_i = p_i.x,
+         p_j = p_i.y)
+
+
+# join distance the subfield pairs
+subfield_pairs <- subfield_pairs %>%
+  inner_join(dist_df, by = c("subfield_i", "subfield_j"))
+
+# calculate pairwise Rao-Stirling diversity (pi*pj*dij = prop subfield i, prop subfield j, distance between i&j)
+subfield_pairs <- subfield_pairs %>%
+  mutate(contribution = p_i * p_j * d_ij)
+
+# summing the pairwise measures for the Rao-Stirling Diversity in a given year
+rao_stirling7 <- subfield_pairs %>%
+  group_by(id, year) %>%
+  summarise(rao_stirling7 = sum(contribution, na.rm = TRUE)) %>%
+  ungroup()
+
+
+# 9 years 
+
+# calculate the proportion of the total score that is taken up by given subfield in a year
+subfield_props <- pubs_roll9 %>%
+  group_by(id, year, subfieldid) %>%
+  summarise(score = sum(rolling_sum, na.rm = TRUE)) %>%
+  group_by(id, year) %>%
+  mutate(tot_score = sum(score, na.rm = TRUE),
+         p_i = score / tot_score) %>%
+  ungroup()
+
+
+# creating a pair dataframe, where each row is one pair of subfields that co-occur for a person-year
+subfield_pairs <- subfield_props %>%
+  inner_join(subfield_props, by = c("id", "year")) %>%
+  rename(subfield_i = subfieldid.x,
+         subfield_j = subfieldid.y,
+         p_i = p_i.x,
+         p_j = p_i.y)
+
+
+# join distance the subfield pairs
+subfield_pairs <- subfield_pairs %>%
+  inner_join(dist_df, by = c("subfield_i", "subfield_j"))
+
+# calculate pairwise Rao-Stirling diversity (pi*pj*dij = prop subfield i, prop subfield j, distance between i&j)
+subfield_pairs <- subfield_pairs %>%
+  mutate(contribution = p_i * p_j * d_ij)
+
+# summing the pairwise measures for the Rao-Stirling Diversity in a given year
+rao_stirling9 <- subfield_pairs %>%
+  group_by(id, year) %>%
+  summarise(rao_stirling9 = sum(contribution, na.rm = TRUE)) %>%
+  ungroup()
+
+
+```
+
+
+
+
+# Combining the interdisciplinary measures in 1 dataframe
+
+
+```{r}
+
+pubs_balance %>%
+  left_join(pub_counts, by=c("id", "year")) %>%
+  left_join(pubs_disparity_summary, by=c("id", "year")) %>%
+  left_join(rao_stirling, by=c("id", "year")) %>%
+  left_join(rao_stirling7, by=c("id", "year")) %>%
+  left_join(rao_stirling9, by=c("id", "year")) -> interdisciplinarity
+
+```
+
+
+
+# Calculating correlation between interdisciplinarity measures
+
+
+```{r}
+
+
+cor_matrix <- interdisciplinarity %>%
+  select(balance, disparity, rao_stirling, pub_count_rolling5) %>%
+  na.omit() %>%
+  cor()
+
+
+print(cor_matrix)
+
+```
+
+
+Please note that this does not match to the table presented in the manuscript, due to the use of synthetic (example) data in this script. 
+
+
+
+# Checking Variance Inflation Factor
+
+
+Cutoff: VIF <5 = acceptable amount of multicollinearity
+
+
+```{r}
+
+model <- lm(rao_stirling ~ balance + disparity + pub_count_rolling5, data = interdisciplinarity)
+
+vif(model)
+
+
+```
+
+All good! 
+
+
+
+## Saving
+
+```{r, eval=FALSE}
+
+# selecting only interdisciplinarity measures "to keep"
+interdisciplinarity %>%
+  select(id, year, balance, disparity, rao_stirling, rao_stirling7, rao_stirling9) -> interdisciplinarity
+
+save(interdisciplinarity, file="./data/processed/interdisciplinarity_site.rda")
+
+```
+

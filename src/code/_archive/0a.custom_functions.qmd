@@ -1,0 +1,319 @@
+---
+title: "Custom Functions"
+---
+
+## Functions
+
+### `.clear_global_environment()`
+Clear the global environment while preserving selected helper functions.
+
+#### Arguments
+**`keep`**  
+
+> Character vector of object names that should be retained in the global environment (defaults to `KEEP_FUNCTIONS`).
+
+#### Method
+The function lists all objects in the global environment (including hidden ones), combines the user-specified `keep` vector with the internal `KEEP_FUNCTIONS` object itself, and computes the set difference between all objects and those to keep. It then removes all remaining objects via `rm(..., envir = .GlobalEnv)` and runs `gc()` to trigger garbage collection. The result is a cleaned workspace that still contains the core helper functions and the `KEEP_FUNCTIONS` configuration.
+
+```{r}
+KEEP_FUNCTIONS = c(
+  ".clear_global_environment",
+  ".load_quarto_dependencies",
+  "fsave",
+  "fsaveRDS",
+  "fload",
+  "freadRDS",
+  "freadRDS2",
+  "normalize_name",
+  "eval_ok"
+)
+
+.clear_global_environment <- function(keep = KEEP_FUNCTIONS) {
+
+  objs <- ls(envir = .GlobalEnv, all.names = TRUE)
+
+  # also keep the KEEP_FUNCTIONS object itself
+  to_keep <- unique(c(keep, "KEEP_FUNCTIONS"))
+
+  rm(
+    list  = setdiff(objs, to_keep),
+    envir = .GlobalEnv
+  )
+
+  invisible(gc())
+}
+```
+
+### `.load_quarto_dependencies()`
+Load core Quarto rendering dependencies.
+
+#### Arguments
+*(none)*  
+
+#### Method
+The function simply attaches the `knitr` and `rmarkdown` packages using `library()`. It is intended to be called at the top of Quarto documents to ensure that the standard R Markdown/Quarto rendering engines are available, without cluttering each document with repeated library calls.
+
+```{r}
+#| id: load-quarto-dependencies
+.load_quarto_dependencies = function(){
+  library(knitr)
+  library(rmarkdown)
+}
+```
+
+### `fpackage.check()`
+**Deprecated** helper to install and load packages.
+
+#### Arguments
+**`packages`**  
+
+> Character vector of package names to check, install (if missing), and load.
+
+#### Method
+The function first emits a lifecycle deprecation warning via `lifecycle::deprecate_warn()`, advising users to rely on `renv` and explicit `library()` calls instead. It then prints a deprecation message and iterates over `packages` with `lapply()`. For each package, it attempts to load it with `require()`. If the package is not installed, it calls `install.packages()` with dependencies enabled, and then loads the package. The function returns `invisible(TRUE)` but is retained only for backward compatibility.
+
+```{r}
+fpackage.check <- function(packages) {
+  lifecycle::deprecate_warn(
+    when = "2025-10-27",
+    what = "fpackage.check()",
+    details = paste0("Use renv for package installation and library()",
+                     " for loading packages.")
+  )
+  message(
+    "⚠️ fpackage.check() is deprecated. Use renv + library() calls instead."
+  )
+  
+  lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  })
+
+  invisible(TRUE)
+}
+```
+
+### `fsave()`
+**Deprecated**: save an object to a dated `.RData` file in a processed data folder.
+
+#### Arguments
+**`x`**  
+
+> R object to be saved.
+
+**`file`**  
+
+> Base filename (without date prefix) to use for the `.RData` file.
+
+**`location`**  
+
+> Directory in which to save the file (default `"./data/processed/"`).
+
+**`...`**  
+
+> Additional arguments passed through (currently unused).
+
+#### Method
+The function first issues a deprecation warning via `lifecycle::deprecate_warn()` and prints a message recommending `fsaveRDS`/`fsaveRDS2` and `renv`-based workflows instead. It ensures that the target `location` directory exists (creating it if necessary), constructs a date stamp in `YYYYMMDD` format from `Sys.time()`, and concatenates it with `file` and `location` to create a full path. It then calls `save()` on `x` to write a `.RData` file to that path and prints the resulting filename for logging. The function does not return the saved object.
+
+```{r}
+fsave <- function(x, file, location = "./data/processed/", ...) {
+  lifecycle::deprecate_warn(
+    when = "2025-10-27",
+    what = "fsave()",
+    details = paste0(
+      "Use fsaveRDS or fsaveRDS2 to save data instead. function is",
+      "deprecated in favor of renv support which conflicts with load"
+    )
+  )
+  message(
+    "⚠️ fsave() is deprecated. Use fsaveRDS or fsaveRDS2  calls instead."
+  )
+  # if directory does not exist, create it
+  if (!dir.exists(location)) dir.create(location)
+  
+  # create filename with date
+  datename <- substr(gsub("[:-]", "", Sys.time()), 1, 8)
+  totalname <- paste(location, datename, file, sep = "")
+
+  # save file
+  print(paste("SAVING: ", totalname, sep = ""))
+  save(x, file = totalname)
+}
+```
+
+### `fsaveRDS()`
+Save an object to a dated `.Rds` file in a processed data folder.
+
+#### Arguments
+**`x`**  
+
+> R object to be saved.
+
+**`file`**  
+
+> Base filename (without date or extension) for the `.Rds` file.
+
+**`location`**  
+
+> Directory in which to save the file (default `"./data/processed/"`).
+
+**`...`**  
+
+> Additional arguments passed through (currently unused).
+
+#### Method
+The function first checks whether `location` exists and creates it if necessary. It then builds a date prefix in `YYYYMMDD` format from `Sys.time()`, and concatenates it with `file` and `location` to form a full filepath ending in `.Rds`. It prints the target path for logging and uses `saveRDS()` with `compress = "bzip2"` to write the object to disk. The function is designed as a simple, date-stamped companion to `freadRDS2()`.
+
+```{r}
+fsaveRDS <- function(x, file, location = "./data/processed/", ...) {
+  # if directory does not exist, create it
+  if (!dir.exists(location)) dir.create(location)
+  
+  # create filename with date
+  datename <- substr(gsub("[:-]", "", Sys.time()), 1, 8)
+  totalname <- paste(location, datename, file, ".Rds", sep = "")
+
+  # save file
+  print(paste("SAVING: ", totalname, sep = ""))
+  saveRDS(x, file = totalname, compress = "bzip2")
+}
+```
+
+### `freadRDS()`
+Read a single `.Rds` file from disk.
+
+#### Arguments
+**`fileName`**  
+
+> Character string giving the path to an `.Rds` file.
+
+#### Method
+This is a very thin wrapper around `readRDS()`, provided mostly for symmetry with `fsaveRDS()`. Given `fileName`, it calls `readRDS(fileName)` and returns the resulting object directly, without additional checks or transformations.
+
+```{r}
+freadRDS = function(fileName){
+  # load file and return object
+  readRDS(fileName)
+}
+```
+
+### `freadRDS2()`
+Read the most recent dated `.Rds` file matching a base name from a data directory.
+
+#### Arguments
+**`file`**  
+
+> Base filename (with or without `.Rds` extension) used to identify matching files.
+
+**`location`**  
+
+> Directory (relative or absolute) where the files are stored; if it does not start with `"data/"`, it is automatically prefixed with `data/` (default `"processed"`).
+
+**`...`**  
+
+> Additional arguments reserved for future use (currently unused).
+
+#### Method
+The function first ensures that `file` ends with `.Rds`. It then normalizes `location` so that it points inside the `data/` directory and warns if the directory does not exist. It lists all files in `location` whose names contain `file` as a literal substring, optionally excluding those starting with `"old_"` (unless the requested `file` itself starts with `"old_"`, in which case only old files are considered). Among the remaining candidates, it sorts filenames in descending order and selects the first one, which is assumed to be the most recent based on the date prefix convention. It constructs the full path with `file.path()` and returns the object loaded via `readRDS(file_path)`.
+
+```{r}
+freadRDS2 = function(file, location = "processed", ...){
+  # make sure that the location is nested within the data directory
+  if (!str_detect(file, '.Rds')) file = paste0(file, ".Rds")
+
+  # format location and create the location if it does not exist
+  if (!str_detect(location, 'data/')) location = file.path('data', location)
+  if (!file.exists(location)) warning("the location does not exist ", location)
+
+  # list and filter by literal substring 'file'
+  files = list.files(location, pattern = file)
+  files = files[grepl(file, files, fixed = TRUE)]
+
+  # exclude old_* unless the requested file itself starts with old_
+  if (!startsWith(file, "old_")) files = files[!startsWith(files, "old_")] 
+  if (startsWith(file, "old_")) files = files[startsWith(files, "old_")] 
+
+  # create file_path for the most recent file
+  file_name = sort(files, decreasing = TRUE, na.last = NA)[1]
+  file_path = file.path(location, file_name)
+
+  return(readRDS(file_path))
+}
+```
+
+### `fload()`
+**Deprecated**: Load an `.RData` file and return the loaded object.
+
+#### Arguments
+**`filename`**  
+
+> Character string giving the path to a `.RData` file.
+
+#### Method
+The function calls `load(filename)`, which loads one or more objects into the current environment. It then identifies the name of the loaded object by taking all objects in the environment except `"filename"` and uses `get()` to retrieve that object and return it. This avoids leaving the caller to search the environment for the object name; instead, `fload()` directly returns the loaded object. It assumes that the `.RData` file contains a single relevant object.
+
+```{r}
+fload <- function(filename) {
+  lifecycle::deprecate_warn(
+    when = "2025-11-18",
+    what = "fload()",
+    details = paste0("Use freadRDS instead")
+  )
+  message(
+    "⚠️ fload() is deprecated. Use freadRDS calls instead."
+  )
+
+  load(filename)
+  get(ls()[ls() != "filename"])
+}
+```
+
+### `normalize_name()`
+Normalize personal names for robust matching across scripts and spellings.
+
+#### Arguments
+**`x`**  
+
+> Character vector (or coercible to character) containing raw name strings.
+
+#### Method
+The function coerces `x` to character and uses `stringi::stri_detect_charclass()` to detect elements containing Cyrillic characters. For those elements only, it transliterates Cyrillic to Latin script via `stringi::stri_trans_general(..., "Cyrillic-Latin")`. Next, it strips accents and diacritics from all elements using `stringi::stri_trans_general(..., "Latin-ASCII")`, converts everything to lowercase, collapses multiple spaces into a single space with `str_squish()`, and trims leading/trailing whitespace via `trimws()`. The result is a normalized, ASCII-only, lowercase representation of names that is well-suited for string matching, distance calculations, and cross-language comparisons.
+
+```{r}
+normalize_name = function(x) {
+  x = as.character(x)
+
+  # mark Cyrillic
+  has_cyr = stringi::stri_detect_charclass(x, "\\p{Script=Cyrillic}")
+
+  # transliterate only Cyrillic -> Latin
+  x[has_cyr] = stringi::stri_trans_general(x[has_cyr], "Cyrillic-Latin")
+
+  # strip accents for all, lowercase, trim, squish
+  x = stringi::stri_trans_general(x, "Latin-ASCII")
+  x = tolower(x)
+  x = str_squish(x)
+  trimws(x)
+}
+# colorize <- function(x, color) {sprintf("<span style='color: %s;'>%s</span>", color, x) }
+```
+
+### `eval_ok()`
+Check whether Quarto parameters allow code evaluation.
+
+#### Arguments
+*(none)*  
+
+> This expression does not take arguments; it evaluates Quarto parameter objects in the surrounding environment.
+
+#### Method
+The object is defined via `tryCatch()` to safely inspect common Quarto parameter locations. It first attempts to evaluate `isTRUE(params$eval)`; if that fails (e.g., `params` is missing), it falls back to checking `isTRUE(param$eval)`. If both attempts error, it returns `FALSE`. The result is a single logical value that can be used to guard evaluation of expensive or external calls (e.g., API requests, scraping) depending on the document’s `params$eval`/`param$eval` setting.
+
+```{r}
+eval_ok <- tryCatch(isTRUE(params$eval), error = function(...) {
+  tryCatch(isTRUE(param$eval), error = function(...) FALSE)
+})
+```

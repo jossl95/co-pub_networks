@@ -1,0 +1,322 @@
+---
+title: "Data Processing Names"
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(readxl)
+library(stringr)
+library(lubridate)
+library(stringi)
+library(squids)
+```
+
+## Functions
+
+### `parse_names()`
+Split full names into given name(s), surname particle, and surname.
+
+#### Arguments
+**`names`**  
+
+> Tibble or data frame containing a column `naam` with full names stored as a single string.
+
+#### Method
+The function defines a set of common surname particles (e.g., `van`, `van der`, `de la`, `von der`, `op de`) and a helper `.normalize()` that trims whitespace, unifies apostrophes, lowercases, and transliterates characters to ASCII. For each `naam`, it splits the name into tokens, normalizes them, and searches immediately before the final token for the **longest matching particle** of length 1–3 tokens. Using the detected particle position, it constructs `first_name` (all tokens before the particle, or before the last token if there is no particle), `particle` (the matched particle, returned in lowercase), and `last_name` (the final token). Single-token names are treated as both `first_name` and `last_name`. The function returns a tibble with `naam`, `first_name`, `particle`, and `last_name`.
+
+```{r}
+parse_names = function(names){
+  particles <- c(
+    "de","den","der","het","te","ten","ter",
+    "van","van de","van den","van der","van 't","van ’t",
+    "'t","’t",
+    "von","von der","von den",
+    "la","le","du","del","della","di","da","dos",
+    "das","de la","de los","de las",
+    "zu","zum","zur", "op de"
+  )
+
+  # Normalization helper for matching
+  .normalize <- function(x) {
+    x |>
+      str_squish() |>
+      str_replace_all("’", "'") |>
+      str_to_lower() |>
+      stri_trans_general("Latin-ASCII")
+    }
+
+  p_norm <- .normalize(particles)
+
+  names |>
+    mutate(
+      tokens_raw = str_split(naam, "\\s+"),
+      tokens_norm = map(tokens_raw, ~ .normalize(.x)),
+      n = map_int(tokens_raw, length),
+
+      # find the longest particle match immediately before the final token
+        particle_idx = map2_int(tokens_norm, n, function(tok, n_tok) {
+          if (n_tok < 2) return(NA_integer_)
+          # check 3, 2, 1-token particles that end at position n_tok-1
+          for (k in 3:1) {
+            start <- n_tok - k
+            end   <- n_tok - 1
+            if (start >= 1) {
+              cand <- paste(tok[start:end], collapse = " ")
+              if (cand %in% p_norm) return(start)
+            }
+          }
+          NA_integer_
+        }),
+
+        has_particle = !is.na(particle_idx),
+
+        first_name = pmap_chr(
+          list(tokens_raw, particle_idx, n),
+          function(tok, p_i, n_tok) {
+            end_giv <- if (is.na(p_i)) n_tok - 1 else p_i - 1
+            if (end_giv <= 0) tok[1] 
+            else paste(tok[seq_len(end_giv)], collapse = " ")
+          }
+        ),
+
+        particle = pmap_chr(
+            list(tokens_raw, tokens_norm, particle_idx, n),
+            function(tok_raw, tok_norm, p_i, n_tok) {
+              if (is.na(p_i)) return(NA_character_)
+              # output particle in lowercase, canonicalised apostrophes
+              out <- paste(tok_norm[p_i:(n_tok-1)], collapse = " ")
+              out
+            }
+          ) |> str_to_lower(),
+
+        last_name = pmap_chr(
+          list(tokens_raw, n),
+          function(tok, n_tok) tok[n_tok]
+        )
+    ) |>
+    select(naam, first_name, particle, last_name)
+}
+```
+
+---
+
+### `extract_initials()`
+Detect leading initials in `naam` and store them in a separate `initials` column.
+
+#### Arguments
+**`names`**  
+
+> Tibble or data frame containing at least `naam` and `first_name` columns.
+
+#### Method
+The function uses a regular expression to detect compact leading initials at the start of `naam`, such as `J.`, `J.F.`, `A.B.`, or hyphenated variants like `J.-P.` or `J.F.-K.`. A match is only made when these initials are followed by whitespace, ensuring that only true initials are captured. The extracted string is stored in a new column `initials`. When initials are found, `first_name` is set to `NA` to avoid misclassifying initials as given names. Finally, the `initials` column is relocated to sit immediately after `naam`, leaving the rest of the structure unchanged.
+
+```{r}
+extract_initials = function(names){
+  names |>
+    mutate(
+      initials = str_extract(
+          naam, 
+          "^((?:\\p{Lu}{1,2}\\.)+(?:-\\p{Lu}{1,2}\\.)*)(?=\\s)"
+        ),
+      first_name = ifelse(is.na(initials), first_name, NA_character_)) |>
+    relocate(initials, .after=naam)
+}
+
+```
+
+---
+
+### `patch_names()`
+Apply curated manual corrections to name fields by matching on `naam`.
+
+#### Arguments
+**`names`**  
+
+> Tibble or data frame with a `naam` column and corresponding name components (e.g., `first_name`, `particle`, `last_name`, `initials`) that may require correction.
+
+#### Method
+The function reads a pre-compiled corrections table from `data/utils/name_corrections.Rds`. This table contains corrected values for specific `naam` entries and overlapping columns (such as `first_name`, `particle`, `last_name`, `initials`, etc.). Using `dplyr::rows_update()` with `by = "naam"` and `unmatched = "ignore"`, it overwrites the relevant columns in `names` wherever a matching `naam` is found, while leaving non-matching rows unchanged. No new rows are created and the original order of `names` is preserved. The result is a version of `names` where known problematic cases have been fixed using curated corrections.
+
+```{r}
+patch_names = function(names){
+  # read in dataset with corrections for name information
+  corrections = readRDS(file.path('data', 'utils', 'name_corrections.Rds'))
+
+  names |> rows_update(corrections, by='naam', unmatched='ignore')
+}
+```
+
+```{r}
+readRDS(file.path('data', 'utils', 'name_corrections.Rds')) |> head()
+```
+
+---
+
+### `extract_maiden_name()`
+Split hyphenated surnames into `last_name` and `maiden_name`.
+
+#### Arguments
+**`names`**  
+
+> Tibble or data frame containing a `last_name` column with surnames, some of which may be hyphenated (e.g., `"Jansen-Smits"`).
+
+#### Method
+The function splits each `last_name` on the first hyphen using `str_split(..., simplify = TRUE)`. The part before the hyphen is written back to `last_name`, and the part after the hyphen is stored in a new column `maiden_name`. When no second part exists (i.e., no hyphen in the surname), `maiden_name` is set to `NA_character_`. All other columns in `names` are left unchanged. The updated data frame, now carrying both `last_name` and `maiden_name`, is returned.
+
+```{r}
+extract_maiden_name = function(names){
+  # split last names
+  last_name_splits = str_split(names$last_name, '-', simplify = TRUE)
+
+  # add splits to names dataframe
+  names['last_name'] = last_name_splits[,1]
+  names['maiden_name'] = ifelse(
+    last_name_splits[,2] == '',
+    NA_character_,
+    last_name_splits[,2]
+  )
+
+  return(names)
+}
+```
+
+---
+
+### `format_names()`
+Normalize characters, standardize case, and construct cleaned composite name fields.
+
+#### Arguments
+**`data`**  
+
+> Tibble or data frame containing at least `initials`, `first_name`, `particle`, `last_name`, and optionally `maiden_name`.
+
+#### Method
+The function first transliterates diacritics to ASCII for `initials`, `first_name`, `particle`, `last_name`, and `maiden_name` using `stri_trans_general("Latin-ASCII")`. The `particle` is additionally forced to lowercase. It then creates two composite display fields:  
+1. `clean_name` by uniting `initials:last_name` into a single string, skipping missing parts and using spaces as separators;  
+2. `clean_name_full` by appending `maiden_name` to `clean_name` with a hyphen, again skipping missing values.
+
+Because some names may contain both `initials` and `first_name`, the function removes the leading `"initials "` from both `clean_name` and `clean_name_full` to avoid duplication (e.g., `"J. Jan Jansen"` becomes `"Jan Jansen"`). This is done via temporary helper columns `temp` and `temp_full`, which are then used to conditionally overwrite the clean name fields and subsequently removed. The function returns the input data with two additional harmonized name display columns: `clean_name` and `clean_name_full`.
+
+```{r}
+format_names = function(data){
+  data |>
+    mutate(
+      initials = initials |> stri_trans_general("Latin-ASCII"),
+      first_name = first_name |> stri_trans_general("Latin-ASCII"),
+      particle = particle |> 
+        str_to_lower() |>
+        stri_trans_general("Latin-ASCII"),
+      last_name = last_name |> stri_trans_general("Latin-ASCII"),
+      maiden_name = maiden_name |> stri_trans_general("Latin-ASCII")
+    ) |> 
+    unite("clean_name", 
+          initials:last_name, na.rm=TRUE, sep=" ", remove=FALSE) |>
+    unite("clean_name_full",
+          clean_name, maiden_name, na.rm=TRUE, sep="-", remove=FALSE) |>
+    mutate(
+      temp = str_remove(clean_name, paste0(initials, " ")),
+      temp_full = str_remove(clean_name_full, paste0(initials, " ")),
+      clean_name = case_when(
+        !is.na(initials) & !is.na(first_name) ~ temp,
+        .default=clean_name
+      ),
+      clean_name_full = case_when(
+        !is.na(initials) & !is.na(first_name) ~ temp_full,
+        .default=clean_name_full
+      ),
+    ) |>
+    select(-starts_with("temp"))
+    
+}
+
+```
+
+---
+
+### `add_uid()`
+Generate short unique identifiers for each `clean_name` and attach them as `uid`.
+
+#### Arguments
+**`names`**  
+
+> Tibble or data frame containing a `clean_name` column with standardized name strings.
+
+#### Method
+The function first configures sqids with a minimum length of 10 characters and extracts the set of unique `clean_name` values. For each distinct `clean_name`, it generates a random squid. These are collected into a lookup tibble with columns `clean_name` and `uid`, which is saved to `data/utils/uid_key.Rds` for reuse outside this script. The original `names` data is then left-joined with the lookup on `clean_name`, and the resulting `uid` column is relocated to the first position. The function returns the input data augmented with a stable, compact identifier per unique name.
+
+```{r}
+add_uid = function(names){
+  unique_names = names$clean_name |> unique()
+  unique_squids = squids::random_squids(length(unique_names), followBy=4)
+
+  # generate a id for all names
+  lookup = list()
+  for (i in 1:length(unique_names)){
+    name = unique_names[[i]]
+    id = unique_squids[[i]]
+    lookup[[i]] = tibble(
+      clean_name = name,
+      uid = id
+    )
+  }
+
+  lookup = bind_rows(lookup)
+  saveRDS(lookup, file.path('data', 'utils', 'uid_key.Rds'))
+
+  names |>
+    left_join(lookup) |>
+    relocate(uid, .before=1)
+}
+```
+
+## Application
+
+```{r}
+#| warning: false
+#| output: false
+data = freadRDS2('scholarid') 
+
+names = data |>
+  select(naam) |>
+  arrange(naam) |>
+  distinct() |>
+  drop_na() |>
+  parse_names() |>
+  extract_initials() |>
+  patch_names() |>
+  extract_maiden_name() |>
+  format_names() |>
+  add_uid()
+
+fsaveRDS(names, 'names')
+```
+
+```{r}
+names |> head()
+```

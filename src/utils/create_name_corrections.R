@@ -75,7 +75,7 @@ corrections <- tibble::tribble(
   "Melissa González Loyola",        "Melissa",   NA_character_, "González Loyola",
   "Metin Unal Tekin",               "Metin",     NA_character_, "Unal Tekin",
   # correct name for people with initials
-  "A.J.G.M. van Montfort",          "André",     "van",           "Montfort",
+  "A.J.G.M. van Montfort",          "André",     "van",         "Montfort",
   "A. Scheuer",                     "Alisha",    NA_character_, "Scheuer",
   "A.B. Bieleman",                  "Bert",      NA_character_, "Bieleman",
   "A.J.D. de Lacey",                "Alex",      "de",          "Lacey",

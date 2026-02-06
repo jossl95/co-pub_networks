@@ -465,6 +465,10 @@ Tibble containing at least info (etymology text) and `last_name` columns, typica
 #### Method
 The function defines several regex patterns to capture different kinds of origin cues: a general `origin_pattern` for adjectives preceding “naam” phrases, a `particles_pattern` for Dutch name particles, a type_pattern for name types (e.g., toponymic, patronymic), a `lang_pattern` for language or adjectival origin labels (e.g., Nederlands(e), Turks(e)), and a `country_pattern` for explicit geographical references (e.g., Turkije, Suriname, China). It then mutates data by extracting primary (`o1`, `t1`, `l1`, `c1`) and secondary (`o2`, `t2`, `l2`, `c2`) matches, indicators for regional names (`r1`) and the presence of a particle (`p1`), and stores multi-matches as list-columns (dropping the first element). The original info column is removed, leaving a richer set of origin-related features (`o1–o2`, `r1`, `p1`, `t1–t2`, `l1–l2`, `c1–c2`) attached to each surname. The function returns this augmented tibble for further patching and cleaning.
 
+<!---
+> !!comments zonder haakjes gebruiken!!
+--->
+
 ```{r}
 parse_origin = function(data){
   # 1) de herkomst staat vaak voor naam, achternaam, etc.
@@ -480,6 +484,7 @@ parse_origin = function(data){
   ))
 
   # 2) patroniem/toponiem/etc. en taal/naam-typen in één keer definieren
+  
   type_pattern <- regex(paste0(
     "(toponiem|patroniem|herkomstnaam|adresnaam|beroepsnaam|metonymische",
     "|beroepsnaam|samenstelling met voornaam|metafoor|betrekking)"

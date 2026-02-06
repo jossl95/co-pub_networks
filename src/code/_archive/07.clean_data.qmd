@@ -1,0 +1,368 @@
+---
+title: Prune Scrape Data
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+
+execute: 
+  eval: false
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(stringr)
+library(lubridate)
+library(purrr)
+```
+
+## Functions
+
+### `prune_works()`
+Filter each scholar’s works to a set of sufficiently common work types and a minimum publication year.
+
+#### Arguments
+**`data`**
+
+> Named list that contains a `works` element (list of works tibbles). Each works tibble is expected to include at least `type` and `publication_year` (and typically `uid`, `work_id`, etc.).
+
+#### Method
+The function first binds all works together to compute type frequencies. It keeps only types with at least 50 occurrences and explicitly excludes `dataset`. It then iterates over `data[['works']]`, coercing each element to a tibble, returning an empty tibble when required columns are missing, and filtering to valid types and `publication_year >= 1990`. Finally, it drops scholars whose filtered works tibble is empty and returns the updated `data`.
+
+```{r}
+prune_works <- function(data){
+  # create list of valid datatypes
+  valid_types <- data[['works']] |>
+    bind_rows() |>
+    group_by(type) |>
+    summarize(n = n()) |>
+      # excluding types with fewer than 50 hits (retraction: 1, libguides: 18, 
+      # reference-entry: 39), and datasets (991). 
+      filter(
+        n >= 50, 
+        type != 'dataset'
+      ) |> 
+      pull(type)
+
+  data[["works"]] <- data[["works"]] |>
+    map(\(df) {
+      df <- as_tibble(df)
+
+      # if needed columns are missing, return empty with same cols
+      if (!all(c("type", "publication_year") %in% names(df))) {
+        return(df[0, , drop = FALSE])
+      }
+
+      df |>
+        filter(
+          type %in% valid_types,
+          publication_year >= 1980
+        ) |>
+        arrange(publication_year)
+    }) |>
+    keep(~ nrow(.x) > 0)
+
+  return(data)
+}
+
+```
+
+### `prune_demographics()`
+
+De-duplicate the demographics table and add an indicator for whether each scholar has valid works after pruning.
+
+#### Arguments
+**data**
+
+> Named list that contains works (a named list of per-scholar works tibbles) and demographics (a tibble with at least `uid`).
+
+#### Method
+The function takes the names of `data[['works']]` as the set of scholars with valid works. It then de-duplicates `data[['demographics']]` on `uid` (keeping the first row per uid) and adds `has_valid_works = uid %in% valid_ids`. The updated list is returned.
+
+
+```{r}
+prune_demographics = function(data){
+  # create list of uids with valid works
+  valid_ids = names(data[['works']])
+
+  # drop duplicates and variable that indicates valid works
+  data[['demographics']] = data[['demographics']] |> 
+    distinct(uid, .keep_all = TRUE) |>
+    mutate(has_valid_works = uid %in% valid_ids)
+
+  return(data)
+}
+```
+
+### `prune_scholars()`
+
+Filter the OpenAlex scholar records to only those authors that appear in the (pruned) works data.
+
+#### Arguments
+**data**
+
+> Named list that contains works (list of works tibbles including `author_id`) and `scholars_oa` (list of OpenAlex scholar tibbles including `author_id`).
+
+#### Method
+The function binds all works together and extracts the distinct set of author_id values as the valid OpenAlex author IDs. It then iterates over `data[['scholars_oa']]`, coercing each to a tibble, normalizing `author_id` by stripping the "https://openalex.org/" prefix, and filtering to valid IDs. Finally, it drops empty tibbles and returns the updated list.
+
+```{r}
+
+prune_scholars <- function(data){
+  # create list of valid author ids
+  valid_oaids = data[['works']] |> 
+    bind_rows() |> distinct(author_id) |> pull()
+
+  data[["scholars_oa"]] <- data[["scholars_oa"]] |>
+    map(\(df) {
+      df <- as_tibble(df)
+
+      # # if needed columns are missing, return empty with same cols
+      # if (!all(c("type", "publication_year") %in% names(df))) {
+      #   return(df[0, , drop = FALSE])
+      # }
+
+      df |>
+        mutate(author_id = str_remove(
+          author_id, "^https://openalex.org/")) |> 
+        filter(author_id %in% valid_oaids) 
+    }) |>
+    keep(~ nrow(.x) > 0)
+
+  return(data)
+}
+
+```
+
+### `clean_demographics()`
+
+Attach region-of-origin metadata and standardize/rename demographics variables to a compact schema.
+
+#### Arguments
+**data**
+
+> Named list that contains a demographics element (a tibble with at least `uid` and `ethnicity`, plus the columns that are renamed/selected in the function).
+
+#### Method
+The function reads a country-to-region lookup table from `data/utils/country_conversion.csv` (keeping distinct `alpha_2` and `region`) and harmonizes the region labels. It then left-joins this lookup onto `data[['demographics']]` by matching ethnicity to `alpha_2`, moves the joined `region` next to `ethnicity`, and renames a set of variables (e.g.,` prob→gender_prob`, `universiteit_22→university_22`). Finally, it selects a curated set of columns (including `has_valid_works`) and returns the updated list.
+
+```{r}
+
+clean_demographics = function(data){
+  # get country to region table
+  country_to_region <- read_csv(
+      file.path('data', 'utils', 'country_conversion.csv'),
+      show_col_types = FALSE
+    ) |>
+    distinct(alpha_2, region) |>
+    mutate(
+      region = case_when(
+        region == '(Asia|Oceania)' ~ 'Asia and Oceania',
+        region == 'Netherlands' ~ 'Netherlands',
+        .default = region
+      )
+    )
+
+  # add region to demographics and clean the dataframe
+  data[['demographics']] <- data[['demographics']] |>
+    left_join(country_to_region, by = join_by(ethnicity == alpha_2)) |>
+    relocate(region, .before = ethnicity) |>
+    rename(
+        origin = region,
+        gender_prob = prob,
+        gender_count = count,
+        university_22 = universiteit_22,
+        university_24 = universiteit_24,
+        university_25 = universiteit_25,
+        email_22 = email_adres_22,
+        email_24 = email_adres_24,
+        email_25 = email_adres_25,
+        position_22 = functie_22,
+        position_24 = functie_24,
+        position_25 = functie_25,
+      ) |>
+      select(
+        uid, clean_name, gender, origin, ethnicity, email_22:discipline_25,
+        has_valid_works
+      ) 
+
+  return(data)
+}
+```
+
+### `get_citation_counts()`
+
+Expand nested per-work citation histories to a complete annual panel and compute cumulative citation counts.
+
+#### Arguments
+**data**
+
+> Named list that contains a works element (list of works tibbles with at least `uid`, `work_id`, `publication_year`, and `counts_by_year`).
+
+#### Method
+The function binds all works together and unnests `counts_by_year` into long form, widening it into `counts_by_year_year` and `counts_by_year_cited_by_count`, which are renamed to `year` and `citations`. It coerces `publication_year`, `year`, and `citations` to integers, replaces missing citation counts with `0`, and falls back to `publication_year` when year is missing. It then completes a full sequence of years from the earliest observed `year` through 2026 per (`uid`, `work_id`), filling missing citations with `0`, fills publication_year down/up within each work, and computes `cum_citations` as the cumulative sum of annual citations per work. The resulting long tibble is returned (not re-attached to data).
+
+```{r}
+get_citation_counts <- function(data){
+  data[['works']] |>
+    bind_rows() |>
+    unnest_longer(counts_by_year) |>
+    unnest_wider(counts_by_year, names_sep = "_") |>
+    rename(
+      year = counts_by_year_year,
+      citations = counts_by_year_cited_by_count
+    ) |>
+    mutate(
+      publication_year = as.integer(publication_year),
+      year = as.integer(year),
+      citations = as.integer(citations),
+      citations = coalesce(citations, 0L),
+      year = coalesce(year, publication_year)  # <-- key line
+    ) |>
+    arrange(uid, publication_year, year) |>
+    select(uid, work_id, publication_year, year, citations) |>
+    group_by(uid, work_id) |>
+    complete(
+      year = full_seq(min(year):2026, 1),
+      fill = list(citations = 0L)
+    ) |>
+    fill(publication_year, .direction = "downup") |>
+    arrange(publication_year, year, .by_group = TRUE) |>
+    mutate(cum_citations = cumsum(citations)) |>
+    ungroup()
+}
+```
+
+### `add_annual_statistics()`
+
+Compute yearly publication/citation metrics (h-index, i10-index, citations, publications) per scholar and attach them to demographics.
+
+#### Arguments
+**data**
+
+> Named list that contains works (list of works tibbles with citation histories) and demographics (tibble with `uid`).
+
+#### Method
+The function first calls `get_citation_counts()` to produce a per-work, per-year panel, then groups by (`uid`, `year`) to compute per-year cumulative publication counts. It derives the yearly i10-index by counting works with cum_citations > 10 and the yearly h-index using a simple per-year summary based on the relationship between cumulative citations and cumulative publications. It also aggregates total cumulative citations and number of distinct publications per year. These statistics are merged, filtered to years 2016–2025, nested into `stats_by_year` per `uid`, and then left-joined onto `data$demographics`. The updated list is returned.
+
+```{r}
+
+add_annual_statistics <- function(data){
+  citation_counts <- data |> 
+    get_citation_counts() |>
+    group_by(uid, year) |>
+    mutate(cum_publications = n_distinct(work_id))
+
+  # calculate i10_indices
+  i10_index_by_year <- citation_counts  |>
+    mutate(i10 = cum_citations > 10) |>
+    group_by(uid, year) |>
+    summarise(i10_index = sum(i10)) |>
+    mutate(year = as.integer(year))
+
+  # # calculate h_indices
+  h_index_by_year <- citation_counts  |> 
+    group_by(uid, year) |>
+    summarise(h_index = sum(cum_citations > cum_publications)) |>
+    mutate(year = as.integer(year))
+
+  # aggregate citations and publications
+  counts <- citation_counts  |> 
+    group_by(uid, year) |>
+    summarize(
+      citations = sum(cum_citations),
+      publications = n_distinct(work_id)
+    )
+
+  
+  df <- h_index_by_year |>
+      full_join(i10_index_by_year, by = c("uid", "year")) |>
+      full_join(counts, by = c("uid", "year")) 
+
+  # nest statistics per uid
+  statistics <- df |>
+      filter(year > 2015, year < 2026) |>
+      arrange(uid, year) |>
+      group_by(uid) |>
+      nest(stats_by_year = c(year, h_index, i10_index, citations, publications)) |>
+      ungroup()
+
+  # aggregate statistics
+  aggregated <- df |>
+    group_by(uid) |>
+    summarise(
+      career_start = min(year, na.rm = TRUE),
+      h_index_22  = h_index[year == 2022][1],
+      i10_index_22 = i10_index[year == 2022][1],
+      .groups = "drop"
+    )
+
+  # add statistics to demographics
+  data$demographics <- data$demographics |>
+    left_join(statistics) |>
+    left_join(aggregated)
+
+  return(data)
+}
+
+```
+
+### `add_edge_table()`
+Build an edge table of co-authorships from nested authorship data.
+
+#### Arguments
+**`data`**  
+
+> Named list that contains a `works` element (list of works tibbles with `uid`, `work_id`, `authorships`, `publication_date`, `publication_year`, `type`).
+
+#### Method
+The function binds all per-scholar works together, selecting `uid`, `work_id`, `authorships`, `publication_date`, `publication_year`, and `type`. It renames `authorships` to `a` and fully unnests `a` into separate columns with a names separator. It then filters to rows where `a__uid` (the co-author’s `uid`) is non-missing. The resulting tibble, stored as `data[['edge_table']]`, represents a long edge list that links focal `uid` to their co-authors per work, along with basic publication metadata. The updated list is returned.
+
+```{r}
+add_edge_table <- function(data){
+  data[['edge_table']] <- data[['works']] |>
+    bind_rows() |>
+    select(uid, work_id, authorships, publication_date, publication_year, type) |>
+    # mutate(a = authorships, .after=authorships) |>
+    rename(a = authorships) |>
+    unnest(a, names_sep = "__", keep_empty=FALSE) |>
+    filter(!is.na(a__uid))
+
+  return(data)
+}
+```
+
+## Application
+
+```{r}
+data = freadRDS2(file="scholars", location = "combined") |>
+  prune_works() |>
+  prune_demographics() |>
+  prune_scholars() |>
+  clean_demographics() |>
+  add_annual_statistics() |>
+  add_edge_table()
+
+fsaveRDS(data, 'scholars', location = "./data/clean/")
+```

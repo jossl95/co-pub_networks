@@ -1,0 +1,316 @@
+---
+title: "Create patch for institutions"
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(stringr)
+library(lubridate)
+```
+
+## Functions
+
+### `as_tibble_safe()`
+Safely coerce nested list elements to tibbles.
+
+#### Arguments
+**`x`**  
+
+> Object to be converted; may be `NULL`, a data frame, or another list-like structure.
+
+#### Method
+This helper inspects `x` and returns an empty tibble when it is `NULL`, `as_tibble(x)` when it is already a data frame, or `tibble::as_tibble(x)` for other list-like inputs. It is used to robustly normalize nested list columns (e.g., affiliations, last-known institutions) into rectangular structures before unnesting, avoiding errors when encountering `NULL` or heterogeneous types.
+
+```{r}
+as_tibble_safe <- function(x) {
+  if (is.null(x)) {
+    tibble()
+  } else if (is.data.frame(x)) {
+    as_tibble(x)
+  } else {
+    tibble::as_tibble(x)
+  }
+}
+```
+
+---
+
+### `unnest_authors()`
+Expand works data to one row per author, affiliation, and last-known institution.
+
+#### Arguments
+**`works`**  
+
+> Tibble of works with nested `authorships`, `authorships__affiliations`, and `last_known_institutions` list-columns.
+
+#### Method
+The function sequentially normalizes and unnests nested columns. It first ensures that each element of `authorships` is a tibble using `as_tibble_safe()`, then unnests to a row-per-author layout. Next it applies the same pattern to `authorships__affiliations`, yielding one row per author–affiliation combination, and finally to `last_known_institutions`, yielding one row per last-known institution record. All unnests use `keep_empty = TRUE` to retain works without authors or affiliations as explicit placeholder rows. The result is a long-format table that exposes authors, current affiliations, and last-known institutions for each work.
+
+```{r}
+unnest_authors <- function(works) {
+  works |>
+    # 1) Make sure each element of `authorships` is a tibble (handles NULLs/lists)
+    mutate(
+      authorships = map(authorships, as_tibble_safe)
+    ) |>
+    # 2) One row per author record (keeps works with 0 authors via keep_empty)
+    unnest(authorships, keep_empty = TRUE, names_sep = "__") |>
+    # 3) Make sure each element of `authorships__affiliations` is a tibble
+    mutate(
+      authorships__affiliations = map(authorships__affiliations, as_tibble_safe)
+    ) |>
+    # 4) One row per affiliation record
+    unnest(authorships__affiliations, keep_empty = TRUE, names_sep = "_") |>
+    # 5) Make sure each element of `last_known_institutions` is a tibble
+    mutate(
+      last_known_institutions = map(last_known_institutions, as_tibble_safe)
+    ) |>
+    # 6) One row per last-known institution record
+    unnest(last_known_institutions, keep_empty = TRUE, names_sep = "_")
+}
+```
+
+---
+
+### `prepare_works_authors()`
+Construct a long works–authors–affiliations table for all scholars.
+
+#### Arguments
+**`data`**  
+
+> List-like object containing at least `scholars_oa` (OpenAlex author records) and `works` (OpenAlex works) elements.
+
+#### Method
+The function first binds all OpenAlex author records in `data[["scholars_oa"]]` into a single tibble and merges these with the bound works table from `data[["works"]]` using a many-to-many join on `uid`. It then calls `unnest_authors()` to expand authorships, affiliations, and last-known institutions. Afterwards, it keeps only rows where the scholar’s `uid` matches `authorships__uid` (ensuring the row corresponds to the focal scholar) and filters to rows with either a non-missing `authorships__affiliations_id` or a match between `authorships__affiliations_id` and `last_known_institutions_id`. The result is a cleaned, long-format table that reliably links works, authors, and their institutional affiliations over time.
+
+```{r}
+prepare_works_authors <- function(data) {
+  authors <- data[["scholars_oa"]] |>
+    bind_rows()
+
+  works <- data[["works"]] |>
+    bind_rows() |>
+    select(-display_name)
+
+  works |>
+    left_join(
+      authors,
+      by = join_by(uid),
+      relationship = "many-to-many"
+    ) |>
+    unnest_authors() |>
+    filter(uid == authorships__uid) |>
+    filter(
+      !is.na(authorships__affiliations_id) |
+        authorships__affiliations_id == last_known_institutions_id
+    )
+}
+```
+
+---
+
+### `derive_affiliation_date_ranges()`
+Derive first and last publication dates per university affiliation.
+
+#### Arguments
+**`works_authors`**  
+
+> Long-format tibble as returned by `prepare_works_authors()` with publication and affiliation information.
+
+**`universities`**  
+
+> Character vector of OpenAlex institution IDs to restrict the analysis to (e.g., Dutch universities).
+
+#### Method
+The function starts from the long `works_authors` table and collapses it to distinct combinations of display name, author ID, affiliation ID and name, and publication date. It then filters to rows where `authorships__affiliations_id` is in the supplied `universities`. After sorting by `publication_date`, it groups by `uid`, author, and affiliation, and summarizes the first and last publication dates where that affiliation appears. These dates are then expanded into broader affiliation intervals by subtracting 18 months from `first_date` and adding 6 months to `last_date`, capturing plausible entry and exit windows around the observed publication period. The resulting table contains one row per scholar–university pairing with inferred start and end dates of affiliation.
+
+```{r}
+derive_affiliation_date_ranges <- function(works_authors, universities) {
+  works_authors |>
+    distinct(
+      authorships__display_name,
+      authorships__author_id,
+      authorships__affiliations_id,
+      authorships__affiliations_display_name,
+      publication_date,
+      .keep_all = TRUE
+    ) |>
+    filter(authorships__affiliations_id %in% universities) |>
+    arrange(publication_date) |>
+    group_by(
+      uid,
+      authorships__author_id,
+      authorships__affiliations_display_name,
+      authorships__affiliations_id
+    ) |>
+    summarize(
+      uid = first(uid),
+      authorships__display_name = first(authorships__display_name),
+      first_date = first(publication_date),
+      last_date = last(publication_date),
+      .groups = "drop"
+    ) |>
+    mutate(
+      first_date = first_date %m-% months(18),
+      last_date = last_date %m+% months(6)
+    )
+}
+```
+
+---
+
+### `format_institutions()`
+Convert affiliation histories into a wide panel of timepoint-specific affiliations.
+
+#### Arguments
+**`d`**  
+
+> Tibble containing at least `uid`, `year`, and `authorships__affiliations_display_name`, typically produced by `build_affiliations_table()` before the final reshape.
+
+#### Method
+The function first reduces `d` to distinct combinations of `uid`, timepoint `year`, and affiliation name, keeping only years after 2015. Within each `(uid, year)` group, it concatenates unique affiliation names into a single `affiliations` string, separated by `"; "`. It then pivots the data wider with one row per `uid` and columns `affiliations_<year>`, restricting to a predefined set of evaluation years (2019, 2022, 2024, 2025). As a final convenience step, it back-fills `affiliations_25` with `affiliations_24` when the 2025 value is missing, ensuring a complete last column where possible. The result is a compact, wide-format table with one row per scholar and affiliation strings at key timepoints.
+
+```{r}
+format_institutions <- function(d) {
+  d |>
+    distinct(uid, year, authorships__affiliations_display_name) |>
+    filter(year > 15) |>
+    arrange(year) |>
+    group_by(uid, year) |>
+    reframe(
+      affiliations = paste(
+        unique(authorships__affiliations_display_name),
+        collapse = "; "
+      )
+    ) |>
+    pivot_wider(
+      id_cols = uid,
+      names_from = year,
+      values_from = affiliations,
+      names_prefix = "affiliations_"
+    ) |>
+    select(
+      uid,
+      num_range("affiliations_", c(19, 22, 24, 25))
+    ) |>
+    mutate(
+      affiliations_25 = ifelse(
+        is.na(affiliations_25),
+        affiliations_24,
+        affiliations_25
+      )
+    )
+}
+```
+
+---
+
+### `build_affiliations_table()`
+Construct a timepoint-based affiliation panel from inferred date ranges.
+
+#### Arguments
+**`dates`**  
+
+> Tibble with inferred `first_date` and `last_date` per `(uid, affiliation)` as returned by `derive_affiliation_date_ranges()`.
+
+**`timepoints`**  
+
+> Character vector of evaluation dates (e.g., `"2019-09-01"`, `"2022-12-19"`) to use as panel timepoints.
+
+#### Method
+The function first converts `timepoints` to dates and forms their cartesian product with `dates` using `expand_grid()`. For each scholar–affiliation–timepoint combination, it flags whether the timepoint falls within the inferred interval `[first_date, last_date]` and computes a short two-digit `year` label. It then filters to in-range observations, deduplicates by scholar, author, affiliation name, and year, and drops rows with missing affiliation names. The resulting long-format table is passed to `format_institutions()`, which reshapes it into a wide panel of affiliations at key timepoints. The final output is an affiliation patch table suitable for merging into the main scholars dataset.
+
+```{r}
+build_affiliations_table <- function(dates, timepoints) {
+  tp <- ymd(timepoints)
+
+  dates |>
+    tidyr::expand_grid(timepoint = tp) |>
+    arrange(timepoint) |>
+    mutate(
+      in_range = between(timepoint, first_date, last_date),
+      year = as.integer(year(timepoint) - 2000)
+    ) |>
+    filter(in_range) |>
+    distinct(
+      uid,
+      authorships__display_name,
+      authorships__author_id,
+      authorships__affiliations_display_name,
+      year
+    ) |>
+    filter(!is.na(authorships__affiliations_display_name)) |>
+    format_institutions()
+}
+```
+
+## Application
+
+```{r}
+# Load scholars data
+data <- freadRDS2("scholars", location = "clean")
+
+# Build long works–authors–affiliations table
+works_authors <- prepare_works_authors(data)
+
+# Define OpenAlex institution IDs for the universities of interest
+universities <- c(
+  "https://openalex.org/I865915315", "https://openalex.org/I887064364",
+  "https://openalex.org/I121797337", "https://openalex.org/I145872427",
+  "https://openalex.org/I193662353", "https://openalex.org/I913958620",
+  "https://openalex.org/I193700539", "https://openalex.org/I169381384",
+  "https://openalex.org/I913481162"
+)
+
+# Derive first and last dates of university affiliations
+dates <- derive_affiliation_date_ranges(
+  works_authors = works_authors,
+  universities = universities
+)
+
+# Define evaluation timepoints
+timepoints <- c(
+  "2019-09-01",
+  "2022-12-19",
+  "2024-04-19",
+  "2025-10-02"
+)
+
+# Build final affiliations table
+affiliations <- build_affiliations_table(
+  dates = dates,
+  timepoints = timepoints
+)
+
+# Save to disk
+fsaveRDS(affiliations, "affiliations")
+```
+
+```{r}
+affiliations |> head()
+```

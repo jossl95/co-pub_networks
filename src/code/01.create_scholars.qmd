@@ -516,27 +516,18 @@ Create a cleaned `functie` variable based on parsed job titles and constructed p
 
 > Tibble or data frame containing at least `naam`, `date`, and `functie`.
 
-**`.what`**  
-
-> Character string controlling which cleaned representation to write back into `functie`.  
-> `"complete"` (default) uses the core academic rank (`position`);  
-> `"simplified"` uses `position2`, which also includes distinctions such as visiting, external, emeritus, etc.
-
 #### Method
 The function orchestrates the full job-title cleaning pipeline. It first passes `data` through `parse_job_titles()` to derive the set of boolean `is_` indicators. The result is then processed by `construct_positions()`, which creates a canonical `position` and an extended `position2` with concatenated distinctions. Depending on the `.what` argument, `clean_functie()` overwrites the original `functie` column with either `position` (for a strict rank-only variable) or `position2` (for a more descriptive label that retains visiting/external/fellow-type qualifiers). It returns the original dataset with a standardized `functie` column suitable for analysis and reporting.
 
 ```{r}
-clean_functie = function(data, .what='complete'){
+clean_functie = function(data){
   test = data |> 
     parse_job_titles() |>
     construct_positions()
 
-  if (.what == 'complete'){
-    data['functie'] = test$position
-  } else if (.what == 'simplified'){
-    data['functie'] = test$position2
-  }
-
+  data['functie'] = test$position
+  data['functie2'] = test$position2
+  
   return(data)
 }
 ```
@@ -559,7 +550,18 @@ data = fread(files, source) |>
   select(-specialisatie, -notitie, -additional, -checked) |>
   arrange(discipline, date, naam, university) |>
   clean_functie()
+```
+```{r}
+data |> 
+  filter(date == "2022-12-19") |>
+  distinct(naam, .keep_all = TRUE) -> 
+  temp
 
+table(temp$functie)
+```
+Wie zijn deze researchers? Mogelijk om samen te voegen met PDs. In later stadium wrs de Staff er uit. 
+
+```{r}
 # save data
 fsaveRDS(data, 'scholarid')
 ```

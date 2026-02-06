@@ -39,6 +39,7 @@ library(httr2)
 library(rvest)
 library(xml2)
 library(purrr)
+#remotes::install_github("kalimu/genderizeR")
 library(genderizeR)
 library(dotenv)
 
@@ -390,6 +391,7 @@ genderize_names = function(idx) {
   dotenv::load_dot_env()
   APIKEY <- Sys.getenv("GENDERIZE_API_KEY")
 
+  
   # select uncached names
   idx =  idx |> filter(!term %in% gender_cache$name)
 
@@ -485,15 +487,25 @@ idx = names |>
   ) |>
   unnest_longer(term)
 res = scrape_gender(idx)
-res2 = genderize_names(idx)
+#res2 = genderize_names(idx)
+```
 
+
+```{r}
 gender = idx |>
   left_join(res) |>
-  left_join(res2, by=join_by(term == name), suffix = c(".x", ".y")) |>
+  #left_join(res2, by=join_by(term == name), suffix = c(".x", ".y")) |>
   harmonize_gender()
+```
+uiteindelijk de genders koppelen aan names (input bestand) en dan opslaan als gender. dit bestand heeft dus 2739 unieke regels waaraan een gender gekoppeld is. 
+kijk even welke codering je dominant maakt. wmb gender1_meertens, gender2_genderizeR en gender is de combi. 
 
+```{r}
 fsaveRDS(gender, "gender")
 ```
+
+zorg dat je alleen op de unique de scrape uitvoert en ...check of de naam als gescraped is. 
+
 
 ### Example Data
 ```{r}

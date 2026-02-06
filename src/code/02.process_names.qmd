@@ -303,17 +303,18 @@ add_uid = function(names){
 data = freadRDS2('scholarid') 
 
 names = data |>
-  select(naam) |>
-  arrange(naam) |>
-  distinct() |>
-  drop_na() |>
   parse_names() |>
   extract_initials() |>
   patch_names() |>
   extract_maiden_name() |>
   format_names() |>
-  add_uid()
+  add_uid() |> 
+  rename(naam2 = naam)
 
+names <- cbind(data, names)
+
+```
+```{r}
 fsaveRDS(names, 'names')
 ```
 

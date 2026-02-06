@@ -1,0 +1,504 @@
+---
+title: "Data Processing Gender"
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+
+params:
+  eval: false
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(readxl)
+library(stringr)
+library(lubridate)
+library(httr2)
+library(rvest)
+library(xml2)
+library(purrr)
+library(genderizeR)
+library(dotenv)
+
+```
+
+## Functions
+### `is_ok()`
+
+Checks if the response status is succesfull
+
+#### Arguments
+**`resp`**
+
+> `httr2` response object from `request()` and `perform_req()`
+
+#### Method
+This helper function checks if the response status is in the `2XX`s
+
+```{r}
+is_ok = function(resp) resp_status(resp) >= 200 && resp_status(resp) < 300
+```
+
+---
+
+### `request_gender()`
+Requests gender information for a given first name from the Meertens NVB website.
+
+#### Arguments
+**`first_name`**  
+
+> Character string with the first name to be queried.
+
+**`base`**  
+
+> Base URL of the Meertens NVB endpoint. Defaults to `https://nvb.meertens.knaw.nl/naam/is/`.
+
+**`pause`**  
+
+> Numeric value indicating the number of seconds to wait (plus a small random jitter) before performing the request, to be polite to the server. Defaults to `0.5`.
+
+#### Method
+This function constructs a query URL by combining the base NVB endpoint with a URL-encoded, lowercased version of `first_name`. It then builds an `httr2` request with a realistic user agent, timeout, and HTTP headers. The request is configured with a retry strategy that retries on status codes `429` and `5xx`, using a jittered exponential backoff. After an optional polite pause, the function performs the request inside a `tryCatch` block to avoid throwing on transport errors. The result is returned as a uniform list containing: a logical `ok` flag (based on `is_ok()`), the HTTP status code, the URL, the raw response object (if available), and any captured error, so that the caller can handle successes and failures in a consistent way.
+
+```{r}
+extract_gender_information = function(
+    resp,
+    first_name
+  ){
+  # extract all the tables on the page
+  html = read_html(resp_body_string(resp))
+  tables = html_table(html, header=TRUE)
+
+  # select the first table if a table if found
+  if (length(tables) == 0) stop("No tables were found")
+  tab = tables[[1]]
+
+  # extract information from table
+  male_count = tab[1, 3] |> pull()
+  male_count = ifelse(male_count == '--', 0, as.numeric(male_count))
+  female_count = tab[5, 3] |> pull() 
+  female_count = ifelse(female_count == '--', 0, as.numeric(female_count))
+  probability_male = male_count / (female_count + male_count) 
+
+  # configure results table
+  res = tibble::tribble(
+    ~first_name, ~male_count, ~female_count, ~probability_male,
+    first_name, male_count,  female_count,  probability_male
+  )
+  return(res)
+}
+```
+
+---
+
+### `get_gender_row()`
+Retrieves a single gender-information row for a given first name, using a local cache when possible and the Meertens NVB website otherwise.
+
+#### Arguments
+**`name`**  
+
+> Character string with the first name to be queried.
+
+**`gender`**  
+
+> Tibble containing cached gender information, including a `first_name` column. If `name` is found here, the cached row is returned instead of performing a new request.
+
+#### Method
+The function first checks whether `name` is already present in the cached `gender` tibble (via `first_name`). If so, it immediately returns the matching row. If not, it calls `request_gender(name)` to query the Meertens NVB endpoint. When the request is not successful (transport error or non-2xx status), it returns a tibble with `NA` values for all gender-related fields, so downstream code can handle failures consistently. When the request is successful, it passes the response and the name to `safe_extract()`, a `purrr::possibly()`-wrapped version of `extract_gender_information` that returns a default NA tibble on error. The resulting tibble is then augmented with `first_name = name` and returned as a single-row tibble with gender counts and probability.
+
+```{r}
+safe_extract = purrr::possibly(
+  extract_gender_information,
+  otherwise = tibble::tibble(
+    first_name       = NA_character_,
+    male_count       = NA_integer_,
+    female_count     = NA_integer_,
+    probability_male = NA_real_
+  )
+)
+
+get_gender_row = function(name, gender) {
+  # If cached, return from cache
+  if (name %in% gender$first_name) {
+    return(gender |> filter(first_name == name))
+  }
+
+  r <- request_gender(name)
+
+  # If transport error or HTTP not OK, surface status & keep going
+  if (!isTRUE(r$ok)) {
+    return(tibble(
+      first_name       = NA_character_,
+      male_count       = NA_integer_,
+      female_count     = NA_integer_,
+      probability_male = NA_real_
+    ))
+  }
+
+  out <- safe_extract(r$resp, name) |>
+    mutate(first_name = name)
+
+  out
+}
+```
+
+---
+
+### `patch_gender_on_splits()`
+Patches missing gender information by splitting compound first names and aggregating gender estimates across the split parts.
+
+#### Arguments
+**`gender`**  
+
+> Tibble containing gender information with at least `first_name`, `male_count`, `female_count`, and `probability_male` columns. Some rows may have missing gender statistics that need to be patched.
+
+#### Method
+The function first constructs a `gender_cache` by dropping rows with missing values from `gender`, so that only complete, reliable gender records are used as a cache. It then selects all rows in `gender` where `male_count` is `NA`, and splits their `first_name` values on spaces (e.g. `"Jan Pieter"` → `"Jan"`, `"Pieter"`), unnests these splits, and keeps the mapping between the original `first_name` and each `first_name_split`.
+
+Next, it extracts the unique set of `first_name_split` values and calls `get_gender_row()` for each of these names, passing in the `gender_cache`. This yields `gender_patch`, a tibble with gender statistics for each split name, using the cache where possible and the NVB request pipeline otherwise.
+
+The function then joins the split-name mapping back to `gender_patch` on `first_name_split`, drops rows that still lack gender information, and aggregates to the original `first_name` level. For first names with multiple split parts that have gender estimates, it computes the mean of `male_count`, `female_count`, and `probability_male` across the splits (coerced to integer for the counts). Finally, it uses `rows_update()` to update the original `gender` tibble with these patched values, returning a tibble where previously missing gender information has been filled in when possible.
+
+```{r}
+patch_gender_on_splits = function(gender){
+  # set gender cache
+  gender_cache = gender |> drop_na()
+  # select authors without gender, and split their names
+  selection = gender |>
+    filter(is.na(male_count)) |>
+    mutate(first_name_split = str_split(first_name, ' ')) |>
+    unnest_longer(first_name_split) |>
+    select(first_name, first_name_split)
+
+  # get first names from selection
+  first_names = selection |>
+    select(first_name_split) |>
+    pull() |>
+    unique()
+
+  # patch gender --------------------------------------
+  gender_patch = purrr::map_dfr(
+    first_names, get_gender_row, gender = gender_cache
+  )
+
+  # aggregate gender information
+  gender_patch = selection |>
+    left_join(
+      gender_patch, 
+      by=join_by(first_name_split == first_name)
+    ) |>
+    drop_na() |>
+    # take the average gender count and probablity
+    # for names where both splits yielded a gender
+    # result
+    group_by(first_name) |>
+    summarise(
+      male_count = as.integer(mean(male_count)),
+      female_count = as.integer(mean(female_count)),
+      probability_male = mean(probability_male)
+    ) |>
+    ungroup() 
+
+  gender |> rows_update(gender_patch)
+}
+
+```
+
+---
+
+### `clean_gender()`
+Creates a tidy gender summary for each first name based on gender probabilities and counts.
+
+#### Arguments
+**`data`**  
+
+> Tibble or data frame containing at least `first_name`, `male_count`, `female_count`, and `probability_male` columns.
+
+#### Method
+This function takes a data frame with gender-count information and constructs a cleaner, more directly interpretable representation. It assigns a binary `gender` label based on whether `probability_male` is at least `0.5` (`"male"` if ≥ 0.5, otherwise `"female"`). The `count` variable is then set to `male_count` for rows classified as male and `female_count` for rows classified as female. The `prob` variable stores the probability that the assigned gender is correct: it is `probability_male` for male-labeled rows and `1 - probability_male` for female-labeled rows. Finally, the function keeps only `first_name`, `gender`, `prob`, and `count`, returning a compact tibble suitable for downstream analyses or merging.
+
+```{r}
+clean_gender = function(data){
+  data |>
+    mutate(
+      gender = ifelse(
+        probability_male >= 0.5,
+        'male','female'
+      ),
+      count = ifelse(
+        gender == 'male',
+        male_count, female_count
+      ),
+      prob = ifelse(
+        gender == 'male',
+        probability_male, 1 - probability_male
+      )
+    ) |>
+    select(first_name, gender, prob, count)
+}
+```
+
+---
+
+### `patch_missing_gender()`
+Patches missing gender labels using curated lists of known female and male first names.
+
+#### Arguments
+**`data`**  
+
+> Tibble or data frame containing at least `first_name` and `gender` columns, where some `gender` values may be missing.
+
+#### Method
+This function defines two curated character vectors, `female_names` and `male_names`, which contain first names that are known to be female or male, including several manually corrected or rare names. It then mutates the `gender` column using `case_when()`: existing non-missing `gender` values are preserved, names found in `female_names` are set to `"female"`, names found in `male_names` are set to `"male"`, and all other rows fall back to the original `gender` value via `.default = gender`. The result is a data frame where previously missing or ambiguous gender labels are patched based on these manually validated name lists, while leaving already coded cases unchanged.
+
+```{r}
+patch_missing_gender = function(data){
+  female_names = c(
+    "Alaxandra",   "Alinson",     "Avyanthi",
+    "Brunilda",    "Busisiwe",    "Diliara",      
+    "Dolive",      "Echo",        "Guangyu",
+    # mistake in name, has been patched with _create_name_corrections
+    "Guangye", 
+    "Gul-i-Hina",  "Haebin",      "Haisu",
+    # Phoebe Kisibi Mbasalaki was incorrectly coded, 
+    # has been patched with _create_name_corrections 
+    "Kisubi",      "Pheobe",
+    "Liubov",      "Madalina",    "Majolijn",    
+    "Mansoureh",   "Nankyung",    "Nilmawati",   
+    "Nodira",      "Noyonika",    "Radostina",   
+    "Rojika",      "Rozenmarijn", "Sayoni",
+    "Seonoki",     "Shelliann",   "Shiming",     
+    "Siggie",      "Siztine",     "Sungmi",      
+    "Talinta",     "Teana",       "Xingna",
+    "Yuliia",      "Zhiyi"
+  )
+
+  male_names = c(
+    "Alborno",     "Chenchen",    "Chendi",
+    "Chunglin",    "Chuyu",       "Diliara",
+    "Gjovalin",    "Kirils",      "Kyohee",
+    "Madhud",      "Quichen",     "Soeren",
+    "Teana",       "Tanzhe",     "Vishwesh",
+    "Weverthon"
+  )
+
+  data |>
+    mutate(
+      gender = case_when(
+        !is.na(gender) ~ gender,
+        first_name %in% female_names ~ 'female',
+        first_name %in% male_names ~ 'male',
+        .default = gender
+      )
+    )
+}
+
+```
+
+---
+
+### `scrape_gender()`
+Scrapes, caches, and cleans gender information for a set of first names using the Meertens NVB data.
+
+#### Arguments
+**`idx`**  
+
+> Tibble or data frame containing at least a `first_name` column with the names for which gender information should be obtained.
+
+#### Method
+The function first loads the existing NVB gender cache from `data/_cache/nvb_cache.Rds` and drops any rows with missing values to create a clean `gender_cache`. If the global flag `eval_ok` is `TRUE`, it extracts the unique, non-missing `first_name` values from `idx` and calls `get_gender_row()` for each of these names, passing along the `gender_cache` so that already-cached names can be reused and only new names are scraped. The resulting tibble is then passed through `patch_gender_on_splits()` to fill in missing gender information by splitting compound first names and aggregating estimates across the split parts. If `eval_ok` is `FALSE`, the function simply uses the existing `gender_cache` as `res` without making new requests.
+
+The intermediate `res` (with any rows containing missing values removed) is written back to `data/_cache/nvb_cache.Rds`, updating the local cache. Finally, `res` is cleaned and standardized by applying `clean_gender()` (to derive a tidy `gender`, `prob`, and `count` representation) and `patch_missing_gender()` (to fix remaining missing or ambiguous labels using curated name lists). The function returns this fully processed tibble with gender information ready for downstream analysis or merging.
+
+```{r}
+scrape_gender = function(idx) {
+  # load gender cache
+  gender_cache = readRDS(file.path("data", "_cache", "nvb_cache.Rds")) |> 
+    drop_na()
+
+  if (eval_ok){
+  first_names = idx |> pull(first_name) |> unique() |> na.omit()
+
+  # scrape gender results
+  res = purrr::map_dfr(
+      first_names, 
+      get_gender_row, 
+      gender = gender_cache
+    ) |>
+    patch_gender_on_splits()
+  } else {
+    res =  gender_cache
+  }
+
+  # put gender scrape results
+  saveRDS(res |> drop_na(), file.path('data', '_cache', "nvb_cache.Rds"))
+
+  # clean gender results
+  res = res |> 
+    clean_gender() |>
+    patch_missing_gender()
+
+  return(res)
+}
+
+```
+
+---
+
+### `genderize_names()`
+Fetches and caches gender information for a set of first names using the Genderize.io API.
+
+#### Arguments
+**`idx`**  
+
+> Tibble or data frame containing at least a `term` column with first names (or name-like tokens) for which gender information should be retrieved.
+
+#### Method
+The function first loads an existing gender cache from `data/_cache/genderizer_cache.Rds`. It then reads the `GENDERIZE_API_KEY` from the environment (via `dotenv::load_dot_env()` and `Sys.getenv()`), which is required to authenticate requests to the Genderize.io API. From the input `idx`, it filters out any rows whose `term` already appears in the `name` column of the cached data, so that only uncached names are processed.
+
+It extracts the remaining unique, non-missing `first_names` from `idx$term`. If the global flag `eval_ok` is `TRUE`, it loops over these names, calling `genderizeAPI(name, apikey = APIKEY)` for each, and stores each API response in a list `hold` keyed by the name. The new results in `hold` are combined with the existing `gender_cache` using `bind_rows()`, and duplicate rows are removed with `distinct(.keep_all = TRUE)` to ensure one record per name. The updated cache is written back to `data/_cache/genderizer_cache.Rds`, and the combined result (old cache plus any new observations) is returned for further use.
+
+```{r}
+
+genderize_names = function(idx) {
+  # load cached gender information
+  gender_cache = readRDS(file.path('data', '_cache', "genderizer_cache.Rds"))
+
+  # load api key from secrets file
+  dotenv::load_dot_env()
+  APIKEY <- Sys.getenv("GENDERIZE_API_KEY")
+
+  # select uncached names
+  idx =  idx |> filter(!term %in% gender_cache$name)
+
+  # select first_names
+  first_names = idx$term |> na.omit() |> unique()
+  first_names = first_names
+
+  # fetch gender results
+  hold = c()
+  if (eval_ok) {
+    for (name in first_names){
+      resp = genderizeAPI(name, apikey = APIKEY)
+      hold[[name]] = resp$response
+    }
+  }
+
+  # combine cache with results and put new cache results
+  res = bind_rows(gender_cache, bind_rows(hold)) |>
+    distinct(.keep_all = TRUE)
+  saveRDS(res, file.path('data', '_cache', "genderizer_cache.Rds"))
+
+  return(res)
+}
+
+```
+
+---
+
+### `harmonize_gender()`
+Harmonizes gender information from multiple sources into a single, aggregated record per first name.
+
+#### Arguments
+**`gender`**  
+
+> Tibble or data frame containing at least `first_name`, `term`, `gender.x`, `gender.y`, `count.x`, `count.y`, `prob`, and `probability` columns (typically resulting from a join between two gender sources, e.g. NVB and Genderize).
+
+#### Method
+The function starts by selecting the key identification and gender-related columns: `first_name`, `term`, all columns starting with `gender`, `count`, and `prob`. It then removes duplicate rows using `distinct(first_name, term, .keep_all = TRUE)` to ensure unique combinations of `first_name` and `term`. Two helper flags are created: `has_multiple`, which indicates if `first_name` contains a space or hyphen (potentially compound names), and `has_mismatch`, which marks cases where `gender.x` and `gender.y` disagree.
+
+After dropping rows with missing `first_name`, it filters out problematic combinations where the name is compound (`has_multiple`), the two gender sources disagree (`has_mismatch`), and `term` contains a dot (typically indicating abbreviations or initials), as these are considered unreliable. Next, it resolves conflicts between sources: `gender` is set to `gender.y` when available and falls back to `gender.x` otherwise; `prob` is set to `probability` (e.g. from Genderize) when available and otherwise keeps the existing `prob`; `count` is set to `count.y` when present and falls back to `count.x` when missing.
+
+Finally, the data is grouped by `first_name` and summarised: it takes the first non-missing `gender`, averages the `prob` across records, and sums the `count` to obtain a combined support count. The result is a tibble with one row per `first_name`, containing a harmonized gender label, an average probability, and a total count, integrating information from multiple gender sources in a principled way.
+
+```{r}
+
+harmonize_gender = function(gender) {
+  gender |>
+    select(
+      first_name, term, starts_with('gender'), 
+      starts_with('count'), starts_with('prob')
+    ) |>
+    distinct(first_name, term, .keep_all=TRUE) |>
+    mutate(
+      has_multiple = str_detect(first_name, '( |-)'),
+      has_mismatch = gender.x != gender.y
+    ) |>
+    drop_na(first_name) |>
+    filter(!(has_multiple & has_mismatch & str_detect(term, '.'))) |>
+    mutate(
+      gender = case_when(
+        is.na(gender.y) ~ gender.x,
+        .default = gender.y
+      ),
+      prob = case_when(
+        is.na(probability) ~ prob,
+        .default = probability
+      ),
+      count = case_when(
+        is.na(count.y) ~ count.x,
+        .default = count.y
+      )
+    ) |>
+    group_by(first_name) |>
+    summarise(
+      gender = first(gender),
+      prob = mean(prob), 
+      count = sum(count)
+    )
+}
+```
+
+---
+
+## Application
+
+```{r}
+names = freadRDS2('names')
+
+idx = names |>
+  mutate(term = first_name |> 
+    str_to_lower() |> 
+    str_split('( |-)')
+  ) |>
+  unnest_longer(term)
+res = scrape_gender(idx)
+res2 = genderize_names(idx)
+
+gender = idx |>
+  left_join(res) |>
+  left_join(res2, by=join_by(term == name), suffix = c(".x", ".y")) |>
+  harmonize_gender()
+
+fsaveRDS(gender, "gender")
+```
+
+### Example Data
+```{r}
+gender |> head()
+```
+
+
+

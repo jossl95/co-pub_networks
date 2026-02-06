@@ -1,0 +1,221 @@
+---
+title: Combine Scrape Data
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+
+execute: 
+  eval: false
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(stringr)
+library(lubridate)
+```
+
+## Functions
+
+### `combine_demographics()`
+Combine scholar, name, gender, and ethnicity data into a wide demographics table.
+
+#### Arguments
+**`data`**  
+
+> Named list containing at least the elements `scholars`, `names`, `gender`, and `ethnicity`, each as a tibble with the expected columns.
+
+#### Method
+The function first reshapes the `scholars` component to a wide format across measurement years. It derives a two-digit year from `date`, arranges records by `naam` and `date`, drops `university`, `date`, and `google_scholar_id`, and then uses `pivot_wider()` to spread email, university, function, and discipline over year-specific columns (e.g., `email_adres_22`, `universiteit_24`). Within each year, it aggregates multiple values per person: email addresses are concatenated uniquely with `"; "`, while university, function, and discipline take the first non-missing value. The output is trimmed to keep only columns ending in `22`, `24`, and `25`. This wide scholar table is then left-joined onto the `names` table, followed by `gender` and a reduced `ethnicity` table (renaming `probability` to `ethnicity_prob`). The result is a single `demographics` tibble containing `uid`, parsed names, gender, ethnicity (with probability), and year-specific scholar information.
+
+```{r}
+combine_demographics = function(data){
+  scholars_wide =  data[['scholars']] |>
+    mutate(
+      year = as.integer(year(date) - 2000)
+    ) |>
+    arrange(naam, date) |>
+    select(-university, -date, -google_scholar_id) |>
+    pivot_wider(
+      names_from  = year,
+      values_from = c(email_adres, universiteit, functie, discipline),
+      names_glue  = "{.value}_{year}",
+      values_fill = NA,
+      values_fn   = list(
+        email_adres = ~ if (all(is.na(.x))) NA_character_ else str_c(unique(na.omit(.x)), collapse = "; "),
+        universiteit  = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x)),
+        functie     = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x)),
+        discipline  = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x))
+      )
+    ) |>
+    select(
+      naam, ends_with('22'), ends_with('24'), ends_with('25')
+    )
+
+  # combine all demographics
+  demographics = data[['names']] |>
+    left_join(data[['gender']]) |>
+    left_join(data[['ethnicity']] |> select(uid, ethnicity, probability)) |>
+    rename(ethnicity_prob = probability) |>
+    left_join(scholars_wide) 
+
+  return(demographics)
+}
+```
+
+### `parse_works()`
+Extract and clean per-UID works tables from the raw works list.
+
+#### Arguments
+**`data`**  
+
+> Named list containing at least a `works` element: a list of tibbles indexed by `uid`, each potentially containing a `work_id` column.
+
+**`demographics`**  
+
+> Tibble with at least a `uid` column, used to determine which scholars to process.
+
+#### Method
+The function first extracts the unique set of `uid` values from `demographics`, omitting missing entries. It then initializes an empty list `works` and loops over each `uid`. For each `id`, it pulls the corresponding element from `data$works`. If this element is a tibble and includes a `work_id` column, it de-duplicates rows by `work_id` using `distinct(work_id, .keep_all = TRUE)`. The cleaned work table (or the original object if not a tibble or lacking `work_id`) is stored under `works[[id]]`. The function returns this list of per-UID works tibbles, providing a consistent structure for downstream enrichment (e.g., adding authorship UIDs or citations).
+
+```{r}
+parse_works = function(data, demographics){
+  uids = demographics |> distinct(uid) |> pull() |> na.omit()
+  works = list()
+  for (id in uids){
+    work = data$works[[id]] 
+    
+    if (is_tibble(work) & ("work_id" %in% colnames(work))) {
+      work = work |> distinct(work_id, .keep_all = TRUE)
+    }
+
+    works[[id]] = work
+  }
+  return(works)
+}
+```
+
+### `add_uid_to_authorships()`
+Attach scholar UIDs to nested OpenAlex authorship records within works.
+
+#### Arguments
+**`works`**  
+
+> Named list of tibbles, each containing a `uid` column, an `author_id` column, and an `authorships` list column with OpenAlex authorship data (including an `id` field).
+
+#### Method
+The function begins by constructing a lookup table from all works: it binds all list elements with `bind_rows()`, then keeps distinct `(uid, author_id)` combinations, dropping rows with missing values. This lookup encodes which scholar UID corresponds to which OpenAlex author ID. It then iterates over each element of `works`. For each non-empty tibble, it transforms the `authorships` list-column in two steps: (1) within each row, it strips the OpenAlex URL prefix from the nested `id` field; (2) it right-joins the lookup onto each nested authorship table via `author_id == id`, thereby adding the correct `uid` to nested authorship rows. The updated nested tibbles are written back to the `authorships` column. The function returns the same `works` list structure, but with authorship entries enriched by scholar UIDs, enabling later mapping between OpenAlex authors and the local scholar universe.
+
+```{r}
+add_uid_to_authorships = function(works) {
+  # create a lookup table
+  lookup = works |> 
+    bind_rows() |> distinct(uid, author_id) |> drop_na()
+
+  # add uid
+  for (id_ in names(works)){
+    tab = works[[id_]]
+    if (any(nrow(tab) == 0, !is_tibble(tab))) next
+
+    works[[id_]] = tab |>
+      mutate(
+        authorships = map(
+          authorships,
+          ~ .x |> mutate(
+              id = str_remove(id, "^https://openalex.org/")
+            )
+        ),
+        authorships = map(
+          authorships,
+          ~ lookup |> 
+            right_join(.x, by = join_by(author_id == id))  
+        )
+      )
+  }
+  return(works)
+}
+```
+
+### `parse_scholars()`
+Split a combined OpenAlex author table into a per-UID list.
+
+#### Arguments
+**`data`**  
+
+> Named list containing at least an `id` element: a tibble with OpenAlex author metadata and a `uid` column.
+
+**`demographics`**  
+
+> Tibble with at least a `uid` column indicating which scholars to include.
+
+#### Method
+The function first extracts the unique, non-missing `uid` values from `demographics`. It then binds all rows in `data[['id']]` into a single tibble `scholartab` (useful if `id` was previously stored as a list of chunks). Next, it iterates over each `uid` and filters `scholartab` to the rows matching that `uid`, storing the resulting tibble in a list element named by the `uid`. The returned `authors` list thus contains one tibble per scholar, holding their OpenAlex author-level metadata (e.g., display name, OpenAlex author ID, relevance scores), aligned with the local UID system.
+
+```{r}
+parse_scholars = function(data, demographics){
+  uids = demographics |> distinct(uid) |> pull() |> na.omit()
+  scholartab = data[['id']] |> bind_rows() 
+
+  authors= list()
+  for (id_ in uids){
+    authors[[id_]] = scholartab |> filter(uid == id_)
+  }
+
+  return(authors)
+}
+```
+
+## Application
+
+```{r}
+data = list(
+  scholars = freadRDS2('scholarid'),
+  ethnicity = freadRDS2('ethnicity'),
+  gender = freadRDS2('gender'),
+  names = freadRDS2('names'),
+  id = freadRDS2('oaauthors', location = 'raw_data'),
+  works = freadRDS2('oaworks', location = 'raw_data')
+)
+```
+
+```{r}
+demographics = combine_demographics(data)
+
+works = parse_works(data, demographics) |> 
+  add_uid_to_authorships() 
+
+scholars_list = parse_scholars(data, demographics)
+
+scholars = list(
+  demographics = demographics, 
+  scholars_oa = scholars_list,
+  works = works
+)
+
+fsaveRDS(scholars, file="scholars", location = "./data/combined/")
+```
+
+```{r}
+scholars$scholars_oa |> bind_rows() |> head()
+```

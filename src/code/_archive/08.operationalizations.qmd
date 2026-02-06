@@ -1,0 +1,287 @@
+---
+title: Prune Scrape Data
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+
+execute: 
+  eval: false
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(slider)
+```
+
+## Functions
+
+:::{.callout-note}
+
+- DONE vluchtige reputatie
+  - citations
+- DONE carriere leeftijd
+  - years since first publication
+- topic (node of edge)
+- DONE university
+- DONE position
+- DONE gender
+- DONE herkomst 
+- ?? all metrics??
+  - (TODO) plaatsen (geographic distance)
+  - DONE h-index (yearly)
+  - DONE 2yr_mean_citedness (impact)
+  - DONE i10-index (yearly)
+- beurzen [external data required]
+- DONE productiviteit
+  - yearly
+  - window average < 3years
+- topic similarity
+- interdisciplinariteit
+:::
+
+met descriptives
+(varieren over tijd, gender, herkomst, positie)
+
+## Application
+
+```{r}
+data = freadRDS2('scholars', location = "./data/clean/")
+```
+
+```{r}
+
+categorize_ethnicity = function(data){
+  minority_codes =  c('MA', 'TR', 'BQ', 'CW', 'SX', 'AW', 'SR')
+
+  data[['demographics']] = data[['demographics']] |>
+    mutate(migrant = case_when(
+      str_detect(coalesce(ethnicity, ""), "NL") ~ "majority",
+      ethnicity %in% minority_codes ~ "minority",
+      is.na(ethnicity) ~ NA_character_,
+      .default = "other"
+    )) |>
+    relocate(migrant, .after = 'ethnicity')
+
+  return(data)
+}
+
+data = categorize_ethnicity(data)
+```
+
+```{r}
+top_n <- 25
+
+data[["demographics"]] |>
+  count(ethnicity, migrant, name = "n") |>
+  arrange(n) |>
+  tail(25) |>
+  mutate(ethnicity = factor(ethnicity, levels = unique(ethnicity))) |>
+  ggplot(aes(x = ethnicity, y = n, fill = migrant)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = NULL, y = "Count", fill = "Migrant", title = "Counts by ethnicity, split by migrant") +
+  theme_minimal()
+```
+
+```{r}
+data[['demographics']] |>
+  filter(!is.na(career_start)) |>
+  ggplot(aes(x = career_start)) +
+  geom_density() +
+  labs(x = "Career start (year)", y = "Density", title = "Kernel density of career start") +
+  theme_minimal()
+```
+
+
+```{r}
+data[['demographics']] |>
+  filter(!is.na(h_index_22)) |>
+  ggplot(aes(x = h_index_22)) +
+  geom_density() +
+  labs(x = "h_index", y = "Density", title = "Kernel density of h-index in 2022") +
+  theme_minimal()
+```
+
+```{r}
+data[['demographics']] |>
+  filter(!is.na(i10_index_22)) |>
+  ggplot(aes(x = i10_index_22)) +
+  geom_density() +
+  labs(x = "i10_index", y = "Density", title = "Kernel density of i10-index in 2022") +
+  theme_minimal()
+```
+
+```{r}
+data[["demographics"]] |>
+  group_by(position_22) |>
+  summarise(has_valid_works = mean(has_valid_works), .groups = "drop") |>
+  arrange(desc(has_valid_works)) |>
+  mutate(position_22 = factor(position_22, levels = position_22)) |>
+  ggplot(aes(x = position_22, y = has_valid_works)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(
+    x = NULL,
+    y = "Share with valid works",
+    title = "Valid works by position (2025)"
+  ) +
+  theme_minimal()
+```
+
+
+
+```{r}
+topic_data = data$works |>
+  bind_rows() |>
+  select(uid, work_id, publication_year, topics) |>
+  unnest_longer(topics) |>
+  unnest_wider(topics) |>
+  mutate(
+    id = str_remove(id, 'https://openalex.org/') |>
+      str_replace('subfields/', 'S') |>
+      str_replace('fields/', 'F') |>
+      str_replace('domains/', 'D')
+  )
+
+topics = list()
+```
+
+
+```{r}
+topics$counts$domains = topic_data |>
+  filter(type == 'domain') |>
+  select(uid, work_id, publication_year, id) |>
+  arrange(id) |>
+  mutate(value = 1L) |>
+  pivot_wider(
+    id_cols = c(uid, work_id, publication_year),
+    names_from = id,
+    values_from = value,
+    values_fn = sum,
+    values_fill = 0L
+  )
+
+topics$counts$domains
+```
+
+
+```{r}
+topics$counts$fields = topic_data |>
+  filter(type == 'field') |>
+  select(uid, work_id, publication_year, id) |>
+  arrange(id) |>
+  mutate(value = 1L) |>
+  pivot_wider(
+    id_cols = c(uid, work_id, publication_year),
+    names_from = id,
+    values_from = value,
+    values_fn = sum,
+    values_fill = 0L
+  )
+
+topics$counts$fields
+```
+
+
+```{r}
+topics$counts$subfields = topic_data |>
+  filter(type == 'subfield') |>
+  select(uid, work_id, publication_year, id) |>
+  arrange(id) |>
+  mutate(value = 1L) |>
+  pivot_wider(
+    id_cols = c(uid, work_id, publication_year),
+    names_from = id,
+    values_from = value,
+    values_fn = sum,
+    values_fill = 0L
+  )
+
+topics$counts$subfields
+```
+
+```{r}
+topics$counts$topics = topic_data |>
+  filter(type == 'topic') |>
+  select(uid, work_id, publication_year, id) |>
+  arrange(id) |>
+  mutate(value = 1L) |>
+  pivot_wider(
+    id_cols = c(uid, work_id, publication_year),
+    names_from = id,
+    values_from = value,
+    values_fn = sum,
+    values_fill = 0L
+  )
+
+topics$counts$topics
+```
+
+
+```{r}
+counts = topics$counts |>
+  reduce(~ left_join(.x, .y))
+
+valid_topics = counts |>
+  select(matches("\\d$")) |>
+  summarise(across(everything(), ~ sum(as.numeric(.x), na.rm = TRUE))) |>
+  unlist(use.names = TRUE) |>
+  (\(x) names(x)[x > 20])()
+```
+
+
+```{r}
+topics_counts_cum <- counts |>
+  select(-work_id) |>
+  group_by(uid, publication_year) |>
+  summarise(
+    across(
+      all_of(valid_topics),
+      ~ sum(.x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  ) |>
+  arrange(publication_year, .by_group = FALSE) |>
+  group_by(uid) |>
+  mutate(
+    across(
+      where(is.numeric) & !any_of(c("publication_year")),
+      cumsum
+    )
+  ) |>
+  ungroup()
+
+```
+
+
+```{r}
+# alternative function for more 
+
+# dissimilarity = counts |>
+#   select(matches("\\d$")) |>
+#   as.matrix() |>
+#   coop::cosine()    # uses coop for optimized computation
+```
