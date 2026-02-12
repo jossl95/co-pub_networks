@@ -502,13 +502,13 @@ construct_positions = function(data) {
       fellow = ifelse(is_fellow, 'Fellow', NA_character_)
     ) |>
     select(!starts_with('is_')) |>
-    unite('position2', visiting:fellow, na.rm=TRUE, remove=FALSE)
+    unite('position2', visiting:fellow, na.rm=TRUE, remove=FALSE, sep = " ")
 }
 ```
 
 ---
 
-### `clean_functie()`
+### `add_functie()`
 Create a cleaned `functie` variable based on parsed job titles and constructed positions.
 
 #### Arguments
@@ -517,10 +517,10 @@ Create a cleaned `functie` variable based on parsed job titles and constructed p
 > Tibble or data frame containing at least `naam`, `date`, and `functie`.
 
 #### Method
-The function orchestrates the full job-title cleaning pipeline. It first passes `data` through `parse_job_titles()` to derive the set of boolean `is_` indicators. The result is then processed by `construct_positions()`, which creates a canonical `position` and an extended `position2` with concatenated distinctions. Depending on the `.what` argument, `clean_functie()` overwrites the original `functie` column with either `position` (for a strict rank-only variable) or `position2` (for a more descriptive label that retains visiting/external/fellow-type qualifiers). It returns the original dataset with a standardized `functie` column suitable for analysis and reporting.
+The function orchestrates the full job-title cleaning pipeline. It first passes `data` through `parse_job_titles()` to derive the set of boolean `is_` indicators. The result is then processed by `construct_positions()`, which creates a canonical `position` and an extended `position2` with concatenated distinctions. Depending on the `.what` argument, `add_functie()` overwrites the original `functie` column with either `position` (for a strict rank-only variable) or `position2` (for a more descriptive label that retains visiting/external/fellow-type qualifiers). It returns the original dataset with a standardized `functie` column suitable for analysis and reporting.
 
 ```{r}
-clean_functie = function(data){
+add_functie = function(data){
   test = data |> 
     parse_job_titles() |>
     construct_positions()
@@ -549,17 +549,9 @@ data = fread(files, source) |>
   fix_google_scholar_id() |>
   select(-specialisatie, -notitie, -additional, -checked) |>
   arrange(discipline, date, naam, university) |>
-  clean_functie()
+  drop_na(naam) |>
+  add_functie()
 ```
-```{r}
-data |> 
-  filter(date == "2022-12-19") |>
-  distinct(naam, .keep_all = TRUE) -> 
-  temp
-
-table(temp$functie)
-```
-Wie zijn deze researchers? Mogelijk om samen te voegen met PDs. In later stadium wrs de Staff er uit. 
 
 ```{r}
 # save data

@@ -308,14 +308,12 @@ names = data |>
   patch_names() |>
   extract_maiden_name() |>
   format_names() |>
-  add_uid() |> 
-  rename(naam2 = naam)
+  add_uid()
 
-names <- cbind(data, names)
+data = names |>
+  bind_cols(data |> select(-naam))
 
-```
-```{r}
-fsaveRDS(names, 'names')
+fsaveRDS(data, 'names')
 ```
 
 ```{r}

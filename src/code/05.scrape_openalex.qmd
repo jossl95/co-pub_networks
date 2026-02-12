@@ -43,7 +43,9 @@ library(stringi)
 library(stringdist)
 
 # set global options
-options(openalexR.mailto = "jos.slabbekoorn@outlook.com")
+dotenv::load_dot_env()
+APIKEY <- Sys.getenv("OPENALEX_API_KEY")
+
 ```
 
 ## Functions
@@ -176,7 +178,7 @@ If the result is a non-null tibble, it first renames the OpenAlex columns `id` a
 After processing all names, the function binds all stored tibbles with `bind_rows()`, removes duplicate institutions using `distinct(institution_id, .keep_all = TRUE)`, and keeps only `institution_name` and `institution_id`. It then adds an `institution_url` column equal to the original OpenAlex URL and converts `institution_id` to a compact identifier by stripping the `"https://openalex.org/"` prefix. The function returns this tidy tibble of unique, disambiguated OpenAlex institution records.
 
 ```{r}
-oa_fetch_institutions = function(institutions, pause=0){
+oa_fetch_institutions = function(institutions, pause=1){
   k = length(institutions)
   hold = list()
 
@@ -190,7 +192,7 @@ oa_fetch_institutions = function(institutions, pause=0){
     # 2) fetch result for all institutions
     res = tryCatch(
       oa_fetch(
-          entity = "institutions", search=institution
+          entity = "institutions", search = institution, api_key = APIKEY
         ),
       error = function(e) NULL,
       warning = function(w) NULL
@@ -358,25 +360,31 @@ The function first extracts the vector of unique, non-missing `uid` values from 
 ```{r}
 oa_fetch_authors = function(df, pause = 0){
   # configure iterator and other looping variables
-  uids = df |> pull(uid) |> na.omit()
+  uids = df |> pull(uid) |> na.omit() |> unique()
   k = length(uids)
-  hold = list()
+  cache_path = file.path('data', '_cache', 'oaauthor.Rds')
+  cache <- load_cache(cache_path)
 
   cli_alert("Starting now, at {Sys.time()}")
   cli_progress_bar("Scraping authors", total = k, clear = FALSE)
   for (id in uids) {
+    cli_progress_update()
+    if (id %in% names(cache)) next
+
     # extract information for each author
     tab = df |> filter(uid == id)
 
     # pull the required information
-    clean_name = tab |> distinct(clean_name) |> pull()
+    clean_name = tab |> distinct(clean_name) |> first() |> pull()
     institution_ids = tab |> distinct(institution_id) |> pull()
 
+    Sys.sleep(pause)
     res = tryCatch(
       oa_fetch(
         entity = 'author',
         search = clean_name,
         affiliations.institution.id = institution_ids,
+        api_key = APIKEY
       ),
       error = function(e) NULL,
       warning = function(w) NULL
@@ -387,18 +395,18 @@ oa_fetch_authors = function(df, pause = 0){
         oa_fetch(
           entity = 'author',
           search = clean_name,
+          api_key = APIKEY
         ),
         error = function(e) NULL,
         warning = function(w) NULL
       )
     }
-    cli_progress_update()
 
     # skip institution if invalid result
     if (is.null(res) || !is_tibble(res) || (nrow(res) == 0)) next
 
     # harmonize and expand the data
-    hold[[id]] = res |> rename('author_id' = 'id') |>
+    cache[[id]] = res |> rename('author_id' = 'id') |>
       distinct(author_id, .keep_all = TRUE) |>
       mutate(
         uid = id,
@@ -409,7 +417,8 @@ oa_fetch_authors = function(df, pause = 0){
       arrange(-relevance_score)
     
   }
-  return(hold)
+  saveRDS(cache, cache_path)
+  return(cache)
 }
 
 ```
@@ -570,73 +579,18 @@ match_institutions = function(data, df){
 oa_fetch_works = function(data, pause = 0){
   # configure iterator and other looping variables
   k = length(data)
-  hold = list()
+  cache_path = file.path('data', '_cache', 'oaworks.Rds')
+  cache = load_cache(cache_path)
+
+  # get new APIKEY
+  dotenv::load_dot_env()
+  APIKEY <- Sys.getenv("OPENALEX_API_KEY2")
 
   cli_alert("Starting now, at {Sys.time()}")
   cli_progress_bar("Scraping works", total = k, clear = FALSE)
   for (id in names(data)){
     cli_progress_update()
-    # extract information for each author and skip if invalid
-    tab = data[[id]]
-
-    # extract a list of institution_ids 
-    oa_ids = tab |> 
-      mutate(author_id = str_remove(author_id, 'https://openalex.org/')) |>
-      distinct(author_id) |> 
-      head(5) |>
-      pull() 
-    
-    if (any(is.null(oa_ids), length(oa_ids) == 0)) {
-      hold[[id]] = NULL
-      next
-    }
-
-    subhold = list()
-    for (oa_id in oa_ids){
-      res = tryCatch(
-        oa_fetch(
-            entity = 'works',
-            author.id = oa_id
-        ),
-        error = function(e) NULL,
-        warning = function(w) NULL
-      )
-      if(!is.null(res)){
-        subhold[[oa_id]] = res |>
-          rename("work_id" = "id") |>
-          mutate(
-            uid = id,
-            author_id = oa_id,
-            .before = 1
-          ) 
-      }
-    }
-
-    if (length(subhold) == 0) {
-      # print(c(id, "no works object retrieved"))
-      hold[[id]] = NULL
-      next
-    }
-
-    hold[[id]] = bind_rows(subhold) |>
-      distinct(work_id, .keep_all = TRUE) |>
-      filter(uid == id)
-    
-  }
-  return(hold)
-}
-```
-
-```{r}
-oa_fetch_works = function(data, pause = 0){
-  # configure iterator and other looping variables
-  k = length(data)
-  hold = list()
-
-  cli_alert("Starting now, at {Sys.time()}")
-  cli_progress_bar("Scraping works", total = k, clear = FALSE)
-  for (id in names(data)){
-    cli_progress_update()
+    if (id %in% names(cache)) next
     # extract information for each author and skip if invalid
     tab = data[[id]]
 
@@ -650,7 +604,7 @@ oa_fetch_works = function(data, pause = 0){
     
     # if the scholar has no valid oa_ids than skip this scholar
     if (any(is.null(oa_ids), length(oa_ids) == 0)) {
-      hold[[id]] = NULL
+      cache[[id]] = NULL
       next
     }
 
@@ -658,7 +612,8 @@ oa_fetch_works = function(data, pause = 0){
     res = tryCatch(
       oa_fetch(
           entity = 'works',
-          authorships.author.id = oa_ids
+          authorships.author.id = oa_ids,
+          api_key = APIKEY
       ),
       error = function(e) NULL,
       warning = function(w) NULL
@@ -682,11 +637,11 @@ oa_fetch_works = function(data, pause = 0){
         # drop duplicates (very rare)
         distinct(uid, work_id, .keep_all = TRUE)
     }
-
-    hold[[id]] = res
+    cache[[id]] = res
     
   }
-  return(hold)
+  saveRDS(cache, cache_path)
+  return(cache)
 }
 ```
 
@@ -695,13 +650,93 @@ oa_fetch_works = function(data, pause = 0){
 
 ```{r}
 # load the most recent names data
-names = freadRDS2('names') 
-ids = freadRDS2('scholarid') 
+data = freadRDS2('ethnicity') 
+  
+```
 
+```{r}
+load_cache <- function(path) {
+  if (!file.exists(path)) return(list())
+
+  cache <- tryCatch(
+    readRDS(path),
+    error = function(e) list(),
+    warning = function(w) list()
+  )
+
+  # Validate expected structure (named list)
+  if (!is.list(cache)) return(list())
+  if (is.null(names(cache))) names(cache) <- character(0)
+
+  cache
+}
+
+```
+
+```{r}
+oa_fetch_institutions = function(institutions, pause = 0){
+  k = length(institutions)
+  cache_path =  file.path('data', '_cache', 'oainstitutions.Rds')
+  cache <- load_cache(cache_path)
+
+  cli_alert("Starting now, at {Sys.time()}")
+  cli_progress_bar("Scraping institutions", total = k, clear = FALSE)
+  # 1) iterate over all institutionsinstitutions
+  for (institution in institutions){
+    # skip institution if cached
+    if(institution %in% names(cache)) next
+
+    # 2) fetch result for all institutions
+    res = tryCatch(
+      oa_fetch(
+          entity = "institutions", search = institution, api_key = APIKEY
+        ),
+      error = function(e) NULL,
+      warning = function(w) NULL
+    )
+
+    cli_progress_update()
+
+    if(is_tibble(res)) {
+      res = res |>
+        mutate(institution_name = institution) |>
+        relocate(institution_name, .before = id) |>
+        first()
+    }
+
+    cache[[institution]] = res
+  }
+
+  # write cache
+  saveRDS(cache, cache_path)
+
+  out = cache |> 
+    bind_rows() |>
+    select(institution_name, id) |>
+    rename(institution_id = id)
+
+  return(out)
+}
+
+add_institution_id = function(df){
+  # fetch institution ids for each university
+  institutions = df$university_name |> unique() |> na.omit()
+  results = oa_fetch_institutions(institutions)
+
+  # create author table with institution_ids
+  authors = df |>
+    left_join(results, by = join_by(university_name == institution_name)) |>
+    distinct(clean_name, institution_id, .keep_all = TRUE) |>
+    filter(university_name %in% results$institution_name) 
+}
+
+
+```
+
+```{r}
 # Combine names and scholarid data and reshape to create a table with
 # a row per author university pair
-df = ids |>
-  left_join(names) |>
+df = data |>
   distinct(uid, university, .keep_all = TRUE) |>
   unnest_longer(university) |>
   normalize_university_names() |>
@@ -712,7 +747,7 @@ df = ids |>
 ```{r}
 # create a authors table
 authors = df |>
-  oa_fetch_authors() |> 
+  oa_fetch_authors(pause=0) |> 
   unnest_institutions() |>
   match_institutions(df)
 

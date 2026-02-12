@@ -45,21 +45,28 @@ library(slider)
   - years since first publication
 - topic (node of edge)
 - DONE university
+  - (optional) time varying (dummy tweede affiliatie (0/1))
+  - hoofdaffiliatie
+  - dyadisch, zit een van je affiliaties in de affiliaties van de ander
 - DONE position
 - DONE gender
-- DONE herkomst 
+- herkomst 
 - ?? all metrics??
   - (TODO) plaatsen (geographic distance)
-  - DONE h-index (yearly)
   - DONE 2yr_mean_citedness (impact)
   - DONE i10-index (yearly)
-- beurzen [external data required]
+  NOTE (consistente rolling window)
 - DONE productiviteit
   - yearly
-  - window average < 3years
+  - window average < 2years
 - topic similarity
-- interdisciplinariteit
+- aantal auteurs (binnen en buiten corpus) tijdsconstant 2021
 :::
+
+AP : schoon dataframe
+
+NOTE:
+- met hoeveel auteurs heb je samen gewerkt (binnen en buiten corpus)
 
 met descriptives
 (varieren over tijd, gender, herkomst, positie)
@@ -150,7 +157,6 @@ data[["demographics"]] |>
   ) +
   theme_minimal()
 ```
-
 
 
 ```{r}
@@ -276,12 +282,22 @@ topics_counts_cum <- counts |>
 
 ```
 
-
 ```{r}
 # alternative function for more 
 
-# dissimilarity = counts |>
-#   select(matches("\\d$")) |>
-#   as.matrix() |>ba
-#   coop::cosine()    # uses coop for optimized computation
+S = counts |>
+  select(
+    matches("\\d$"),
+    -starts_with('T')   # topics similarity is too sparse
+  ) |>
+  as.matrix() |>
+  coop::cosine()    # uses coop for optimized computation
+
 ```
+
+Een maat hebben die de afstand berekend tussen auteurs o.b.v. de topics
+- aggregatie maten: proporties & afstandsmatrix -> wordt als een segregatiemaat
+  - elke rij een auteur en topic (topic-wide) (als proporties)
+- limit op 2021 
+- mensen zonder publicaties niet op nul, maar missing (0 is grootste afstand)
+- alle publicaties tot 2021.

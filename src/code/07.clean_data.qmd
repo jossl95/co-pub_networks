@@ -190,8 +190,6 @@ clean_demographics = function(data){
     relocate(region, .before = ethnicity) |>
     rename(
         origin = region,
-        gender_prob = prob,
-        gender_count = count,
         university_22 = universiteit_22,
         university_24 = universiteit_24,
         university_25 = universiteit_25,
@@ -201,11 +199,10 @@ clean_demographics = function(data){
         position_22 = functie_22,
         position_24 = functie_24,
         position_25 = functie_25,
-      ) |>
-      select(
-        uid, clean_name, gender, origin, ethnicity, email_22:discipline_25,
-        has_valid_works
-      ) 
+        position2_22 = functie2_22,
+        position2_24 = functie2_24,
+        position2_25 = functie2_25,
+      )
 
   return(data)
 }
@@ -286,6 +283,7 @@ add_annual_statistics <- function(data){
     group_by(uid, year) |>
     summarise(h_index = sum(cum_citations > cum_publications)) |>
     mutate(year = as.integer(year))
+  # toevoegen cum_citatties - max(citaties) = a 
 
   # aggregate citations and publications
   counts <- citation_counts  |> 
@@ -353,6 +351,16 @@ add_edge_table <- function(data){
 }
 ```
 
+```{r}
+add_nodes_table = function(data){
+  data[['nodes']] = data[['demographics']] |>
+    filter(uid %in% names(data[['works']]))
+
+  return(data)
+}
+
+```
+
 ## Application
 
 ```{r}
@@ -362,7 +370,8 @@ data = freadRDS2(file="scholars", location = "combined") |>
   prune_scholars() |>
   clean_demographics() |>
   add_annual_statistics() |>
-  add_edge_table()
+  add_edge_table() |>
+  add_nodes_table()
 
 fsaveRDS(data, 'scholars', location = "./data/clean/")
 ```

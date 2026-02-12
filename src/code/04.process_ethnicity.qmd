@@ -663,53 +663,46 @@ The function first reads ISO 3166-1 codes from `data/utils/iso3611_codes.xlsx`, 
 
 ```{r}
 harmonize_ethnicity = function(origin) {
-  iso = readxl::read_xlsx(file.path('data', 'utils', 'iso3611_codes.xlsx'))
-
   origin = origin |>
+    select(uid, clean_name, country_id, count, probability, origin, name_count) |>
     mutate(
-      name_count = name_count |> str_replace('< 5', '5') |> as.integer(),
-      name_count = ifelse(is.na(name_count), 0, name_count),
-      ethnicity = case_when(
-        str_detect(origin, 'Nederlandse') & (name_count > 400) ~ "NL",
-        str_detect(origin, 'Chinese') & (name_count > 200) ~ "CN",
-        str_detect(origin, 'Duitse') & (name_count > 200) ~ "DE",
-        str_detect(origin, 'Marokkaanse') & (name_count > 200) ~ "MA",
-        str_detect(origin, 'Turkse') & (name_count > 200) ~ "TR",
+      origin = case_when(
+        str_detect(origin, 'Nederlandse')  ~ 'NL',
+        str_detect(origin, 'Antilliaanse') ~ 'BQ',
+        str_detect(origin, 'Belgische') ~ 'BE',
+        str_detect(origin, 'Chinese') ~ 'CN',
+        str_detect(origin, 'Deense') ~ 'DK',
+        str_detect(origin, 'Duitse') ~ 'DE',
+        str_detect(origin, 'Engelse') ~ 'GB',
+        str_detect(origin, 'Franse') ~ 'FR',
+        str_detect(origin, 'Griekse') ~ 'GR',
+        str_detect(origin, 'Ierse') ~ 'IE',
+        str_detect(origin, 'Indische') ~ 'ID',
+        str_detect(origin, 'Italiaanse') ~ 'IT',
+        str_detect(origin, 'Marokkaanse') ~ 'MA',
+        str_detect(origin, 'Molukse') ~ 'ID',
+        str_detect(origin, 'Friese') ~ 'NL',
+        str_detect(origin, 'Joegoslavische') ~ NA_character_,
+        str_detect(origin, 'Pakistaanse') ~ 'PK',
+        str_detect(origin, 'Portugese') ~ 'PT',
+        str_detect(origin, 'Spaanse') ~ 'ES',
+        str_detect(origin, 'Surinaamse') ~ 'SR',
+        str_detect(origin, 'Turkse') ~ 'TR',
+        str_detect(origin, 'Vietnamese') ~ 'VN',
+        str_detect(origin, 'Zuid-Koreaanse') ~ 'KR',
+        .default = origin),
+      name_count = str_replace(name_count, '<5', '5') |> as.numeric(),
+      country_id = case_when(
+        str_detect(clean_name, 'Azevedo') ~ country_id,
+        (!is.na(origin) & (name_count > 100)) ~ origin,
+        str_detect(origin, 'NL') ~ 'NL',
         .default = country_id
-      ),
-      ethnicity = case_when(
-        str_detect(search_name, 'Wachter') ~ "NL",
-        str_detect(search_name, 'Das') ~ "NL",
-        str_detect(search_name, "Metinsoy") ~ "TR",
-        str_detect(search_name, "Wagner") ~ "DE",
-        str_detect(search_name, "Mos") ~ "NL",
-        str_detect(search_name, "Vlieg") ~ "NL",
-        str_detect(search_name, "Knigge") ~ "NL",
-        str_detect(search_name, "Bol") ~ "NL",
-        str_detect(search_name, "Deen") ~ "NL",
-        str_detect(search_name, "Vrooman") ~ "NL",
-        str_detect(search_name, "Verdun") ~ "NL",
-        str_detect(search_name, "Merlo") ~ "NL",
-        str_detect(search_name, "Phillips") ~ "BR",
-        str_detect(search_name, "Raekstad") ~ "NL",
-        str_detect(search_name, "Aspide") ~ "IT",
-        .default = ethnicity
-      ),
-      count = case_when(
-        country_id != ethnicity ~ NA,
-        .default = count
-      ),
-      probability = case_when(
-        country_id != ethnicity ~ NA,
-        .default = probability
       )
     ) |>
-    select(uid, search_name, ethnicity, count, probability) |>
-    distinct(uid, search_name, ethnicity, .keep_all=TRUE) |>
-    left_join(
-      iso |> select(alpha_2, country_name),
-      by = join_by(ethnicity == alpha_2)
-    )
+    select(uid, country_id) |>
+    distinct(uid, .keep_all = TRUE) 
+
+  return(origin)
 }
 ```
 
@@ -719,10 +712,10 @@ harmonize_ethnicity = function(origin) {
 #| warning: false
 #| output: false
 
-names = freadRDS2('names')
+data = freadRDS2('gender')
 
 # create an name index
-idx = names |>
+idx = data |>
   distinct(particle, last_name, .keep_all = TRUE) |>
   unite(search_name, particle:last_name, sep=" ", na.rm=TRUE, remove = FALSE) |>
   unite(search_name_full, particle:maiden_name, sep=" ", na.rm=TRUE, remove = FALSE) 
@@ -741,12 +734,11 @@ res2 = name_to_origin(idx) |>
 origin = idx |>
   left_join(res, by=join_by(search_name==last_name)) |>
   left_join(res2, by=join_by(search_name==last_name)) |>
-  select(uid, last_name, search_name, type:name_count) |>
   harmonize_ethnicity()
 
-fsaveRDS(origin, 'ethnicity')
+data |> left_join(origin) |> fsaveRDS('ethnicity')
 ```
 
 ```{r}
-origin |> head()
+data |> left_join(origin) |> head()
 ```

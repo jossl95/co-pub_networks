@@ -51,7 +51,7 @@ The function first reshapes the `scholars` component to a wide format across mea
 
 ```{r}
 combine_demographics = function(data){
-  scholars_wide =  data[['scholars']] |>
+  demographics =  data[['gender']] |>
     mutate(
       year = as.integer(year(date) - 2000)
     ) |>
@@ -59,26 +59,21 @@ combine_demographics = function(data){
     select(-university, -date, -google_scholar_id) |>
     pivot_wider(
       names_from  = year,
-      values_from = c(email_adres, universiteit, functie, discipline),
+      values_from = c(email_adres, universiteit, functie, functie2, discipline),
       names_glue  = "{.value}_{year}",
       values_fill = NA,
       values_fn   = list(
-        email_adres = ~ if (all(is.na(.x))) NA_character_ else str_c(unique(na.omit(.x)), collapse = "; "),
-        universiteit  = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x)),
-        functie     = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x)),
-        discipline  = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x))
+        email_adres  = ~ if (all(is.na(.x))) NA_character_ else str_c(unique(na.omit(.x)), collapse = "; "),
+        universiteit = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x)),
+        functie      = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x)),
+        functie2     = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x)),
+        discipline   = ~ if (all(is.na(.x))) NA_character_ else first(na.omit(.x))
       )
     ) |>
-    select(
-      naam, ends_with('22'), ends_with('24'), ends_with('25')
-    )
-
-  # combine all demographics
-  demographics = data[['names']] |>
-    left_join(data[['gender']]) |>
-    left_join(data[['ethnicity']] |> select(uid, ethnicity, probability)) |>
-    rename(ethnicity_prob = probability) |>
-    left_join(scholars_wide) 
+    relocate(ends_with("22"), ends_with('24'), ends_with('25'), .after = gender) |>
+    left_join(data[['ethnicity']]) |>
+    select(-probability, -count, -search_name) |>
+    relocate(ethnicity, country_name, .after = gender)
 
   return(demographics)
 }
@@ -186,24 +181,38 @@ parse_scholars = function(data, demographics){
 }
 ```
 
+```{r}
+parse_works = function(data, demographics){
+  uids = demographics |> distinct(uid) |> pull() |> na.omit()
+  works = list()
+  for (id in uids){
+    works[[id]] = tibble()
+
+    if (id %in% names(data[['works']])) works[[id]] = data[['works']][[id]]
+  }
+  return(works)
+}
+
+```
+
 ## Application
 
 ```{r}
 data = list(
-  scholars = freadRDS2('scholarid'),
-  ethnicity = freadRDS2('ethnicity'),
-  gender = freadRDS2('gender'),
-  names = freadRDS2('names'),
+  demographics = freadRDS2('ethnicity'),
   id = freadRDS2('oaauthors', location = 'raw_data'),
   works = freadRDS2('oaworks', location = 'raw_data')
 )
 ```
+
 
 ```{r}
 demographics = combine_demographics(data)
 
 works = parse_works(data, demographics) |> 
   add_uid_to_authorships() 
+  # |>
+  # parse_works(demographics)
 
 scholars_list = parse_scholars(data, demographics)
 
@@ -214,8 +223,4 @@ scholars = list(
 )
 
 fsaveRDS(scholars, file="scholars", location = "./data/combined/")
-```
-
-```{r}
-scholars$scholars_oa |> bind_rows() |> head()
 ```

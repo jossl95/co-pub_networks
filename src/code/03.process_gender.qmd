@@ -421,6 +421,10 @@ genderize_names = function(idx) {
 ---
 
 ### `harmonize_gender()`
+
+:::{.callout-note}
+TODO: update description for function.
+:::
 Harmonizes gender information from multiple sources into a single, aggregated record per first name.
 
 #### Arguments
@@ -439,38 +443,22 @@ Finally, the data is grouped by `first_name` and summarised: it takes the first 
 
 harmonize_gender = function(gender) {
   gender |>
-    select(
-      first_name, term, starts_with('gender'), 
-      starts_with('count'), starts_with('prob')
-    ) |>
-    distinct(first_name, term, .keep_all=TRUE) |>
     mutate(
-      has_multiple = str_detect(first_name, '( |-)'),
-      has_mismatch = gender.x != gender.y
-    ) |>
-    drop_na(first_name) |>
-    filter(!(has_multiple & has_mismatch & str_detect(term, '.'))) |>
-    mutate(
-      gender = case_when(
-        is.na(gender.y) ~ gender.x,
-        .default = gender.y
-      ),
-      prob = case_when(
-        is.na(probability) ~ prob,
-        .default = probability
-      ),
-      count = case_when(
-        is.na(count.y) ~ count.x,
-        .default = count.y
-      )
+      gender = coalesce(gender.nvb, gender.g),
+      gender_count = coalesce(count.nvb, count.g),
+      gender_prob =coalesce(prob, probability)
     ) |>
     group_by(first_name) |>
     summarise(
-      gender = first(gender),
-      prob = mean(prob), 
-      count = sum(count)
-    )
+      gender = first(gender, na_rm=TRUE),
+      gender_prob = mean(gender_prob), 
+      gender_count = sum(gender_count),
+      gender.nvb = first(gender.nvb, na_rm=TRUE),
+      gender.g = first(gender.g, na_rm=TRUE),
+    ) |>
+    patch_missing_gender()
 }
+
 ```
 
 ---
@@ -487,25 +475,22 @@ idx = names |>
   ) |>
   unnest_longer(term)
 res = scrape_gender(idx)
-#res2 = genderize_names(idx)
+res2 = genderize_names(idx)
 ```
 
 
 ```{r}
 gender = idx |>
   left_join(res) |>
-  #left_join(res2, by=join_by(term == name), suffix = c(".x", ".y")) |>
+  left_join(res2, by=join_by(term == name), suffix = c(".nvb", ".g")) |>
   harmonize_gender()
+
+gender = names |> left_join(gender)
 ```
-uiteindelijk de genders koppelen aan names (input bestand) en dan opslaan als gender. dit bestand heeft dus 2739 unieke regels waaraan een gender gekoppeld is. 
-kijk even welke codering je dominant maakt. wmb gender1_meertens, gender2_genderizeR en gender is de combi. 
 
 ```{r}
 fsaveRDS(gender, "gender")
 ```
-
-zorg dat je alleen op de unique de scrape uitvoert en ...check of de naam als gescraped is. 
-
 
 ### Example Data
 ```{r}
