@@ -111,9 +111,11 @@ The function first binds all OpenAlex author records in `data[["scholars_oa"]]` 
 ```{r}
 prepare_works_authors <- function(data) {
   authors <- data[["scholars_oa"]] |>
+    keep(~ nrow(.x) > 0) |>
     bind_rows()
 
   works <- data[["works"]] |>
+    keep(~ nrow(.x) > 0) |>
     bind_rows() |>
     select(-display_name)
 

@@ -547,8 +547,16 @@ match_institutions = function(data, df){
           ~ {x = .x; if (is.null(x)) x = character(0)
             any(as.character(x) %in% institutions)}
           ),
+        institution_dutch = map_lgl(
+          last_known_institutions,
+          ~ {
+            x = .x; if (is.null(x)) x = character(0)
+            any(x$country_code == 'NL')
+          }
+        ),
         keep = case_when(
             query_similarity == 1.0 ~ TRUE,
+            institution_dutch == FALSE ~ FALSE,
             !institution_match & query_similarity >= 0.60 ~ TRUE,
             institution_match & query_similarity >= 0.45 ~ TRUE,
             .default = FALSE

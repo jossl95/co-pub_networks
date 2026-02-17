@@ -81,15 +81,17 @@ data = freadRDS2('scholars', location = "./data/clean/")
 
 categorize_ethnicity = function(data){
   minority_codes =  c('MA', 'TR', 'BQ', 'CW', 'SX', 'AW', 'SR')
+  country_codes = c('US', 'DE', 'BE')
 
   data[['demographics']] = data[['demographics']] |>
     mutate(migrant = case_when(
-      str_detect(coalesce(ethnicity, ""), "NL") ~ "majority",
-      ethnicity %in% minority_codes ~ "minority",
-      is.na(ethnicity) ~ NA_character_,
+      country_id == 'NL' ~ 'NL',
+      country_id %in% country_codes ~ 'B3', # Big 3 origins
+      country_id %in% minority_codes ~ 'M4', # 4 Biggest Migrant groups NL
+      is.na(country_id) ~ NA_character_,
       .default = "other"
     )) |>
-    relocate(migrant, .after = 'ethnicity')
+    relocate(migrant, .after = 'country_id')
 
   return(data)
 }
@@ -101,14 +103,14 @@ data = categorize_ethnicity(data)
 top_n <- 25
 
 data[["demographics"]] |>
-  count(ethnicity, migrant, name = "n") |>
+  count(country_id, migrant, name = "n") |>
   arrange(n) |>
   tail(25) |>
-  mutate(ethnicity = factor(ethnicity, levels = unique(ethnicity))) |>
-  ggplot(aes(x = ethnicity, y = n, fill = migrant)) +
+  mutate(country_id = factor(country_id, levels = unique(country_id))) |>
+  ggplot(aes(x = country_id, y = n, fill = migrant)) +
   geom_col() +
   coord_flip() +
-  labs(x = NULL, y = "Count", fill = "Migrant", title = "Counts by ethnicity, split by migrant") +
+  labs(x = NULL, y = "Count", fill = "Migrant", title = "Counts by country_id, split by migrant") +
   theme_minimal()
 ```
 
@@ -143,7 +145,7 @@ data[['demographics']] |>
 ```{r}
 data[["demographics"]] |>
   group_by(position_22) |>
-  summarise(has_valid_works = mean(has_valid_works), .groups = "drop") |>
+  summarise(has_valid_works = mean(!is.na(career_start)), .groups = "drop") |>
   arrange(desc(has_valid_works)) |>
   mutate(position_22 = factor(position_22, levels = position_22)) |>
   ggplot(aes(x = position_22, y = has_valid_works)) +
@@ -160,140 +162,177 @@ data[["demographics"]] |>
 
 
 ```{r}
-topic_data = data$works |>
-  bind_rows() |>
-  select(uid, work_id, publication_year, topics) |>
-  unnest_longer(topics) |>
-  unnest_wider(topics) |>
-  mutate(
-    id = str_remove(id, 'https://openalex.org/') |>
-      str_replace('subfields/', 'S') |>
-      str_replace('fields/', 'F') |>
-      str_replace('domains/', 'D')
-  )
+create_topic_table = function(data, base_year = 2022, window = 5){
+  data[['works']] |>
+    keep(~ nrow(.x) > 0) |>
+    bind_rows() |>
+    filter(
+      publication_year >= (base_year - window),
+      publication_year < base_year
+    ) |>
+    select(uid, work_id, publication_year, topics) |>
+    unnest_longer(topics) |>
+    unnest_wider(topics) |>
+    mutate(
+      id = str_remove(id, 'https://openalex.org/') |>
+        str_replace('subfields/', 'S') |>
+        str_replace('fields/', 'F') |>
+        str_replace('domains/', 'D')
+    ) 
+}
 
 topics = list()
 ```
 
-
 ```{r}
-topics$counts$domains = topic_data |>
-  filter(type == 'domain') |>
-  select(uid, work_id, publication_year, id) |>
-  arrange(id) |>
-  mutate(value = 1L) |>
-  pivot_wider(
-    id_cols = c(uid, work_id, publication_year),
-    names_from = id,
-    values_from = value,
-    values_fn = sum,
-    values_fill = 0L
-  )
-
-topics$counts$domains
-```
-
-
-```{r}
-topics$counts$fields = topic_data |>
-  filter(type == 'field') |>
-  select(uid, work_id, publication_year, id) |>
-  arrange(id) |>
-  mutate(value = 1L) |>
-  pivot_wider(
-    id_cols = c(uid, work_id, publication_year),
-    names_from = id,
-    values_from = value,
-    values_fn = sum,
-    values_fill = 0L
-  )
-
-topics$counts$fields
-```
-
-
-```{r}
-topics$counts$subfields = topic_data |>
-  filter(type == 'subfield') |>
-  select(uid, work_id, publication_year, id) |>
-  arrange(id) |>
-  mutate(value = 1L) |>
-  pivot_wider(
-    id_cols = c(uid, work_id, publication_year),
-    names_from = id,
-    values_from = value,
-    values_fn = sum,
-    values_fill = 0L
-  )
-
-topics$counts$subfields
+topic_table = data |> create_topic_table(base_year = 2025, window = 8)
 ```
 
 ```{r}
-topics$counts$topics = topic_data |>
-  filter(type == 'topic') |>
-  select(uid, work_id, publication_year, id) |>
-  arrange(id) |>
-  mutate(value = 1L) |>
-  pivot_wider(
-    id_cols = c(uid, work_id, publication_year),
-    names_from = id,
-    values_from = value,
-    values_fn = sum,
-    values_fill = 0L
-  )
+pivot_topic_table = function(topic_table, topic_type = NA){
+  # assert topic_type is valid
+  valid_types <- topic_table |> distinct(type) |> pull()
+  if ((is.na(topic_type) && !topic_type %in% valid_types)) {
+    warning(paste(topic_type, "is not valid"))
+  }
 
-topics$counts$topics
-```
-
-
-```{r}
-counts = topics$counts |>
-  reduce(~ left_join(.x, .y))
-
-valid_topics = counts |>
-  select(matches("\\d$")) |>
-  summarise(across(everything(), ~ sum(as.numeric(.x), na.rm = TRUE))) |>
-  unlist(use.names = TRUE) |>
-  (\(x) names(x)[x > 20])()
-```
-
-
-```{r}
-topics_counts_cum <- counts |>
-  select(-work_id) |>
-  group_by(uid, publication_year) |>
-  summarise(
-    across(
-      all_of(valid_topics),
-      ~ sum(.x, na.rm = TRUE)
-    ),
-    .groups = "drop"
-  ) |>
-  arrange(publication_year, .by_group = FALSE) |>
-  group_by(uid) |>
-  mutate(
-    across(
-      where(is.numeric) & !any_of(c("publication_year")),
-      cumsum
+  # select topic_type and pivot topics to wider
+  topic_table |>
+    filter(type == topic_type) |>
+    select(uid, work_id, publication_year, id) |>
+    arrange(id) |>
+    mutate(value = 1L) |>
+    pivot_wider(
+      id_cols = c(uid, work_id, publication_year),
+      names_from = id,
+      values_from = value,
+      values_fn = sum,
+      values_fill = 0L
     )
-  ) |>
-  ungroup()
+}
+
+aggregate_topic_table = function(table){
+  table |>
+    group_by(uid) |>
+    summarise(across(matches("\\d$"), sum))
+}
+
+calculate_proximity_matrix = function(counts){
+  d <- 1 - counts |>
+    select(matches("\\d$")) |>
+    coop::cosine()
+  diag(d) = 0
+  
+  prox <- 1 - (d/max(d))^2
+  
+  return(prox)
+}
+
+calculate_interdisciplinarity = function(P, proximity){
+  # align proximity once (same for every row)
+  prox <- proximity[colnames(P), colnames(P)]
+
+  # if you want NA to behave like in your loop (ignored in the sum),
+  # the closest equivalent is to treat NA contributions as 0:
+  P[is.na(P)] <- 0
+  prox[is.na(prox)] <- 0
+
+  res <- 1 - rowSums((P %*% prox) * P)  # numeric vector, length = nrow(P)
+  names(res) <- rownames(P)
+
+  return(res)
+}
+```
+
+```{r}
+topic_types = c('domain', 'field', 'subfield', 'topic')
+for (topic_type in topic_types) {
+  topics[['counts']][[topic_type]] = topic_table |>
+    pivot_topic_table(topic_type = topic_type) |>
+    aggregate_topic_table()
+
+  # calculate proximity
+  topics[['prox']][[topic_type]] = topics[['counts']][[topic_type]] |>
+    calculate_proximity_matrix()
+}
+```
+
+```{r}
+years = c(2022, 2024, 2025)
+
+for (topic_type in topic_types) {
+  for (year in years){
+    year_lab = as.character(year)
+    
+    # create a proportions table
+    P = data |>
+      create_topic_table(base_year = year, window = 2) |>
+      pivot_topic_table(topic_type = topic_type) |>
+      aggregate_topic_table() |>
+      column_to_rownames(var="uid") |> 
+      as.matrix() |>
+      prop.table(margin = 1)
+
+    # fetch proximity table
+    prox = topics[['prox']][[topic_type]]
+
+    # calculate interdisciplinarity
+    topics[['intdis']][[topic_type]][[year_lab]] = P |>
+      calculate_interdisciplinarity(prox) 
+  }
+
+  # combine results into dataframe
+  res = topics[['intdis']][[topic_type]] |> bind_rows() |> t()
+  colnames(res) = as.character(paste('int', years, sep = '_'))
+  topics[['intdis']][[topic_type]] = res
+}
 
 ```
 
 ```{r}
-# alternative function for more 
+# # vectorized version:
 
-S = counts |>
-  select(
-    matches("\\d$"),
-    -starts_with('T')   # topics similarity is too sparse
-  ) |>
-  as.matrix() |>
-  coop::cosine()    # uses coop for optimized computation
+# library(dplyr)
+# library(tidyr)
+# library(tibble)
+# library(purrr)
+
+# topics[["intdis"]] <- set_names(
+#   map(topic_types, function(topic_type) {
+
+#     prox <- topics[["prox"]][[topic_type]]
+
+#     # list of named vectors (one per year), names = uids
+#     year_vecs <- map(years, function(year) {
+#       P <- data |>
+#         create_topic_table(base_year = year, window = 2) |>
+#         pivot_topic_table(topic_type = topic_type) |>
+#         aggregate_topic_table() |>
+#         column_to_rownames(var = "uid") |>
+#         as.matrix() |>
+#         prop.table(margin = 1)
+
+#       calculate_interdisciplinarity(P, prox)
+#     })
+
+#     # bind rows (years) -> transpose to uid x year
+#     res <- bind_rows(year_vecs) |>
+#       as.matrix() |>
+#       t()
+
+#     colnames(res) <- paste0("int_", years)
+
+#     res
+#   }),
+#   topic_types
+# )
+```
+
+```{r}
+topics[['intdis']][['domain']] |> bind_rows() |> t()
 
 ```
+
 
 Een maat hebben die de afstand berekend tussen auteurs o.b.v. de topics
 - aggregatie maten: proporties & afstandsmatrix -> wordt als een segregatiemaat
@@ -301,3 +340,4 @@ Een maat hebben die de afstand berekend tussen auteurs o.b.v. de topics
 - limit op 2021 
 - mensen zonder publicaties niet op nul, maar missing (0 is grootste afstand)
 - alle publicaties tot 2021.
+

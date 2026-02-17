@@ -696,11 +696,10 @@ harmonize_ethnicity = function(origin) {
         str_detect(clean_name, 'Azevedo') ~ country_id,
         (!is.na(origin) & (name_count > 100)) ~ origin,
         str_detect(origin, 'NL') ~ 'NL',
+        is.na(country_id) ~ origin, 
         .default = country_id
       )
-    ) |>
-    select(uid, country_id) |>
-    distinct(uid, .keep_all = TRUE) 
+    )
 
   return(origin)
 }
@@ -716,13 +715,14 @@ data = freadRDS2('gender')
 
 # create an name index
 idx = data |>
-  distinct(particle, last_name, .keep_all = TRUE) |>
+  distinct(uid, .keep_all = TRUE) |>
   unite(search_name, particle:last_name, sep=" ", na.rm=TRUE, remove = FALSE) |>
   unite(search_name_full, particle:maiden_name, sep=" ", na.rm=TRUE, remove = FALSE) 
 
 # scrape using nationalizer
 res = nationalize_name(idx) |>
-  select_best_match()
+  select_best_match() |>
+  distinct()
 
 # scrape using family name database
 res2 = name_to_origin(idx) |>
@@ -734,11 +734,17 @@ res2 = name_to_origin(idx) |>
 origin = idx |>
   left_join(res, by=join_by(search_name==last_name)) |>
   left_join(res2, by=join_by(search_name==last_name)) |>
-  harmonize_ethnicity()
+  harmonize_ethnicity() |>
+  mutate(country_id = coalesce(origin, country_id)) |>
+  distinct(uid, .keep_all = TRUE) |>
+  select(uid, country_id)
 
 data |> left_join(origin) |> fsaveRDS('ethnicity')
 ```
 
+```{r}
+o = data |> left_join(origin)
+```
 ```{r}
 data |> left_join(origin) |> head()
 ```

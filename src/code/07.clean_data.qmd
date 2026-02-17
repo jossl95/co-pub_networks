@@ -80,75 +80,7 @@ prune_works <- function(data){
           publication_year >= 1980
         ) |>
         arrange(publication_year)
-    }) |>
-    keep(~ nrow(.x) > 0)
-
-  return(data)
-}
-
-```
-
-### `prune_demographics()`
-
-De-duplicate the demographics table and add an indicator for whether each scholar has valid works after pruning.
-
-#### Arguments
-**data**
-
-> Named list that contains works (a named list of per-scholar works tibbles) and demographics (a tibble with at least `uid`).
-
-#### Method
-The function takes the names of `data[['works']]` as the set of scholars with valid works. It then de-duplicates `data[['demographics']]` on `uid` (keeping the first row per uid) and adds `has_valid_works = uid %in% valid_ids`. The updated list is returned.
-
-
-```{r}
-prune_demographics = function(data){
-  # create list of uids with valid works
-  valid_ids = names(data[['works']])
-
-  # drop duplicates and variable that indicates valid works
-  data[['demographics']] = data[['demographics']] |> 
-    distinct(uid, .keep_all = TRUE) |>
-    mutate(has_valid_works = uid %in% valid_ids)
-
-  return(data)
-}
-```
-
-### `prune_scholars()`
-
-Filter the OpenAlex scholar records to only those authors that appear in the (pruned) works data.
-
-#### Arguments
-**data**
-
-> Named list that contains works (list of works tibbles including `author_id`) and `scholars_oa` (list of OpenAlex scholar tibbles including `author_id`).
-
-#### Method
-The function binds all works together and extracts the distinct set of author_id values as the valid OpenAlex author IDs. It then iterates over `data[['scholars_oa']]`, coercing each to a tibble, normalizing `author_id` by stripping the "https://openalex.org/" prefix, and filtering to valid IDs. Finally, it drops empty tibbles and returns the updated list.
-
-```{r}
-
-prune_scholars <- function(data){
-  # create list of valid author ids
-  valid_oaids = data[['works']] |> 
-    bind_rows() |> distinct(author_id) |> pull()
-
-  data[["scholars_oa"]] <- data[["scholars_oa"]] |>
-    map(\(df) {
-      df <- as_tibble(df)
-
-      # # if needed columns are missing, return empty with same cols
-      # if (!all(c("type", "publication_year") %in% names(df))) {
-      #   return(df[0, , drop = FALSE])
-      # }
-
-      df |>
-        mutate(author_id = str_remove(
-          author_id, "^https://openalex.org/")) |> 
-        filter(author_id %in% valid_oaids) 
-    }) |>
-    keep(~ nrow(.x) > 0)
+    })
 
   return(data)
 }
@@ -186,16 +118,13 @@ clean_demographics = function(data){
 
   # add region to demographics and clean the dataframe
   data[['demographics']] <- data[['demographics']] |>
-    left_join(country_to_region, by = join_by(ethnicity == alpha_2)) |>
-    relocate(region, .before = ethnicity) |>
+    left_join(country_to_region, by = join_by(country_id == alpha_2)) |>
+    relocate(region, .before = country_id) |>
     rename(
         origin = region,
         university_22 = universiteit_22,
         university_24 = universiteit_24,
         university_25 = universiteit_25,
-        email_22 = email_adres_22,
-        email_24 = email_adres_24,
-        email_25 = email_adres_25,
         position_22 = functie_22,
         position_24 = functie_24,
         position_25 = functie_25,
@@ -223,7 +152,9 @@ The function binds all works together and unnests `counts_by_year` into long for
 ```{r}
 get_citation_counts <- function(data){
   data[['works']] |>
+    keep(~ nrow(.x) > 0) |>
     bind_rows() |>
+    # unpack citation counts
     unnest_longer(counts_by_year) |>
     unnest_wider(counts_by_year, names_sep = "_") |>
     rename(
@@ -238,15 +169,21 @@ get_citation_counts <- function(data){
       year = coalesce(year, publication_year)  # <-- key line
     ) |>
     arrange(uid, publication_year, year) |>
-    select(uid, work_id, publication_year, year, citations) |>
+    select(uid, work_id, publication_year, year, citations, cited_by_count) |>
+    # expand time series 
     group_by(uid, work_id) |>
     complete(
       year = full_seq(min(year):2026, 1),
       fill = list(citations = 0L)
     ) |>
-    fill(publication_year, .direction = "downup") |>
+    fill(c(publication_year, cited_by_count), .direction = "downup") |>
     arrange(publication_year, year, .by_group = TRUE) |>
-    mutate(cum_citations = cumsum(citations)) |>
+    mutate(
+      cum_citations = cumsum(citations),
+      # add the offest to cumulative citation counts
+      cited_offset = cited_by_count - max(cum_citations),
+      cum_citations = cum_citations + cited_offset
+    ) |>
     ungroup()
 }
 ```
@@ -275,13 +212,13 @@ add_annual_statistics <- function(data){
   i10_index_by_year <- citation_counts  |>
     mutate(i10 = cum_citations > 10) |>
     group_by(uid, year) |>
-    summarise(i10_index = sum(i10)) |>
+    summarise(i10_index = sum(i10, na.rm = TRUE)) |>
     mutate(year = as.integer(year))
 
   # # calculate h_indices
   h_index_by_year <- citation_counts  |> 
     group_by(uid, year) |>
-    summarise(h_index = sum(cum_citations > cum_publications)) |>
+    summarise(h_index = sum(cum_citations > cum_publications, na.rm = TRUE)) |>
     mutate(year = as.integer(year))
   # toevoegen cum_citatties - max(citaties) = a 
 
@@ -292,7 +229,6 @@ add_annual_statistics <- function(data){
       citations = sum(cum_citations),
       publications = n_distinct(work_id)
     )
-
   
   df <- h_index_by_year |>
       full_join(i10_index_by_year, by = c("uid", "year")) |>
@@ -338,40 +274,112 @@ Build an edge table of co-authorships from nested authorship data.
 The function binds all per-scholar works together, selecting `uid`, `work_id`, `authorships`, `publication_date`, `publication_year`, and `type`. It renames `authorships` to `a` and fully unnests `a` into separate columns with a names separator. It then filters to rows where `a__uid` (the co-author’s `uid`) is non-missing. The resulting tibble, stored as `data[['edge_table']]`, represents a long edge list that links focal `uid` to their co-authors per work, along with basic publication metadata. The updated list is returned.
 
 ```{r}
-add_edge_table <- function(data){
+add_edge_table <- function(data, start_date = NA){
+  start_date <- if (is.na(start_date)) {
+      dmy("01/01/1980")
+    } else if (is.character(start_date)) {
+      dmy(start_date)
+    } else {
+      start_date
+    }
+
   data[['edge_table']] <- data[['works']] |>
+    keep(~ nrow(.x) > 0) |>
     bind_rows() |>
     select(uid, work_id, authorships, publication_date, publication_year, type) |>
-    # mutate(a = authorships, .after=authorships) |>
     rename(a = authorships) |>
     unnest(a, names_sep = "__", keep_empty=FALSE) |>
-    filter(!is.na(a__uid))
+    filter(!is.na(a__uid), (publication_date <= start_date))
 
   return(data)
 }
 ```
 
 ```{r}
-add_nodes_table = function(data){
-  data[['nodes']] = data[['demographics']] |>
-    filter(uid %in% names(data[['works']]))
+check_for_valid_coauthors = function(
+    data, 
+    start_date = dmy("01/01/2016"),
+    end_date = dmy("01/01/2026")
+  ){
+  tab = data[['works']] |>
+    # create a coauthor table
+    keep(~ nrow(.x) > 0) |>
+    bind_rows() |>
+    select(uid, author_id, work_id, authorships, publication_date, publication_year, type) |>
+    rename(a = authorships) |>
+    unnest(a, names_sep = "__", keep_empty=FALSE) |>
+    filter(
+      (publication_date <= start_date),
+      (publication_date <  end_date),
+    ) |>
+    distinct(uid, coalesce(a__uid, a__author_id), .keep_all = TRUE) |>
+    # calculate the number of unique coauthors per author_id
+    group_by(author_id) |>
+    summarize(
+      uid = first(uid),
+      n_coauthors = n_distinct(coalesce(a__uid, a__author_id)),
+      n_valid_coauthors = n_distinct(a__uid, na.rm = TRUE)
+    ) |>
+    arrange(uid, author_id) |>
+    # calculate the number of author_ids and indicate whether author_id is not
+    # connected to valid co_authors
+    group_by(uid) |>
+    mutate(
+      author_id = paste0('https://openalex.org/', author_id),
+      n_oaids = n_distinct(author_id),
+      valid_author_id = !((n_oaids > 1) & (n_valid_coauthors == 0))
+    ) |>
+    ungroup() |>
+    select(-uid)
+
+  data[['scholars_oa']] = map(data[['scholars_oa']], \(df) {
+    if ("author_id" %in% names(df)) {
+      left_join(df, tab, by = "author_id")
+    } else {
+      df
+    }
+  })
 
   return(data)
 }
 
 ```
+
+
+```{r}
+exclude_works_from_invalid_authors = function(data){
+  valid_author_ids = data[['scholars_oa']] |> 
+    bind_rows() |>
+    filter(valid_author_id %in% c(TRUE, NA_character_)) |>
+    mutate(author_id = str_remove(author_id, "https://openalex.org/") ) |>
+    pull(author_id) |> unique() |> na.omit()
+
+  data[['works']] = data[['works']] |>
+    map(\(df) {
+      if('author_id' %in% names(df)){
+        df |> filter(author_id %in% valid_author_ids)
+      } else (df)
+    })
+
+  return(data)
+}
+
+```
+
 
 ## Application
 
 ```{r}
 data = freadRDS2(file="scholars", location = "combined") |>
+  check_for_valid_coauthors() |>
   prune_works() |>
-  prune_demographics() |>
-  prune_scholars() |>
+  exclude_works_from_invalid_authors() |>
   clean_demographics() |>
   add_annual_statistics() |>
-  add_edge_table() |>
-  add_nodes_table()
+  add_edge_table(start_date = '01/01/2022') 
 
 fsaveRDS(data, 'scholars', location = "./data/clean/")
 ```
+
+
+
