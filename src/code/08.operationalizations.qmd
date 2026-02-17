@@ -281,7 +281,7 @@ for (topic_type in topic_types) {
       calculate_interdisciplinarity(prox) 
   }
 
-  # combine results into dataframe
+  # combine results into matrix
   res = topics[['intdis']][[topic_type]] |> bind_rows() |> t()
   colnames(res) = as.character(paste('int', years, sep = '_'))
   topics[['intdis']][[topic_type]] = res
@@ -327,12 +327,6 @@ for (topic_type in topic_types) {
 #   topic_types
 # )
 ```
-
-```{r}
-topics[['intdis']][['domain']] |> bind_rows() |> t()
-
-```
-
 
 Een maat hebben die de afstand berekend tussen auteurs o.b.v. de topics
 - aggregatie maten: proporties & afstandsmatrix -> wordt als een segregatiemaat
