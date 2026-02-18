@@ -231,9 +231,6 @@ calculate_proximity_matrix = function(counts){
 calculate_interdisciplinarity = function(P, proximity){
   # align proximity once (same for every row)
   prox <- proximity[colnames(P), colnames(P)]
-
-  # if you want NA to behave like in your loop (ignored in the sum),
-  # the closest equivalent is to treat NA contributions as 0:
   P[is.na(P)] <- 0
   prox[is.na(prox)] <- 0
 
@@ -245,7 +242,7 @@ calculate_interdisciplinarity = function(P, proximity){
 ```
 
 ```{r}
-topic_types = c('domain', 'field', 'subfield', 'topic')
+topic_types = c('domain', 'field', 'subfield')
 for (topic_type in topic_types) {
   topics[['counts']][[topic_type]] = topic_table |>
     pivot_topic_table(topic_type = topic_type) |>
@@ -290,48 +287,61 @@ for (topic_type in topic_types) {
 ```
 
 ```{r}
-# # vectorized version:
+create_empty_author_matrix = function(topics, topic_type){
+  # get all author information
+  authors = topics[['counts']][['domain']] |> pull(uid)
+  k_authors =  authors |> n_distinct()
 
-# library(dplyr)
-# library(tidyr)
-# library(tibble)
-# library(purrr)
+  D = matrix(
+    NA, nrow = k_authors, ncol = k_authors,
+    dimnames = list(authors, authors)
+  )
+  return (D)
+}
 
-# topics[["intdis"]] <- set_names(
-#   map(topic_types, function(topic_type) {
+calculate_dissimilarity = function (topics, year, topic_type){
+  # create empty dissimilarity table for all possible authors
+  D = create_empty_author_matrix(topics)
 
-#     prox <- topics[["prox"]][[topic_type]]
+  # get author data for specified year
+  A = data |>
+    create_topic_table(base_year = year, window = 2) |>
+    pivot_topic_table(topic_type = topic_type) |>
+    aggregate_topic_table() |>
+    column_to_rownames(var="uid") |> 
+    as.matrix() |>
+    prop.table(margin = 1)
 
-#     # list of named vectors (one per year), names = uids
-#     year_vecs <- map(years, function(year) {
-#       P <- data |>
-#         create_topic_table(base_year = year, window = 2) |>
-#         pivot_topic_table(topic_type = topic_type) |>
-#         aggregate_topic_table() |>
-#         column_to_rownames(var = "uid") |>
-#         as.matrix() |>
-#         prop.table(margin = 1)
+  # align A to prox columns
+  prox = topics[['prox']][[topic_type]]
+  M = 1 - prox[colnames(A), colnames(A)]
+  M[is.na(M)] <- 0
 
-#       calculate_interdisciplinarity(P, prox)
-#     })
+  # calculate dissimilarity per author (i) coauthor (j) pair
+  for (i in rownames(A)) {
+    for (j in rownames(A)) {
+      diff = abs(A[i,] - A[j,]) / 2
+      D[i, j] = sum(diff %o% diff * M) * 2
+    }
+  }
 
-#     # bind rows (years) -> transpose to uid x year
-#     res <- bind_rows(year_vecs) |>
-#       as.matrix() |>
-#       t()
+  # normalize results
+  D <- D / max(D, na.rm = TRUE)
+  return(D)
+}
 
-#     colnames(res) <- paste0("int_", years)
+# calculate dissimilarties per year per topic type
+for (topic_type in topic_types){
+  for (year in years){
+    year_lab = as.character(year)
+    topics[['dissim']][[topic_type]][[year_lab]] = topics |>
+      calculate_dissimilarity(year, topic_type)
+  }
+}
 
-#     res
-#   }),
-#   topic_types
-# )
 ```
 
-Een maat hebben die de afstand berekend tussen auteurs o.b.v. de topics
-- aggregatie maten: proporties & afstandsmatrix -> wordt als een segregatiemaat
-  - elke rij een auteur en topic (topic-wide) (als proporties)
-- limit op 2021 
-- mensen zonder publicaties niet op nul, maar missing (0 is grootste afstand)
-- alle publicaties tot 2021.
+```{r}
+fsaveRDS(topics, 'topics', './data/clean/')
+```
 
