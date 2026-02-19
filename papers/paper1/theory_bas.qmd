@@ -70,12 +70,18 @@ afhankelijk van opportunity set per vakgroep.
 
 <!-- 
 AP:
-bas: schrijft voorzet homophily mechanismes op. en geeft seintje aan Jos en Roza als dit af is zodat zij er mee verder kunnnen
-roza: editen theorie. kijkt in hoeverre social capital i.e. second-order social capital hier in een rol kan spelen. (mogelijk als dyad kenmerk.)
+jochem:
+- analyse plan opstellen. 
+bas:
+- schrijft voorzet homophily mechanismes op. en geeft seintje aan Jos en Roza als dit af is zodat zij er mee verder kunnnen (voor twee weken)
+roza: 
+- editen theorie. kijkt in hoeverre social capital i.e. second-order social capital hier in een rol kan spelen. (mogelijk als dyad kenmerk.) (voor over twee weken)
+- bespreken presenteren van het paper.
 jos: 
 - editen theorie. beschrijvende statistieken.
 - opgesplits per groep (degree, productiviteit, rank, en andere..)
-- aanpassen methoden, 
+- aanpassen methoden
+- spreekt met margriet af om te presenteren in het seminar.
 -->
 
 -   GENDER: PhD-to-non-PhD coauthor tie formation dynamics
