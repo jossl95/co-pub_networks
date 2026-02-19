@@ -8,7 +8,7 @@
 
 THE RESEARCH CONTEXT
 
-The sites in which we study our questions are the disciplines of Sociology and Political Sciences across all 13 research universities in the Netherlands (if they have any such clearly delineated departments). These are ideal cases, because... In these disciplines and in the Netherlands, PhD students are often a cornerstone of a department's publishing activity, where dissertations are predominantly a collection of (almost) published papers, particularly so in the years we consider XXXX-XXXX. Sociologists and Political Scientists in the Netherlands -- PhDs and faculty alike -- overwhelmingly publish in English peer-reviewed journals. The fact that PhDs publish papers during their PhD has consequences for how we aught to approach collaborations in these departments. This is because PhDs often publish with their (co-)advisors as co-authors -- i.e., some of the "choices" for co-authors are restricted by the PhD project they are engaged in. Contrary to, for instance, the U.S., PhDs often do not shape their own PhD topic, but apply to projects that are already carved out, oftentimes with a clear idea for what the (approximately) four papers would look like. Therefore, we carefully nuance our conjectures on co-authorship tie formation to (some of these) dynamics.
+The sites in which we study our questions are the disciplines of Sociology and Political Sciences across all 8 research universities in the Netherlands (if they have any such clearly delineated departments). These are ideal cases, because... In these disciplines and in the Netherlands, PhD students are often a cornerstone of a department's publishing activity, where dissertations are predominantly a collection of (almost) published papers, particularly so in the years we consider XXXX-XXXX. Sociologists and Political Scientists in the Netherlands -- PhDs and faculty alike -- overwhelmingly publish in English peer-reviewed journals. The fact that PhDs publish papers during their PhD has consequences for how we aught to approach collaborations in these departments. This is because PhDs often publish with their (co-)advisors as co-authors -- i.e., some of the "choices" for co-authors are restricted by the PhD project they are engaged in. Contrary to, for instance, the U.S., PhDs often do not shape their own PhD topic, but apply to projects that are already carved out, oftentimes with a clear idea for what the (approximately) four papers would look like. Therefore, we carefully nuance our conjectures on co-authorship tie formation to (some of these) dynamics.
 
 EGO
 
@@ -28,6 +28,8 @@ H1_2: women faculty have less co-authorship ties than men faculty
 Or, put differently:
 H1_3: The negative effect of women on co-authorship ties is stronger for faculty than for PhDs
 
+<!-- H1_3 misschien wat minder logisch. -->
+
 For minoritized individuals we observe that the largest migration background groups in the Netherlands (Moroccan-Dutch, Turkish Dutch, Caribbean-Dutch, REF) are heavily underrepresented among PhD conferrals: all less than 1 percent, though covering about 10 percent of the Dutch population (REF). This suggests that these ethnic minorities are not selected into or do not complete PhD programs proportionately compared to the Dutch majority population. Additionally, these minoritized groups, as well as expats coming to the Netherlands to engage in a PhD program, have lower likelihoods to become faculty members, and when they do become faculty, they select out of academe earlier than Dutch majority members (mulders 24).
 
 Here, we follow a similar line of reasoning as for co-authorship tie dynamics among women researchers. We cannot determine whether the disproportionately low number of PhD conferrals among minoritized groups is driven by selective entry into PhD programs or by higher dropout during the PhD trajectory. In the latter case, differential access to co-authorship --and its associated benefits such as productivity, visibility, and integration into scholarly networks -- may play a role in shaping completion outcomes. In the former case, however, we would not expect systematic differences in co-authorship ties during the PhD, under the assumption that once enrolled, PhD candidates are similarly embedded in supervisory teams and face comparable opportunities for collaboration. Yet after the PhD, when collaboration increasingly depends on self-initiated networks and informal access to social capital, differences emerge. For instance, if non-Dutch and minoritized researchers face greater barriers to sustaining co-authorship relations as faculty, this may contribute to their earlier exit from academia compared to Dutch majority members.
@@ -42,8 +44,15 @@ H2_2: non-Dutch faculty have less co-authorship ties than Dutch faculty
 Or, put differently:
 H2_3: The negative effect of non-Dutch backgrounds on co-authorship ties is stronger for faculty than for PhDs
 
-DYADS
 
+
+DYADS
+<!-- 
+homophily argumenten:
+- mits genoeg data uitsplitsen naar PD, UD, UHD
+- is recognision anders per groep
+- interdisciplinariteit misschien anders gewaardeerd voor bepaalde groepen (miss via topic similarity)
+-->
 
 DYAD
 
@@ -52,6 +61,22 @@ EGO*DYAD
 
 
 MULTILEVEL??!!?
+
+<!-- 
+afhankelijk van opportunity set per vakgroep.
+- werkt tie-formatie anders per vakgroepen. kan ook per discipline
+
+-->
+
+<!-- 
+AP:
+bas: schrijft voorzet homophily mechanismes op. en geeft seintje aan Jos en Roza als dit af is zodat zij er mee verder kunnnen
+roza: editen theorie. kijkt in hoeverre social capital i.e. second-order social capital hier in een rol kan spelen. (mogelijk als dyad kenmerk.)
+jos: 
+- editen theorie. beschrijvende statistieken.
+- opgesplits per groep (degree, productiviteit, rank, en andere..)
+- aanpassen methoden, 
+-->
 
 -   GENDER: PhD-to-non-PhD coauthor tie formation dynamics
 -   consequences for inequality and homophily and second order effects?
