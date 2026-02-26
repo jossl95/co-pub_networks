@@ -86,7 +86,7 @@ categorize_ethnicity = function(data){
   data[['demographics']] = data[['demographics']] |>
     mutate(migrant = case_when(
       country_id == 'NL' ~ 'NL',
-      country_id %in% country_codes ~ 'B3', # Big 3 origins
+      # country_id %in% country_codes ~ 'B3', # Big 3 origins
       country_id %in% minority_codes ~ 'M4', # 4 Biggest Migrant groups NL
       is.na(country_id) ~ NA_character_,
       .default = "other"
@@ -403,7 +403,7 @@ set_time_matrix = function(){
     UVG = c(0,    NA,   NA,    NA,    NA,    NA,    NA,    NA),
     VU  = c(2.52, 0,    NA,    NA,    NA,    NA,    NA,    NA),
     UVA = c(2.58, 0.52, 0,     NA,    NA,    NA,    NA,    NA),
-    UL  = c(3.12, 0.91, 1.04,  0,     NA,    NA,    NA,    NA),
+    UL  = c(3.12, 0.91, 1.04,  0,     NA,    NA,    NA,    NA), 
     EUR = c(3.17, 1.32, 1.38,  1.18,  0,     NA,    NA,    NA),
     EVT = c(3.30, 1.70, 1.57,  1.67,  1.35,  0,     NA,    NA),
     UU  = c(2.47, 0.98, 0.88,  1.40,  1.33,  1.36,  0,     NA),
@@ -423,46 +423,98 @@ set_time_matrix = function(){
 ```
 
 ```{r}
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(tibble)
+library(purrr)
 
-get_affiliation = function(affiliations, i, y) {
-  affiliations |>
-    filter(uid == i,year == y) |>
-    pull(value)
+#' Create long affiliation table (uid-year-first affiliation)
+create_affiliations_long <- function(demographics,
+                                     affix = "first",
+                                     year_regex = "\\d{2}") {
+  demographics %>%
+    select(uid, ends_with(affix)) %>%
+    pivot_longer(
+      cols = ends_with(affix),
+      names_to = "name",
+      values_to = "value"
+    ) %>%
+    mutate(year = paste0("20", str_extract(name, regex(year_regex)))) %>%
+    select(uid, year, value)
 }
 
-y = '2022'
+#' Convert travel-time matrix T to long lookup table
+create_time_lookup <- function(T) {
+  as.data.frame(as.table(T)) %>%
+    as_tibble() %>%
+    rename(value_i = Var1, value_j = Var2, distance = Freq)
+}
 
-get_distances = function(data, y = '2022'){
-  affiliations = data[['demographics']] |>
-    select(uid, ends_with('first')) |>
-    pivot_longer(ends_with('first')) |>
-    mutate(year = paste0('20', name |> str_extract(regex('\\d{2}')))) |>
-    select(uid, year, value)
+#' Create dyad table per year with affiliation values and travel-time distance
+create_pairs_with_distance <- function(affiliations, T_long, drop_self = FALSE) {
+  aff_key <- affiliations %>% distinct(year, uid, value)
 
+  pairs <- aff_key %>%
+    group_by(year) %>%
+    summarise(pairs = list(crossing(uid_i = uid, uid_j = uid)), .groups = "drop") %>%
+    unnest(pairs)
 
-  uids = topics[['dissim']][['domain']][['2022']] |> colnames()
+  if (drop_self) {
+    pairs <- pairs %>% filter(uid_i != uid_j)
+  }
 
-  D = matrix(NA, 
-    nrow = length(uids), ncol = length(uids),
-    dimnames = list(uids, uids)
+  pairs %>%
+    left_join(aff_key, by = c("year", "uid_i" = "uid")) %>%
+    rename(value_i = value) %>%
+    left_join(aff_key, by = c("year", "uid_j" = "uid")) %>%
+    rename(value_j = value) %>%
+    drop_na(value_i, value_j) %>%
+    left_join(T_long, by = c("value_i", "value_j")) %>%
+    drop_na(distance)
+}
+
+#' Build a full (all_uids x all_uids) matrix for a single year from dyad table
+make_year_matrix <- function(df_year, all_uids) {
+  M <- matrix(
+    NA_real_,
+    nrow = length(all_uids),
+    ncol = length(all_uids),
+    dimnames = list(all_uids, all_uids)
   )
 
-  T = set_time_matrix()
+  ii <- match(df_year$uid_i, all_uids)
+  jj <- match(df_year$uid_j, all_uids)
+  keep <- !is.na(ii) & !is.na(jj)
 
-  for (i in uids){
-    for (j in uids){
-      i_uni = get_affiliation(affiliations, i, y)
-      j_uni = get_affiliation(affiliations, j, y)
-
-      if (!is.na(i_uni) & !is.na(j_uni)) {
-        D[i, j] = T[i_uni, j_uni]
-      }
-    }
-  }
-  return(D)
+  M[cbind(ii[keep], jj[keep])] <- df_year$distance[keep]
+  M
 }
 
-D = get_distances(data)
+#' Create list of distance matrices per year (same dimnames for all years)
+create_distance_matrices <- function(pairs_by_year, all_uids) {
+  pairs_by_year %>%
+    select(year, uid_i, uid_j, distance) %>%
+    group_by(year) %>%
+    group_split() %>%
+    set_names(map_chr(., ~ unique(.x$year))) %>%
+    map(~ make_year_matrix(.x, all_uids))
+}
+
+# affiliations
+affiliations <- create_affiliations_long(data[["demographics"]])
+
+# time lookup
+T_long <- create_time_lookup(T)
+
+# dyads + distance
+pairs_by_year <- create_pairs_with_distance(affiliations, T_long)
+
+# global uid set / ordering
+all_uids <- colnames(topics[["dissim"]][["field"]][["2022"]])
+
+# matrices per year
+distances <- create_distance_matrices(pairs_by_year, all_uids)
 ```
 
 
