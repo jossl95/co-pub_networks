@@ -35,10 +35,6 @@ website:
             text: Process Topics
           - href: src/code/09.operationalizations.qmd
             text: Operationalizations
-      # - text: Analyses
-      #   menu:
-      #     - href: src/code/09.descriptive_analysis.qmd
-      #       text: Descriptive Analyses
     right:
       - icon: github
         href: https://github.com/jossl95/co-pub_networks
