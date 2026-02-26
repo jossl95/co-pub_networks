@@ -23,12 +23,14 @@ H1: women and men have an equal number of co-authorship ties.
 
 Yet this null-effect is driven by the large number of PhDs that drive much of the publishing in our departments. Hence, if we break this  down by PhDs and faculty:
 H1_1: Women and men PhDs have an equal number of co-authorship ties.
-H1_2: women faculty have less co-authorship ties than men faculty
+H1_2: Women faculty have less co-authorship ties than men faculty
 
 Or, put differently:
 H1_3: The negative effect of women on co-authorship ties is stronger for faculty than for PhDs
 
 <!-- H1_3 misschien wat minder logisch. -->
+<!-- de volgende stap is om hier ook nog een netwerk stap in te krijgen: lees homophily -->
+<!-- note for self: toetsen op output niveau ego-effecten -->
 
 For minoritized individuals we observe that the largest migration background groups in the Netherlands (Moroccan-Dutch, Turkish Dutch, Caribbean-Dutch, REF) are heavily underrepresented among PhD conferrals: all less than 1 percent, though covering about 10 percent of the Dutch population (REF). This suggests that these ethnic minorities are not selected into or do not complete PhD programs proportionately compared to the Dutch majority population. Additionally, these minoritized groups, as well as expats coming to the Netherlands to engage in a PhD program, have lower likelihoods to become faculty members, and when they do become faculty, they select out of academe earlier than Dutch majority members (mulders 24).
 
@@ -52,7 +54,15 @@ homophily argumenten:
 - mits genoeg data uitsplitsen naar PD, UD, UHD
 - is recognision anders per groep
 - interdisciplinariteit misschien anders gewaardeerd voor bepaalde groepen (miss via topic similarity)
+
+waarom is er homophily:
+- we are a discriminating bunch
+- bijproduct hypothese *similarity* obv. carriere leeftijd, en topic?
+- homophily is niet prese straight forward. vermoed: papers van phds eruit halen of uitsplitsen of interacties. (dyade waar er geen phd betrokken is)
+- interessant idee: triadic closure. (wie wordt er nu vaker bijgevraagd, bij het begeleiden van phds.)
 -->
+
+<!-- mogelijk interessant om gender verdeling per afdeling mee te nemen als covariaat -->
 
 DYAD
 
@@ -65,7 +75,6 @@ MULTILEVEL??!!?
 <!-- 
 afhankelijk van opportunity set per vakgroep.
 - werkt tie-formatie anders per vakgroepen. kan ook per discipline
-
 -->
 
 <!-- 
@@ -78,10 +87,18 @@ roza:
 - editen theorie. kijkt in hoeverre social capital i.e. second-order social capital hier in een rol kan spelen. (mogelijk als dyad kenmerk.) (voor over twee weken)
 - bespreken presenteren van het paper.
 jos: 
-- editen theorie. beschrijvende statistieken.
-- opgesplits per groep (degree, productiviteit, rank, en andere..)
-- aanpassen methoden
-- spreekt met margriet af om te presenteren in het seminar.
+- editen theorie. beschrijvende statistieken. (2wk)
+    - opgesplits per groep (degree, productiviteit, rank, en andere..)
+    - gender segregatie en rank segregation. Volg twitter paper. 
+    - gender per afdeling/discipline/wave (ook herkomst)
+    - obligaat netwerk plaatje. 
+- rsiena (begin)
+- aanpassen methoden DONE
+    - aantal citaties
+    - i10.
+    - aantal publicaties
+    - face validity AMM. 
+- spreekt met margriet af om te presenteren in het seminar. (nog mailen)
 -->
 
 -   GENDER: PhD-to-non-PhD coauthor tie formation dynamics

@@ -11,8 +11,8 @@
 **/.gitignore
 
 # exclude old datafiles
-raw_data/old_*.Rds
-processed/old_*.Rds
-processed/old_*.Rda
-combined/old_*.Rds
+raw_data/old_*
+processed/old_*
+processed/old_*
+combined/old_*
 /.luarc.json
