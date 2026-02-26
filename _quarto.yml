@@ -31,12 +31,14 @@ website:
             text: Combine OpenAlex data
           - href: src/code/07.clean_data.qmd
             text: Data Cleaning
-          - href: src/code/08.process_affiliations.qmd
-            text: Process Affiliations
-      - text: Analyses
-        menu:
-          - href: src/code/09.descriptive_analysis.qmd
-            text: Descriptive Analyses
+          - href: src/code/08.process_topics.qmd
+            text: Process Topics
+          - href: src/code/09.operationalizations.qmd
+            text: Operationalizations
+      # - text: Analyses
+      #   menu:
+      #     - href: src/code/09.descriptive_analysis.qmd
+      #       text: Descriptive Analyses
     right:
       - icon: github
         href: https://github.com/jossl95/co-pub_networks

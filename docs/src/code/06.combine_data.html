@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-02-06">
+<meta name="dcterms.date" content="2026-02-26">
 
 <title>Combine Scrape Data – Networks</title>
 <style>
@@ -343,19 +343,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">Data Cleaning</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../src/code/08.process_affiliations.html">
- <span class="dropdown-text">Process Affiliations</span></a>
+    <a class="dropdown-item" href="../../src/code/08.process_topics.html">
+ <span class="dropdown-text">Process Topics</span></a>
   </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-analyses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Analyses</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-analyses">    
         <li>
-    <a class="dropdown-item" href="../../src/code/09.descriptive_analysis.html">
- <span class="dropdown-text">Descriptive Analyses</span></a>
+    <a class="dropdown-item" href="../../src/code/09.operationalizations.html">
+ <span class="dropdown-text">Operationalizations</span></a>
   </li>  
     </ul>
   </li>
@@ -386,9 +379,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
   <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a>
   <ul class="collapse">
-  <li><a href="#combine_demographics" id="toc-combine_demographics" class="nav-link" data-scroll-target="#combine_demographics"><code>combine_demographics()</code></a></li>
+  <li><a href="#reshape_demographics" id="toc-reshape_demographics" class="nav-link" data-scroll-target="#reshape_demographics"><code>reshape_demographics()</code></a></li>
   <li><a href="#parse_works" id="toc-parse_works" class="nav-link" data-scroll-target="#parse_works"><code>parse_works()</code></a></li>
-  <li><a href="#add_uid_to_authorships" id="toc-add_uid_to_authorships" class="nav-link" data-scroll-target="#add_uid_to_authorships"><code>add_uid_to_authorships()</code></a></li>
+  <li><a href="#add_coauthor_uids" id="toc-add_coauthor_uids" class="nav-link" data-scroll-target="#add_coauthor_uids"><code>add_coauthor_uids()</code></a></li>
   <li><a href="#parse_scholars" id="toc-parse_scholars" class="nav-link" data-scroll-target="#parse_scholars"><code>parse_scholars()</code></a></li>
   </ul></li>
   <li><a href="#application" id="toc-application" class="nav-link" data-scroll-target="#application">Application</a></li>
@@ -412,7 +405,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 6, 2026</p>
+      <p class="date">February 26, 2026</p>
     </div>
   </div>
   
@@ -443,197 +436,211 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="functions" class="level2">
 <h2 class="anchored" data-anchor-id="functions">Functions</h2>
-<section id="combine_demographics" class="level3">
-<h3 class="anchored" data-anchor-id="combine_demographics"><code>combine_demographics()</code></h3>
-<p>Combine scholar, name, gender, and ethnicity data into a wide demographics table.</p>
-<section id="arguments" class="level4">
-<h4 class="anchored" data-anchor-id="arguments">Arguments</h4>
-<p><strong><code>data</code></strong></p>
-<blockquote class="blockquote">
-<p>Named list containing at least the elements <code>scholars</code>, <code>names</code>, <code>gender</code>, and <code>ethnicity</code>, each as a tibble with the expected columns.</p>
-</blockquote>
-</section>
-<section id="method" class="level4">
-<h4 class="anchored" data-anchor-id="method">Method</h4>
-<p>The function first reshapes the <code>scholars</code> component to a wide format across measurement years. It derives a two-digit year from <code>date</code>, arranges records by <code>naam</code> and <code>date</code>, drops <code>university</code>, <code>date</code>, and <code>google_scholar_id</code>, and then uses <code>pivot_wider()</code> to spread email, university, function, and discipline over year-specific columns (e.g., <code>email_adres_22</code>, <code>universiteit_24</code>). Within each year, it aggregates multiple values per person: email addresses are concatenated uniquely with <code>"; "</code>, while university, function, and discipline take the first non-missing value. The output is trimmed to keep only columns ending in <code>22</code>, <code>24</code>, and <code>25</code>. This wide scholar table is then left-joined onto the <code>names</code> table, followed by <code>gender</code> and a reduced <code>ethnicity</code> table (renaming <code>probability</code> to <code>ethnicity_prob</code>). The result is a single <code>demographics</code> tibble containing <code>uid</code>, parsed names, gender, ethnicity (with probability), and year-specific scholar information.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>combine_demographics <span class="ot">=</span> <span class="cf">function</span>(data){</span>
-<span id="cb3-2"><a href="#cb3-2"></a>  scholars_wide <span class="ot">=</span>  data[[<span class="st">'scholars'</span>]] <span class="sc">|&gt;</span></span>
-<span id="cb3-3"><a href="#cb3-3"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb3-4"><a href="#cb3-4"></a>      <span class="at">year =</span> <span class="fu">as.integer</span>(<span class="fu">year</span>(date) <span class="sc">-</span> <span class="dv">2000</span>)</span>
-<span id="cb3-5"><a href="#cb3-5"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a>    <span class="fu">arrange</span>(naam, date) <span class="sc">|&gt;</span></span>
-<span id="cb3-7"><a href="#cb3-7"></a>    <span class="fu">select</span>(<span class="sc">-</span>university, <span class="sc">-</span>date, <span class="sc">-</span>google_scholar_id) <span class="sc">|&gt;</span></span>
-<span id="cb3-8"><a href="#cb3-8"></a>    <span class="fu">pivot_wider</span>(</span>
-<span id="cb3-9"><a href="#cb3-9"></a>      <span class="at">names_from  =</span> year,</span>
-<span id="cb3-10"><a href="#cb3-10"></a>      <span class="at">values_from =</span> <span class="fu">c</span>(email_adres, universiteit, functie, discipline),</span>
-<span id="cb3-11"><a href="#cb3-11"></a>      <span class="at">names_glue  =</span> <span class="st">"{.value}_{year}"</span>,</span>
-<span id="cb3-12"><a href="#cb3-12"></a>      <span class="at">values_fill =</span> <span class="cn">NA</span>,</span>
-<span id="cb3-13"><a href="#cb3-13"></a>      <span class="at">values_fn   =</span> <span class="fu">list</span>(</span>
-<span id="cb3-14"><a href="#cb3-14"></a>        <span class="at">email_adres =</span> <span class="sc">~</span> <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.na</span>(.x))) <span class="cn">NA_character_</span> <span class="cf">else</span> <span class="fu">str_c</span>(<span class="fu">unique</span>(<span class="fu">na.omit</span>(.x)), <span class="at">collapse =</span> <span class="st">"; "</span>),</span>
-<span id="cb3-15"><a href="#cb3-15"></a>        <span class="at">universiteit  =</span> <span class="sc">~</span> <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.na</span>(.x))) <span class="cn">NA_character_</span> <span class="cf">else</span> <span class="fu">first</span>(<span class="fu">na.omit</span>(.x)),</span>
-<span id="cb3-16"><a href="#cb3-16"></a>        <span class="at">functie     =</span> <span class="sc">~</span> <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.na</span>(.x))) <span class="cn">NA_character_</span> <span class="cf">else</span> <span class="fu">first</span>(<span class="fu">na.omit</span>(.x)),</span>
-<span id="cb3-17"><a href="#cb3-17"></a>        <span class="at">discipline  =</span> <span class="sc">~</span> <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.na</span>(.x))) <span class="cn">NA_character_</span> <span class="cf">else</span> <span class="fu">first</span>(<span class="fu">na.omit</span>(.x))</span>
-<span id="cb3-18"><a href="#cb3-18"></a>      )</span>
-<span id="cb3-19"><a href="#cb3-19"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb3-20"><a href="#cb3-20"></a>    <span class="fu">select</span>(</span>
-<span id="cb3-21"><a href="#cb3-21"></a>      naam, <span class="fu">ends_with</span>(<span class="st">'22'</span>), <span class="fu">ends_with</span>(<span class="st">'24'</span>), <span class="fu">ends_with</span>(<span class="st">'25'</span>)</span>
-<span id="cb3-22"><a href="#cb3-22"></a>    )</span>
-<span id="cb3-23"><a href="#cb3-23"></a></span>
-<span id="cb3-24"><a href="#cb3-24"></a>  <span class="co"># combine all demographics</span></span>
-<span id="cb3-25"><a href="#cb3-25"></a>  demographics <span class="ot">=</span> data[[<span class="st">'names'</span>]] <span class="sc">|&gt;</span></span>
-<span id="cb3-26"><a href="#cb3-26"></a>    <span class="fu">left_join</span>(data[[<span class="st">'gender'</span>]]) <span class="sc">|&gt;</span></span>
-<span id="cb3-27"><a href="#cb3-27"></a>    <span class="fu">left_join</span>(data[[<span class="st">'ethnicity'</span>]] <span class="sc">|&gt;</span> <span class="fu">select</span>(uid, ethnicity, probability)) <span class="sc">|&gt;</span></span>
-<span id="cb3-28"><a href="#cb3-28"></a>    <span class="fu">rename</span>(<span class="at">ethnicity_prob =</span> probability) <span class="sc">|&gt;</span></span>
-<span id="cb3-29"><a href="#cb3-29"></a>    <span class="fu">left_join</span>(scholars_wide) </span>
-<span id="cb3-30"><a href="#cb3-30"></a></span>
-<span id="cb3-31"><a href="#cb3-31"></a>  <span class="fu">return</span>(demographics)</span>
-<span id="cb3-32"><a href="#cb3-32"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="reshape_demographics" class="level3">
+<h3 class="anchored" data-anchor-id="reshape_demographics"><code>reshape_demographics()</code></h3>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-</section>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>TODO: add description and information</p>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>reshape_demographics <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  data[[<span class="st">'demographics'</span>]] <span class="ot">=</span> data[[<span class="st">'demographics'</span>]] <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb3-4"><a href="#cb3-4"></a>      <span class="at">year =</span> <span class="fu">as.integer</span>(<span class="fu">year</span>(date) <span class="sc">-</span> <span class="dv">2000</span>),</span>
+<span id="cb3-5"><a href="#cb3-5"></a>      <span class="at">functie =</span> <span class="fu">case_when</span>(</span>
+<span id="cb3-6"><a href="#cb3-6"></a>        <span class="fu">str_detect</span>(functie, <span class="st">'Lecturer'</span>) <span class="sc">~</span> <span class="st">'Researcher or Lecturer'</span>,</span>
+<span id="cb3-7"><a href="#cb3-7"></a>        <span class="fu">str_detect</span>(functie, <span class="st">'Researcher'</span>) <span class="sc">~</span> <span class="st">'Researcher or Lecturer'</span>,</span>
+<span id="cb3-8"><a href="#cb3-8"></a>        <span class="at">.default =</span> functie</span>
+<span id="cb3-9"><a href="#cb3-9"></a>      ),</span>
+<span id="cb3-10"><a href="#cb3-10"></a>      <span class="at">discipline =</span> <span class="fu">case_when</span>(</span>
+<span id="cb3-11"><a href="#cb3-11"></a>        <span class="fu">str_detect</span>(discipline, <span class="st">'Sociologie'</span>) <span class="sc">~</span> <span class="st">"Sociology"</span>,</span>
+<span id="cb3-12"><a href="#cb3-12"></a>        <span class="fu">str_detect</span>(discipline, <span class="st">'Politicologie'</span>) <span class="sc">~</span> <span class="st">'Political Sciences'</span>,</span>
+<span id="cb3-13"><a href="#cb3-13"></a>        <span class="at">.default =</span> <span class="cn">NA_character_</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a>      )</span>
+<span id="cb3-15"><a href="#cb3-15"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a>    <span class="fu">arrange</span>(clean_name, year) <span class="sc">|&gt;</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a>    <span class="fu">select</span>(</span>
+<span id="cb3-18"><a href="#cb3-18"></a>      <span class="sc">-</span>university, <span class="sc">-</span>google_scholar_id, <span class="sc">-</span>date,</span>
+<span id="cb3-19"><a href="#cb3-19"></a>      <span class="sc">-</span>naam, <span class="sc">-</span>clean_name_full, <span class="sc">-</span>email_adres</span>
+<span id="cb3-20"><a href="#cb3-20"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb3-21"><a href="#cb3-21"></a>    <span class="fu">pivot_wider</span>(</span>
+<span id="cb3-22"><a href="#cb3-22"></a>      <span class="at">names_from =</span> year, </span>
+<span id="cb3-23"><a href="#cb3-23"></a>      <span class="at">values_from =</span> <span class="fu">c</span>(universiteit, functie, functie2, discipline),</span>
+<span id="cb3-24"><a href="#cb3-24"></a>      <span class="at">names_glue  =</span> <span class="st">"{.value}_{year}"</span>,</span>
+<span id="cb3-25"><a href="#cb3-25"></a>      <span class="at">values_fill =</span> <span class="cn">NA</span>,</span>
+<span id="cb3-26"><a href="#cb3-26"></a>      <span class="at">values_fn   =</span> <span class="fu">list</span>(</span>
+<span id="cb3-27"><a href="#cb3-27"></a>        <span class="at">universiteit =</span> <span class="sc">~</span> <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.na</span>(.x))) <span class="cn">NA_character_</span> <span class="cf">else</span> <span class="fu">first</span>(<span class="fu">na.omit</span>(.x)),</span>
+<span id="cb3-28"><a href="#cb3-28"></a>        <span class="at">functie      =</span> <span class="sc">~</span> <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.na</span>(.x))) <span class="cn">NA_character_</span> <span class="cf">else</span> <span class="fu">first</span>(<span class="fu">na.omit</span>(.x)),</span>
+<span id="cb3-29"><a href="#cb3-29"></a>        <span class="at">functie2     =</span> <span class="sc">~</span> <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.na</span>(.x))) <span class="cn">NA_character_</span> <span class="cf">else</span> <span class="fu">first</span>(<span class="fu">na.omit</span>(.x)),</span>
+<span id="cb3-30"><a href="#cb3-30"></a>        <span class="at">discipline   =</span> <span class="sc">~</span> <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.na</span>(.x))) <span class="cn">NA_character_</span> <span class="cf">else</span> <span class="fu">first</span>(<span class="fu">na.omit</span>(.x))</span>
+<span id="cb3-31"><a href="#cb3-31"></a>      )</span>
+<span id="cb3-32"><a href="#cb3-32"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb3-33"><a href="#cb3-33"></a>    <span class="fu">distinct</span>(uid, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-34"><a href="#cb3-34"></a></span>
+<span id="cb3-35"><a href="#cb3-35"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb3-36"><a href="#cb3-36"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
 <section id="parse_works" class="level3">
 <h3 class="anchored" data-anchor-id="parse_works"><code>parse_works()</code></h3>
 <p>Extract and clean per-UID works tables from the raw works list.</p>
-<section id="arguments-1" class="level4">
-<h4 class="anchored" data-anchor-id="arguments-1">Arguments</h4>
-<p><strong><code>data</code></strong></p>
-<blockquote class="blockquote">
-<p>Named list containing at least a <code>works</code> element: a list of tibbles indexed by <code>uid</code>, each potentially containing a <code>work_id</code> column.</p>
-</blockquote>
-<p><strong><code>demographics</code></strong></p>
-<blockquote class="blockquote">
-<p>Tibble with at least a <code>uid</code> column, used to determine which scholars to process.</p>
-</blockquote>
-</section>
-<section id="method-1" class="level4">
-<h4 class="anchored" data-anchor-id="method-1">Method</h4>
-<p>The function first extracts the unique set of <code>uid</code> values from <code>demographics</code>, omitting missing entries. It then initializes an empty list <code>works</code> and loops over each <code>uid</code>. For each <code>id</code>, it pulls the corresponding element from <code>data$works</code>. If this element is a tibble and includes a <code>work_id</code> column, it de-duplicates rows by <code>work_id</code> using <code>distinct(work_id, .keep_all = TRUE)</code>. The cleaned work table (or the original object if not a tibble or lacking <code>work_id</code>) is stored under <code>works[[id]]</code>. The function returns this list of per-UID works tibbles, providing a consistent structure for downstream enrichment (e.g., adding authorship UIDs or citations).</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>TODO: update description</p>
+</div>
+</div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>parse_works <span class="ot">=</span> <span class="cf">function</span>(data, demographics){</span>
-<span id="cb4-2"><a href="#cb4-2"></a>  uids <span class="ot">=</span> demographics <span class="sc">|&gt;</span> <span class="fu">distinct</span>(uid) <span class="sc">|&gt;</span> <span class="fu">pull</span>() <span class="sc">|&gt;</span> <span class="fu">na.omit</span>()</span>
-<span id="cb4-3"><a href="#cb4-3"></a>  works <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb4-4"><a href="#cb4-4"></a>  <span class="cf">for</span> (id <span class="cf">in</span> uids){</span>
-<span id="cb4-5"><a href="#cb4-5"></a>    work <span class="ot">=</span> data<span class="sc">$</span>works[[id]] </span>
-<span id="cb4-6"><a href="#cb4-6"></a>    </span>
-<span id="cb4-7"><a href="#cb4-7"></a>    <span class="cf">if</span> (<span class="fu">is_tibble</span>(work) <span class="sc">&amp;</span> (<span class="st">"work_id"</span> <span class="sc">%in%</span> <span class="fu">colnames</span>(work))) {</span>
-<span id="cb4-8"><a href="#cb4-8"></a>      work <span class="ot">=</span> work <span class="sc">|&gt;</span> <span class="fu">distinct</span>(work_id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-9"><a href="#cb4-9"></a>    }</span>
-<span id="cb4-10"><a href="#cb4-10"></a></span>
-<span id="cb4-11"><a href="#cb4-11"></a>    works[[id]] <span class="ot">=</span> work</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>parse_works <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  uids <span class="ot">=</span> data[[<span class="st">'demographics'</span>]] <span class="sc">|&gt;</span> <span class="fu">pull</span>(uid) <span class="sc">|&gt;</span> <span class="fu">unique</span>()</span>
+<span id="cb4-3"><a href="#cb4-3"></a>  works <span class="ot">=</span> data[[<span class="st">'works'</span>]]</span>
+<span id="cb4-4"><a href="#cb4-4"></a></span>
+<span id="cb4-5"><a href="#cb4-5"></a>  <span class="co"># 1. Deduplicate valid results</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>  works <span class="ot">&lt;-</span> works <span class="sc">|&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>    <span class="fu">imap</span>(<span class="sc">~</span> <span class="cf">if</span> (<span class="fu">inherits</span>(.x, <span class="st">"data.frame"</span>)) <span class="fu">distinct</span>(.x) <span class="cf">else</span> .x)</span>
+<span id="cb4-8"><a href="#cb4-8"></a></span>
+<span id="cb4-9"><a href="#cb4-9"></a>  <span class="co"># 2. Define a placeholder row for missing uids</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a>  placeholder <span class="ot">&lt;-</span> <span class="cf">function</span>(uid) {</span>
+<span id="cb4-11"><a href="#cb4-11"></a>    <span class="fu">tibble</span>(<span class="at">uid =</span> uid, <span class="at">has_works =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb4-12"><a href="#cb4-12"></a>  }</span>
-<span id="cb4-13"><a href="#cb4-13"></a>  <span class="fu">return</span>(works)</span>
-<span id="cb4-14"><a href="#cb4-14"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-13"><a href="#cb4-13"></a></span>
+<span id="cb4-14"><a href="#cb4-14"></a>  <span class="co"># 3. Expand to full uid set, ensuring EVERY element is a tibble</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a>  data[[<span class="st">'works'</span>]] <span class="ot">&lt;-</span> <span class="fu">setNames</span>(</span>
+<span id="cb4-16"><a href="#cb4-16"></a>    <span class="fu">map</span>(uids, <span class="cf">function</span>(uid) {</span>
+<span id="cb4-17"><a href="#cb4-17"></a>      <span class="cf">if</span> (uid <span class="sc">%in%</span> <span class="fu">names</span>(works) <span class="sc">&amp;&amp;</span> <span class="fu">inherits</span>(works[[uid]], <span class="st">"data.frame"</span>)) {</span>
+<span id="cb4-18"><a href="#cb4-18"></a>        works[[uid]] <span class="sc">|&gt;</span></span>
+<span id="cb4-19"><a href="#cb4-19"></a>          <span class="fu">mutate</span>(<span class="at">uid =</span> uid, <span class="at">.before =</span> <span class="dv">1</span>, <span class="at">has_works =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a>          <span class="fu">distinct</span>(work_id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-21"><a href="#cb4-21"></a>      } <span class="cf">else</span> {</span>
+<span id="cb4-22"><a href="#cb4-22"></a>        <span class="fu">placeholder</span>(uid)</span>
+<span id="cb4-23"><a href="#cb4-23"></a>      }</span>
+<span id="cb4-24"><a href="#cb4-24"></a>    }),</span>
+<span id="cb4-25"><a href="#cb4-25"></a>    uids</span>
+<span id="cb4-26"><a href="#cb4-26"></a>  )</span>
+<span id="cb4-27"><a href="#cb4-27"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb4-28"><a href="#cb4-28"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-</section>
-<section id="add_uid_to_authorships" class="level3">
-<h3 class="anchored" data-anchor-id="add_uid_to_authorships"><code>add_uid_to_authorships()</code></h3>
+<section id="add_coauthor_uids" class="level3">
+<h3 class="anchored" data-anchor-id="add_coauthor_uids"><code>add_coauthor_uids()</code></h3>
 <p>Attach scholar UIDs to nested OpenAlex authorship records within works.</p>
-<section id="arguments-2" class="level4">
-<h4 class="anchored" data-anchor-id="arguments-2">Arguments</h4>
-<p><strong><code>works</code></strong></p>
-<blockquote class="blockquote">
-<p>Named list of tibbles, each containing a <code>uid</code> column, an <code>author_id</code> column, and an <code>authorships</code> list column with OpenAlex authorship data (including an <code>id</code> field).</p>
-</blockquote>
-</section>
-<section id="method-2" class="level4">
-<h4 class="anchored" data-anchor-id="method-2">Method</h4>
-<p>The function begins by constructing a lookup table from all works: it binds all list elements with <code>bind_rows()</code>, then keeps distinct <code>(uid, author_id)</code> combinations, dropping rows with missing values. This lookup encodes which scholar UID corresponds to which OpenAlex author ID. It then iterates over each element of <code>works</code>. For each non-empty tibble, it transforms the <code>authorships</code> list-column in two steps: (1) within each row, it strips the OpenAlex URL prefix from the nested <code>id</code> field; (2) it right-joins the lookup onto each nested authorship table via <code>author_id == id</code>, thereby adding the correct <code>uid</code> to nested authorship rows. The updated nested tibbles are written back to the <code>authorships</code> column. The function returns the same <code>works</code> list structure, but with authorship entries enriched by scholar UIDs, enabling later mapping between OpenAlex authors and the local scholar universe.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>add_uid_to_authorships <span class="ot">=</span> <span class="cf">function</span>(works) {</span>
-<span id="cb5-2"><a href="#cb5-2"></a>  <span class="co"># create a lookup table</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a>  lookup <span class="ot">=</span> works <span class="sc">|&gt;</span> </span>
-<span id="cb5-4"><a href="#cb5-4"></a>    <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">distinct</span>(uid, author_id) <span class="sc">|&gt;</span> <span class="fu">drop_na</span>()</span>
-<span id="cb5-5"><a href="#cb5-5"></a></span>
-<span id="cb5-6"><a href="#cb5-6"></a>  <span class="co"># add uid</span></span>
-<span id="cb5-7"><a href="#cb5-7"></a>  <span class="cf">for</span> (id_ <span class="cf">in</span> <span class="fu">names</span>(works)){</span>
-<span id="cb5-8"><a href="#cb5-8"></a>    tab <span class="ot">=</span> works[[id_]]</span>
-<span id="cb5-9"><a href="#cb5-9"></a>    <span class="cf">if</span> (<span class="fu">any</span>(<span class="fu">nrow</span>(tab) <span class="sc">==</span> <span class="dv">0</span>, <span class="sc">!</span><span class="fu">is_tibble</span>(tab))) <span class="cf">next</span></span>
-<span id="cb5-10"><a href="#cb5-10"></a></span>
-<span id="cb5-11"><a href="#cb5-11"></a>    works[[id_]] <span class="ot">=</span> tab <span class="sc">|&gt;</span></span>
-<span id="cb5-12"><a href="#cb5-12"></a>      <span class="fu">mutate</span>(</span>
-<span id="cb5-13"><a href="#cb5-13"></a>        <span class="at">authorships =</span> <span class="fu">map</span>(</span>
-<span id="cb5-14"><a href="#cb5-14"></a>          authorships,</span>
-<span id="cb5-15"><a href="#cb5-15"></a>          <span class="sc">~</span> .x <span class="sc">|&gt;</span> <span class="fu">mutate</span>(</span>
-<span id="cb5-16"><a href="#cb5-16"></a>              <span class="at">id =</span> <span class="fu">str_remove</span>(id, <span class="st">"^https://openalex.org/"</span>)</span>
-<span id="cb5-17"><a href="#cb5-17"></a>            )</span>
-<span id="cb5-18"><a href="#cb5-18"></a>        ),</span>
-<span id="cb5-19"><a href="#cb5-19"></a>        <span class="at">authorships =</span> <span class="fu">map</span>(</span>
-<span id="cb5-20"><a href="#cb5-20"></a>          authorships,</span>
-<span id="cb5-21"><a href="#cb5-21"></a>          <span class="sc">~</span> lookup <span class="sc">|&gt;</span> </span>
-<span id="cb5-22"><a href="#cb5-22"></a>            <span class="fu">right_join</span>(.x, <span class="at">by =</span> <span class="fu">join_by</span>(author_id <span class="sc">==</span> id))  </span>
-<span id="cb5-23"><a href="#cb5-23"></a>        )</span>
-<span id="cb5-24"><a href="#cb5-24"></a>      )</span>
-<span id="cb5-25"><a href="#cb5-25"></a>  }</span>
-<span id="cb5-26"><a href="#cb5-26"></a>  <span class="fu">return</span>(works)</span>
-<span id="cb5-27"><a href="#cb5-27"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-</section>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>TODO: add description</p>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>add_coauthor_uids <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  lookup <span class="ot">=</span> data[[<span class="st">'scholars_oa'</span>]] <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="fu">distinct</span>(uid, author_id) <span class="sc">|&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="fu">drop_na</span>()</span>
+<span id="cb5-6"><a href="#cb5-6"></a></span>
+<span id="cb5-7"><a href="#cb5-7"></a>  <span class="cf">for</span> (id_ <span class="cf">in</span> <span class="fu">names</span>(data[[<span class="st">'works'</span>]])){</span>
+<span id="cb5-8"><a href="#cb5-8"></a>    data[[<span class="st">'works'</span>]][[id_]] <span class="ot">=</span> data[[<span class="st">'works'</span>]][[id_]] <span class="sc">|&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb5-10"><a href="#cb5-10"></a>        <span class="at">authorships =</span> <span class="fu">map</span>(</span>
+<span id="cb5-11"><a href="#cb5-11"></a>          authorships,</span>
+<span id="cb5-12"><a href="#cb5-12"></a>          <span class="sc">~</span> lookup <span class="sc">|&gt;</span> </span>
+<span id="cb5-13"><a href="#cb5-13"></a>            <span class="fu">right_join</span>(.x, <span class="at">by =</span> <span class="fu">join_by</span>(author_id <span class="sc">==</span> id))  </span>
+<span id="cb5-14"><a href="#cb5-14"></a>        )</span>
+<span id="cb5-15"><a href="#cb5-15"></a>      )</span>
+<span id="cb5-16"><a href="#cb5-16"></a>  }</span>
+<span id="cb5-17"><a href="#cb5-17"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb5-18"><a href="#cb5-18"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
 <section id="parse_scholars" class="level3">
 <h3 class="anchored" data-anchor-id="parse_scholars"><code>parse_scholars()</code></h3>
 <p>Split a combined OpenAlex author table into a per-UID list.</p>
-<section id="arguments-3" class="level4">
-<h4 class="anchored" data-anchor-id="arguments-3">Arguments</h4>
-<p><strong><code>data</code></strong></p>
-<blockquote class="blockquote">
-<p>Named list containing at least an <code>id</code> element: a tibble with OpenAlex author metadata and a <code>uid</code> column.</p>
-</blockquote>
-<p><strong><code>demographics</code></strong></p>
-<blockquote class="blockquote">
-<p>Tibble with at least a <code>uid</code> column indicating which scholars to include.</p>
-</blockquote>
-</section>
-<section id="method-3" class="level4">
-<h4 class="anchored" data-anchor-id="method-3">Method</h4>
-<p>The function first extracts the unique, non-missing <code>uid</code> values from <code>demographics</code>. It then binds all rows in <code>data[['id']]</code> into a single tibble <code>scholartab</code> (useful if <code>id</code> was previously stored as a list of chunks). Next, it iterates over each <code>uid</code> and filters <code>scholartab</code> to the rows matching that <code>uid</code>, storing the resulting tibble in a list element named by the <code>uid</code>. The returned <code>authors</code> list thus contains one tibble per scholar, holding their OpenAlex author-level metadata (e.g., display name, OpenAlex author ID, relevance scores), aligned with the local UID system.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>parse_scholars <span class="ot">=</span> <span class="cf">function</span>(data, demographics){</span>
-<span id="cb6-2"><a href="#cb6-2"></a>  uids <span class="ot">=</span> demographics <span class="sc">|&gt;</span> <span class="fu">distinct</span>(uid) <span class="sc">|&gt;</span> <span class="fu">pull</span>() <span class="sc">|&gt;</span> <span class="fu">na.omit</span>()</span>
-<span id="cb6-3"><a href="#cb6-3"></a>  scholartab <span class="ot">=</span> data[[<span class="st">'id'</span>]] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() </span>
-<span id="cb6-4"><a href="#cb6-4"></a></span>
-<span id="cb6-5"><a href="#cb6-5"></a>  authors<span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb6-6"><a href="#cb6-6"></a>  <span class="cf">for</span> (id_ <span class="cf">in</span> uids){</span>
-<span id="cb6-7"><a href="#cb6-7"></a>    authors[[id_]] <span class="ot">=</span> scholartab <span class="sc">|&gt;</span> <span class="fu">filter</span>(uid <span class="sc">==</span> id_)</span>
-<span id="cb6-8"><a href="#cb6-8"></a>  }</span>
-<span id="cb6-9"><a href="#cb6-9"></a></span>
-<span id="cb6-10"><a href="#cb6-10"></a>  <span class="fu">return</span>(authors)</span>
-<span id="cb6-11"><a href="#cb6-11"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-</section>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>TODO: add description</p>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>parse_scholars <span class="ot">=</span> <span class="cf">function</span>(data){</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="co"># return(authors)</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>  uids <span class="ot">=</span> data[[<span class="st">'demographics'</span>]] <span class="sc">|&gt;</span> <span class="fu">pull</span>(uid) <span class="sc">|&gt;</span> <span class="fu">unique</span>()</span>
+<span id="cb6-4"><a href="#cb6-4"></a>  scholars <span class="ot">=</span> data[[<span class="st">'scholars_oa'</span>]]</span>
+<span id="cb6-5"><a href="#cb6-5"></a></span>
+<span id="cb6-6"><a href="#cb6-6"></a>  <span class="co"># 1. Deduplicate valid results</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>  scholars <span class="ot">&lt;-</span> scholars <span class="sc">|&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>    <span class="fu">imap</span>(<span class="sc">~</span> <span class="cf">if</span> (<span class="fu">inherits</span>(.x, <span class="st">"data.frame"</span>)) <span class="fu">distinct</span>(.x) <span class="cf">else</span> .x)</span>
+<span id="cb6-9"><a href="#cb6-9"></a></span>
+<span id="cb6-10"><a href="#cb6-10"></a>  <span class="co"># 2. Define a placeholder row for missing uids</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a>  placeholder <span class="ot">&lt;-</span> <span class="cf">function</span>(uid) {</span>
+<span id="cb6-12"><a href="#cb6-12"></a>    <span class="fu">tibble</span>(<span class="at">uid =</span> uid, <span class="at">has_author_id =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-13"><a href="#cb6-13"></a>  }</span>
+<span id="cb6-14"><a href="#cb6-14"></a></span>
+<span id="cb6-15"><a href="#cb6-15"></a>  <span class="co"># 3. Expand to full uid set, ensuring EVERY element is a tibble</span></span>
+<span id="cb6-16"><a href="#cb6-16"></a>  data[[<span class="st">'scholars_oa'</span>]] <span class="ot">&lt;-</span> <span class="fu">setNames</span>(</span>
+<span id="cb6-17"><a href="#cb6-17"></a>    <span class="fu">map</span>(uids, <span class="cf">function</span>(uid) {</span>
+<span id="cb6-18"><a href="#cb6-18"></a>      <span class="cf">if</span> (uid <span class="sc">%in%</span> <span class="fu">names</span>(scholars) <span class="sc">&amp;&amp;</span> <span class="fu">inherits</span>(scholars[[uid]], <span class="st">"data.frame"</span>)) {</span>
+<span id="cb6-19"><a href="#cb6-19"></a>        scholars[[uid]] <span class="sc">|&gt;</span></span>
+<span id="cb6-20"><a href="#cb6-20"></a>          <span class="fu">mutate</span>(<span class="at">uid =</span> uid, <span class="at">.before =</span> <span class="dv">1</span>, <span class="at">has_author_id =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a>          <span class="fu">distinct</span>(author_id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-22"><a href="#cb6-22"></a>      } <span class="cf">else</span> {</span>
+<span id="cb6-23"><a href="#cb6-23"></a>        <span class="fu">placeholder</span>(uid)</span>
+<span id="cb6-24"><a href="#cb6-24"></a>      }</span>
+<span id="cb6-25"><a href="#cb6-25"></a>    }),</span>
+<span id="cb6-26"><a href="#cb6-26"></a>    uids</span>
+<span id="cb6-27"><a href="#cb6-27"></a>  )</span>
+<span id="cb6-28"><a href="#cb6-28"></a></span>
+<span id="cb6-29"><a href="#cb6-29"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb6-30"><a href="#cb6-30"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
 </section>
 <section id="application" class="level2">
 <h2 class="anchored" data-anchor-id="application">Application</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>data <span class="ot">=</span> <span class="fu">list</span>(</span>
-<span id="cb7-2"><a href="#cb7-2"></a>  <span class="at">scholars =</span> <span class="fu">freadRDS2</span>(<span class="st">'scholarid'</span>),</span>
-<span id="cb7-3"><a href="#cb7-3"></a>  <span class="at">ethnicity =</span> <span class="fu">freadRDS2</span>(<span class="st">'ethnicity'</span>),</span>
-<span id="cb7-4"><a href="#cb7-4"></a>  <span class="at">gender =</span> <span class="fu">freadRDS2</span>(<span class="st">'gender'</span>),</span>
-<span id="cb7-5"><a href="#cb7-5"></a>  <span class="at">names =</span> <span class="fu">freadRDS2</span>(<span class="st">'names'</span>),</span>
-<span id="cb7-6"><a href="#cb7-6"></a>  <span class="at">id =</span> <span class="fu">freadRDS2</span>(<span class="st">'oaauthors'</span>, <span class="at">location =</span> <span class="st">'raw_data'</span>),</span>
-<span id="cb7-7"><a href="#cb7-7"></a>  <span class="at">works =</span> <span class="fu">freadRDS2</span>(<span class="st">'oaworks'</span>, <span class="at">location =</span> <span class="st">'raw_data'</span>)</span>
-<span id="cb7-8"><a href="#cb7-8"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="at">demographics =</span> <span class="fu">freadRDS2</span>(<span class="st">'ethnicity'</span>),</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="at">scholars_oa =</span> <span class="fu">freadRDS2</span>(<span class="st">'oaauthors'</span>, <span class="at">location =</span> <span class="st">'raw_data'</span>),</span>
+<span id="cb7-4"><a href="#cb7-4"></a>  <span class="at">works =</span> <span class="fu">freadRDS2</span>(<span class="st">'oaworks'</span>, <span class="at">location =</span> <span class="st">'raw_data'</span>)</span>
+<span id="cb7-5"><a href="#cb7-5"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>demographics <span class="ot">=</span> <span class="fu">combine_demographics</span>(data)</span>
-<span id="cb8-2"><a href="#cb8-2"></a></span>
-<span id="cb8-3"><a href="#cb8-3"></a>works <span class="ot">=</span> <span class="fu">parse_works</span>(data, demographics) <span class="sc">|&gt;</span> </span>
-<span id="cb8-4"><a href="#cb8-4"></a>  <span class="fu">add_uid_to_authorships</span>() </span>
-<span id="cb8-5"><a href="#cb8-5"></a></span>
-<span id="cb8-6"><a href="#cb8-6"></a>scholars_list <span class="ot">=</span> <span class="fu">parse_scholars</span>(data, demographics)</span>
-<span id="cb8-7"><a href="#cb8-7"></a></span>
-<span id="cb8-8"><a href="#cb8-8"></a>scholars <span class="ot">=</span> <span class="fu">list</span>(</span>
-<span id="cb8-9"><a href="#cb8-9"></a>  <span class="at">demographics =</span> demographics, </span>
-<span id="cb8-10"><a href="#cb8-10"></a>  <span class="at">scholars_oa =</span> scholars_list,</span>
-<span id="cb8-11"><a href="#cb8-11"></a>  <span class="at">works =</span> works</span>
-<span id="cb8-12"><a href="#cb8-12"></a>)</span>
-<span id="cb8-13"><a href="#cb8-13"></a></span>
-<span id="cb8-14"><a href="#cb8-14"></a><span class="fu">fsaveRDS</span>(scholars, <span class="at">file=</span><span class="st">"scholars"</span>, <span class="at">location =</span> <span class="st">"./data/combined/"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>scholars<span class="sc">$</span>scholars_oa <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>scholars <span class="ot">=</span> data <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">reshape_demographics</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>  <span class="fu">add_coauthor_uids</span>() <span class="sc">|&gt;</span> <span class="co"># takes a considerable amount of time</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="fu">parse_works</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a>  <span class="fu">parse_scholars</span>()</span>
+<span id="cb8-6"><a href="#cb8-6"></a></span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="fu">fsaveRDS</span>(scholars, <span class="at">file=</span><span class="st">"scholars"</span>, <span class="at">location =</span> <span class="st">"./data/combined/"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 

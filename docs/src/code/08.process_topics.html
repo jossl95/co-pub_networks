@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-02-06">
+<meta name="dcterms.date" content="2026-02-26">
 
-<title>Descriptive Statistics – Networks</title>
+<title>Prune Scrape Data – Networks</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -343,19 +343,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">Data Cleaning</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../src/code/08.process_affiliations.html">
- <span class="dropdown-text">Process Affiliations</span></a>
+    <a class="dropdown-item" href="../../src/code/08.process_topics.html">
+ <span class="dropdown-text">Process Topics</span></a>
   </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-analyses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Analyses</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-analyses">    
         <li>
-    <a class="dropdown-item" href="../../src/code/09.descriptive_analysis.html">
- <span class="dropdown-text">Descriptive Analyses</span></a>
+    <a class="dropdown-item" href="../../src/code/09.operationalizations.html">
+ <span class="dropdown-text">Operationalizations</span></a>
   </li>  
     </ul>
   </li>
@@ -384,6 +377,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
+  <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a></li>
+  <li><a href="#applications" id="toc-applications" class="nav-link" data-scroll-target="#applications">Applications</a></li>
   </ul>
 <div class="quarto-code-links"><h2>Code Links</h2><ul><li><a href="0a.custom_functions.html"><i class="bi bi-file-code"></i>Custom Functions</a></li></ul></div></nav>
     </div>
@@ -393,7 +388,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Descriptive Statistics</h1>
+<h1 class="title">Prune Scrape Data</h1>
 </div>
 
 
@@ -404,7 +399,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 6, 2026</p>
+      <p class="date">February 26, 2026</p>
     </div>
   </div>
   
@@ -424,809 +419,203 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3"></a></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="co"># clear the global environment and set dependencies</span></span>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="fu">.clear_global_environment</span>()</span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="fu">.load_quarto_dependencies</span>()</span>
-<span id="cb1-7"><a href="#cb1-7"></a></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co"># load and activate packages</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-10"><a href="#cb1-10"></a><span class="fu">library</span>(igraph)</span>
-<span id="cb1-11"><a href="#cb1-11"></a><span class="fu">library</span>(Matrix)</span>
-<span id="cb1-12"><a href="#cb1-12"></a><span class="fu">library</span>(psych)</span>
-<span id="cb1-13"><a href="#cb1-13"></a><span class="fu">library</span>(visNetwork)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="fu">.load_quarto_dependencies</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>filter_valid_publication_types <span class="ot">=</span> <span class="cf">function</span>(data){</span>
-<span id="cb2-2"><a href="#cb2-2"></a>  <span class="co"># define list of valid data types</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a>  valid_publication_types <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb2-4"><a href="#cb2-4"></a>    <span class="st">'article'</span>, <span class="st">'book'</span>, <span class="st">'book-chapter'</span>, <span class="st">'dissertation'</span>, </span>
-<span id="cb2-5"><a href="#cb2-5"></a>    <span class="st">'editorial'</span>, <span class="st">'report'</span>, <span class="st">'review'</span>,</span>
-<span id="cb2-6"><a href="#cb2-6"></a>    <span class="co"># optional, to consider:</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a>    <span class="st">'erratum'</span>, <span class="st">'letter'</span>, <span class="st">'other'</span>, <span class="st">'preprint'</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a>  )</span>
-<span id="cb2-9"><a href="#cb2-9"></a></span>
-<span id="cb2-10"><a href="#cb2-10"></a>  <span class="co"># using `purrr` function mapping to select valid types in list of dfs</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a>  data[[<span class="st">"works"</span>]] <span class="ot">&lt;-</span> data[[<span class="st">"works"</span>]] <span class="sc">|&gt;</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a>    <span class="fu">map</span>(<span class="sc">~</span> {</span>
-<span id="cb2-13"><a href="#cb2-13"></a>      <span class="co"># skip elements that are not data frames / tibbles</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a>      <span class="cf">if</span> (<span class="fu">is.null</span>(.x) <span class="sc">||</span> <span class="sc">!</span><span class="fu">is.data.frame</span>(.x)) {</span>
-<span id="cb2-15"><a href="#cb2-15"></a>        <span class="fu">return</span>(.x)</span>
-<span id="cb2-16"><a href="#cb2-16"></a>      }</span>
-<span id="cb2-17"><a href="#cb2-17"></a>      </span>
-<span id="cb2-18"><a href="#cb2-18"></a>      <span class="co"># if there is no `type` column, just return as-is</span></span>
-<span id="cb2-19"><a href="#cb2-19"></a>      <span class="cf">if</span> (<span class="sc">!</span><span class="st">"type"</span> <span class="sc">%in%</span> <span class="fu">names</span>(.x)) {</span>
-<span id="cb2-20"><a href="#cb2-20"></a>        <span class="fu">return</span>(.x)</span>
-<span id="cb2-21"><a href="#cb2-21"></a>      }</span>
-<span id="cb2-22"><a href="#cb2-22"></a>      </span>
-<span id="cb2-23"><a href="#cb2-23"></a>      <span class="fu">filter</span>(.x, type <span class="sc">%in%</span> valid_publication_types)</span>
-<span id="cb2-24"><a href="#cb2-24"></a>    })</span>
-<span id="cb2-25"><a href="#cb2-25"></a></span>
-<span id="cb2-26"><a href="#cb2-26"></a>  <span class="co"># filter edge_list</span></span>
-<span id="cb2-27"><a href="#cb2-27"></a>  data[[<span class="st">"edge_table"</span>]] <span class="ot">&lt;-</span> data[[<span class="st">"edge_table"</span>]] <span class="sc">|&gt;</span></span>
-<span id="cb2-28"><a href="#cb2-28"></a>    <span class="fu">filter</span>(type <span class="sc">%in%</span> valid_publication_types)</span>
-<span id="cb2-29"><a href="#cb2-29"></a></span>
-<span id="cb2-30"><a href="#cb2-30"></a>  <span class="fu">return</span>(data)</span>
-<span id="cb2-31"><a href="#cb2-31"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># load and activate packages</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">library</span>(slider)</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="fu">library</span>(purrr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="functions" class="level2">
+<h2 class="anchored" data-anchor-id="functions">Functions</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>create_topic_table <span class="ot">=</span> <span class="cf">function</span>(data, <span class="at">base_year =</span> <span class="dv">2022</span>, <span class="at">window =</span> <span class="dv">5</span>){</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  data[[<span class="st">'works'</span>]] <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="fu">keep</span>(<span class="sc">~</span> <span class="fu">nrow</span>(.x) <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>    <span class="fu">filter</span>(</span>
+<span id="cb3-6"><a href="#cb3-6"></a>      publication_year <span class="sc">&gt;=</span> (base_year <span class="sc">-</span> window),</span>
+<span id="cb3-7"><a href="#cb3-7"></a>      publication_year <span class="sc">&lt;</span> base_year</span>
+<span id="cb3-8"><a href="#cb3-8"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>    <span class="fu">select</span>(uid, work_id, publication_year, topics) <span class="sc">|&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a>    <span class="fu">unnest_longer</span>(topics) <span class="sc">|&gt;</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a>    <span class="fu">unnest_wider</span>(topics) <span class="sc">|&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb3-13"><a href="#cb3-13"></a>      <span class="at">id =</span> <span class="fu">str_remove</span>(id, <span class="st">'https://openalex.org/'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a>        <span class="fu">str_replace</span>(<span class="st">'subfields/'</span>, <span class="st">'S'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a>        <span class="fu">str_replace</span>(<span class="st">'fields/'</span>, <span class="st">'F'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a>        <span class="fu">str_replace</span>(<span class="st">'domains/'</span>, <span class="st">'D'</span>)</span>
+<span id="cb3-17"><a href="#cb3-17"></a>    ) </span>
+<span id="cb3-18"><a href="#cb3-18"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>coalesce_scholar_data <span class="ot">=</span> <span class="cf">function</span>(data){</span>
-<span id="cb3-2"><a href="#cb3-2"></a>  <span class="co"># define priority list</span></span>
-<span id="cb3-3"><a href="#cb3-3"></a>  priority <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"UVA"</span>,<span class="st">"EUR"</span>,<span class="st">"RUG"</span>,<span class="st">"VU"</span>,<span class="st">"Leiden"</span>,<span class="st">"RU"</span>,<span class="st">"UU"</span>,<span class="st">"Tilburg"</span>)</span>
-<span id="cb3-4"><a href="#cb3-4"></a></span>
-<span id="cb3-5"><a href="#cb3-5"></a>  <span class="co"># coalesce and harmonize position and university</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a>  data[[<span class="st">'demographics'</span>]] <span class="ot">&lt;-</span> data[[<span class="st">'demographics'</span>]] <span class="sc">%&gt;%</span></span>
-<span id="cb3-7"><a href="#cb3-7"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb3-8"><a href="#cb3-8"></a>      <span class="at">position =</span> <span class="fu">coalesce</span>(<span class="sc">!!!</span><span class="fu">select</span>(., <span class="fu">starts_with</span>(<span class="st">"position_"</span>))),</span>
-<span id="cb3-9"><a href="#cb3-9"></a>      <span class="at">university =</span> <span class="fu">coalesce</span>(<span class="sc">!!!</span><span class="fu">select</span>(., <span class="fu">starts_with</span>(<span class="st">"university_"</span>)))</span>
-<span id="cb3-10"><a href="#cb3-10"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb3-11"><a href="#cb3-11"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb3-12"><a href="#cb3-12"></a>      <span class="at">s =</span> <span class="fu">str_to_lower</span>(<span class="fu">str_squish</span>(university)),</span>
-<span id="cb3-13"><a href="#cb3-13"></a>      <span class="at">university =</span> <span class="fu">case_when</span>(</span>
-<span id="cb3-14"><a href="#cb3-14"></a>        <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">brug</span><span class="sc">\\</span><span class="st">b|groningen"</span>) <span class="sc">~</span> <span class="st">"RUG"</span>,</span>
-<span id="cb3-15"><a href="#cb3-15"></a>        <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">bvu</span><span class="sc">\\</span><span class="st">b|vrij</span><span class="sc">\\</span><span class="st">s*e?</span><span class="sc">\\</span><span class="st">s*universiteit"</span>) <span class="sc">~</span> <span class="st">"VU"</span>,</span>
-<span id="cb3-16"><a href="#cb3-16"></a>        <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">buva</span><span class="sc">\\</span><span class="st">b|universiteit van amsterdam|univ(?:ersity)? of amsterdam"</span>) <span class="sc">~</span> <span class="st">"UVA"</span>,</span>
-<span id="cb3-17"><a href="#cb3-17"></a>        <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">beur</span><span class="sc">\\</span><span class="st">b|erasmus"</span>) <span class="sc">~</span> <span class="st">"EUR"</span>,</span>
-<span id="cb3-18"><a href="#cb3-18"></a>        <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">bleiden</span><span class="sc">\\</span><span class="st">b"</span>) <span class="sc">~</span> <span class="st">"LU"</span>,</span>
-<span id="cb3-19"><a href="#cb3-19"></a>        <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">bru</span><span class="sc">\\</span><span class="st">b|radboud"</span>) <span class="sc">~</span> <span class="st">"RU"</span>,</span>
-<span id="cb3-20"><a href="#cb3-20"></a>        <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">buu</span><span class="sc">\\</span><span class="st">b|utrecht"</span>) <span class="sc">~</span> <span class="st">"UU"</span>,</span>
-<span id="cb3-21"><a href="#cb3-21"></a>        <span class="fu">str_detect</span>(s, <span class="st">"</span><span class="sc">\\</span><span class="st">buvt</span><span class="sc">\\</span><span class="st">b|universiteit tilburg|</span><span class="sc">\\</span><span class="st">btilburg</span><span class="sc">\\</span><span class="st">b"</span>) <span class="sc">~</span> <span class="st">"TU"</span>,</span>
-<span id="cb3-22"><a href="#cb3-22"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span></span>
-<span id="cb3-23"><a href="#cb3-23"></a>      )</span>
-<span id="cb3-24"><a href="#cb3-24"></a>    )</span>
-<span id="cb3-25"><a href="#cb3-25"></a>    </span>
-<span id="cb3-26"><a href="#cb3-26"></a>  <span class="fu">return</span>(data) </span>
-<span id="cb3-27"><a href="#cb3-27"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>pivot_topic_table <span class="ot">=</span> <span class="cf">function</span>(topic_table, <span class="at">topic_type =</span> <span class="cn">NA</span>){</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="co"># assert topic_type is valid</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>  valid_types <span class="ot">&lt;-</span> topic_table <span class="sc">|&gt;</span> <span class="fu">distinct</span>(type) <span class="sc">|&gt;</span> <span class="fu">pull</span>()</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  <span class="cf">if</span> ((<span class="fu">is.na</span>(topic_type) <span class="sc">&amp;&amp;</span> <span class="sc">!</span>topic_type <span class="sc">%in%</span> valid_types)) {</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="fu">warning</span>(<span class="fu">paste</span>(topic_type, <span class="st">"is not valid"</span>))</span>
+<span id="cb4-6"><a href="#cb4-6"></a>  }</span>
+<span id="cb4-7"><a href="#cb4-7"></a></span>
+<span id="cb4-8"><a href="#cb4-8"></a>  <span class="co"># select topic_type and pivot topics to wider</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>  topic_table <span class="sc">|&gt;</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a>    <span class="fu">filter</span>(type <span class="sc">==</span> topic_type) <span class="sc">|&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a>    <span class="fu">select</span>(uid, work_id, publication_year, id) <span class="sc">|&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a>    <span class="fu">arrange</span>(id) <span class="sc">|&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>    <span class="fu">mutate</span>(<span class="at">value =</span> <span class="dv">1</span>L) <span class="sc">|&gt;</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a>    <span class="fu">pivot_wider</span>(</span>
+<span id="cb4-15"><a href="#cb4-15"></a>      <span class="at">id_cols =</span> <span class="fu">c</span>(uid, work_id, publication_year),</span>
+<span id="cb4-16"><a href="#cb4-16"></a>      <span class="at">names_from =</span> id,</span>
+<span id="cb4-17"><a href="#cb4-17"></a>      <span class="at">values_from =</span> value,</span>
+<span id="cb4-18"><a href="#cb4-18"></a>      <span class="at">values_fn =</span> sum,</span>
+<span id="cb4-19"><a href="#cb4-19"></a>      <span class="at">values_fill =</span> <span class="dv">0</span>L</span>
+<span id="cb4-20"><a href="#cb4-20"></a>    )</span>
+<span id="cb4-21"><a href="#cb4-21"></a>}</span>
+<span id="cb4-22"><a href="#cb4-22"></a></span>
+<span id="cb4-23"><a href="#cb4-23"></a>aggregate_topic_table <span class="ot">=</span> <span class="cf">function</span>(table){</span>
+<span id="cb4-24"><a href="#cb4-24"></a>  table <span class="sc">|&gt;</span></span>
+<span id="cb4-25"><a href="#cb4-25"></a>    <span class="fu">group_by</span>(uid) <span class="sc">|&gt;</span></span>
+<span id="cb4-26"><a href="#cb4-26"></a>    <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>), sum))</span>
+<span id="cb4-27"><a href="#cb4-27"></a>}</span>
+<span id="cb4-28"><a href="#cb4-28"></a></span>
+<span id="cb4-29"><a href="#cb4-29"></a>calculate_proximity_matrix <span class="ot">=</span> <span class="cf">function</span>(counts){</span>
+<span id="cb4-30"><a href="#cb4-30"></a>  d <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> counts <span class="sc">|&gt;</span></span>
+<span id="cb4-31"><a href="#cb4-31"></a>    <span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb4-32"><a href="#cb4-32"></a>    coop<span class="sc">::</span><span class="fu">cosine</span>()</span>
+<span id="cb4-33"><a href="#cb4-33"></a>  <span class="fu">diag</span>(d) <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb4-34"><a href="#cb4-34"></a>  </span>
+<span id="cb4-35"><a href="#cb4-35"></a>  prox <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (d<span class="sc">/</span><span class="fu">max</span>(d))<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb4-36"><a href="#cb4-36"></a>  </span>
+<span id="cb4-37"><a href="#cb4-37"></a>  <span class="fu">return</span>(prox)</span>
+<span id="cb4-38"><a href="#cb4-38"></a>}</span>
+<span id="cb4-39"><a href="#cb4-39"></a></span>
+<span id="cb4-40"><a href="#cb4-40"></a>calculate_interdisciplinarity <span class="ot">=</span> <span class="cf">function</span>(P, proximity){</span>
+<span id="cb4-41"><a href="#cb4-41"></a>  <span class="co"># align proximity once (same for every row)</span></span>
+<span id="cb4-42"><a href="#cb4-42"></a>  prox <span class="ot">&lt;-</span> proximity[<span class="fu">colnames</span>(P), <span class="fu">colnames</span>(P)]</span>
+<span id="cb4-43"><a href="#cb4-43"></a>  P[<span class="fu">is.na</span>(P)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb4-44"><a href="#cb4-44"></a>  prox[<span class="fu">is.na</span>(prox)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb4-45"><a href="#cb4-45"></a></span>
+<span id="cb4-46"><a href="#cb4-46"></a>  res <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">rowSums</span>((P <span class="sc">%*%</span> prox) <span class="sc">*</span> P)  <span class="co"># numeric vector, length = nrow(P)</span></span>
+<span id="cb4-47"><a href="#cb4-47"></a>  <span class="fu">names</span>(res) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(P)</span>
+<span id="cb4-48"><a href="#cb4-48"></a></span>
+<span id="cb4-49"><a href="#cb4-49"></a>  <span class="fu">return</span>(res)</span>
+<span id="cb4-50"><a href="#cb4-50"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>limit_observation_period <span class="ot">=</span> <span class="cf">function</span>(data, <span class="at">start_date =</span> <span class="st">"2019-01-01"</span>){</span>
-<span id="cb4-2"><a href="#cb4-2"></a>  data[[<span class="st">'edge_table'</span>]] <span class="ot">=</span> data[[<span class="st">'edge_table'</span>]] <span class="sc">|&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a>    <span class="fu">filter</span>(publication_date <span class="sc">&gt;</span> <span class="fu">ymd</span>(start_date))</span>
-<span id="cb4-4"><a href="#cb4-4"></a></span>
-<span id="cb4-5"><a href="#cb4-5"></a>  <span class="fu">return</span>(data)</span>
-<span id="cb4-6"><a href="#cb4-6"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>create_empty_author_matrix <span class="ot">=</span> <span class="cf">function</span>(topics, topic_type){</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="co"># get all author information</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>  authors <span class="ot">=</span> topics[[<span class="st">'counts'</span>]][[<span class="st">'field'</span>]] <span class="sc">|&gt;</span> <span class="fu">pull</span>(uid)</span>
+<span id="cb5-4"><a href="#cb5-4"></a>  k_authors <span class="ot">=</span>  authors <span class="sc">|&gt;</span> <span class="fu">n_distinct</span>()</span>
+<span id="cb5-5"><a href="#cb5-5"></a></span>
+<span id="cb5-6"><a href="#cb5-6"></a>  D <span class="ot">=</span> <span class="fu">matrix</span>(</span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="cn">NA</span>, <span class="at">nrow =</span> k_authors, <span class="at">ncol =</span> k_authors,</span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="at">dimnames =</span> <span class="fu">list</span>(authors, authors)</span>
+<span id="cb5-9"><a href="#cb5-9"></a>  )</span>
+<span id="cb5-10"><a href="#cb5-10"></a>  <span class="fu">return</span> (D)</span>
+<span id="cb5-11"><a href="#cb5-11"></a>}</span>
+<span id="cb5-12"><a href="#cb5-12"></a></span>
+<span id="cb5-13"><a href="#cb5-13"></a>calculate_dissimilarity <span class="ot">=</span> <span class="cf">function</span> (topics, year, topic_type){</span>
+<span id="cb5-14"><a href="#cb5-14"></a>  <span class="co"># create empty dissimilarity table for all possible authors</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a>  D <span class="ot">=</span> <span class="fu">create_empty_author_matrix</span>(topics)</span>
+<span id="cb5-16"><a href="#cb5-16"></a></span>
+<span id="cb5-17"><a href="#cb5-17"></a>  <span class="co"># get author data for specified year</span></span>
+<span id="cb5-18"><a href="#cb5-18"></a>  A <span class="ot">=</span> data <span class="sc">|&gt;</span></span>
+<span id="cb5-19"><a href="#cb5-19"></a>    <span class="fu">create_topic_table</span>(<span class="at">base_year =</span> year, <span class="at">window =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a>    <span class="fu">pivot_topic_table</span>(<span class="at">topic_type =</span> topic_type) <span class="sc">|&gt;</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a>    <span class="fu">aggregate_topic_table</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-22"><a href="#cb5-22"></a>    <span class="fu">column_to_rownames</span>(<span class="at">var=</span><span class="st">"uid"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb5-23"><a href="#cb5-23"></a>    <span class="fu">as.matrix</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-24"><a href="#cb5-24"></a>    <span class="fu">prop.table</span>(<span class="at">margin =</span> <span class="dv">1</span>)</span>
+<span id="cb5-25"><a href="#cb5-25"></a></span>
+<span id="cb5-26"><a href="#cb5-26"></a>  <span class="co"># align A to prox columns</span></span>
+<span id="cb5-27"><a href="#cb5-27"></a>  prox <span class="ot">=</span> topics[[<span class="st">'prox'</span>]][[topic_type]]</span>
+<span id="cb5-28"><a href="#cb5-28"></a>  M <span class="ot">=</span> <span class="dv">1</span> <span class="sc">-</span> prox[<span class="fu">colnames</span>(A), <span class="fu">colnames</span>(A)]</span>
+<span id="cb5-29"><a href="#cb5-29"></a>  M[<span class="fu">is.na</span>(M)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-30"><a href="#cb5-30"></a></span>
+<span id="cb5-31"><a href="#cb5-31"></a>  <span class="co"># calculate dissimilarity per author (i) coauthor (j) pair</span></span>
+<span id="cb5-32"><a href="#cb5-32"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">rownames</span>(A)) {</span>
+<span id="cb5-33"><a href="#cb5-33"></a>    <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">rownames</span>(A)) {</span>
+<span id="cb5-34"><a href="#cb5-34"></a>      diff <span class="ot">=</span> <span class="fu">abs</span>(A[i,] <span class="sc">-</span> A[j,]) <span class="sc">/</span> <span class="dv">2</span></span>
+<span id="cb5-35"><a href="#cb5-35"></a>      D[i, j] <span class="ot">=</span> <span class="fu">sum</span>(diff <span class="sc">%o%</span> diff <span class="sc">*</span> M) <span class="sc">*</span> <span class="dv">2</span></span>
+<span id="cb5-36"><a href="#cb5-36"></a>    }</span>
+<span id="cb5-37"><a href="#cb5-37"></a>  }</span>
+<span id="cb5-38"><a href="#cb5-38"></a></span>
+<span id="cb5-39"><a href="#cb5-39"></a>  <span class="co"># normalize results</span></span>
+<span id="cb5-40"><a href="#cb5-40"></a>  D <span class="ot">&lt;-</span> D <span class="sc">/</span> <span class="fu">max</span>(D, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-41"><a href="#cb5-41"></a>  <span class="fu">return</span>(D)</span>
+<span id="cb5-42"><a href="#cb5-42"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<!---
-
-
-::: {.cell}
-
-```{.r .cell-code}
-build_matrices <- function(data, 
-                           directed_type = NULL, sign_incidence = TRUE, exclude_isolates = TRUE, exclude_edge_with_self=TRUE) {
-  stopifnot("uid" %in% colnames(data[['demographics']]))
-  stopifnot(all(c("uid", "a__uid") %in% colnames(data[['edge_table']])))
-
-  # 1) create list of node uids
-  N_uids <- data[['demographics']] |> distinct(uid) |> pull()
-
-  # 2)clean edges
-  E <- data[['edge_table']] |>
-    mutate(uid = as.character(uid), a__uid = as.character(a__uid)) |>
-    filter(uid %in% N_uids, a__uid %in% N_uids) |>
-    relocate(a__uid, .after = uid)
-
-  is_directed <- if(!is.null(directed_type)) TRUE else FALSE
-
-  E = if(exclude_edge_with_self) E |> filter(uid != a__uid) else E
-  E = if(is_directed) E |> filter(!(a__author_position == directed_type)) else E
-
-  N_uids <- E |> distinct(uid) |> pull()
-
-  # 3) build graph from edge table
-  g <- graph_from_data_frame(
-      E,
-      directed = !is_directed,
-      # vertices = tibble(name = N_uids)
-    )
-
-  # (optional) excludes isolates
-  if (exclude_isolates) {
-      deg <- degree(g, mode = if (is_directed) "all" else "total")
-      g   <- induced_subgraph(g, vids = which(deg > 0))
-    }
-
-  N_uids <- igraph::V(g)$name
-  n      <- length(N_uids)
-
-  # 4) adjacency matrix
-  A <- igraph::as_adjacency_matrix(g, sparse = TRUE)
-  if (!is_directed) A <- Matrix::forceSymmetric(A, uplo = "U")
-
-  # 5) incidence matrix
-  el <- igraph::as_data_frame(g, what = "edges")
-  m  <- nrow(el)
-
-  if (m == 0L) {
-    B <- sparseMatrix(
-      i = integer(), j = integer(), x = numeric(),
-      dims     = c(n, 0),
-      dimnames = list(N_uids, character())
-    )
-  } else {
-    tail_idx <- match(el$from, N_uids)
-    head_idx <- match(el$to,   N_uids)
-
-    vals <- if (is_directed && sign_incidence) {
-      c(rep(-1, m), rep(+1, m))
-    } else {
-      rep(1, 2L * m)
-    }
-
-    B <- sparseMatrix(
-      i        = c(tail_idx, head_idx),
-      j        = rep(seq_len(m), each = 2L),
-      x        = vals,
-      dims     = c(n, m),
-      dimnames = list(N_uids, paste0("e", seq_len(m)))
-    )
-  }
-
-  # 6) ego × alter counts (still counts of edges in raw Eclean)
-  E2 <- E |>
-    filter(uid %in% N_uids, a__uid %in% N_uids) |>
-    mutate(
-      uid    = factor(uid,    levels = N_uids),
-      a__uid = factor(a__uid, levels = N_uids)
-    )
-
-  E_mat <- if (nrow(E2) == 0L) {
-    Matrix::Matrix(
-      0,
-      nrow = n, ncol = n,
-      dimnames = list(N_uids, N_uids),
-      sparse   = TRUE
-    )
-  } else {
-    Matrix::Matrix(
-      stats::xtabs(~ uid + a__uid, E2),
-      sparse = TRUE
-    )
-  }
-
-  E = E2 |> distinct(uid, a__uid, .keep_all = TRUE)
-
-  # 7) filter demographics to nodes kept
-  D = data[['demographics']] |> filter(uid %in% N_uids)
-
-  return(list(
-    graph = g,
-    A     = A,
-    B     = B,
-    D     = D,
-    E     = E,
-    E_mat = E_mat
-  ))
-}
-```
-:::
-
-
-## Application
-
-
-::: {.cell}
-
-```{.r .cell-code}
-data = freadRDS2(file="scholars", location = "clean") |>
-  filter_valid_publication_types() |>
-  coalesce_scholar_data() |>
-  limit_observation_period()
-```
-:::
-
-
-
-::: {.cell}
-
-```{.r .cell-code}
-nets = build_matrices(data)
-d = toVisNetworkData(as_undirected(nets$graph))
-
-N <- d$nodes |>
-  inner_join(nets$D, by = join_by(id == uid)) |>
-  select(
-    id, label, clean_name, gender, origin, h_index, position, university
-  ) |>
-  # build per-node aesthetics
-  mutate(
-    label = ifelse(!is.na(clean_name) & nzchar(clean_name), clean_name, as.character(id)),
-    university = ifelse(is.na(university) | !nzchar(university), "(Unknown)", university)
-  )
-
-uni_levels <- sort(unique(nets$D$university))
-pal <- scales::hue_pal()(length(uni_levels))
-col_map <- setNames(pal, uni_levels)
-
-N = N |>
-  mutate(
-    color = unname(col_map[university]),
-    size  = if (all(is.na(h_index))) 15 else
-              suppressWarnings(scales::rescale(h_index, to = c(20, 80),
-                                       from = range(h_index, na.rm = TRUE))),
-    size  = ifelse(is.na(size), 10, size),
-    gender_clean = tolower(as.character(gender)),
-    shape = recode(
-      gender_clean,
-      "male" = "triangle",
-      "female" = "dot",
-      .default = "square"
-    ),
-    label = ifelse(
-      !is.na(clean_name) & nzchar(clean_name), 
-      clean_name, 
-      as.character(id)
-    ),
-    title = paste0(
-      "<b>", label, "</b>",
-      "<br/>University: ", university,
-      "<br/>Gender: ", ifelse(is.na(gender) | !nzchar(gender), "Unknown", gender),
-      "<br/>h-index: ", ifelse(is.na(h_index), "NA", h_index)
-    )
-  ) |>
-  select(-gender_clean) |>
-  distinct(id, .keep_all = TRUE)
-
-E = d$edges
-
-visNetwork(nodes = N, edges = E, height = "800px", width = "100%") |>
-  visNodes(borderWidth = 1) |>
-  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) |>
-  visPhysics(
-    solver = "barnesHut", 
-    barnesHut = list(
-      theta = 0.25,
-      avoidOverlap = 0.25,
-      centralGravity = 0.35,
-      gravitationalConstant = -9000,
-      dampening = 0.06,
-      springLength = 125,
-      springConstant = 0.04
-    ),
-    stabilization = TRUE) |>
-  visLayout(randomSeed = 42)
-```
-:::
-
-
-
-::: {.cell}
-
-```{.r .cell-code}
-describe_categorical <- function(data, vars) {
-  data |>
-    select(all_of(vars)) |>
-    # long format: variable + value
-    tidyr::pivot_longer(
-      cols      = everything(),
-      names_to  = "variable",
-      values_to = "value"
-    ) |>
-    group_by(variable) |>
-    mutate(
-      n_total   = n(),
-      n_missing = sum(is.na(value)),
-      n_nonmiss = n_total - n_missing
-    ) |>
-    filter(!is.na(value)) |>
-    count(variable, value, n_total, n_missing, n_nonmiss, name = "n") |>
-    group_by(variable) |>
-    mutate(
-      prop        = n / n_nonmiss,
-      prop_missing = n_missing / n_total
-    ) |>
-    ungroup() |>
-    arrange(variable, desc(n))
-}
-
-cat_desc <- describe_categorical(
-  nets$D,
-  vars = c("gender", "origin", "university", "position")
-)
-
-cat_desc
-```
-:::
-
-
-
-::: {.cell}
-
-```{.r .cell-code}
-compute_ego_statistics <- function(nets) {
-  g <- nets$graph
-  stopifnot(inherits(g, "igraph"))
-
-  is_dir <- igraph::is_directed(g)
-
-  # 1) Basic degrees
-  degree_total <- igraph::degree(
-    g,
-    mode = if (is_dir) "all" else "total"
-  )
-
-  degree_in <- if (is_dir) {
-    igraph::degree(g, mode = "in")
-  } else {
-    rep(NA_real_, igraph::vcount(g))
-  }
-
-  degree_out <- if (is_dir) {
-    igraph::degree(g, mode = "out")
-  } else {
-    rep(NA_real_, igraph::vcount(g))
-  }
-
-  # 2) Betweenness (normalized)
-  betweenness <- igraph::betweenness(
-    g,
-    directed   = is_dir,
-    normalized = TRUE
-  )
-
-  # 3) Closeness (normalized)
-  closeness <- suppressWarnings(
-    igraph::closeness(
-      g,
-      mode       = if (is_dir) "all" else "all",
-      normalized = TRUE
-    )
-  )
-
-  # 4) Burt’s constraint (structural holes / brokerage)
-  constraint <- igraph::constraint(g)
-
-  # 5) Local clustering / transitivity (ego-level)
-  clustering <- igraph::transitivity(
-    g,
-    type = if (is_dir) "local" else "localundirected"
-  )
-  clustering[is.nan(clustering)] <- NA_real_
-
-  # 6) Eigenvector centrality (prestige / popularity via popular neighbors)
-  eig <- igraph::eigen_centrality(
-    g,
-    directed = is_dir,
-    scale    = TRUE
-  )$vector
-
-  # 7) k-core number (embeddedness in the dense core)
-  kcore <- igraph::coreness(
-    g,
-    mode = if (is_dir) "all" else "all"
-  )
-
-  # 8) Assemble into a tibble
-  stats <- tibble::tibble(
-    uid          = igraph::V(g)$name,
-    degree       = as.numeric(degree_total),
-    indegree     = as.numeric(degree_in),
-    outdegree    = as.numeric(degree_out),
-    betweenness  = as.numeric(betweenness),
-    closeness    = as.numeric(closeness),
-    constraint   = as.numeric(constraint),
-    clustering   = as.numeric(clustering),
-    eigenvector  = as.numeric(eig),
-    kcore        = as.numeric(kcore)
-  )
-
-  # 9) Optionally add demographics stored in nets$D
-  if (!is.null(nets$D) && "uid" %in% colnames(nets$D)) {
-    stats <- nets$D |>
-      right_join(stats, by = "uid") |>
-      arrange(uid) |>
-      select(-email_22:-discipline_25)
-  }
-
-  return(stats)
-}
-
-summarise_ego_statistics <- function(ego_stats) {
-  # which columns are ego-level stats
-  ego_stat_vars <- c(
-    "degree",
-    "indegree",
-    "outdegree",
-    "betweenness",
-    "closeness",
-    "constraint",
-    "clustering",
-    "eigenvector",
-    "kcore"
-  )
-
-  # 1) Overall averages for the full sample
-  ego_overall <- ego_stats |>
-    summarise(
-      n = n(),
-      across(
-        all_of(ego_stat_vars),
-        ~ mean(.x, na.rm = TRUE)
-      )
-    ) |>
-    mutate(
-      attribute = "scholars",
-      level = "all",
-      .before = 1
-    )
-
-  # 2) Helper for grouped averages (group_var is a *string*)
-  summarise_ego_by <- function(data, group_var) {
-    res <- data |>
-      group_by(.data[[group_var]]) |>
-      summarise(
-        n = n(),
-        across(
-          all_of(ego_stat_vars),
-          ~ mean(.x, na.rm = TRUE)
-        ),
-        .groups = "drop"
-      )
-
-    res |>
-      mutate(
-        attribute = group_var,
-        level     = .data[[group_var]]
-      ) |>
-      select(
-        attribute,
-        level,
-        everything(),
-        -all_of(group_var)
-      )
-  }
-
-  # 3) All groupings stacked in one table
-  ego_by_all <- bind_rows(
-    summarise_ego_by(ego_stats, "gender"),
-    summarise_ego_by(ego_stats, "origin"),
-    summarise_ego_by(ego_stats, "position"),
-    summarise_ego_by(ego_stats, "university")
-  )
-
-  # 4) Return as a list
-  return(list(
-    ego_overall = ego_overall,
-    ego_by_all  = ego_by_all
-  ))
-}
-```
-:::
-
-
-
-
-::: {.cell}
-
-```{.r .cell-code}
-ego_stats = compute_ego_statistics(nets) |>
-  summarise_ego_statistics() |>
-  bind_rows()
-
-ego_stats
-```
-:::
-
-
-
-
-::: {.cell}
-
-```{.r .cell-code}
-compute_network_statistics <- function(nets) {
-  g <- nets$graph
-  stopifnot(inherits(g, "igraph"))
-  
-  is_dir <- igraph::is_directed(g)
-  
-  # Optionally copy attributes from nets$D onto vertices
-  if (!is.null(nets$D) && "uid" %in% colnames(nets$D)) {
-    D   <- nets$D
-    idx <- match(igraph::V(g)$name, D$uid)
-    
-    for (v in c("gender", "origin", "university", "position")) {
-      if (v %in% colnames(D)) {
-        vals <- D[[v]][idx]
-        g <- igraph::set_vertex_attr(g, v, value = vals)
-      }
-    }
-  }
-  
-  # --- Core structural properties (full graph) ---
-  comp  <- igraph::components(g)
-  gc_id <- which.max(comp$csize)
-  gc_v  <- which(comp$membership == gc_id)
-  g_gc  <- igraph::induced_subgraph(g, gc_v)
-  
-  n_nodes <- igraph::vcount(g)
-  n_edges <- igraph::ecount(g)
-  
-  density <- igraph::edge_density(g, loops = FALSE)
-  avg_degree <- mean(
-    igraph::degree(g, mode = if (is_dir) "all" else "total")
-  )
-  
-  trans_global <- igraph::transitivity(
-    g,
-    type = if (is_dir) "global" else "globalundirected"
-  )
-  
-  trans_local_vec <- igraph::transitivity(
-    g,
-    type = if (is_dir) "local" else "localundirected"
-  )
-  trans_local_mean <- mean(trans_local_vec, na.rm = TRUE)
-  
-  avg_path_gc <- suppressWarnings(
-    igraph::mean_distance(g_gc, directed = is_dir)
-  )
-  diam_gc <- suppressWarnings(
-    igraph::diameter(g_gc, directed = is_dir, unconnected = FALSE)
-  )
-  
-  # --- Simple small-world indicators via ER baseline (full graph) ---
-  p <- density
-  if (is.finite(p) && !is.na(p) && p > 0) {
-    g_rand <- igraph::sample_gnp(
-      n       = n_nodes,
-      p       = p,
-      directed = is_dir,
-      loops   = FALSE
-    )
-    
-    trans_rand <- igraph::transitivity(
-      g_rand,
-      type = if (is_dir) "global" else "globalundirected"
-    )
-    avg_path_rand <- suppressWarnings(
-      igraph::mean_distance(g_rand, directed = is_dir)
-    )
-    
-    smallworld_C_ratio <- trans_global / trans_rand
-    smallworld_L_ratio <- avg_path_gc / avg_path_rand
-  } else {
-    smallworld_C_ratio <- NA_real_
-    smallworld_L_ratio <- NA_real_
-  }
-  
-  overall <- tibble::tibble(
-    # Size / connectivity
-    attribute            = "scholars",
-    level                = "all",
-    n_nodes              = n_nodes,
-    n_edges              = n_edges,
-    density              = density,
-    avg_degree           = avg_degree,
-    
-    # Clustering & paths
-    transitivity_global       = trans_global,
-    transitivity_local_mean   = trans_local_mean,
-    avg_path_length_giantcomp = avg_path_gc,
-    diameter_giantcomp        = diam_gc,
-    
-    # Small-world-ish indicators (relative to ER baseline)
-    smallworld_C_ratio = smallworld_C_ratio,
-    smallworld_L_ratio = smallworld_L_ratio
-  )
-  
-  # --- Helper: compute the same stats on an induced subgraph ---
-  compute_structural_stats <- function(g_sub) {
-    if (igraph::vcount(g_sub) < 2 || igraph::ecount(g_sub) < 1) {
-      return(
-        list(
-          n_nodes                    = igraph::vcount(g_sub),
-          n_edges                    = igraph::ecount(g_sub),
-          density                    = NA_real_,
-          avg_degree                 = NA_real_,
-          transitivity_global        = NA_real_,
-          transitivity_local_mean    = NA_real_,
-          avg_path_length_giantcomp  = NA_real_,
-          diameter_giantcomp         = NA_real_,
-          smallworld_C_ratio         = NA_real_,
-          smallworld_L_ratio         = NA_real_
-        )
-      )
-    }
-    
-    comp_sub  <- igraph::components(g_sub)
-    gc_id_sub <- which.max(comp_sub$csize)
-    gc_v_sub  <- which(comp_sub$membership == gc_id_sub)
-    g_gc_sub  <- igraph::induced_subgraph(g_sub, gc_v_sub)
-    
-    n_nodes_sub <- igraph::vcount(g_sub)
-    n_edges_sub <- igraph::ecount(g_sub)
-    
-    density_sub <- igraph::edge_density(g_sub, loops = FALSE)
-    avg_degree_sub <- mean(
-      igraph::degree(g_sub, mode = if (is_dir) "all" else "total")
-    )
-    
-    trans_global_sub <- igraph::transitivity(
-      g_sub,
-      type = if (is_dir) "global" else "globalundirected"
-    )
-    
-    trans_local_vec_sub <- igraph::transitivity(
-      g_sub,
-      type = if (is_dir) "local" else "localundirected"
-    )
-    trans_local_mean_sub <- mean(trans_local_vec_sub, na.rm = TRUE)
-    
-    avg_path_gc_sub <- suppressWarnings(
-      igraph::mean_distance(g_gc_sub, directed = is_dir)
-    )
-    diam_gc_sub <- suppressWarnings(
-      igraph::diameter(g_gc_sub, directed = is_dir, unconnected = FALSE)
-    )
-    
-    # Small-world baseline within group
-    p_sub <- density_sub
-    if (is.finite(p_sub) && !is.na(p_sub) && p_sub > 0) {
-      g_rand_sub <- igraph::sample_gnp(
-        n       = n_nodes_sub,
-        p       = p_sub,
-        directed = is_dir,
-        loops   = FALSE
-      )
-      trans_rand_sub <- igraph::transitivity(
-        g_rand_sub,
-        type = if (is_dir) "global" else "globalundirected"
-      )
-      avg_path_rand_sub <- suppressWarnings(
-        igraph::mean_distance(g_rand_sub, directed = is_dir)
-      )
-      
-      smallworld_C_ratio_sub <- trans_global_sub / trans_rand_sub
-      smallworld_L_ratio_sub <- avg_path_gc_sub / avg_path_rand_sub
-    } else {
-      smallworld_C_ratio_sub <- NA_real_
-      smallworld_L_ratio_sub <- NA_real_
-    }
-    
-    list(
-      n_nodes                    = n_nodes_sub,
-      n_edges                    = n_edges_sub,
-      density                    = density_sub,
-      avg_degree                 = avg_degree_sub,
-      transitivity_global        = trans_global_sub,
-      transitivity_local_mean    = trans_local_mean_sub,
-      avg_path_length_giantcomp  = avg_path_gc_sub,
-      diameter_giantcomp         = diam_gc_sub,
-      smallworld_C_ratio         = smallworld_C_ratio_sub,
-      smallworld_L_ratio         = smallworld_L_ratio_sub
-    )
-  }
-  
-  # --- Helper: apply those stats by levels of a vertex attribute ---
-  compute_by_attribute <- function(attr_name) {
-    vals <- igraph::vertex_attr(g, attr_name)
-    if (is.null(vals)) {
-      return(tibble::tibble())
-    }
-    
-    vals_chr <- as.character(vals)
-    levels_attr <- sort(unique(vals_chr[!is.na(vals_chr)]))
-    if (length(levels_attr) == 0) {
-      return(tibble::tibble())
-    }
-    
-    res <- lapply(levels_attr, function(lv) {
-      vids <- which(vals_chr == lv)
-      if (length(vids) < 2) {
-        stats <- compute_structural_stats(
-          igraph::induced_subgraph(g, vids)
-        )
-      } else {
-        stats <- compute_structural_stats(
-          igraph::induced_subgraph(g, vids)
-        )
-      }
-      
-      tibble::tibble(
-        attribute                 = attr_name,
-        level                     = lv,
-        n_nodes                   = stats$n_nodes,
-        n_edges                   = stats$n_edges,
-        density                   = stats$density,
-        avg_degree                = stats$avg_degree,
-        transitivity_global       = stats$transitivity_global,
-        transitivity_local_mean   = stats$transitivity_local_mean,
-        avg_path_length_giantcomp = stats$avg_path_length_giantcomp,
-        diameter_giantcomp        = stats$diameter_giantcomp,
-        smallworld_C_ratio        = stats$smallworld_C_ratio,
-        smallworld_L_ratio        = stats$smallworld_L_ratio
-      )
-    })
-    
-    bind_rows(res)
-  }
-  
-  by_group <- bind_rows(
-    compute_by_attribute("gender"),
-    compute_by_attribute("origin"),
-    compute_by_attribute("position"),
-    compute_by_attribute("university")
-  )
-  
-  # Return both
-  list(
-    overall  = overall,
-    by_group = by_group
-  )
-}
-```
-:::
-
-
-
-
-::: {.cell}
-
-```{.r .cell-code}
-net_stats = compute_network_statistics(nets) |> 
-  bind_rows() |>
-  relocate(attribute, level, .before = 1)
-net_stats
-```
-:::
-
-
-
-
-::: {.cell}
-
-```{.r .cell-code}
-# get list of scholars in final sample
-copub_sample = nets$E |> pull(uid) |> unique()
-
-# get list of scholars with valid openalex id
-openalex_sample = freadRDS2(file="scholars", location = "clean")[['demographics']] |>
-  bind_rows() |>
-  distinct(uid) |> pull()
-
-# get list of 
-sample_attrition = freadRDS2('scholars', location = 'combined')[['demographics']] |>
-  bind_rows() |>
-  distinct(uid) |>
-  mutate(
-    miss_openalex = !uid %in% openalex_sample,
-    miss_copub = !uid %in% copub_sample
-  ) |>
-  arrange(miss_openalex, miss_copub)
-```
-:::
-
-
-
-
-::: {.cell}
-
-```{.r .cell-code}
-# sample_attrition |> filter(!miss_openalex & !miss_copub)
-
-# TODO: Check counting descrepancy 10 pax.
-```
-:::
-
-
---->
+</section>
+<section id="applications" class="level2">
+<h2 class="anchored" data-anchor-id="applications">Applications</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>topics <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb6-2"><a href="#cb6-2"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholars'</span>, <span class="at">location =</span> <span class="st">"./data/clean/"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3"></a>topic_table <span class="ot">=</span> data <span class="sc">|&gt;</span> <span class="fu">create_topic_table</span>(<span class="at">base_year =</span> <span class="dv">2025</span>, <span class="at">window =</span> <span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>topic_types <span class="ot">=</span> <span class="fu">c</span>(<span class="st">'field'</span>, <span class="st">'subfield'</span>)</span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="cf">for</span> (topic_type <span class="cf">in</span> topic_types) {</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  topics[[<span class="st">'counts'</span>]][[topic_type]] <span class="ot">=</span> topic_table <span class="sc">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>    <span class="fu">pivot_topic_table</span>(<span class="at">topic_type =</span> topic_type) <span class="sc">|&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>    <span class="fu">aggregate_topic_table</span>()</span>
+<span id="cb7-6"><a href="#cb7-6"></a></span>
+<span id="cb7-7"><a href="#cb7-7"></a>  <span class="co"># calculate proximity</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>  topics[[<span class="st">'prox'</span>]][[topic_type]] <span class="ot">=</span> topics[[<span class="st">'counts'</span>]][[topic_type]] <span class="sc">|&gt;</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a>    <span class="fu">calculate_proximity_matrix</span>()</span>
+<span id="cb7-10"><a href="#cb7-10"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>years <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">2022</span>, <span class="dv">2024</span>, <span class="dv">2025</span>)</span>
+<span id="cb8-2"><a href="#cb8-2"></a></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="cf">for</span> (topic_type <span class="cf">in</span> topic_types) {</span>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="cf">for</span> (year <span class="cf">in</span> years){</span>
+<span id="cb8-5"><a href="#cb8-5"></a>    year_lab <span class="ot">=</span> <span class="fu">as.character</span>(year)</span>
+<span id="cb8-6"><a href="#cb8-6"></a>    </span>
+<span id="cb8-7"><a href="#cb8-7"></a>    <span class="co"># create a proportions table</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>    P <span class="ot">=</span> data <span class="sc">|&gt;</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a>      <span class="fu">create_topic_table</span>(<span class="at">base_year =</span> year, <span class="at">window =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a>      <span class="fu">pivot_topic_table</span>(<span class="at">topic_type =</span> topic_type) <span class="sc">|&gt;</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a>      <span class="fu">aggregate_topic_table</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>      <span class="fu">column_to_rownames</span>(<span class="at">var=</span><span class="st">"uid"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb8-13"><a href="#cb8-13"></a>      <span class="fu">as.matrix</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a>      <span class="fu">prop.table</span>(<span class="at">margin =</span> <span class="dv">1</span>)</span>
+<span id="cb8-15"><a href="#cb8-15"></a></span>
+<span id="cb8-16"><a href="#cb8-16"></a>    <span class="co"># fetch proximity table</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>    prox <span class="ot">=</span> topics[[<span class="st">'prox'</span>]][[topic_type]]</span>
+<span id="cb8-18"><a href="#cb8-18"></a></span>
+<span id="cb8-19"><a href="#cb8-19"></a>    <span class="co"># calculate interdisciplinarity</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a>    topics[[<span class="st">'intdis'</span>]][[topic_type]][[year_lab]] <span class="ot">=</span> P <span class="sc">|&gt;</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a>      <span class="fu">calculate_interdisciplinarity</span>(prox) </span>
+<span id="cb8-22"><a href="#cb8-22"></a>  }</span>
+<span id="cb8-23"><a href="#cb8-23"></a></span>
+<span id="cb8-24"><a href="#cb8-24"></a>  <span class="co"># combine results into matrix</span></span>
+<span id="cb8-25"><a href="#cb8-25"></a>  res <span class="ot">=</span> topics[[<span class="st">'intdis'</span>]][[topic_type]] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">t</span>()</span>
+<span id="cb8-26"><a href="#cb8-26"></a>  <span class="fu">colnames</span>(res) <span class="ot">=</span> <span class="fu">as.character</span>(<span class="fu">paste</span>(<span class="st">'int'</span>, years, <span class="at">sep =</span> <span class="st">'_'</span>))</span>
+<span id="cb8-27"><a href="#cb8-27"></a>  topics[[<span class="st">'intdis'</span>]][[topic_type]] <span class="ot">=</span> res</span>
+<span id="cb8-28"><a href="#cb8-28"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># calculate dissimilarties per year per topic type</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="cf">for</span> (topic_type <span class="cf">in</span> topic_types){</span>
+<span id="cb9-3"><a href="#cb9-3"></a>  <span class="cf">for</span> (year <span class="cf">in</span> years){</span>
+<span id="cb9-4"><a href="#cb9-4"></a>    year_lab <span class="ot">=</span> <span class="fu">as.character</span>(year)</span>
+<span id="cb9-5"><a href="#cb9-5"></a>    topics[[<span class="st">'dissim'</span>]][[topic_type]][[year_lab]] <span class="ot">=</span> topics <span class="sc">|&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a>      <span class="fu">calculate_dissimilarity</span>(year, topic_type)</span>
+<span id="cb9-7"><a href="#cb9-7"></a>  }</span>
+<span id="cb9-8"><a href="#cb9-8"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">fsaveRDS</span>(topics, <span class="st">'topics'</span>, <span class="st">'./data/clean/'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>topics <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'topics'</span>, <span class="at">location =</span> <span class="st">'clean'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 
 
 </section>

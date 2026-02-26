@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-02-06">
+<meta name="dcterms.date" content="2026-02-26">
 
 <title>Data Processing Scholars – Networks</title>
 <style>
@@ -343,19 +343,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">Data Cleaning</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../src/code/08.process_affiliations.html">
- <span class="dropdown-text">Process Affiliations</span></a>
+    <a class="dropdown-item" href="../../src/code/08.process_topics.html">
+ <span class="dropdown-text">Process Topics</span></a>
   </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-analyses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Analyses</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-analyses">    
         <li>
-    <a class="dropdown-item" href="../../src/code/09.descriptive_analysis.html">
- <span class="dropdown-text">Descriptive Analyses</span></a>
+    <a class="dropdown-item" href="../../src/code/09.operationalizations.html">
+ <span class="dropdown-text">Operationalizations</span></a>
   </li>  
     </ul>
   </li>
@@ -395,7 +388,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#clean_universities" id="toc-clean_universities" class="nav-link" data-scroll-target="#clean_universities"><code>clean_universities()</code></a></li>
   <li><a href="#parse_job_titles" id="toc-parse_job_titles" class="nav-link" data-scroll-target="#parse_job_titles"><code>parse_job_titles()</code></a></li>
   <li><a href="#construct_positions" id="toc-construct_positions" class="nav-link" data-scroll-target="#construct_positions"><code>construct_positions()</code></a></li>
-  <li><a href="#clean_functie" id="toc-clean_functie" class="nav-link" data-scroll-target="#clean_functie"><code>clean_functie()</code></a></li>
+  <li><a href="#add_functie" id="toc-add_functie" class="nav-link" data-scroll-target="#add_functie"><code>add_functie()</code></a></li>
   </ul></li>
   <li><a href="#application" id="toc-application" class="nav-link" data-scroll-target="#application">Application</a></li>
   </ul>
@@ -418,7 +411,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 6, 2026</p>
+      <p class="date">February 26, 2026</p>
     </div>
   </div>
   
@@ -934,14 +927,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-23"><a href="#cb11-23"></a>      <span class="at">fellow =</span> <span class="fu">ifelse</span>(is_fellow, <span class="st">'Fellow'</span>, <span class="cn">NA_character_</span>)</span>
 <span id="cb11-24"><a href="#cb11-24"></a>    ) <span class="sc">|&gt;</span></span>
 <span id="cb11-25"><a href="#cb11-25"></a>    <span class="fu">select</span>(<span class="sc">!</span><span class="fu">starts_with</span>(<span class="st">'is_'</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb11-26"><a href="#cb11-26"></a>    <span class="fu">unite</span>(<span class="st">'position2'</span>, visiting<span class="sc">:</span>fellow, <span class="at">na.rm=</span><span class="cn">TRUE</span>, <span class="at">remove=</span><span class="cn">FALSE</span>)</span>
+<span id="cb11-26"><a href="#cb11-26"></a>    <span class="fu">unite</span>(<span class="st">'position2'</span>, visiting<span class="sc">:</span>fellow, <span class="at">na.rm=</span><span class="cn">TRUE</span>, <span class="at">remove=</span><span class="cn">FALSE</span>, <span class="at">sep =</span> <span class="st">" "</span>)</span>
 <span id="cb11-27"><a href="#cb11-27"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
 </section>
-<section id="clean_functie" class="level3">
-<h3 class="anchored" data-anchor-id="clean_functie"><code>clean_functie()</code></h3>
+<section id="add_functie" class="level3">
+<h3 class="anchored" data-anchor-id="add_functie"><code>add_functie()</code></h3>
 <p>Create a cleaned <code>functie</code> variable based on parsed job titles and constructed positions.</p>
 <section id="arguments-9" class="level4">
 <h4 class="anchored" data-anchor-id="arguments-9">Arguments</h4>
@@ -949,30 +942,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <blockquote class="blockquote">
 <p>Tibble or data frame containing at least <code>naam</code>, <code>date</code>, and <code>functie</code>.</p>
 </blockquote>
-<p><strong><code>.what</code></strong></p>
-<blockquote class="blockquote">
-<p>Character string controlling which cleaned representation to write back into <code>functie</code>.<br>
-<code>"complete"</code> (default) uses the core academic rank (<code>position</code>);<br>
-<code>"simplified"</code> uses <code>position2</code>, which also includes distinctions such as visiting, external, emeritus, etc.</p>
-</blockquote>
 </section>
 <section id="method-9" class="level4">
 <h4 class="anchored" data-anchor-id="method-9">Method</h4>
-<p>The function orchestrates the full job-title cleaning pipeline. It first passes <code>data</code> through <code>parse_job_titles()</code> to derive the set of boolean <code>is_</code> indicators. The result is then processed by <code>construct_positions()</code>, which creates a canonical <code>position</code> and an extended <code>position2</code> with concatenated distinctions. Depending on the <code>.what</code> argument, <code>clean_functie()</code> overwrites the original <code>functie</code> column with either <code>position</code> (for a strict rank-only variable) or <code>position2</code> (for a more descriptive label that retains visiting/external/fellow-type qualifiers). It returns the original dataset with a standardized <code>functie</code> column suitable for analysis and reporting.</p>
+<p>The function orchestrates the full job-title cleaning pipeline. It first passes <code>data</code> through <code>parse_job_titles()</code> to derive the set of boolean <code>is_</code> indicators. The result is then processed by <code>construct_positions()</code>, which creates a canonical <code>position</code> and an extended <code>position2</code> with concatenated distinctions. Depending on the <code>.what</code> argument, <code>add_functie()</code> overwrites the original <code>functie</code> column with either <code>position</code> (for a strict rank-only variable) or <code>position2</code> (for a more descriptive label that retains visiting/external/fellow-type qualifiers). It returns the original dataset with a standardized <code>functie</code> column suitable for analysis and reporting.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>clean_functie <span class="ot">=</span> <span class="cf">function</span>(data, <span class="at">.what=</span><span class="st">'complete'</span>){</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>add_functie <span class="ot">=</span> <span class="cf">function</span>(data){</span>
 <span id="cb12-2"><a href="#cb12-2"></a>  test <span class="ot">=</span> data <span class="sc">|&gt;</span> </span>
 <span id="cb12-3"><a href="#cb12-3"></a>    <span class="fu">parse_job_titles</span>() <span class="sc">|&gt;</span></span>
 <span id="cb12-4"><a href="#cb12-4"></a>    <span class="fu">construct_positions</span>()</span>
 <span id="cb12-5"><a href="#cb12-5"></a></span>
-<span id="cb12-6"><a href="#cb12-6"></a>  <span class="cf">if</span> (.what <span class="sc">==</span> <span class="st">'complete'</span>){</span>
-<span id="cb12-7"><a href="#cb12-7"></a>    data[<span class="st">'functie'</span>] <span class="ot">=</span> test<span class="sc">$</span>position</span>
-<span id="cb12-8"><a href="#cb12-8"></a>  } <span class="cf">else</span> <span class="cf">if</span> (.what <span class="sc">==</span> <span class="st">'simplified'</span>){</span>
-<span id="cb12-9"><a href="#cb12-9"></a>    data[<span class="st">'functie'</span>] <span class="ot">=</span> test<span class="sc">$</span>position2</span>
-<span id="cb12-10"><a href="#cb12-10"></a>  }</span>
-<span id="cb12-11"><a href="#cb12-11"></a></span>
-<span id="cb12-12"><a href="#cb12-12"></a>  <span class="fu">return</span>(data)</span>
-<span id="cb12-13"><a href="#cb12-13"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-6"><a href="#cb12-6"></a>  data[<span class="st">'functie'</span>] <span class="ot">=</span> test<span class="sc">$</span>position</span>
+<span id="cb12-7"><a href="#cb12-7"></a>  data[<span class="st">'functie2'</span>] <span class="ot">=</span> test<span class="sc">$</span>position2</span>
+<span id="cb12-8"><a href="#cb12-8"></a>  </span>
+<span id="cb12-9"><a href="#cb12-9"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb12-10"><a href="#cb12-10"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
@@ -993,12 +977,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-10"><a href="#cb13-10"></a>  <span class="fu">fix_google_scholar_id</span>() <span class="sc">|&gt;</span></span>
 <span id="cb13-11"><a href="#cb13-11"></a>  <span class="fu">select</span>(<span class="sc">-</span>specialisatie, <span class="sc">-</span>notitie, <span class="sc">-</span>additional, <span class="sc">-</span>checked) <span class="sc">|&gt;</span></span>
 <span id="cb13-12"><a href="#cb13-12"></a>  <span class="fu">arrange</span>(discipline, date, naam, university) <span class="sc">|&gt;</span></span>
-<span id="cb13-13"><a href="#cb13-13"></a>  <span class="fu">clean_functie</span>()</span>
-<span id="cb13-14"><a href="#cb13-14"></a></span>
-<span id="cb13-15"><a href="#cb13-15"></a><span class="co"># save data</span></span>
-<span id="cb13-16"><a href="#cb13-16"></a><span class="fu">fsaveRDS</span>(data, <span class="st">'scholarid'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-13"><a href="#cb13-13"></a>  <span class="fu">drop_na</span>(naam) <span class="sc">|&gt;</span></span>
+<span id="cb13-14"><a href="#cb13-14"></a>  <span class="fu">add_functie</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># save data</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="fu">fsaveRDS</span>(data, <span class="st">'scholarid'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "SAVING: ./data/processed/20260206scholarid.Rds"</code></pre>
+<pre><code>[1] "SAVING: ./data/processed/20260226scholarid.Rds"</code></pre>
 </div>
 </div>
 

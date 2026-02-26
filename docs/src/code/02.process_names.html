@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-02-06">
+<meta name="dcterms.date" content="2026-02-26">
 
 <title>Data Processing Names – Networks</title>
 <style>
@@ -343,19 +343,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">Data Cleaning</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../src/code/08.process_affiliations.html">
- <span class="dropdown-text">Process Affiliations</span></a>
+    <a class="dropdown-item" href="../../src/code/08.process_topics.html">
+ <span class="dropdown-text">Process Topics</span></a>
   </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-analyses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Analyses</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-analyses">    
         <li>
-    <a class="dropdown-item" href="../../src/code/09.descriptive_analysis.html">
- <span class="dropdown-text">Descriptive Analyses</span></a>
+    <a class="dropdown-item" href="../../src/code/09.operationalizations.html">
+ <span class="dropdown-text">Operationalizations</span></a>
   </li>  
     </ul>
   </li>
@@ -414,7 +407,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 6, 2026</p>
+      <p class="date">February 26, 2026</p>
     </div>
   </div>
   
@@ -728,25 +721,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholarid'</span>) </span>
 <span id="cb10-2"><a href="#cb10-2"></a></span>
 <span id="cb10-3"><a href="#cb10-3"></a>names <span class="ot">=</span> data <span class="sc">|&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">select</span>(naam) <span class="sc">|&gt;</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a>  <span class="fu">arrange</span>(naam) <span class="sc">|&gt;</span></span>
-<span id="cb10-6"><a href="#cb10-6"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-7"><a href="#cb10-7"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-8"><a href="#cb10-8"></a>  <span class="fu">parse_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-9"><a href="#cb10-9"></a>  <span class="fu">extract_initials</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-10"><a href="#cb10-10"></a>  <span class="fu">patch_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-11"><a href="#cb10-11"></a>  <span class="fu">extract_maiden_name</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-12"><a href="#cb10-12"></a>  <span class="fu">format_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-13"><a href="#cb10-13"></a>  <span class="fu">add_uid</span>()</span>
-<span id="cb10-14"><a href="#cb10-14"></a></span>
-<span id="cb10-15"><a href="#cb10-15"></a><span class="fu">fsaveRDS</span>(names, <span class="st">'names'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">parse_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>  <span class="fu">extract_initials</span>() <span class="sc">|&gt;</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>  <span class="fu">patch_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>  <span class="fu">extract_maiden_name</span>() <span class="sc">|&gt;</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a>  <span class="fu">format_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a>  <span class="fu">add_uid</span>()</span>
+<span id="cb10-10"><a href="#cb10-10"></a></span>
+<span id="cb10-11"><a href="#cb10-11"></a>data <span class="ot">=</span> names <span class="sc">|&gt;</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a>  <span class="fu">bind_cols</span>(data <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>naam))</span>
+<span id="cb10-13"><a href="#cb10-13"></a></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="fu">fsaveRDS</span>(data, <span class="st">'names'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>names <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["uid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["naam"],"name":[2],"type":["chr"],"align":["left"]},{"label":["clean_name_full"],"name":[3],"type":["chr"],"align":["left"]},{"label":["clean_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["initials"],"name":[5],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[6],"type":["chr"],"align":["left"]},{"label":["particle"],"name":[7],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[8],"type":["chr"],"align":["left"]},{"label":["maiden_name"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"82tg3wp6","2":"A. Micheli","3":"A. Micheli","4":"A. Micheli","5":"A.","6":"NA","7":"NA","8":"Micheli","9":"NA"},{"1":"82tg3xb5","2":"A. Scheuer","3":"Alisha Scheuer","4":"Alisha Scheuer","5":"A.","6":"Alisha","7":"NA","8":"Scheuer","9":"NA"},{"1":"82tg3xbj","2":"A.B. Bieleman","3":"Bert Bieleman","4":"Bert Bieleman","5":"A.B.","6":"Bert","7":"NA","8":"Bieleman","9":"NA"},{"1":"82tg3xtf","2":"A.J. Venema","3":"A.J. Venema","4":"A.J. Venema","5":"A.J.","6":"NA","7":"NA","8":"Venema","9":"NA"},{"1":"82tg3wkg","2":"A.J.D. de Lacey","3":"Alex de Lacey","4":"Alex de Lacey","5":"A.J.D.","6":"Alex","7":"de","8":"Lacey","9":"NA"},{"1":"82tg3xp3","2":"A.J.G.M. van Montfort","3":"Andre van Montfort","4":"Andre van Montfort","5":"A.J.G.M.","6":"Andre","7":"van","8":"Montfort","9":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["uid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["naam"],"name":[2],"type":["chr"],"align":["left"]},{"label":["clean_name_full"],"name":[3],"type":["chr"],"align":["left"]},{"label":["clean_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["initials"],"name":[5],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[6],"type":["chr"],"align":["left"]},{"label":["particle"],"name":[7],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[8],"type":["chr"],"align":["left"]},{"label":["maiden_name"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"832m3z1c","2":"A.J.G.M. van Montfort","3":"Andre van Montfort","4":"Andre van Montfort","5":"A.J.G.M.","6":"Andre","7":"van","8":"Montfort","9":"NA"},{"1":"832m3z48","2":"Abbey Steele","3":"Abbey Steele","4":"Abbey Steele","5":"NA","6":"Abbey","7":"NA","8":"Steele","9":"NA"},{"1":"832m3z3y","2":"Adina Akbik","3":"Adina Akbik","4":"Adina Akbik","5":"NA","6":"Adina","7":"NA","8":"Akbik","9":"NA"},{"1":"832m3z39","2":"Agha Bayramov","3":"Agha Bayramov","4":"Agha Bayramov","5":"NA","6":"Agha","7":"NA","8":"Bayramov","9":"NA"},{"1":"832m3z6w","2":"Alana Castro de Azevedo","3":"Alana Castro de Azevedo","4":"Alana Castro de Azevedo","5":"NA","6":"Alana Castro","7":"de","8":"Azevedo","9":"NA"},{"1":"832m406k","2":"Aleksandra Khokhlova","3":"Aleksandra Khokhlova","4":"Aleksandra Khokhlova","5":"NA","6":"Aleksandra","7":"NA","8":"Khokhlova","9":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>

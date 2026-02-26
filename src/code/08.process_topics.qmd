@@ -1,0 +1,235 @@
+---
+title: Prune Scrape Data
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+
+execute: 
+  eval: false
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(slider)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(tibble)
+library(purrr)
+```
+
+## Functions
+
+
+```{r}
+create_topic_table = function(data, base_year = 2022, window = 5){
+  data[['works']] |>
+    keep(~ nrow(.x) > 0) |>
+    bind_rows() |>
+    filter(
+      publication_year >= (base_year - window),
+      publication_year < base_year
+    ) |>
+    select(uid, work_id, publication_year, topics) |>
+    unnest_longer(topics) |>
+    unnest_wider(topics) |>
+    mutate(
+      id = str_remove(id, 'https://openalex.org/') |>
+        str_replace('subfields/', 'S') |>
+        str_replace('fields/', 'F') |>
+        str_replace('domains/', 'D')
+    ) 
+}
+```
+
+```{r}
+pivot_topic_table = function(topic_table, topic_type = NA){
+  # assert topic_type is valid
+  valid_types <- topic_table |> distinct(type) |> pull()
+  if ((is.na(topic_type) && !topic_type %in% valid_types)) {
+    warning(paste(topic_type, "is not valid"))
+  }
+
+  # select topic_type and pivot topics to wider
+  topic_table |>
+    filter(type == topic_type) |>
+    select(uid, work_id, publication_year, id) |>
+    arrange(id) |>
+    mutate(value = 1L) |>
+    pivot_wider(
+      id_cols = c(uid, work_id, publication_year),
+      names_from = id,
+      values_from = value,
+      values_fn = sum,
+      values_fill = 0L
+    )
+}
+
+aggregate_topic_table = function(table){
+  table |>
+    group_by(uid) |>
+    summarise(across(matches("\\d$"), sum))
+}
+
+calculate_proximity_matrix = function(counts){
+  d <- 1 - counts |>
+    select(matches("\\d$")) |>
+    coop::cosine()
+  diag(d) = 0
+  
+  prox <- 1 - (d/max(d))^2
+  
+  return(prox)
+}
+
+calculate_interdisciplinarity = function(P, proximity){
+  # align proximity once (same for every row)
+  prox <- proximity[colnames(P), colnames(P)]
+  P[is.na(P)] <- 0
+  prox[is.na(prox)] <- 0
+
+  res <- 1 - rowSums((P %*% prox) * P)  # numeric vector, length = nrow(P)
+  names(res) <- rownames(P)
+
+  return(res)
+}
+```
+
+```{r}
+create_empty_author_matrix = function(topics, topic_type){
+  # get all author information
+  authors = topics[['counts']][['field']] |> pull(uid)
+  k_authors =  authors |> n_distinct()
+
+  D = matrix(
+    NA, nrow = k_authors, ncol = k_authors,
+    dimnames = list(authors, authors)
+  )
+  return (D)
+}
+
+calculate_dissimilarity = function (topics, year, topic_type){
+  # create empty dissimilarity table for all possible authors
+  D = create_empty_author_matrix(topics)
+
+  # get author data for specified year
+  A = data |>
+    create_topic_table(base_year = year, window = 2) |>
+    pivot_topic_table(topic_type = topic_type) |>
+    aggregate_topic_table() |>
+    column_to_rownames(var="uid") |> 
+    as.matrix() |>
+    prop.table(margin = 1)
+
+  # align A to prox columns
+  prox = topics[['prox']][[topic_type]]
+  M = 1 - prox[colnames(A), colnames(A)]
+  M[is.na(M)] <- 0
+
+  # calculate dissimilarity per author (i) coauthor (j) pair
+  for (i in rownames(A)) {
+    for (j in rownames(A)) {
+      diff = abs(A[i,] - A[j,]) / 2
+      D[i, j] = sum(diff %o% diff * M) * 2
+    }
+  }
+
+  # normalize results
+  D <- D / max(D, na.rm = TRUE)
+  return(D)
+}
+```
+
+## Applications
+```{r}
+topics = list()
+data = freadRDS2('scholars', location = "./data/clean/")
+topic_table = data |> create_topic_table(base_year = 2025, window = 8)
+```
+
+```{r}
+topic_types = c('field', 'subfield')
+for (topic_type in topic_types) {
+  topics[['counts']][[topic_type]] = topic_table |>
+    pivot_topic_table(topic_type = topic_type) |>
+    aggregate_topic_table()
+
+  # calculate proximity
+  topics[['prox']][[topic_type]] = topics[['counts']][[topic_type]] |>
+    calculate_proximity_matrix()
+}
+```
+
+```{r}
+years = c(2022, 2024, 2025)
+
+for (topic_type in topic_types) {
+  for (year in years){
+    year_lab = as.character(year)
+    
+    # create a proportions table
+    P = data |>
+      create_topic_table(base_year = year, window = 2) |>
+      pivot_topic_table(topic_type = topic_type) |>
+      aggregate_topic_table() |>
+      column_to_rownames(var="uid") |> 
+      as.matrix() |>
+      prop.table(margin = 1)
+
+    # fetch proximity table
+    prox = topics[['prox']][[topic_type]]
+
+    # calculate interdisciplinarity
+    topics[['intdis']][[topic_type]][[year_lab]] = P |>
+      calculate_interdisciplinarity(prox) 
+  }
+
+  # combine results into matrix
+  res = topics[['intdis']][[topic_type]] |> bind_rows() |> t()
+  colnames(res) = as.character(paste('int', years, sep = '_'))
+  topics[['intdis']][[topic_type]] = res
+}
+
+```
+
+```{r}
+# calculate dissimilarties per year per topic type
+for (topic_type in topic_types){
+  for (year in years){
+    year_lab = as.character(year)
+    topics[['dissim']][[topic_type]][[year_lab]] = topics |>
+      calculate_dissimilarity(year, topic_type)
+  }
+}
+
+```
+
+```{r}
+fsaveRDS(topics, 'topics', './data/clean/')
+```
+
+```{r}
+topics = freadRDS2('topics', location = 'clean')
+```

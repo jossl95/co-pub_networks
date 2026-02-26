@@ -565,9 +565,6 @@ rao_stirling9 <- subfield_pairs %>%
 
 
 
-# Combining the interdisciplinary measures in 1 dataframe
-
-
 ```{r}
 
 pubs_balance %>%
