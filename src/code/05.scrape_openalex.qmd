@@ -70,7 +70,7 @@ Finally, the two name columns are stacked with `pivot_longer()`, yielding a long
 
 ```{r}
 normalize_university_names = function(df){
-  # 1) Pattern → c(english, native) (use ^...$ to force exact matches)
+  # 1. Pattern → c(english, native) (use ^...$ to force exact matches)
    lookup = list(
     "VU"                = c("Free University Amsterdam", 
                             "Vrije Universiteit Amsterdam"),
@@ -116,7 +116,7 @@ normalize_university_names = function(df){
     "^UvH$"             = c(NA, NA)
   )
 
-  # 2) set the default values for university_names
+  # 2. set the default values for university_names
   df = df |>
     mutate(
       university = map_chr(university, ~ {
@@ -128,7 +128,7 @@ normalize_university_names = function(df){
       university_name2 = NA_character_           # default native → NA
     )
 
-  # 3) replace the university name when the pattern is detected in university
+  # 3. replace the university name when the pattern is detected in university
   for (pat in names(lookup)) {
     vals = lookup[[pat]]
     idx  = str_detect(df$university, pat)
@@ -141,7 +141,7 @@ normalize_university_names = function(df){
     }
   }
 
-  # 4) stack the values of the two university_name variables
+  # 4. stack the values of the two university_name variables
   df = df |>
     pivot_longer(
       cols = c(university_name, university_name2),
@@ -184,12 +184,12 @@ oa_fetch_institutions = function(institutions, pause=1){
 
   cli_alert("Starting now, at {Sys.time()}")
   cli_progress_bar("Scraping institutions", total = k, clear = FALSE)
-  # 1) iterate over all institutionsinstitutions
+  # 1. iterate over all institutionsinstitutions
   for (institution in institutions){
     # sleep if a pause time is set
     if (pause > 0) Sys.sleep(pause)
 
-    # 2) fetch result for all institutions
+    # 2. fetch result for all institutions
     res = tryCatch(
       oa_fetch(
           entity = "institutions", search = institution, api_key = APIKEY
@@ -201,20 +201,20 @@ oa_fetch_institutions = function(institutions, pause=1){
     cli_progress_update()
     
 
-    # 3) for cases with a valid result rename colums
+    # 3. for cases with a valid result rename colums
     if (is.null(res) || !is_tibble(res)) next
     res = res |> rename(
       "institution_id" = "id",
       "institution_name" = "display_name"
     )
 
-    # 4.1) single result hitsare directly stored
+    # 4.1. single result hitsare directly stored
     if (nrow(res) == 1L) {
       hold[[institution]] <- res
       next
     }
 
-    # 4.2) multiple result hits are processed and checked the institution_name 
+    # 4.2. multiple result hits are processed and checked the institution_name 
     #      matches the OpenAlex display_name for institutions
     pat = paste0("^", institution, "$")
     idx = str_detect(res$institution_name, pat)
@@ -445,7 +445,7 @@ clean_last_known_institutions <- function(tab){
     country_code = character()
   )
 
-  # 1) If the column is not present, create it (one empty tibble per row)
+  # 1. If the column is not present, create it (one empty tibble per row)
   if (!"last_known_institutions" %in% names(tab)) {
     tab <- tab %>%
       mutate(last_known_institutions = replicate(
@@ -453,7 +453,7 @@ clean_last_known_institutions <- function(tab){
       relocate(last_known_institutions, .before = topics)
   }
 
-  # 2) If entries are missing/NULL/NA/list(NA), replace them with empty_inst
+  # 2. If entries are missing/NULL/NA/list(NA), replace them with empty_inst
   tab <- tab %>%
     mutate(
       last_known_institutions = map(last_known_institutions, \(x) {

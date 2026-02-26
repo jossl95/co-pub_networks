@@ -33,6 +33,11 @@ source("src/utils/custom_functions.r")
 # load and activate packages
 library(tidyverse)
 library(slider)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(tibble)
+library(purrr)
 ```
 
 ## Functions
@@ -423,12 +428,6 @@ set_time_matrix = function(){
 ```
 
 ```{r}
-library(dplyr)
-library(tidyr)
-library(stringr)
-library(tibble)
-library(purrr)
-
 #' Create long affiliation table (uid-year-first affiliation)
 create_affiliations_long <- function(demographics,
                                      affix = "first",

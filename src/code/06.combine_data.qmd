@@ -96,16 +96,16 @@ parse_works = function(data){
   uids = data[['demographics']] |> pull(uid) |> unique()
   works = data[['works']]
 
-  # 1) Deduplicate valid results
+  # 1. Deduplicate valid results
   works <- works |>
     imap(~ if (inherits(.x, "data.frame")) distinct(.x) else .x)
 
-  # 2) Define a placeholder row for missing uids
+  # 2. Define a placeholder row for missing uids
   placeholder <- function(uid) {
     tibble(uid = uid, has_works = FALSE)
   }
 
-  # 3) Expand to full uid set, ensuring EVERY element is a tibble
+  # 3. Expand to full uid set, ensuring EVERY element is a tibble
   data[['works']] <- setNames(
     map(uids, function(uid) {
       if (uid %in% names(works) && inherits(works[[uid]], "data.frame")) {
@@ -164,16 +164,16 @@ parse_scholars = function(data){
   uids = data[['demographics']] |> pull(uid) |> unique()
   scholars = data[['scholars_oa']]
 
-  # 1) Deduplicate valid results
+  # 1. Deduplicate valid results
   scholars <- scholars |>
     imap(~ if (inherits(.x, "data.frame")) distinct(.x) else .x)
 
-  # 2) Define a placeholder row for missing uids
+  # 2. Define a placeholder row for missing uids
   placeholder <- function(uid) {
     tibble(uid = uid, has_author_id = FALSE)
   }
 
-  # 3) Expand to full uid set, ensuring EVERY element is a tibble
+  # 3. Expand to full uid set, ensuring EVERY element is a tibble
   data[['scholars_oa']] <- setNames(
     map(uids, function(uid) {
       if (uid %in% names(scholars) && inherits(scholars[[uid]], "data.frame")) {
