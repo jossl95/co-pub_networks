@@ -8,9 +8,6 @@ format:
       - href: 0a.custom_functions.html
         icon: file-code
         text: Custom Functions
-
-execute: 
-  eval: false
 ---
 
 ## Getting Started
@@ -372,7 +369,7 @@ ggplot(dens_df, aes(x = dissim)) +
 years <- c("2022", "2024", "2025")
 
 dens_df <- map_dfr(years, function(y) {
-  m <- topics[["dissim"]][["domain"]][[y]]
+  m <- topics[["dissim"]][["subfield"]][[y]]
   tibble(
     year = y,
     dissim = m[upper.tri(m)]
