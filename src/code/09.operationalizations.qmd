@@ -444,10 +444,6 @@ ggplot(plot_df, aes(x = university, y = n)) +
   labs(x = NULL, y = "Count")
 ```
 
- check h-index en i10 index met oa data.
+check h-index en i10 index met oa data.
  - quick cum-cit / cum-pub 
  
-
-```{r}
-
-```

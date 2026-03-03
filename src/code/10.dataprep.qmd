@@ -1,0 +1,43 @@
+---
+title: Prune Scrape Data
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(RSiena)
+```
+
+```{r}
+data = freadRDS2('scholars', location = "./data/clean/")
+topics = freadRDS2('topics', location = './data/clean')
+```
+
+
+```{r}
+
+```
