@@ -16,3 +16,6 @@ processed/old_*
 processed/old_*
 combined/old_*
 /.luarc.json
+
+old_*.Rds
+**/old_*.Rds
