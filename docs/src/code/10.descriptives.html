@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2026-03-05">
 
-<title>Descriptive Statistics – Networks</title>
+<title>Descriptive Analysis – Networks</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -359,6 +359,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
     </ul>
   </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-analyses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Analyses</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-analyses">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/10.descriptives.html">
+ <span class="dropdown-text">Descriptive Analysis</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item compact">
@@ -395,7 +406,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Descriptive Statistics</h1>
+<h1 class="title">Descriptive Analysis</h1>
 </div>
 
 
@@ -718,42 +729,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-4"><a href="#cb12-4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>netnew <span class="ot">=</span> colnet<span class="sc">$</span>nets[[<span class="dv">1</span>]]</span>
-<span id="cb13-2"><a href="#cb13-2"></a>noisolate <span class="ot">=</span> <span class="fu">rowSums</span>(netnew) <span class="sc">&gt;</span> <span class="dv">0</span></span>
-<span id="cb13-3"><a href="#cb13-3"></a>newnet <span class="ot">=</span> netnew[noisolate, noisolate]</span>
-<span id="cb13-4"><a href="#cb13-4"></a>df_ego <span class="ot">=</span> colnet<span class="sc">$</span>data <span class="sc">|&gt;</span> </span>
-<span id="cb13-5"><a href="#cb13-5"></a>  <span class="fu">filter</span>(uid <span class="sc">%in%</span> <span class="fu">colnames</span>(netnew))<span class="sc">|&gt;</span></span>
-<span id="cb13-6"><a href="#cb13-6"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb13-7"><a href="#cb13-7"></a>    <span class="at">uni =</span> <span class="fu">coalesce</span>(university_22_first, university_24_first, university_25_first)</span>
-<span id="cb13-8"><a href="#cb13-8"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb13-9"><a href="#cb13-9"></a>  <span class="fu">arrange</span>(uid)</span>
-<span id="cb13-10"><a href="#cb13-10"></a></span>
-<span id="cb13-11"><a href="#cb13-11"></a></span>
-<span id="cb13-12"><a href="#cb13-12"></a>net_noiso_1 <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">graph_from_adjacency_matrix</span>(</span>
-<span id="cb13-13"><a href="#cb13-13"></a>  netnew,</span>
-<span id="cb13-14"><a href="#cb13-14"></a>  <span class="at">mode =</span> <span class="fu">c</span>(<span class="st">"undirected"</span>),</span>
-<span id="cb13-15"><a href="#cb13-15"></a>  <span class="at">weighted =</span> <span class="cn">NULL</span>,</span>
-<span id="cb13-16"><a href="#cb13-16"></a>  <span class="at">diag =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb13-17"><a href="#cb13-17"></a>  <span class="at">add.colnames =</span> <span class="cn">NULL</span>,)</span>
-<span id="cb13-18"><a href="#cb13-18"></a></span>
-<span id="cb13-19"><a href="#cb13-19"></a>l <span class="ot">&lt;-</span> <span class="fu">layout_with_fr</span>(net_noiso_1, <span class="at">niter =</span> <span class="dv">1500</span>)</span>
-<span id="cb13-20"><a href="#cb13-20"></a></span>
-<span id="cb13-21"><a href="#cb13-21"></a><span class="fu">plot</span>(net_noiso_1,</span>
-<span id="cb13-22"><a href="#cb13-22"></a>  <span class="at">vertex.color =</span> <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"UVA"</span>, <span class="st">"red"</span>,  </span>
-<span id="cb13-23"><a href="#cb13-23"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"UVG"</span>, <span class="st">"lemonchiffon"</span>, </span>
-<span id="cb13-24"><a href="#cb13-24"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"VU"</span>, <span class="st">"darkgrey"</span>, </span>
-<span id="cb13-25"><a href="#cb13-25"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"UVT"</span>, <span class="st">"blue"</span>,  </span>
-<span id="cb13-26"><a href="#cb13-26"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"RU"</span>, <span class="st">"purple"</span>,</span>
-<span id="cb13-27"><a href="#cb13-27"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"EUR"</span>, <span class="st">"yellow"</span>,</span>
-<span id="cb13-28"><a href="#cb13-28"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"UU"</span>, <span class="st">"green"</span>,</span>
-<span id="cb13-29"><a href="#cb13-29"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"UL"</span>, <span class="st">"coral"</span>, <span class="st">"white"</span>)))))))),</span>
-<span id="cb13-30"><a href="#cb13-30"></a>  <span class="at">vertex.shape =</span> <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">'female'</span>, <span class="st">"circle"</span>, <span class="st">"square"</span>),</span>
-<span id="cb13-31"><a href="#cb13-31"></a>  <span class="at">vertex.size =</span> <span class="dv">2</span> <span class="sc">+</span> igraph<span class="sc">::</span><span class="fu">degree</span>(net_noiso_1, <span class="at">mode =</span> <span class="st">'in'</span>) <span class="sc">^</span> <span class="fl">0.5</span>,</span>
-<span id="cb13-32"><a href="#cb13-32"></a>  <span class="at">vertex.label =</span> <span class="cn">NA</span>,</span>
-<span id="cb13-33"><a href="#cb13-33"></a>  <span class="at">vertex.size =</span> <span class="dv">4</span>,</span>
-<span id="cb13-34"><a href="#cb13-34"></a>  <span class="at">edge.width =</span> <span class="fl">0.2</span>,</span>
-<span id="cb13-35"><a href="#cb13-35"></a>  <span class="at">edge.arrow.size =</span> <span class="fl">0.2</span>,</span>
-<span id="cb13-36"><a href="#cb13-36"></a>  <span class="at">layout =</span> l)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>net <span class="ot">=</span> <span class="fu">fcolnet2</span>(samp, </span>
+<span id="cb13-2"><a href="#cb13-2"></a>  <span class="at">type =</span> <span class="st">'all'</span>,</span>
+<span id="cb13-3"><a href="#cb13-3"></a>  <span class="at">waves =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">2020</span>, <span class="dv">2026</span>))</span>
+<span id="cb13-4"><a href="#cb13-4"></a>)</span>
+<span id="cb13-5"><a href="#cb13-5"></a></span>
+<span id="cb13-6"><a href="#cb13-6"></a>noisolate <span class="ot">=</span> <span class="fu">rowSums</span>(net<span class="sc">$</span>nets[[<span class="dv">1</span>]]) <span class="sc">&gt;</span> <span class="dv">0</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a><span class="co"># net$nets[[1]] = net$nets[[1]][noisolate, noisolate]</span></span>
+<span id="cb13-8"><a href="#cb13-8"></a></span>
+<span id="cb13-9"><a href="#cb13-9"></a>net<span class="sc">$</span>graph  <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">graph_from_adjacency_matrix</span>(</span>
+<span id="cb13-10"><a href="#cb13-10"></a>  net<span class="sc">$</span>nets[[<span class="dv">1</span>]],</span>
+<span id="cb13-11"><a href="#cb13-11"></a>  <span class="at">mode =</span> <span class="fu">c</span>(<span class="st">"undirected"</span>),</span>
+<span id="cb13-12"><a href="#cb13-12"></a>  <span class="at">weighted =</span> <span class="cn">NULL</span>,</span>
+<span id="cb13-13"><a href="#cb13-13"></a>  <span class="at">diag =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb13-14"><a href="#cb13-14"></a>  <span class="at">add.colnames =</span> <span class="cn">NULL</span>,)</span>
+<span id="cb13-15"><a href="#cb13-15"></a></span>
+<span id="cb13-16"><a href="#cb13-16"></a>df_ego <span class="ot">=</span> net<span class="sc">$</span>data <span class="sc">|&gt;</span> </span>
+<span id="cb13-17"><a href="#cb13-17"></a>  <span class="fu">filter</span>(uid <span class="sc">%in%</span> <span class="fu">colnames</span>(net<span class="sc">$</span>nets[[<span class="dv">1</span>]]))<span class="sc">|&gt;</span></span>
+<span id="cb13-18"><a href="#cb13-18"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-19"><a href="#cb13-19"></a>    <span class="at">uni =</span> <span class="fu">coalesce</span>(university_22_first, university_24_first, university_25_first)</span>
+<span id="cb13-20"><a href="#cb13-20"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb13-21"><a href="#cb13-21"></a>  <span class="fu">arrange</span>(uid)</span>
+<span id="cb13-22"><a href="#cb13-22"></a></span>
+<span id="cb13-23"><a href="#cb13-23"></a>l <span class="ot">&lt;-</span> <span class="fu">layout_with_fr</span>(net<span class="sc">$</span>g, <span class="at">niter =</span> <span class="dv">1500</span>)</span>
+<span id="cb13-24"><a href="#cb13-24"></a></span>
+<span id="cb13-25"><a href="#cb13-25"></a><span class="fu">plot</span>(net<span class="sc">$</span>g,</span>
+<span id="cb13-26"><a href="#cb13-26"></a>  <span class="at">vertex.color =</span> <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"UVA"</span>, <span class="st">"red"</span>,  </span>
+<span id="cb13-27"><a href="#cb13-27"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"UVG"</span>, <span class="st">"lemonchiffon"</span>, </span>
+<span id="cb13-28"><a href="#cb13-28"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"VU"</span>, <span class="st">"darkgrey"</span>, </span>
+<span id="cb13-29"><a href="#cb13-29"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"UVT"</span>, <span class="st">"blue"</span>,  </span>
+<span id="cb13-30"><a href="#cb13-30"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"RU"</span>, <span class="st">"purple"</span>,</span>
+<span id="cb13-31"><a href="#cb13-31"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"EUR"</span>, <span class="st">"yellow"</span>,</span>
+<span id="cb13-32"><a href="#cb13-32"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"UU"</span>, <span class="st">"green"</span>,</span>
+<span id="cb13-33"><a href="#cb13-33"></a>                 <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>uni <span class="sc">==</span> <span class="st">"UL"</span>, <span class="st">"coral"</span>, <span class="st">"white"</span>)))))))),</span>
+<span id="cb13-34"><a href="#cb13-34"></a>  <span class="at">vertex.shape =</span> <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">'female'</span>, <span class="st">"circle"</span>, <span class="st">"square"</span>),</span>
+<span id="cb13-35"><a href="#cb13-35"></a>  <span class="at">vertex.size =</span> <span class="dv">2</span> <span class="sc">+</span> igraph<span class="sc">::</span><span class="fu">degree</span>(net<span class="sc">$</span>g, <span class="at">mode =</span> <span class="st">'in'</span>) <span class="sc">^</span> <span class="fl">0.5</span>,</span>
+<span id="cb13-36"><a href="#cb13-36"></a>  <span class="at">vertex.label =</span> <span class="cn">NA</span>,</span>
+<span id="cb13-37"><a href="#cb13-37"></a>  <span class="at">vertex.size =</span> <span class="dv">4</span>,</span>
+<span id="cb13-38"><a href="#cb13-38"></a>  <span class="at">edge.width =</span> <span class="fl">0.2</span>,</span>
+<span id="cb13-39"><a href="#cb13-39"></a>  <span class="at">edge.arrow.size =</span> <span class="fl">0.2</span>,</span>
+<span id="cb13-40"><a href="#cb13-40"></a>  <span class="at">layout =</span> l)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -804,6 +819,130 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 </div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>plot_df <span class="ot">&lt;-</span> data[[<span class="st">"demographics"</span>]] <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb16-3"><a href="#cb16-3"></a>    <span class="co"># position = factor(</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a>    <span class="co">#   coalesce(position_25, position_24, position_22),</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a>    <span class="co">#   levels = c(</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>    <span class="co">#     "Full Professor", "Associate Professor", "Assistant Professor",</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a>    <span class="co">#     "Researcher or Lecturer", "PhD Candidate"</span></span>
+<span id="cb16-8"><a href="#cb16-8"></a>    <span class="co">#   )</span></span>
+<span id="cb16-9"><a href="#cb16-9"></a>    <span class="co"># ),</span></span>
+<span id="cb16-10"><a href="#cb16-10"></a>    <span class="at">flag =</span> forcats<span class="sc">::</span><span class="fu">fct_na_value_to_level</span>(<span class="fu">as.factor</span>(flag))</span>
+<span id="cb16-11"><a href="#cb16-11"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb16-12"><a href="#cb16-12"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(migrant)) <span class="sc">|&gt;</span></span>
+<span id="cb16-13"><a href="#cb16-13"></a>  <span class="fu">count</span>(migrant, flag)</span>
+<span id="cb16-14"><a href="#cb16-14"></a></span>
+<span id="cb16-15"><a href="#cb16-15"></a><span class="fu">ggplot</span>(plot_df, <span class="fu">aes</span>(<span class="at">x =</span> migrant, <span class="at">y =</span> n, <span class="at">fill =</span> flag)) <span class="sc">+</span></span>
+<span id="cb16-16"><a href="#cb16-16"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb16-17"><a href="#cb16-17"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Count"</span>, <span class="at">fill =</span> <span class="st">"Flag"</span>) <span class="sc">+</span></span>
+<span id="cb16-18"><a href="#cb16-18"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb16-19"><a href="#cb16-19"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="10.descriptives_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>net_first <span class="ot">=</span> <span class="fu">fcolnet2</span>(samp, </span>
+<span id="cb17-2"><a href="#cb17-2"></a>  <span class="at">type =</span> <span class="st">'first'</span>,</span>
+<span id="cb17-3"><a href="#cb17-3"></a>  <span class="at">waves =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">2020</span>, <span class="dv">2026</span>))</span>
+<span id="cb17-4"><a href="#cb17-4"></a>)</span>
+<span id="cb17-5"><a href="#cb17-5"></a>noisolate <span class="ot">=</span> <span class="fu">rowSums</span>(net_first<span class="sc">$</span>nets[[<span class="dv">1</span>]]) <span class="sc">&gt;</span> <span class="dv">0</span></span>
+<span id="cb17-6"><a href="#cb17-6"></a><span class="co"># net_first$nets[[1]] = net_first$nets[[1]][noisolate, noisolate]</span></span>
+<span id="cb17-7"><a href="#cb17-7"></a></span>
+<span id="cb17-8"><a href="#cb17-8"></a>net_first<span class="sc">$</span>graph  <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">graph_from_adjacency_matrix</span>(</span>
+<span id="cb17-9"><a href="#cb17-9"></a>  net_first<span class="sc">$</span>nets[[<span class="dv">1</span>]],</span>
+<span id="cb17-10"><a href="#cb17-10"></a>  <span class="at">mode =</span> <span class="fu">c</span>(<span class="st">"directed"</span>),</span>
+<span id="cb17-11"><a href="#cb17-11"></a>  <span class="at">weighted =</span> <span class="cn">NULL</span>,</span>
+<span id="cb17-12"><a href="#cb17-12"></a>  <span class="at">diag =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb17-13"><a href="#cb17-13"></a>  <span class="at">add.colnames =</span> <span class="cn">NULL</span>,)</span>
+<span id="cb17-14"><a href="#cb17-14"></a></span>
+<span id="cb17-15"><a href="#cb17-15"></a>net_last <span class="ot">=</span> <span class="fu">fcolnet2</span>(samp, </span>
+<span id="cb17-16"><a href="#cb17-16"></a>  <span class="at">type =</span> <span class="st">'last'</span>,</span>
+<span id="cb17-17"><a href="#cb17-17"></a>  <span class="at">waves =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">2020</span>, <span class="dv">2026</span>))</span>
+<span id="cb17-18"><a href="#cb17-18"></a>)</span>
+<span id="cb17-19"><a href="#cb17-19"></a>noisolate <span class="ot">=</span> <span class="fu">rowSums</span>(net_last<span class="sc">$</span>nets[[<span class="dv">1</span>]]) <span class="sc">&gt;</span> <span class="dv">0</span></span>
+<span id="cb17-20"><a href="#cb17-20"></a><span class="co"># net_last$nets[[1]] = net_last$nets[[1]][noisolate, noisolate]</span></span>
+<span id="cb17-21"><a href="#cb17-21"></a></span>
+<span id="cb17-22"><a href="#cb17-22"></a>net_last<span class="sc">$</span>graph <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">graph_from_adjacency_matrix</span>(</span>
+<span id="cb17-23"><a href="#cb17-23"></a>  net_last<span class="sc">$</span>nets[[<span class="dv">1</span>]],</span>
+<span id="cb17-24"><a href="#cb17-24"></a>  <span class="at">mode =</span> <span class="fu">c</span>(<span class="st">"directed"</span>),</span>
+<span id="cb17-25"><a href="#cb17-25"></a>  <span class="at">weighted =</span> <span class="cn">NULL</span>,</span>
+<span id="cb17-26"><a href="#cb17-26"></a>  <span class="at">diag =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb17-27"><a href="#cb17-27"></a>  <span class="at">add.colnames =</span> <span class="cn">NULL</span>,)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>compute_ego_statistics <span class="ot">&lt;-</span> <span class="cf">function</span>(nets) {</span>
+<span id="cb18-2"><a href="#cb18-2"></a>  g <span class="ot">&lt;-</span> nets<span class="sc">$</span>graph</span>
+<span id="cb18-3"><a href="#cb18-3"></a>  <span class="fu">stopifnot</span>(<span class="fu">inherits</span>(g, <span class="st">"igraph"</span>))</span>
+<span id="cb18-4"><a href="#cb18-4"></a></span>
+<span id="cb18-5"><a href="#cb18-5"></a>  is_dir <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">is_directed</span>(g)</span>
+<span id="cb18-6"><a href="#cb18-6"></a></span>
+<span id="cb18-7"><a href="#cb18-7"></a>  <span class="co"># 1) Basic degrees</span></span>
+<span id="cb18-8"><a href="#cb18-8"></a>  degree_total <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">degree</span>(</span>
+<span id="cb18-9"><a href="#cb18-9"></a>    g,</span>
+<span id="cb18-10"><a href="#cb18-10"></a>    <span class="at">mode =</span> <span class="cf">if</span> (is_dir) <span class="st">"all"</span> <span class="cf">else</span> <span class="st">"total"</span></span>
+<span id="cb18-11"><a href="#cb18-11"></a>  )</span>
+<span id="cb18-12"><a href="#cb18-12"></a></span>
+<span id="cb18-13"><a href="#cb18-13"></a>  degree_in <span class="ot">&lt;-</span> <span class="cf">if</span> (is_dir) {</span>
+<span id="cb18-14"><a href="#cb18-14"></a>    igraph<span class="sc">::</span><span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="st">"in"</span>)</span>
+<span id="cb18-15"><a href="#cb18-15"></a>  } <span class="cf">else</span> {</span>
+<span id="cb18-16"><a href="#cb18-16"></a>    <span class="fu">rep</span>(<span class="cn">NA_real_</span>, igraph<span class="sc">::</span><span class="fu">vcount</span>(g))</span>
+<span id="cb18-17"><a href="#cb18-17"></a>  }</span>
+<span id="cb18-18"><a href="#cb18-18"></a></span>
+<span id="cb18-19"><a href="#cb18-19"></a>  degree_out <span class="ot">&lt;-</span> <span class="cf">if</span> (is_dir) {</span>
+<span id="cb18-20"><a href="#cb18-20"></a>    igraph<span class="sc">::</span><span class="fu">degree</span>(g, <span class="at">mode =</span> <span class="st">"out"</span>)</span>
+<span id="cb18-21"><a href="#cb18-21"></a>  } <span class="cf">else</span> {</span>
+<span id="cb18-22"><a href="#cb18-22"></a>    <span class="fu">rep</span>(<span class="cn">NA_real_</span>, igraph<span class="sc">::</span><span class="fu">vcount</span>(g))</span>
+<span id="cb18-23"><a href="#cb18-23"></a>  }</span>
+<span id="cb18-24"><a href="#cb18-24"></a></span>
+<span id="cb18-25"><a href="#cb18-25"></a>  <span class="co"># 2) Betweenness (normalized)</span></span>
+<span id="cb18-26"><a href="#cb18-26"></a>  betweenness <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">betweenness</span>(</span>
+<span id="cb18-27"><a href="#cb18-27"></a>    g,</span>
+<span id="cb18-28"><a href="#cb18-28"></a>    <span class="at">directed   =</span> is_dir,</span>
+<span id="cb18-29"><a href="#cb18-29"></a>    <span class="at">normalized =</span> <span class="cn">TRUE</span></span>
+<span id="cb18-30"><a href="#cb18-30"></a>  )</span>
+<span id="cb18-31"><a href="#cb18-31"></a></span>
+<span id="cb18-32"><a href="#cb18-32"></a>  <span class="co"># 3) Closeness (normalized)</span></span>
+<span id="cb18-33"><a href="#cb18-33"></a>  closeness <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(</span>
+<span id="cb18-34"><a href="#cb18-34"></a>    igraph<span class="sc">::</span><span class="fu">closeness</span>(</span>
+<span id="cb18-35"><a href="#cb18-35"></a>      g,</span>
+<span id="cb18-36"><a href="#cb18-36"></a>      <span class="at">mode       =</span> <span class="cf">if</span> (is_dir) <span class="st">"all"</span> <span class="cf">else</span> <span class="st">"all"</span>,</span>
+<span id="cb18-37"><a href="#cb18-37"></a>      <span class="at">normalized =</span> <span class="cn">TRUE</span></span>
+<span id="cb18-38"><a href="#cb18-38"></a>    )</span>
+<span id="cb18-39"><a href="#cb18-39"></a>  )</span>
+<span id="cb18-40"><a href="#cb18-40"></a>  <span class="co"># 4) Assemble into a tibble</span></span>
+<span id="cb18-41"><a href="#cb18-41"></a>  stats <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb18-42"><a href="#cb18-42"></a>    <span class="at">uid          =</span> igraph<span class="sc">::</span><span class="fu">V</span>(g)<span class="sc">$</span>name,</span>
+<span id="cb18-43"><a href="#cb18-43"></a>    <span class="at">degree       =</span> <span class="fu">as.numeric</span>(degree_total),</span>
+<span id="cb18-44"><a href="#cb18-44"></a>    <span class="at">indegree     =</span> <span class="fu">as.numeric</span>(degree_in),</span>
+<span id="cb18-45"><a href="#cb18-45"></a>    <span class="at">outdegree    =</span> <span class="fu">as.numeric</span>(degree_out),</span>
+<span id="cb18-46"><a href="#cb18-46"></a>    <span class="at">betweenness  =</span> <span class="fu">as.numeric</span>(betweenness),</span>
+<span id="cb18-47"><a href="#cb18-47"></a>    <span class="at">closeness    =</span> <span class="fu">as.numeric</span>(closeness),</span>
+<span id="cb18-48"><a href="#cb18-48"></a>  )</span>
+<span id="cb18-49"><a href="#cb18-49"></a></span>
+<span id="cb18-50"><a href="#cb18-50"></a>  <span class="co"># 9) Optionally add demographics stored in nets$data</span></span>
+<span id="cb18-51"><a href="#cb18-51"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(nets<span class="sc">$</span>data) <span class="sc">&amp;&amp;</span> <span class="st">"uid"</span> <span class="sc">%in%</span> <span class="fu">colnames</span>(nets<span class="sc">$</span>data)) {</span>
+<span id="cb18-52"><a href="#cb18-52"></a>    stats <span class="ot">&lt;-</span> nets<span class="sc">$</span>data <span class="sc">|&gt;</span></span>
+<span id="cb18-53"><a href="#cb18-53"></a>      <span class="fu">right_join</span>(stats, <span class="at">by =</span> <span class="st">"uid"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb18-54"><a href="#cb18-54"></a>      <span class="fu">arrange</span>(uid) <span class="sc">|&gt;</span></span>
+<span id="cb18-55"><a href="#cb18-55"></a>      <span class="fu">select</span>(<span class="sc">!</span>initials<span class="sc">:</span>maiden_name) <span class="sc">|&gt;</span></span>
+<span id="cb18-56"><a href="#cb18-56"></a>      <span class="fu">select</span>(<span class="sc">!</span>gender_prob<span class="sc">:</span>origin)</span>
+<span id="cb18-57"><a href="#cb18-57"></a>  }</span>
+<span id="cb18-58"><a href="#cb18-58"></a></span>
+<span id="cb18-59"><a href="#cb18-59"></a>  <span class="fu">return</span>(stats)</span>
+<span id="cb18-60"><a href="#cb18-60"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>net<span class="sc">$</span>stats<span class="sc">$</span>ego <span class="ot">=</span> <span class="fu">compute_ego_statistics</span>(net)</span>
+<span id="cb19-2"><a href="#cb19-2"></a>net_first<span class="sc">$</span>stats<span class="sc">$</span>ego <span class="ot">=</span> <span class="fu">compute_ego_statistics</span>(net_first)</span>
+<span id="cb19-3"><a href="#cb19-3"></a>net_last<span class="sc">$</span>stats<span class="sc">$</span>ego <span class="ot">=</span> <span class="fu">compute_ego_statistics</span>(net_last)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 

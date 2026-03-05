@@ -1,5 +1,5 @@
 ---
-title: Descriptive Statistics
+title: Descriptive Analysis
 date: today
 
 format:
@@ -325,27 +325,31 @@ colnet = fcolnet2(samp,
 
 ```{r}
 
-netnew = colnet$nets[[1]]
-noisolate = rowSums(netnew) > 0
-newnet = netnew[noisolate, noisolate]
-df_ego = colnet$data |> 
-  filter(uid %in% colnames(netnew))|>
-  mutate(
-    uni = coalesce(university_22_first, university_24_first, university_25_first)
-  ) |>
-  arrange(uid)
+net = fcolnet2(samp, 
+  type = 'all',
+  waves = list(c(2020, 2026))
+)
 
+noisolate = rowSums(net$nets[[1]]) > 0
+# net$nets[[1]] = net$nets[[1]][noisolate, noisolate]
 
-net_noiso_1 <- igraph::graph_from_adjacency_matrix(
-  netnew,
+net$graph  <- igraph::graph_from_adjacency_matrix(
+  net$nets[[1]],
   mode = c("undirected"),
   weighted = NULL,
   diag = FALSE,
   add.colnames = NULL,)
 
-l <- layout_with_fr(net_noiso_1, niter = 1500)
+df_ego = net$data |> 
+  filter(uid %in% colnames(net$nets[[1]]))|>
+  mutate(
+    uni = coalesce(university_22_first, university_24_first, university_25_first)
+  ) |>
+  arrange(uid)
 
-plot(net_noiso_1,
+l <- layout_with_fr(net$g, niter = 1500)
+
+plot(net$g,
   vertex.color = ifelse(df_ego$uni == "UVA", "red",  
                  ifelse(df_ego$uni == "UVG", "lemonchiffon", 
                  ifelse(df_ego$uni == "VU", "darkgrey", 
@@ -355,7 +359,7 @@ plot(net_noiso_1,
                  ifelse(df_ego$uni == "UU", "green",
                  ifelse(df_ego$uni == "UL", "coral", "white")))))))),
   vertex.shape = ifelse(df_ego$gender == 'female', "circle", "square"),
-  vertex.size = 2 + igraph::degree(net_noiso_1, mode = 'in') ^ 0.5,
+  vertex.size = 2 + igraph::degree(net$g, mode = 'in') ^ 0.5,
   vertex.label = NA,
   vertex.size = 4,
   edge.width = 0.2,
@@ -398,3 +402,127 @@ ggplot(plot_df, aes(x = position, y = n, fill = flag)) +
   
 ```
 
+```{r}
+plot_df <- data[["demographics"]] |>
+  mutate(
+    # position = factor(
+    #   coalesce(position_25, position_24, position_22),
+    #   levels = c(
+    #     "Full Professor", "Associate Professor", "Assistant Professor",
+    #     "Researcher or Lecturer", "PhD Candidate"
+    #   )
+    # ),
+    flag = forcats::fct_na_value_to_level(as.factor(flag))
+  ) |>
+  filter(!is.na(migrant)) |>
+  count(migrant, flag)
+
+ggplot(plot_df, aes(x = migrant, y = n, fill = flag)) +
+  geom_col() +
+  labs(x = NULL, y = "Count", fill = "Flag") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+```
+
+```{r}
+net_first = fcolnet2(samp, 
+  type = 'first',
+  waves = list(c(2020, 2026))
+)
+noisolate = rowSums(net_first$nets[[1]]) > 0
+# net_first$nets[[1]] = net_first$nets[[1]][noisolate, noisolate]
+
+net_first$graph  <- igraph::graph_from_adjacency_matrix(
+  net_first$nets[[1]],
+  mode = c("directed"),
+  weighted = NULL,
+  diag = FALSE,
+  add.colnames = NULL,)
+
+net_last = fcolnet2(samp, 
+  type = 'last',
+  waves = list(c(2020, 2026))
+)
+noisolate = rowSums(net_last$nets[[1]]) > 0
+# net_last$nets[[1]] = net_last$nets[[1]][noisolate, noisolate]
+
+net_last$graph <- igraph::graph_from_adjacency_matrix(
+  net_last$nets[[1]],
+  mode = c("directed"),
+  weighted = NULL,
+  diag = FALSE,
+  add.colnames = NULL,)
+```
+
+
+```{r}
+compute_ego_statistics <- function(nets) {
+  g <- nets$graph
+  stopifnot(inherits(g, "igraph"))
+
+  is_dir <- igraph::is_directed(g)
+
+  # 1) Basic degrees
+  degree_total <- igraph::degree(
+    g,
+    mode = if (is_dir) "all" else "total"
+  )
+
+  degree_in <- if (is_dir) {
+    igraph::degree(g, mode = "in")
+  } else {
+    rep(NA_real_, igraph::vcount(g))
+  }
+
+  degree_out <- if (is_dir) {
+    igraph::degree(g, mode = "out")
+  } else {
+    rep(NA_real_, igraph::vcount(g))
+  }
+
+  # 2) Betweenness (normalized)
+  betweenness <- igraph::betweenness(
+    g,
+    directed   = is_dir,
+    normalized = TRUE
+  )
+
+  # 3) Closeness (normalized)
+  closeness <- suppressWarnings(
+    igraph::closeness(
+      g,
+      mode       = if (is_dir) "all" else "all",
+      normalized = TRUE
+    )
+  )
+  # 4) Assemble into a tibble
+  stats <- tibble::tibble(
+    uid          = igraph::V(g)$name,
+    degree       = as.numeric(degree_total),
+    indegree     = as.numeric(degree_in),
+    outdegree    = as.numeric(degree_out),
+    betweenness  = as.numeric(betweenness),
+    closeness    = as.numeric(closeness),
+  )
+
+  # 9) Optionally add demographics stored in nets$data
+  if (!is.null(nets$data) && "uid" %in% colnames(nets$data)) {
+    stats <- nets$data |>
+      right_join(stats, by = "uid") |>
+      arrange(uid) |>
+      select(!initials:maiden_name) |>
+      select(!gender_prob:origin)
+  }
+
+  return(stats)
+}
+
+```
+
+
+```{r}
+net$stats$ego = compute_ego_statistics(net)
+net_first$stats$ego = compute_ego_statistics(net_first)
+net_last$stats$ego = compute_ego_statistics(net_last)
+```

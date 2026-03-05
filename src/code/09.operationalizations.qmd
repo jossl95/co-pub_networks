@@ -1,5 +1,5 @@
 ---
-title: Prune Scrape Data
+title: Operationalize Variables
 date: today
 
 format:
