@@ -324,6 +324,7 @@ colnet = fcolnet2(samp,
 ```
 
 ```{r}
+#| column: page-inset
 
 net = fcolnet2(samp, 
   type = 'all',
@@ -522,7 +523,233 @@ compute_ego_statistics <- function(nets) {
 
 
 ```{r}
+library(dplyr)
+library(tidyr)
+library(forcats)
+library(scales)
+
+desc_data <- data[["demographics"]] |>
+  mutate(
+    first_affiliation = coalesce(university_22_first, university_24_first, university_25_first),
+    last_position = factor(
+      coalesce(position_25, position_24, position_22),
+      levels = c(
+        "Full Professor", "Associate Professor", "Assistant Professor",
+        "Researcher or Lecturer", "PhD Candidate"
+      )
+    ),
+    gender  = factor(gender,  levels = c("female", "male")),
+    migrant = factor(migrant, levels = c("NL", "M4", "other"))
+  ) 
+  
+desc = desc_data |>
+  select(gender, migrant, first_affiliation, last_position) |>
+  pivot_longer(everything(), names_to = "variable", values_to = "value") |>
+  group_by(variable) |>
+  mutate(
+    # preserve existing factor levels when present; otherwise make a factor
+    value = if (is.factor(value)) value else factor(value),
+    value = fct_explicit_na(value, na_level = "Missing"),
+    # make sure "Missing" goes last
+    value = fct_relevel(value, "Missing", after = Inf)
+  ) |>
+  count(variable, value, name = "n") |>
+  mutate(
+    prop = n / sum(n),
+    pct  = percent(prop, accuracy = 0.1)
+  ) |>
+  ungroup() |>
+  arrange(variable, value)
+
+desc
+```
+
+```{r}
+desc_samp = desc_data |>
+  filter(flag == 'is_complete') |>
+  select(gender, migrant, first_affiliation, last_position) |>
+  pivot_longer(everything(), names_to = "variable", values_to = "value") |>
+  group_by(variable) |>
+  mutate(
+    # preserve existing factor levels when present; otherwise make a factor
+    value = if (is.factor(value)) value else factor(value),
+    value = fct_explicit_na(value, na_level = "Missing"),
+    # make sure "Missing" goes last
+    value = fct_relevel(value, "Missing", after = Inf)
+  ) |>
+  count(variable, value, name = "n") |>
+  mutate(
+    prop = n / sum(n),
+    pct  = percent(prop, accuracy = 0.1)
+  ) |>
+  ungroup() |>
+  arrange(variable, value)
+
+desc_samp
+```
+
+```{r}
 net$stats$ego = compute_ego_statistics(net)
 net_first$stats$ego = compute_ego_statistics(net_first)
 net_last$stats$ego = compute_ego_statistics(net_last)
 ```
+
+
+```{r}
+group_means <- function(df, group_var) {
+  df |>
+    filter(!is.na(.data[[group_var]])) |>
+    group_by(.data[[group_var]]) |>
+    summarise(
+      n = n(),
+      degree_mean      = mean(degree, na.rm = TRUE),
+      betweenness_mean = mean(betweenness, na.rm = TRUE),
+      closeness_mean   = mean(closeness, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    rename(group = 1) |>
+    mutate(group_var = group_var, .before = group)
+}
+
+ego <- net$stats$ego |>
+  mutate(
+    first_affiliation = coalesce(university_22_first, university_24_first, university_25_first),
+    last_position = factor(
+      coalesce(position_25, position_24, position_22),
+      levels = c(
+        "Full Professor", "Associate Professor", "Assistant Professor",
+        "Researcher or Lecturer", "PhD Candidate"
+      )
+    ),
+    gender  = factor(gender,  levels = c("female", "male")),
+    migrant = factor(migrant, levels = c("NL", "M4", "other"))
+  )
+
+means_by_gender   <- group_means(ego, "gender")
+means_by_position <- group_means(ego, "last_position")
+means_by_migrant  <- group_means(ego, "migrant")
+
+means_all <- bind_rows(means_by_gender, means_by_position, means_by_migrant)
+means_all
+```
+
+
+```{r}
+tt_gender <- ego |>
+  filter(!is.na(gender)) |>
+  pivot_longer(c(degree, betweenness, closeness), names_to = "metric", values_to = "value") |>
+  group_by(metric) |>
+  summarise(
+    test = list(t.test(value ~ gender)),
+    .groups = "drop"
+  ) |>
+  mutate(tidy = map(test, broom::tidy)) |>
+  select(metric, tidy) |>
+  unnest(tidy)
+
+tt_gender
+```
+
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(broom)
+
+pairwise_ttests_with_stats <- function(
+    df, group_var, metrics = c("degree","betweenness","closeness"),
+    p_adjust = "holm"
+  ) {
+  df2 <- df |>
+    filter(!is.na(.data[[group_var]])) |>
+    select(all_of(c(group_var, metrics))) |>
+    mutate("{group_var}" := droplevels(as.factor(.data[[group_var]])))
+
+  # all unordered pairs of group levels
+  lvls <- levels(df2[[group_var]])
+  pairs <- combn(lvls, 2, simplify = FALSE)
+
+  # long metrics
+  df_long <- df2 |>
+    pivot_longer(all_of(metrics), names_to = "metric", values_to = "value")
+
+  out <- map_dfr(pairs, function(pr) {
+    g1 <- pr[[1]]; g2 <- pr[[2]]
+
+    df_pair <- df_long |>
+      filter(.data[[group_var]] %in% c(g1, g2)) |>
+      mutate(g = droplevels(.data[[group_var]]))
+
+    df_pair |>
+      group_by(metric) |>
+      summarise(
+        test = list(t.test(value ~ g)),  # Welch by default
+        .groups = "drop"
+      ) |>
+      mutate(tidy = map(test, broom::tidy)) |>
+      unnest(tidy) |>
+      transmute(
+        group_var = group_var,
+        metric,
+        group1 = g1,
+        group2 = g2,
+        statistic = as.numeric(statistic), # this is t
+        parameter = as.numeric(parameter), # df
+        estimate = estimate,               # diff in means (group2 - group1) per broom
+        conf.low, conf.high,
+        p_value = p.value,
+        method
+      )
+  })
+
+  # adjust p-values within each (group_var, metric)
+  out |>
+    group_by(group_var, metric) |>
+    mutate(p_adj = p.adjust(p_value, method = p_adjust)) |>
+    ungroup()
+}
+
+tt_position <- pairwise_ttests_with_stats(ego, "last_position")
+tt_migrant  <- pairwise_ttests_with_stats(ego, "migrant")
+
+tt_position
+tt_migrant
+```
+
+```{r}
+ego2 <- net_first$stats$ego |>
+  mutate(
+    first_affiliation = coalesce(university_22_first, university_24_first, university_25_first),
+    last_position = factor(
+      coalesce(position_25, position_24, position_22),
+      levels = c(
+        "Full Professor", "Associate Professor", "Assistant Professor",
+        "Researcher or Lecturer", "PhD Candidate"
+      )
+    ),
+    gender  = factor(gender,  levels = c("female", "male")),
+    migrant = factor(migrant, levels = c("NL", "M4", "other"))
+  ) 
+
+tt_gender2 <- ego2 |>
+  filter(!is.na(gender)) |>
+  pivot_longer(c(indegree, outdegree), names_to = "metric", values_to = "value") |>
+  group_by(metric) |>
+  summarise(
+    test = list(t.test(value ~ gender)),
+    .groups = "drop"
+  ) |>
+  mutate(tidy = map(test, broom::tidy)) |>
+  select(metric, tidy) |>
+  unnest(tidy)
+tt_position2 <- ego2|>
+  pairwise_ttests_with_stats('last_position', metrics = c('indegree', 'outdegree'))
+tt_migrant2 <- ego2|>
+  pairwise_ttests_with_stats('migrant', metrics = c('indegree', 'outdegree'))
+
+tt_gender2
+tt_position2
+tt_migrant2
+```
+
