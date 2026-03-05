@@ -54,6 +54,8 @@ enforce_latest_name = function(sub, key){
 update_latest = function() {
   keys_per_sub = list(
     raw_data = c("oascholars", "oaworks", "oaauthors"),
+    clean = c('scholars', 'topics'),
+    analysis = c('data', 'topics'),
     processed = c("ethnicity", "gender", "names", "scholarid", 'affiliations'),
     combined = c('scholars')
   )
