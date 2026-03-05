@@ -289,7 +289,7 @@ add_edge_table <- function(data, start_date = NA){
     select(uid, work_id, authorships, publication_date, publication_year, type) |>
     rename(a = authorships) |>
     unnest(a, names_sep = "__", keep_empty=FALSE) |>
-    filter(!is.na(a__uid), (publication_date <= start_date))
+    filter(!is.na(a__uid), (publication_date >= start_date))
 
   return(data)
 }
@@ -376,7 +376,7 @@ data = freadRDS2(file="scholars", location = "combined") |>
   exclude_works_from_invalid_authors() |>
   clean_demographics() |>
   add_annual_statistics() |>
-  add_edge_table(start_date = '01/01/2022') 
+  add_edge_table(start_date = '01/01/2020') 
 
 fsaveRDS(data, 'scholars', location = "./data/clean/")
 ```

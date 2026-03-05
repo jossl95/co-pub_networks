@@ -27,6 +27,8 @@ website:
         menu:
           - href: src/code/05.scrape_openalex.qmd
             text: Scrape Information from OpenAlex
+      - text: Data Preparation
+        menu:
           - href: src/code/06.combine_data.qmd
             text: Combine OpenAlex data
           - href: src/code/07.clean_data.qmd
@@ -40,7 +42,7 @@ website:
         href: https://github.com/jossl95/co-pub_networks
         aria-label: GitHub
   page-footer: 
-    center: "Copyright © 2025 | Jos Slabbekoorn"
+    center: "Copyright © 2026 | Jos Slabbekoorn"
   back-to-top-navigation: true
   
 
