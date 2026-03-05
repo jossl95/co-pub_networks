@@ -1,36 +1,27 @@
 ## Theory
+CO-AUTHORSHIP TIES IN CONTEXT
 
--   Bas: here something on our discpline selection as the site (or in methods, but nice to also introduce substantively)
--   Bas: here something about the Dutch system, publishing PhDs, timeline
--   Bas: I would expect
+The research sites in which we answer our questions are the disciplines of Sociology and Political Sciences across all 8 research universities in the Netherlands (if they have any such clearly delineated departments). These are ideal cases, because... In these disciplines and in the Netherlands, PhD students are often a cornerstone of a department's publishing activity, where dissertations are predominantly a collection of (almost) published papers, particularly so in the years we consider XXXX-XXXX. Sociologists and Political Scientists in the Netherlands -- PhDs and faculty alike -- overwhelmingly publish in English peer-reviewed journals. The fact that PhDs publish papers during their PhD has consequences for how we aught to approach collaborations in these departments. This is because PhDs often publish with their (co-)advisors as co-authors -- i.e., some of the "choices" for co-authors are restricted by the PhD project they are engaged in. Contrary to, for instance, the U.S., PhDs often do not shape their own PhD topic, but apply to projects that are already carved out, oftentimes with a clear idea for what the (approximately) four papers would look like. Therefore, we carefully nuance our conjectures on co-authorship tie formation to (some of these) dynamics. 
 
-<!--- these and the next sets of bulletpoint reflect what we already do in the introduction, no? So what would be the added benefit of a theory section? I think we need to synthesize the data generating mechanisms that cause gender/ethnic differences in coauthorships, processes of homophily in there, and how intersectionality may lead to somewhat surprising hypotheses. What are processesin departments and disciplines that lead to coauthorship? So not only focusing on outcomes, but on explanations --->
+One such nuance relates to how we defined co-authorship ties. This is because co-authorship ties -- here: a set of co-authors that are related in some way because they work on the same paper -- can be conceptualized in fundamentally different ways. The choice how to conceptualize these ties has substantive consequences for how we theorize about tie generating mechanisms. One approach treats co-authors on a paper as a *connected clique* in which all share undirected ties. Another approach to conceptualize co-authorship ties is *order-based* such that, say, the first author sends a tie to all the other authors. The former approach substantively emphasizes mutuality in collaboration and shared membership in research teams, whereas the latter highlights initiative or intellectual leadership over the research project. If it were the last author, perhaps the more senior role, sending a tie other authors, it may indicate supervision or tie based on research project initiaton. These various representations of ties within co-authorships on papers reflect different assumptions as to agency and hierarchy in these networks. 
 
-THE RESEARCH CONTEXT
+Therefore, we define co-authorship ties differently depending on academics’ career stage. As we mentioned, in the Dutch system PhD candidates are likely recruited into predefined (externally funded) projects led by full professors (“promotors”), who assemble a supervisory team that may include other full professors, or associate or assistant professors (co-promotors). In papers where the PhD candidate is first author, we conceptualize co-authorship as a directed tie from the last author who is most likely the senior promotor and project leader to the other authors. This specification resembles an hierarchical structure and project-initiation dynamics that characterize many PhD-led publications in Sociology and Political Science in the Netherlands. For papers not led by PhD candidates, the conceptualization is less straightforward. In these cases, the first author (often also the corresponding author in our fields) is can be an intellectual driver of the project and the person who assembles the collaboration. We might conceptualize these ties as directed from the first author to the co-authors, reflecting initiative and coordination rather than supervision. Yet, non-PhD collaborations do not always follow such a template. Projects with non-PhD peers can emerge from intellectual exchange where they serendipitously develop an idea at a conference or seminar. Here, co-authorship order can reflect simple things like alphabetical orders rather than project leadership and initiation. Therefore, we define non-PhD led collaboration in both ways: by a directed tie from first to the other authors and by an undirected co-authorship clique. We indicate where this has consequences for our conjectures.
 
-The sites in which we study our questions are the disciplines of Sociology and Political Sciences across all 8 research universities in the Netherlands (if they have any such clearly delineated departments). These are ideal cases, because... In these disciplines and in the Netherlands, PhD students are often a cornerstone of a department's publishing activity, where dissertations are predominantly a collection of (almost) published papers, particularly so in the years we consider XXXX-XXXX. Sociologists and Political Scientists in the Netherlands -- PhDs and faculty alike -- overwhelmingly publish in English peer-reviewed journals. The fact that PhDs publish papers during their PhD has consequences for how we aught to approach collaborations in these departments. This is because PhDs often publish with their (co-)advisors as co-authors -- i.e., some of the "choices" for co-authors are restricted by the PhD project they are engaged in. Contrary to, for instance, the U.S., PhDs often do not shape their own PhD topic, but apply to projects that are already carved out, oftentimes with a clear idea for what the (approximately) four papers would look like. Therefore, we carefully nuance our conjectures on co-authorship tie formation to (some of these) dynamics.
+In our next sections, we move from features of authors themselves that relate to their co-authorship volume, to dyadic characteristics promoting co-authorship ties sensitive to tie directionality, to higher-order social network dynamics. Each of these mechanisms in isolation help explain why some groups may have less access to co-authorship ties as an important resource to academic careers. Yet these dynamics do not happen in a vacuum, and taken in synthesis, they explain how particular network structures emerge and how certain groups become systematically in- or excluded from these academic networks.
 
 EGO
+From 2015 onwards (??mulders2024??), PhD conferrals split approximately 50/50 between men and women doctoral students in the Netherlands. This suggests a hiring dynamic enabling women to get a foothold into and finalizing PhD projects at similar rates compared to men, and proportionate to the (Dutch) population. Prior work on academic careers after a PhD also shows how women select out of academic careers at earlier moments than men if they are faculty members (here defined as assistant professors, associate professors, and full professors) (REF). 
 
-From 2015 onwards (??mulders2024??), PhD conferrals split approximately 50/50 between men and women doctoral students in the Netherlands. This suggests a hiring dynamic enabling women to get a foothold into and finalizing PhD projects at similar rates compared to men, and proportionate to the population. Prior work on academic careers after a PhD also shows how women select out of academic careers at earlier moments than men if they are faculty members (here defined as assistant professors, associate professors, and full professors) (REF). 
+What does this imply for coauthorship dynamics? It is key to consider the patterns above. Because selection into PhD programs and actual diplomas in the Netherlands seem less gendered in our time-period *and* because PhDs write approximately four papers with their (co-)supervisors that often initiate the project, a straightforward conjecture is that women and men PhDs have an equal number of co-authorship ties. Note that this is under the (reasonable, see Mulders MENTORING FOR GRANTS) assumption that women and men's (co-)supervisor teams are equally large and that members in these supervisory teams are all equally likely to write papers with their PhDs.
 
-What does this imply for coauthorship dynamics? It is key to consider the patterns above. Because selection into PhD programs and actual diplomas in the Netherlands seem less gendered in our time-period *and* because PhDs write approximately four papers with their (co-)supervisors, a straightforward conjecture is that women and men PhDs have an equal number of co-authorship ties. Note that this is under the (reasonable, see Mulders MENTORING FOR GRANTS) assumption that women and men's (co-)supervisor teams are equally large and that members in these supervisory teams are all equally likely to write papers with their PhDs.
-
-But what happens after the PhD? Women faculty exit academic careers earlier than men, a pattern commonly described as the “leaky pipeline” (classic refs) and often attributed to a combination of cumulative disadvantage (REF, BOL?), chilly departmental and lab climates (REF hofstra 22), and unequal recognition for equal discoveries (hofstra 2020) or to fewer resources. These mechanisms are interdependent and mutually reinforcing (see REF). One additional, and less examined, mechanism operates through co-authorship dynamics. If women faculty are less able to initiate or sustain co-authorship relations after the PhD, they may reap fewer of the well-documented benefits of collaboration, including higher productivity (REF), greater visibility (REF), and enhanced career opportunities (REF). Because co-authors constitute a key form of scientific social capital, systematic gender differences in access to co-authorship represents an underexplored hypothesis on gender inequality in academic careers.
+But what happens after the PhD? Women faculty exit academic careers earlier than men, contributing to the pattern commonly described as the “leaky pipeline” (classic refs) and often caused by a combination of cumulative disadvantage (REF, BOL?), chilly departmental and lab climates (REF hofstra 22), and unequal recognition for equal discoveries (hofstra 2020) or to fewer resources. These mechanisms are interdependent and mutually reinforcing (see REF). One additional, and less examined, mechanism operates through co-authorship dynamics. If women faculty are less able to initiate or sustain co-authorship relations after the PhD, they may reap fewer of the well-documented benefits of collaboration, including higher productivity (REF), greater visibility (REF), and enhanced career opportunities (REF). Because co-authors constitute a key form of scientific social capital, systematic gender differences in access to co-authorship represents an underexplored hypothesis on gender inequality in academic careers. Note that this holds for both finding other co-authors in projects initiated by women faculty (i.e., directed configurations) and by jointly developed papers (i.e., undirected cliques).
 
 Hence, we hypothesize that across the entire set:
 H1: women and men have an equal number of co-authorship ties. 
 
 Yet this null-effect is driven by the large number of PhDs that drive much of the publishing in our departments. Hence, if we break this  down by PhDs and faculty:
 H1_1: Women and men PhDs have an equal number of co-authorship ties.
-H1_2: Women faculty have less co-authorship ties than men faculty
-
-Or, put differently:
-H1_3: The negative effect of women on co-authorship ties is stronger for faculty than for PhDs
-
-<!-- H1_3 misschien wat minder logisch. -->
-<!-- de volgende stap is om hier ook nog een netwerk stap in te krijgen: lees homophily -->
-<!-- note for self: toetsen op output niveau ego-effecten -->
+H1_2: women faculty have less co-authorship ties than men faculty
 
 For minoritized individuals we observe that the largest migration background groups in the Netherlands (Moroccan-Dutch, Turkish Dutch, Caribbean-Dutch, REF) are heavily underrepresented among PhD conferrals: all less than 1 percent, though covering about 10 percent of the Dutch population (REF). This suggests that these ethnic minorities are not selected into or do not complete PhD programs proportionately compared to the Dutch majority population. Additionally, these minoritized groups, as well as expats coming to the Netherlands to engage in a PhD program, have lower likelihoods to become faculty members, and when they do become faculty, they select out of academe earlier than Dutch majority members (mulders 24).
 
@@ -43,28 +34,27 @@ But, if we break this  down by PhDs and faculty:
 H2_1: non-Dutch and Dutch PhDs have an equal number of co-authorship ties.
 H2_2: non-Dutch faculty have less co-authorship ties than Dutch faculty
 
-Or, put differently:
-H2_3: The negative effect of non-Dutch backgrounds on co-authorship ties is stronger for faculty than for PhDs
-
-
-
 DYADS
-<!-- 
-homophily argumenten:
-- mits genoeg data uitsplitsen naar PD, UD, UHD
-- is recognision anders per groep
-- interdisciplinariteit misschien anders gewaardeerd voor bepaalde groepen (miss via topic similarity)
+How about dyadic characteristics that may drive co-authorships ties? A reasonable point of departure are dynamics related to homophily: where individuals prefer to select ties based on some mutually shared feature, say identities like gender or migration background (mcpherson 2001; wimmer and lewis 2010). Prior work describes this preference for similar others as rooted in communication that is easier and less risky as there are fewer norms and boundaries to overcome (OTHERS; Hofstra 2017; windzio bicer 2013?). As to science collaboration: working together with someone who shares a particular identity may feel less risky and requires fewer implicit norms to be navigated (REFhomophilyscience?). Such shared identities can facilitate coordination and induce trust through beliefs about competence and commitment. 
 
-waarom is er homophily:
-- we are a discriminating bunch
-- bijproduct hypothese *similarity* obv. carriere leeftijd, en topic?
-- homophily is niet prese straight forward. vermoed: papers van phds eruit halen of uitsplitsen of interacties. (dyade waar er geen phd betrokken is)
-- interessant idee: triadic closure. (wie wordt er nu vaker bijgevraagd, bij het begeleiden van phds.)
--->
+We first consider gender and migration background homophily. Gender homophily likely varies systematically by researcher rank, gender, and, importantly, how we configure co-authorships. Among PhD candidates, we conjecture there is relatively little gender homophily. Recall that we configured those co-authorships by the senior authorship position (likely last) sending ties to the other authors. In these directed configuration for PhD-led papers, any observed gender homophily reflects the gender composition of supervisory team rather than co-authorship choice by PhDs. Given the near 50/50 gender balance in recent PhD cohorts (see above), and assuming no strong gender divisions in supervisory teams (see ????, vrouwen hebben vaak 1 of meer vrouwen in teams, maar voor mannen niet uitgerekent in mulders 2024), gender homophily at this stage aught to be modest.
 
-<!-- mogelijk interessant om gender verdeling per afdeling mee te nemen als covariaat -->
+For non-PhDs who move on to beocome faculty, however, gender homophily may become dependent on gender *and* varies by co-authorship configuration. In the undirected configuration, each co-authored paper produces symmetric ties between all co-author pairs So a three-author paper results in three similar dyads, independent of authorship feature (i.e., seniority, corresponding authorships, and so forth). Any observed homophily here stems from author team composition: who is on the paper together. In our directed configuration, however, a paper now generates *asymmetric* ties based on authorship order (from first author to others). A same three-author paper now produces two outgoing co-authorship ties from the first author, and no outgoing ties from the other authors. As such, this configuration redistributes ties across individuals: some scholars accumulate many outgoing ties (if they frequently initiate papers), while others accumulate mostly incoming ones. Any observed homophily here originates from who is placed where in the author order. 
 
-DYAD
+So the difference is in how we allocate relations across authors. Here, we assume undirected co-authorships among non-PhDs capture jointly developed ideas and equality in collaboration, whereas we assume that the directed one captures project initiative and selection. We cannot ascertain which of the two is the most likely data generating mechanism, though we can conjecture which observed gender homophily is likely to be stronger. In both directed and undericted scenarios, gender homophily among non-PhDs is likely to be more pronounced among men faculty. This follows from an overpopulation of men at senior academic ranks (hofstra 2020; hofstra 2020; mulders 2024; reeks aan andren). If men are more likely to occupy positions with greater authority and resources, they are structurally more central in collaboration networks. Even without strong homophilous preferences, this numerical and positional advantage increases the likelihood that men collaborate with other men, rather than women with women. 
+
+In directed configurations, where ties reflect project initiative and selection, this dynamic may be amplified further. Prior work shows how gender is unevenly distributed across authorship positions where women often occopy fewer first authorships ???(REF, VOORBEELD?), so our two configurations mechanistically changes where homophily is observed. If men disproportionately populate first authorships, and they are in such positions to make homophilous choices regardless, men's gender homophily is even more pronounded in directed configurations than in undirected ones. By contrast, women faculty are fewer in number and they face a far more constrained opportunity structure and occupy fewer first authorships. Even if women have a strong same-gender preference, their smaller numbers limit how such preferences translate into observable gender homophily. Hence, gender homophily is expected to be asymmetric: stronger among men faculty, and particularly so in configurations that capture project initiative and selection rather co-presence.
+
+Hence, we hypothesize, given that the large share of papers is produced by PhDs, that:
+H3: there is no gender homophily in co-authorship ties
+
+But if we break this down by rank and gender:
+H3_1: Among PhD students, there is no gender homophily in co-authorship ties
+H3_2: There is stronger gender homophily among men faculty than among women faculty
+H3_3: There is stronger gender homophily among faculty than among women faculty, particularly so in directed rather than udirected co-authorship configurations
+
+Hier stopt lopende tekst
+Let op: Hier eigenlijk hetzelfde verhaal voor migration background. OF: die kan direct geintegreerd worden met bovenstaande om het in te korten?
 
 
 EGO*DYAD
@@ -75,6 +65,7 @@ MULTILEVEL??!!?
 <!-- 
 afhankelijk van opportunity set per vakgroep.
 - werkt tie-formatie anders per vakgroepen. kan ook per discipline
+
 -->
 
 <!-- 
@@ -87,18 +78,10 @@ roza:
 - editen theorie. kijkt in hoeverre social capital i.e. second-order social capital hier in een rol kan spelen. (mogelijk als dyad kenmerk.) (voor over twee weken)
 - bespreken presenteren van het paper.
 jos: 
-- editen theorie. beschrijvende statistieken. (2wk)
-    - opgesplits per groep (degree, productiviteit, rank, en andere..)
-    - gender segregatie en rank segregation. Volg twitter paper. 
-    - gender per afdeling/discipline/wave (ook herkomst)
-    - obligaat netwerk plaatje. 
-- rsiena (begin)
-- aanpassen methoden DONE
-    - aantal citaties
-    - i10.
-    - aantal publicaties
-    - face validity AMM. 
-- spreekt met margriet af om te presenteren in het seminar. (nog mailen)
+- editen theorie. beschrijvende statistieken.
+- opgesplits per groep (degree, productiviteit, rank, en andere..)
+- aanpassen methoden
+- spreekt met margriet af om te presenteren in het seminar.
 -->
 
 -   GENDER: PhD-to-non-PhD coauthor tie formation dynamics
