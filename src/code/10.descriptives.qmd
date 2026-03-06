@@ -31,13 +31,19 @@ source("src/utils/custom_functions.r")
 library(tidyverse)
 library(RSiena)
 library(igraph)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(broom)
+library(forcats)
+library(scales)
 ```
 
 ## Functions
 
 ```{r}
-limit_observation_period = function(data, start_date = "2020-01-01"){
-  data[['edge_table']] = data[['edge_table']] |>
+limit_observation_period <- function(data, start_date = "2020-01-01"){
+  data[['edge_table']] <- data[['edge_table']] |>
     filter(publication_date >= ymd(start_date))
 
   return(data)
@@ -45,20 +51,20 @@ limit_observation_period = function(data, start_date = "2020-01-01"){
 ```
 
 ```{r}
-determine_complete_cases = function(data) {
+determine_complete_cases <-function(data) {
   # authors with valid OpenAlex id
-  has_oa = data[['scholars_oa']] |> 
+  has_oa <- data[['scholars_oa']] |> 
     bind_rows() |>
     filter(has_author_id) |>
     distinct(uid) |> pull()
 
   # authors with published works during observation period
-  has_work = data[['edge_table']] |> 
+  has_work <- data[['edge_table']] |> 
     filter(uid != a__uid) |>
     distinct(uid) |> pull()
 
 
-  data[['demographics']] = data[['demographics']] |>
+  data[['demographics']] <-data[['demographics']] |>
     mutate(
       flag = ifelse(
         uid %in% has_work, 'is_complete',
@@ -82,13 +88,13 @@ determine_complete_cases = function(data) {
 ## Application
 
 ```{r}
-data = freadRDS2('data', location = "./data/analysis/")
-topics = freadRDS2('topics', location = './data/analysis/')
+data <- freadRDS2('data', location = "./data/analysis/")
+topics <-freadRDS2('topics', location = './data/analysis/')
 ```
 
 
 ```{r}
-data = data |> 
+data <- data |> 
   limit_observation_period() |>
   determine_complete_cases()
 ```
@@ -100,7 +106,7 @@ data[['demographics']] |>
 ```
 
 ```{r}
-select_sample_matrix = function(d0, sample){
+select_sample_matrix <- function(d0, sample){
   # target: full samp x samp, default NA
   d <- matrix(NA_real_, nrow = length(sample), ncol = length(sample),
               dimnames = list(sample, sample))
@@ -132,40 +138,40 @@ select_sample_intdis <- function(topics, sample){
 ```
 
 ```{r}
-select_sample = function (data, topics){
+select_sample <- function (data, topics){
   # set list with valid uids
   sample <- data[['nodes']] |> distinct(uid) |> pull() |> sort() 
 
   # select valid works and scholars
-  data[['works']] = data[['works']][sample]
-  data[['scholars_oa']] = data[['scholars_oa']][sample]
-  data[['edge_table']] = data[['edge_table']] |> filter(uid %in% sample)
+  data[['works']] <- data[['works']][sample]
+  data[['scholars_oa']] <- data[['scholars_oa']][sample]
+  data[['edge_table']] <- data[['edge_table']] |> filter(uid %in% sample)
 
   # prune distances matrices
-  years = c('2022', '2024', '2025')
+  years <- c('2022', '2024', '2025')
   for (year in years){
-    d0 = data[['distances']][[year]]
-    data[['distances']][[year]] = select_sample_matrix(d0, sample)
+    d0 <- data[['distances']][[year]]
+    data[['distances']][[year]] <- select_sample_matrix(d0, sample)
   }
   return(data)
 }
 
-select_sample_topics = function(samp, topics){
-  sample = samp[['nodes']] |> distinct(uid) |> pull() |> sort()
+select_sample_topics <- function(samp, topics){
+  sample <- samp[['nodes']] |> distinct(uid) |> pull() |> sort()
 
-  D = list()
-  years = c('2022', '2024', '2025')
+  D <- list()
+  years <- c('2022', '2024', '2025')
   for (year in years){
-    D[[year]] = topics[['dissim']][['subfield']][['2022']] |>
+    D[[year]] <- topics[['dissim']][['subfield']][['2022']] |>
       select_sample_matrix(sample)
   }
-  samp[['dissim']] = D
-  samp[['intdis']] = topics |> select_sample_intdis(sample)
+  samp[['dissim']] <- D
+  samp[['intdis']] <- topics |> select_sample_intdis(sample)
 
   return(samp)
 }
 
-samp = data |> 
+samp <- data |> 
   select_sample() |>
   select_sample_topics(topics)
 
@@ -176,12 +182,12 @@ samp = data |>
 ```{r}
 
 # step 2: prune works for selection
-make_adjacency_matrix = function(
+make_adjacency_matrix <- function(
     data, uids, type, min_year = 2020, max_year = 2026, weighted = FALSE
   ) {
   
   # make edgelist from works
-  edges = data[['works']][uids] |> bind_rows() |>
+  edges <- data[['works']][uids] |> bind_rows() |>
     filter(publication_year >= min_year, publication_year <= max_year) |>
     select(uid, work_id, authorships, publication_year) |>
     rename(e_uid = uid) |>
@@ -191,11 +197,11 @@ make_adjacency_matrix = function(
     filter(uid %in% uids, e_uid %in% uids)
 
   if (type != 'all') {
-    edges = edges |> filter(author_position != type)
+    edges <- edges |> filter(author_position != type)
   }
 
   # calculate the number of edges between ego and alters.
-  edge_counts = edges |> count(e_uid, uid, name="w")
+  edge_counts <- edges |> count(e_uid, uid, name="w")
 
   # make edgelist symetrical
   if (type != 'all') {
@@ -255,7 +261,7 @@ make_adjacency_matrix = function(
 } 
 
 
-fcolnet2 = function(
+fcolnet2 <- function(
     data,
     university = NULL,
     position   = NULL,
@@ -295,18 +301,18 @@ fcolnet2 = function(
             ~ .x %in% position)
     ) |>
     arrange(uid)
-  uids = authors |> pull(uid) |> sort()
+  uids <- authors |> pull(uid) |> sort()
   
   # step 3: create empty matrixes (wave, i, j)
-  nwaves = length(waves)
-  nets = list()
+  nwaves <- length(waves)
+  nets <- list()
   for (w in 1:length(waves)){
     nets[[w]] <- make_adjacency_matrix(
       data, uids, type, min_year = waves[[w]][1], max_year = waves[[w]][2])
   }
 
   # step 4: fill nets
-  output = list(
+  output <- list(
     data = authors,
     nets = nets
   )
@@ -317,7 +323,7 @@ fcolnet2 = function(
 ```
 
 ```{r}
-colnet = fcolnet2(samp, 
+colnet <- fcolnet2(samp, 
   type = 'all',
   waves = list(c(2020, 2026))
 )
@@ -326,12 +332,12 @@ colnet = fcolnet2(samp,
 ```{r}
 #| column: page-inset
 
-net = fcolnet2(samp, 
+net <- fcolnet2(samp, 
   type = 'all',
   waves = list(c(2020, 2026))
 )
 
-noisolate = rowSums(net$nets[[1]]) > 0
+noisolate <- rowSums(net$nets[[1]]) > 0
 # net$nets[[1]] = net$nets[[1]][noisolate, noisolate]
 
 net$graph  <- igraph::graph_from_adjacency_matrix(
@@ -341,7 +347,7 @@ net$graph  <- igraph::graph_from_adjacency_matrix(
   diag = FALSE,
   add.colnames = NULL,)
 
-df_ego = net$data |> 
+df_ego <- net$data |> 
   filter(uid %in% colnames(net$nets[[1]]))|>
   mutate(
     uni = coalesce(university_22_first, university_24_first, university_25_first)
@@ -372,9 +378,9 @@ plot(net$g,
 
 
 ```{r}
-has_edges = df_ego$uid |> unique()
+has_edges <- df_ego$uid |> unique()
 
-data[['demographics']] = data[['demographics']] |>
+data[['demographics']] <- data[['demographics']] |>
   mutate(flag = ifelse(uid %in% has_edges, 'in_network', flag))
 
 data[['demographics']] |> count(flag)
@@ -427,12 +433,12 @@ ggplot(plot_df, aes(x = migrant, y = n, fill = flag)) +
 ```
 
 ```{r}
-net_first = fcolnet2(samp, 
+net_first <- fcolnet2(samp, 
   type = 'first',
   waves = list(c(2020, 2026))
 )
 noisolate = rowSums(net_first$nets[[1]]) > 0
-# net_first$nets[[1]] = net_first$nets[[1]][noisolate, noisolate]
+# net_first$nets[[1]] <- net_first$nets[[1]][noisolate, noisolate]
 
 net_first$graph  <- igraph::graph_from_adjacency_matrix(
   net_first$nets[[1]],
@@ -441,12 +447,12 @@ net_first$graph  <- igraph::graph_from_adjacency_matrix(
   diag = FALSE,
   add.colnames = NULL,)
 
-net_last = fcolnet2(samp, 
+net_last <- fcolnet2(samp, 
   type = 'last',
   waves = list(c(2020, 2026))
 )
-noisolate = rowSums(net_last$nets[[1]]) > 0
-# net_last$nets[[1]] = net_last$nets[[1]][noisolate, noisolate]
+noisolate <- rowSums(net_last$nets[[1]]) > 0
+# net_last$nets[[1]] <- net_last$nets[[1]][noisolate, noisolate]
 
 net_last$graph <- igraph::graph_from_adjacency_matrix(
   net_last$nets[[1]],
@@ -523,11 +529,6 @@ compute_ego_statistics <- function(nets) {
 
 
 ```{r}
-library(dplyr)
-library(tidyr)
-library(forcats)
-library(scales)
-
 desc_data <- data[["demographics"]] |>
   mutate(
     first_affiliation = coalesce(university_22_first, university_24_first, university_25_first),
@@ -542,7 +543,7 @@ desc_data <- data[["demographics"]] |>
     migrant = factor(migrant, levels = c("NL", "M4", "other"))
   ) 
   
-desc = desc_data |>
+desc <- desc_data |>
   select(gender, migrant, first_affiliation, last_position) |>
   pivot_longer(everything(), names_to = "variable", values_to = "value") |>
   group_by(variable) |>
@@ -565,7 +566,7 @@ desc
 ```
 
 ```{r}
-desc_samp = desc_data |>
+desc_samp <- desc_data |>
   filter(flag == 'is_complete') |>
   select(gender, migrant, first_affiliation, last_position) |>
   pivot_longer(everything(), names_to = "variable", values_to = "value") |>
@@ -652,10 +653,6 @@ tt_gender
 
 
 ```{r}
-library(dplyr)
-library(tidyr)
-library(purrr)
-library(broom)
 
 pairwise_ttests_with_stats <- function(
     df, group_var, metrics = c("degree","betweenness","closeness"),
@@ -753,3 +750,7 @@ tt_position2
 tt_migrant2
 ```
 
+
+```{r}
+samp |> fsaveRDS('samp', location = './data/analysis/')
+```
