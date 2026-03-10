@@ -138,42 +138,42 @@ select_sample_intdis <- function(topics, sample){
 ```
 
 ```{r}
-select_sample <- function (data, topics){
-  # set list with valid uids
-  sample <- data[['nodes']] |> distinct(uid) |> pull() |> sort() 
+# select_sample <- function (data, topics){
+#   # set list with valid uids
+#   sample <- data[['nodes']] |> distinct(uid) |> pull() |> sort() 
 
-  # select valid works and scholars
-  data[['works']] <- data[['works']][sample]
-  data[['scholars_oa']] <- data[['scholars_oa']][sample]
-  data[['edge_table']] <- data[['edge_table']] |> filter(uid %in% sample)
+#   # select valid works and scholars
+#   data[['works']] <- data[['works']][sample]
+#   data[['scholars_oa']] <- data[['scholars_oa']][sample]
+#   data[['edge_table']] <- data[['edge_table']] |> filter(uid %in% sample)
 
-  # prune distances matrices
-  years <- c('2022', '2024', '2025')
-  for (year in years){
-    d0 <- data[['distances']][[year]]
-    data[['distances']][[year]] <- select_sample_matrix(d0, sample)
-  }
-  return(data)
-}
+#   # prune distances matrices
+#   years <- c('2022', '2024', '2025')
+#   for (year in years){
+#     d0 <- data[['distances']][[year]]
+#     data[['distances']][[year]] <- select_sample_matrix(d0, sample)
+#   }
+#   return(data)
+# }
 
-select_sample_topics <- function(samp, topics){
-  sample <- samp[['nodes']] |> distinct(uid) |> pull() |> sort()
+# select_sample_topics <- function(samp, topics){
+#   sample <- samp[['nodes']] |> distinct(uid) |> pull() |> sort()
 
-  D <- list()
-  years <- c('2022', '2024', '2025')
-  for (year in years){
-    D[[year]] <- topics[['dissim']][['subfield']][['2022']] |>
-      select_sample_matrix(sample)
-  }
-  samp[['dissim']] <- D
-  samp[['intdis']] <- topics |> select_sample_intdis(sample)
+#   D <- list()
+#   years <- c('2022', '2024', '2025')
+#   for (year in years){
+#     D[[year]] <- topics[['dissim']][['subfield']][['2022']] |>
+#       select_sample_matrix(sample)
+#   }
+#   samp[['dissim']] <- D
+#   samp[['intdis']] <- topics |> select_sample_intdis(sample)
 
-  return(samp)
-}
+#   return(samp)
+# }
 
-samp <- data |> 
-  select_sample() |>
-  select_sample_topics(topics)
+# samp <- data |> 
+#   select_sample() |>
+#   select_sample_topics(topics)
 
 ```
 
@@ -187,7 +187,9 @@ make_adjacency_matrix <- function(
   ) {
   
   # make edgelist from works
-  edges <- data[['works']][uids] |> bind_rows() |>
+  edges <- data[['works']][uids] |>
+    purrr::keep(~ nrow(.x) > 0) |>
+    bind_rows() |>
     filter(publication_year >= min_year, publication_year <= max_year) |>
     select(uid, work_id, authorships, publication_year) |>
     rename(e_uid = uid) |>
@@ -204,13 +206,14 @@ make_adjacency_matrix <- function(
   edge_counts <- edges |> count(e_uid, uid, name="w")
 
   # make edgelist symetrical
-  if (type != 'all') {
+  if (type == 'all') {
     edge_counts <- bind_rows(
       edge_counts,
-      edge_counts %>% transmute(uid = e_uid, e_uid = uid, w = w)
+      edge_counts %>% 
+      rename(uid = e_uid, e_uid = uid)
     ) %>%
-      group_by(uid, e_uid) %>%
-      summarise(w = sum(w), .groups = "drop")
+    group_by(uid, e_uid) %>%
+    summarise(w = sum(w), .groups = "drop")
   }
 
   # convert counts to incidences
@@ -224,7 +227,7 @@ make_adjacency_matrix <- function(
   # complete matrix grid and pivot to wide
   adj <- edge_counts %>%
     rename(from = e_uid, to = uid) %>%
-    complete(from = nodes, to = nodes, fill = list(w = 0)) %>%
+    complete(from = nodes, to = nodes, fill = list(w = NA)) %>%
     pivot_wider(names_from = to, values_from = w) %>%
     arrange(from)
   
@@ -291,7 +294,7 @@ fcolnet2 <- function(
   max_year   <- max(unlist(waves))
 
   # step 1: make selection of nodes
-  authors <- data[["nodes"]] |>
+  authors <- data[["demographics"]] |>
     filter(
       if_any(c(university_22_first, university_24_first, university_25_first),
             ~ .x %in% university),
@@ -301,7 +304,7 @@ fcolnet2 <- function(
             ~ .x %in% position)
     ) |>
     arrange(uid)
-  uids <- authors |> pull(uid) |> sort()
+  uids <- authors |> pull(uid) |> sort() |> unique()
   
   # step 3: create empty matrixes (wave, i, j)
   nwaves <- length(waves)
@@ -323,22 +326,30 @@ fcolnet2 <- function(
 ```
 
 ```{r}
-colnet <- fcolnet2(samp, 
+colnet <- fcolnet2(data, 
   type = 'all',
   waves = list(c(2020, 2026))
 )
 ```
 
 ```{r}
+n = colnet[['nets']][[1]]
+
+n[upper.tri(n)] |> sum()
+n[lower.tri(n)] |> sum()
+
+```
+
+```{r}
 #| column: page-inset
 
-net <- fcolnet2(samp, 
+net <- fcolnet2(data, 
   type = 'all',
   waves = list(c(2020, 2026))
 )
 
 noisolate <- rowSums(net$nets[[1]]) > 0
-# net$nets[[1]] = net$nets[[1]][noisolate, noisolate]
+net$nets[[1]] = net$nets[[1]][noisolate, noisolate]
 
 net$graph  <- igraph::graph_from_adjacency_matrix(
   net$nets[[1]],
@@ -354,9 +365,9 @@ df_ego <- net$data |>
   ) |>
   arrange(uid)
 
-l <- layout_with_fr(net$g, niter = 1500)
+l <- layout_with_fr(net$graph, niter = 1500)
 
-plot(net$g,
+plot(net$graph,
   vertex.color = ifelse(df_ego$uni == "UVA", "red",  
                  ifelse(df_ego$uni == "UVG", "lemonchiffon", 
                  ifelse(df_ego$uni == "VU", "darkgrey", 
@@ -365,7 +376,7 @@ plot(net$g,
                  ifelse(df_ego$uni == "EUR", "yellow",
                  ifelse(df_ego$uni == "UU", "green",
                  ifelse(df_ego$uni == "UL", "coral", "white")))))))),
-  vertex.shape = ifelse(df_ego$gender == 'female', "circle", "square"),
+  vertex.shape = ifelse(df_ego$gender == 'female', "circle", 'square'),
   vertex.size = 2 + igraph::degree(net$g, mode = 'in') ^ 0.5,
   vertex.label = NA,
   vertex.size = 4,
@@ -374,16 +385,6 @@ plot(net$g,
   layout = l)
 
 
-```
-
-
-```{r}
-has_edges <- df_ego$uid |> unique()
-
-data[['demographics']] <- data[['demographics']] |>
-  mutate(flag = ifelse(uid %in% has_edges, 'in_network', flag))
-
-data[['demographics']] |> count(flag)
 ```
 
 ```{r}
@@ -433,9 +434,9 @@ ggplot(plot_df, aes(x = migrant, y = n, fill = flag)) +
 ```
 
 ```{r}
-net_first <- fcolnet2(samp, 
+net_first <- fcolnet2(data, 
   type = 'first',
-  waves = list(c(2020, 2026))
+  waves = list(c(2019, 2026))
 )
 noisolate = rowSums(net_first$nets[[1]]) > 0
 # net_first$nets[[1]] <- net_first$nets[[1]][noisolate, noisolate]
@@ -447,9 +448,9 @@ net_first$graph  <- igraph::graph_from_adjacency_matrix(
   diag = FALSE,
   add.colnames = NULL,)
 
-net_last <- fcolnet2(samp, 
+net_last <- fcolnet2(data, 
   type = 'last',
-  waves = list(c(2020, 2026))
+  waves = list(c(2019, 2026))
 )
 noisolate <- rowSums(net_last$nets[[1]]) > 0
 # net_last$nets[[1]] <- net_last$nets[[1]][noisolate, noisolate]
@@ -527,7 +528,10 @@ compute_ego_statistics <- function(nets) {
 
 ```
 
-
+<!-- 
+ieder die wetenschappelijk personeel is
+niet selecteren op openalex of publicatie
+-->
 ```{r}
 desc_data <- data[["demographics"]] |>
   mutate(
@@ -565,29 +569,6 @@ desc <- desc_data |>
 desc
 ```
 
-```{r}
-desc_samp <- desc_data |>
-  filter(flag == 'is_complete') |>
-  select(gender, migrant, first_affiliation, last_position) |>
-  pivot_longer(everything(), names_to = "variable", values_to = "value") |>
-  group_by(variable) |>
-  mutate(
-    # preserve existing factor levels when present; otherwise make a factor
-    value = if (is.factor(value)) value else factor(value),
-    value = fct_explicit_na(value, na_level = "Missing"),
-    # make sure "Missing" goes last
-    value = fct_relevel(value, "Missing", after = Inf)
-  ) |>
-  count(variable, value, name = "n") |>
-  mutate(
-    prop = n / sum(n),
-    pct  = percent(prop, accuracy = 0.1)
-  ) |>
-  ungroup() |>
-  arrange(variable, value)
-
-desc_samp
-```
 
 ```{r}
 net$stats$ego = compute_ego_statistics(net)

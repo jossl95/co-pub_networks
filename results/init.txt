@@ -6,7 +6,7 @@ Filename is ./init.txt.
 
 This file contains basic descriptives for SIENA data set <<./init>>.
 
-Date and time: 07/03/2026 17:45:30 
+Date and time: 10/03/2026 17:08:40 
 
 RSiena version 1.6.2 (26 02 2026)
 
@@ -16,13 +16,13 @@ Data input.
 ===========
 
 3 observations,
-563 actors,
+213 actors,
 1 dependent network variables,
 0 dependent bipartite variables,
 0 dependent discrete behavior variables,
 0 dependent continuous behavior variables,
-2 constant actor covariates,
-1 exogenous changing actor covariates,
+4 constant actor covariates,
+5 exogenous changing actor covariates,
 0 constant dyadic covariates,
 0 exogenous changing dyadic covariates,
 0 no files with times of composition change.
@@ -50,108 +50,39 @@ Nodes
 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 
 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 
 196 197 198 199 200 201 202 203 204 205 206 207 208 209 210 
-211 212 213 214 215 216 217 218 219 220 221 222 223 224 225 
-226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 
-241 242 243 244 245 246 247 248 249 250 251 252 253 254 255 
-256 257 258 259 260 261 262 263 264 265 266 267 268 269 270 
-271 272 273 274 275 276 277 278 279 280 281 282 283 284 285 
-286 287 288 289 290 291 292 293 294 295 296 297 298 299 300 
-301 302 303 304 305 306 307 308 309 310 311 312 313 314 315 
-316 317 318 319 320 321 322 323 324 325 326 327 328 329 330 
-331 332 333 334 335 336 337 338 339 340 341 342 343 344 345 
-346 347 348 349 350 351 352 353 354 355 356 357 358 359 360 
-361 362 363 364 365 366 367 368 369 370 371 372 373 374 375 
-376 377 378 379 380 381 382 383 384 385 386 387 388 389 390 
-391 392 393 394 395 396 397 398 399 400 401 402 403 404 405 
-406 407 408 409 410 411 412 413 414 415 416 417 418 419 420 
-421 422 423 424 425 426 427 428 429 430 431 432 433 434 435 
-436 437 438 439 440 441 442 443 444 445 446 447 448 449 450 
-451 452 453 454 455 456 457 458 459 460 461 462 463 464 465 
-466 467 468 469 470 471 472 473 474 475 476 477 478 479 480 
-481 482 483 484 485 486 487 488 489 490 491 492 493 494 495 
-496 497 498 499 500 501 502 503 504 505 506 507 508 509 510 
-511 512 513 514 515 516 517 518 519 520 521 522 523 524 525 
-526 527 528 529 530 531 532 533 534 535 536 537 538 539 540 
-541 542 543 544 545 546 547 548 549 550 551 552 553 554 555 
-556 557 558 559 560 561 562 563
+211 212 213
 out-degrees
-  1   1   7   5   1   2   0   1   4   1   3   2   3   4   1 
- 11   0   0   2   0   0   6   1   1   4   2   0   1   1   0 
-  0   0   2   0   3   4   6   7   0   3   1   1   0  12   1 
-  1   5   1   3   2   7   1   0   0   0   2   2   2   3   5 
-  6   1   2   0   1   2   6   5   0   4   2   0   1   3   0 
-  0   0   2   3   4   3   1   0   1   0   3   0   0   2   1 
-  1   2   2   0   4   1   0   2   3   1   1   0   0   2   0 
-  0   1   0   2   1   0   2   1   1   0   0   5   1   1   2 
-  0   3   0   0   0   1   1   0   1   0   0   1   0   0   2 
-  6   3   0   3   0   0   1   0   2   7   0   6   1   3   1 
- 15   1   0   0   3   0  10   1   0   0   0   0   4   0   1 
-  2   0   3   1   1   2   0   2   1   0   1   0   0   1   1 
-  0   1   0   1   0   0   1   3   0   0   1   1   0   2   4 
-  0   2   0   1   1   1   0   4   0   1   1   0   0   1   0 
-  1   4   0   1   0   4   6   1   0   1   3   0   1   1   1 
-  1   4   2   2   0   0   1   0   1   1   1   0   0   1   0 
-  0   1   0   1   1   0   2   0   4   4   1   0   1   3   0 
-  0   0   0   0   3   0   1   1   0   0   1   0   0   0   6 
-  0   0   1   2   0   0   0   0   0   0   1   3   1   1   2 
-  1   0   4   0   1   0   1   0   1   1   0   1   0   2   0 
-  1   1   0   0   1   0   0   0   3   1   0   2   0   0   0 
-  2   1   0   0   0   0   2   0   1   1   0   0   0   0   0 
-  0   1   2   0   0   2   0   0   0   0   4   0   0   0   1 
-  1   1   2   0   0   0   0   0   0   0   0   0   0   3   0 
-  0   1   0   2   2   0   1   0   2   0   0   0   2   0   1 
-  0   0   3   2   0   0   0   1   0   0   0   1   0   0   0 
-  0   2   1   0   0   0   2   0   0   0   0   0   0   0   0 
-  2   0   1   0   0   3   4   0   0   1   0   0   0   1   0 
-  0   0   1   0   0   1   0   0   2   0   0   1   0   0   0 
-  0   0   0   0   1   0   2   0   2   0   0   1   0   0   0 
-  0   0   0   0   0   0   0   0   0   0   0   0   1   0   0 
-  1   0   0   1   0   0   0   0   1   1   0   0   0   0   0 
+  4   0   3   0   0   0   0   0   5   0   0   0   0   0   2 
+  0   7   0   3   0   0  11   0   1   0   2   0   2   2   2 
+  0   0   3   0   0   0   0   2   0   0   1   3   0   0   0 
+  0   0   1   1   0   0   0   0   0   6   0   0   0   0   2 
+ 12   0   2   0   0   0   0   1   0   0   0   0   0   1   0 
+  1   0   0   0   0   0   1   0   0   0   4   1   0   1   0 
+  0   1   0   0   1   0   3   0   0   0   0   3   0   0   0 
+  1   2   0   0   0   0   0   2   1   0   0   1   0   1   0 
+  0   0   0   0   0   1   0   0   0   0   2   0   0   0   0 
+  0   0   0   0   0   0   1   0   0   0   0   0   0   0   0 
+  0   0   0   0   0   0   0   0   0   0   3   1   0   0   0 
+  0   0   0   0   0   0   2   1   0   0   0   0   2   0   1 
   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   0   0   0   0   0   0   0   1   0   0   1 
-  0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  1   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  1   0   0   0   0   0   0   1   0   0   0   0   0   0   0 
-  0   0   0   0   0   0   0   0
+  0   0   0   0   0   1   0   0   0   0   0   0   0   0   0 
+  0   0   0
 in-degrees
   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   0   0   0   0   0   1   0   0   0   0   0 
-  0   1   0   0   0   0   0   0   0   0   0   0   0   1   0 
-  0   0   0   0   0   0   0   1   0   0   0   0   0   0   0 
-  1   0   0   0   1   0   0   2   0   0   0   0   0   0   0 
-  0   0   2   0   0   0   0   0   1   0   0   1   0   0   0 
-  0   0   1   0   1   0   1   0   1   2   0   1   0   0   1 
-  0   0   0   3   0   0   1   0   0   0   1   2   0   1   0 
-  1   2   0   0   0   0   0   0   0   0   1   0   0   0   0 
-  5   0   0   0   1   0   0   1   3   3   0   0   0   0   0 
-  2   0   1   2   0   1   1   0   0   0   0   0   3   0   1 
-  5   0   0   0   0   0   0   2   0   1   0   0   0   4   0 
-  0   0   0   2   0   1   1   2   1   1   0   1   0   2   1 
-  0   1   0   1   0   0   0   3   0   1   0   1   1   0   1 
-  1   3   0   0   1   1   3   0   0   3   0   0   0   1   0 
-  0   0   1   1   1   2   0   0   0   3   0   1   0   0   1 
-  2   1   1   0   0   1   1   1   2   1   0   6   0   0   1 
-  0   0   2   1   3   1   0   1   1   1   0   1   1   0   2 
-  0   0   0   0   2   0   0   0   0   1   1   2   0   1   0 
-  1   1   2   2   2   2   0   1   1   1   1   1   1   3   0 
-  1   0   1   0   1   0   1   0   9   1   1   0   1   1   0 
-  3   0   1   1   0   2   1   0   1   1   0   0   2   1   1 
-  0   1   0   2   0   0   0   0   1   0   7   0   0   3   3 
-  1   2   0   0   2   3   3   0   1   3   2   0   1   2   2 
-  0   2   0   1   3   0   0   0   2   1   4   0   3   1   0 
-  1   1   1   4   0   0   4   0   0   1   0   0   0   0   0 
-  1   2   2   1   1   1   0   0   0   3   0   2   0   1   0 
-  2   0   3   0   0   4   3   0   0   0   1   1   1   0   1 
-  1   0   3   1   1   2   2   0  14   1   0   0   0   1   1 
-  1   0   0   1   2   2   3   2   2   0   2   1   0   0   1 
-  1   1   1   1   2   0   2   0   2   1   3   1   0   1   0 
-  8   2   7   2   1   1   1   1   1   0   2   3   2   2   0 
-  0   1   1   0   3   0   0   2   1   7   5   0   1   1   1 
-  1   0   0   3   1   0   0   1   1   5   0   0   5   0   0 
-  1   1   0   1   1   6   0   1   1   0   1   2   1   1   0 
-  2   1   5   1   3   0   1   2   0   1   0   1   3   1   0 
-  6   2   1   6   1   0   1   7   1   4   5   3   2   0   1 
-  0   3   2   2   3   2   3   2
+  0   0   0   0   0   0   1   1   0   0   0   0   0   2   0 
+  0   0   0   0   0   0   0   1   0   1   0   3   0   0   0 
+  0   1   0   1   0   0   0   0   0   5   0   0   0   0   0 
+  1   1   0   0   0   0   0   5   0   1   0   1   0   4   0 
+  0   0   0   0   1   0   0   0   0   0   0   0   0   0   0 
+  0   0   3   0   0   1   1   0   0   0   2   2   1   0   0 
+  0   0   2   0   0   0   1   2   1   0   0   2   1   1   0 
+  0   0   0   0   0   1   0   0   0   0   6   0   0   0   0 
+  0   0   0   0   0   0   1   0   0   1   0   0   0   0   0 
+  0   0   1   0   0   0   0   0   0   0   4   2   0   0   2 
+  0   1   0   1   0   0   2   1   1   0   0   0   5   0   0 
+  3   0   1   0   0   2   1   0   0   0   0   0   1   0   0 
+  0   1   2   0   2   5   5   0   5   4   0   2   1   2   0 
+  2   0   0
 
 No missing data for observation 1.
 
@@ -171,108 +102,39 @@ Nodes
 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 
 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 
 196 197 198 199 200 201 202 203 204 205 206 207 208 209 210 
-211 212 213 214 215 216 217 218 219 220 221 222 223 224 225 
-226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 
-241 242 243 244 245 246 247 248 249 250 251 252 253 254 255 
-256 257 258 259 260 261 262 263 264 265 266 267 268 269 270 
-271 272 273 274 275 276 277 278 279 280 281 282 283 284 285 
-286 287 288 289 290 291 292 293 294 295 296 297 298 299 300 
-301 302 303 304 305 306 307 308 309 310 311 312 313 314 315 
-316 317 318 319 320 321 322 323 324 325 326 327 328 329 330 
-331 332 333 334 335 336 337 338 339 340 341 342 343 344 345 
-346 347 348 349 350 351 352 353 354 355 356 357 358 359 360 
-361 362 363 364 365 366 367 368 369 370 371 372 373 374 375 
-376 377 378 379 380 381 382 383 384 385 386 387 388 389 390 
-391 392 393 394 395 396 397 398 399 400 401 402 403 404 405 
-406 407 408 409 410 411 412 413 414 415 416 417 418 419 420 
-421 422 423 424 425 426 427 428 429 430 431 432 433 434 435 
-436 437 438 439 440 441 442 443 444 445 446 447 448 449 450 
-451 452 453 454 455 456 457 458 459 460 461 462 463 464 465 
-466 467 468 469 470 471 472 473 474 475 476 477 478 479 480 
-481 482 483 484 485 486 487 488 489 490 491 492 493 494 495 
-496 497 498 499 500 501 502 503 504 505 506 507 508 509 510 
-511 512 513 514 515 516 517 518 519 520 521 522 523 524 525 
-526 527 528 529 530 531 532 533 534 535 536 537 538 539 540 
-541 542 543 544 545 546 547 548 549 550 551 552 553 554 555 
-556 557 558 559 560 561 562 563
+211 212 213
 out-degrees
-  1   1   7   5   1   2   2   0   1   0   2   3   2   2   0 
-  6   1   1   1   3   0   5   1   1   1   2   1   0   1   0 
-  1   0   4   0   1   0   4   6   2   3   0   1   0   8   0 
-  1   0   1   1   3   5   0   2   1   1   1   1   0   1   3 
-  4   2   0   0   1   0   3   4   0   3   2   1   0   3   1 
-  0   0   4   1   3   1   2   0   0   0   3   0   1   0   2 
-  0   0   0   0   0   0   0   2   1   2   0   0   0   1   1 
-  1   1   0   0   0   4   3   2   0   3   0   2   2   0   0 
-  1   0   0   1   1   0   0   2   0   1   0   3   0   1   3 
-  7   0   2   4   0   2   0   0   1   5   0   2   0   1   1 
- 11   1   0   0   3   1   6   1   1   2   1   0   4   0   0 
-  3   0   3   0   1   1   0   2   1   1   0   2   2   1   0 
-  0   0   2   0   0   0   0   2   0   0   0   0   0   2   0 
-  0   1   0   0   0   0   2   1   0   0   0   0   0   2   0 
-  0   0   0   1   0   3   4   0   0   0   3   0   0   4   0 
-  0   3   3   1   3   0   0   2   2   0   0   0   0   2   0 
-  0   0   0   1   0   0   0   0   2   3   0   0   1   2   0 
-  0   1   0   0   5   0   4   2   0   0   1   0   0   0   4 
-  0   2   0   2   1   0   0   1   0   1   0   0   0   0   0 
-  0   0   1   0   0   0   0   0   0   1   0   1   0   0   0 
-  1   0   0   0   1   0   1   1   0   0   0   1   0   0   0 
-  1   0   0   0   1   0   3   0   0   2   0   0   1   0   0 
-  0   0   3   0   0   1   0   0   0   1   3   0   0   0   3 
-  0   0   1   0   0   0   1   0   0   0   0   0   0   0   0 
-  0   1   1   0   2   0   1   0   1   0   0   0   0   0   1 
-  0   0   4   1   0   0   0   0   0   0   1   1   0   0   0 
-  0   1   1   0   0   0   1   0   0   0   0   0   0   0   0 
-  0   0   0   0   1   3   0   0   0   0   0   0   0   0   1 
-  0   0   1   0   0   1   0   0   1   0   1   0   1   0   0 
-  0   0   0   0   0   1   2   0   0   0   0   2   0   0   0 
-  0   0   0   0   0   0   0   0   1   0   0   0   0   1   0 
+  1   0   2   0   0   0   0   0   4   0   0   0   0   0   4 
+  0   6   2   3   0   0   8   2   1   0   0   0   2   2   1 
+  0   0   3   0   0   0   0   1   0   1   1   0   0   4   0 
+  0   0   2   0   0   2   0   3   0   5   2   0   0   0   1 
+ 10   0   3   1   0   2   0   2   0   0   0   1   0   1   2 
+  0   0   0   0   0   0   0   0   0   0   3   0   0   0   0 
+  0   2   0   0   2   0   3   0   0   0   0   5   0   0   0 
+  0   2   1   0   1   0   1   0   0   0   0   0   0   1   0 
+  0   0   1   0   0   1   0   0   0   0   2   0   0   0   0 
+  0   0   0   0   0   0   1   1   0   0   0   0   0   0   0 
+  0   0   0   0   0   0   0   0   1   0   3   1   0   0   0 
+  0   0   1   0   0   0   2   2   0   0   0   0   0   0   0 
+  0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
   0   0   0   0   0   1   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  1   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   1   0   0   0
+  0   0   0
 in-degrees
   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   0   0   0   0   0   1   0   0   0   0   0 
-  0   1   0   0   0   0   0   0   0   0   0   0   1   1   0 
-  0   0   0   1   0   0   0   1   0   0   0   0   0   0   0 
-  0   0   0   1   0   0   1   0   0   0   0   0   0   0   0 
-  1   0   2   0   0   0   0   0   1   0   0   1   0   0   0 
-  0   0   0   0   0   0   0   0   1   0   0   0   0   0   0 
-  0   1   0   1   0   0   0   0   0   0   2   1   0   2   0 
-  0   0   0   0   0   0   0   0   0   0   1   0   1   0   0 
-  5   0   0   0   1   0   0   0   2   3   0   0   0   0   0 
-  2   0   0   0   0   0   0   1   1   0   0   1   2   0   0 
-  5   0   0   1   0   0   1   0   0   1   1   0   0   1   0 
-  0   0   0   0   1   0   1   2   1   0   0   0   1   0   1 
-  0   1   1   0   0   1   0   2   0   1   1   1   1   0   1 
-  1   1   0   0   1   1   2   0   1   0   1   0   0   0   1 
-  0   0   0   1   0   0   0   0   0   1   0   2   0   0   1 
-  0   1   0   0   0   0   1   0   2   1   0   2   0   0   1 
-  2   0   1   1   3   1   0   0   0   0   1   2   1   0   0 
-  0   1   0   0   2   1   1   0   0   0   0   1   0   0   0 
-  1   1   0   1   1   1   0   1   0   0   1   0   0   2   1 
-  2   0   0   0   2   1   1   0   1   2   1   1   1   0   0 
-  1   1   0   0   0   3   0   0   2   0   0   1   4   1   1 
-  0   0   0   0   1   1   0   0   1   2   2   0   0   1   4 
-  2   1   0   1   0   1   1   1   1   2   1   1   0   0   0 
-  0   1   0   1   1   1   1   0   1   0   0   0   1   1   2 
-  1   0   1   3   2   0   3   0   2   1   0   0   1   0   1 
-  0   2   1   0   2   1   2   0   0   1   1   1   1   0   0 
-  0   1   4   0   0   6   1   1   0   0   1   0   0   0   1 
-  1   1   5   1   0   1   2   0  10   1   1   2   1   0   0 
-  1   1   1   1   1   2   4   0   1   0   2   2   0   1   1 
-  1   0   1   0   2   0   1   1   1   0   2   0   0   0   1 
-  5   1   3   2   1   0   1   0   0   1   2   1   1   2   1 
-  0   1   1   0   3   1   1   2   0   5   2   0   1   0   1 
-  1   1   0   2   0   1   0   0   1   3   0   2   4   0   0 
-  1   1   2   0   1   3   0   1   0   0   0   2   1   1   1 
-  3   0   0   1   1   1   1   3   1   0   1   1   1   1   0 
-  6   3   2   4   0   0   2   4   1   2   0   1   3   0   1 
-  1   3   0   0   2   1   1   4
+  0   0   0   0   0   0   1   1   0   0   0   0   0   2   0 
+  0   0   0   0   0   0   0   1   0   0   1   1   0   0   0 
+  0   2   0   2   0   0   0   0   1   5   0   0   0   0   0 
+  2   0   0   0   0   0   1   5   0   0   1   1   0   1   0 
+  1   0   0   0   1   0   0   0   0   0   0   0   0   0   0 
+  0   0   1   0   0   0   1   0   0   0   1   2   1   0   0 
+  0   0   2   1   0   0   0   1   1   0   0   1   1   0   1 
+  1   0   0   0   0   0   0   0   1   0   2   0   0   0   0 
+  0   0   0   0   0   0   1   0   0   0   0   0   0   0   0 
+  2   0   1   1   2   1   0   0   0   0   6   4   0   0   2 
+  0   1   1   1   0   1   4   1   1   0   0   1   5   0   1 
+  1   0   1   0   0   2   1   0   1   0   0   2   1   0   1 
+  1   1   1   1   3   6   4   0   4   2   0   3   1   0   0 
+  1   0   0
 
 No missing data for observation 2.
 
@@ -292,108 +154,39 @@ Nodes
 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 
 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 
 196 197 198 199 200 201 202 203 204 205 206 207 208 209 210 
-211 212 213 214 215 216 217 218 219 220 221 222 223 224 225 
-226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 
-241 242 243 244 245 246 247 248 249 250 251 252 253 254 255 
-256 257 258 259 260 261 262 263 264 265 266 267 268 269 270 
-271 272 273 274 275 276 277 278 279 280 281 282 283 284 285 
-286 287 288 289 290 291 292 293 294 295 296 297 298 299 300 
-301 302 303 304 305 306 307 308 309 310 311 312 313 314 315 
-316 317 318 319 320 321 322 323 324 325 326 327 328 329 330 
-331 332 333 334 335 336 337 338 339 340 341 342 343 344 345 
-346 347 348 349 350 351 352 353 354 355 356 357 358 359 360 
-361 362 363 364 365 366 367 368 369 370 371 372 373 374 375 
-376 377 378 379 380 381 382 383 384 385 386 387 388 389 390 
-391 392 393 394 395 396 397 398 399 400 401 402 403 404 405 
-406 407 408 409 410 411 412 413 414 415 416 417 418 419 420 
-421 422 423 424 425 426 427 428 429 430 431 432 433 434 435 
-436 437 438 439 440 441 442 443 444 445 446 447 448 449 450 
-451 452 453 454 455 456 457 458 459 460 461 462 463 464 465 
-466 467 468 469 470 471 472 473 474 475 476 477 478 479 480 
-481 482 483 484 485 486 487 488 489 490 491 492 493 494 495 
-496 497 498 499 500 501 502 503 504 505 506 507 508 509 510 
-511 512 513 514 515 516 517 518 519 520 521 522 523 524 525 
-526 527 528 529 530 531 532 533 534 535 536 537 538 539 540 
-541 542 543 544 545 546 547 548 549 550 551 552 553 554 555 
-556 557 558 559 560 561 562 563
+211 212 213
 out-degrees
-  0   0   3   5   1   2   0   0   3   1   1   0   0   0   0 
-  2   0   0   0   4   1   3   1   1   0   0   0   0   1   1 
-  0   0   6   0   1   0   3   4   2   0   0   1   0   6   0 
-  1   1   0   0   0   4   0   0   0   0   2   0   0   0   3 
-  4   0   2   1   0   1   0   0   1   3   1   0   0   0   1 
-  0   1   0   0   0   0   1   1   0   2   2   0   1   1   0 
-  0   1   0   2   0   1   0   0   1   1   0   0   2   0   2 
-  0   0   2   0   0   3   6   1   0   0   0   3   0   1   0 
-  0   2   1   0   0   1   0   0   0   0   0   0   0   0   0 
-  8   0   1   0   0   0   0   0   0   6   1   4   0   0   0 
-  7   0   0   0   3   0   6   0   2   3   0   0   3   0   0 
-  5   1   1   0   0   0   0   2   1   0   1   0   0   0   0 
-  0   0   0   0   0   1   0   1   0   1   1   3   0   3   2 
-  1   2   0   0   0   0   2   1   0   0   0   0   0   3   0 
-  0   0   0   0   0   1   4   0   0   0   1   0   0   0   0 
-  0   0   0   0   3   0   0   0   3   1   0   0   0   0   0 
-  1   0   0   1   0   0   0   0   0   1   0   0   0   1   0 
-  0   0   0   0   3   0   0   1   0   0   0   0   0   1   0 
-  0   2   0   2   0   0   0   0   3   0   1   0   0   1   0 
-  0   0   1   0   0   0   0   0   0   0   0   0   0   1   0 
-  1   0   1   0   0   0   0   1   0   0   1   1   2   0   0 
-  0   0   0   0   0   0   2   0   0   1   0   0   0   0   0 
-  1   0   0   1   0   1   1   1   0   1   2   0   0   0   2 
-  1   0   2   0   0   1   0   0   1   0   0   0   0   2   2 
-  0   0   0   0   1   0   0   0   1   0   0   1   1   0   1 
-  0   0   1   1   0   0   0   1   0   0   0   0   0   0   0 
-  0   0   2   0   0   0   1   0   0   0   0   0   0   0   0 
-  1   0   0   0   0   0   2   0   0   0   0   0   0   0   0 
+  3   0   1   0   0   0   0   1   2   0   0   0   0   0   5 
+  0   4   2   0   0   0   5   0   0   0   0   0   1   0   0 
+  0   2   2   0   0   2   0   1   2   2   0   0   0   3   0 
+  0   0   0   0   0   0   0   0   0   6   1   0   0   0   0 
+  6   0   3   0   0   3   0   4   0   0   0   0   0   0   0 
+  0   0   0   0   0   0   0   0   0   0   0   0   3   0   0 
+  0   3   0   0   0   0   1   0   0   0   0   3   0   0   0 
+  0   2   0   0   0   3   0   0   0   0   0   0   0   0   0 
+  0   0   0   0   0   1   0   0   0   0   1   0   0   0   0 
   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   0   0   0   0   0   1   0   0   0   1   0 
-  0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   1   0   0   0   0   1   1   0   0   0   0 
-  0   0   0   0   0   0   0   0   0   0   1   0   0   0   0 
-  0   0   0   0   0   0   1   0   0   0   0   0   0   0   0 
   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   1   0   0   0
+  0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
+  0   0   0
 in-degrees
   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   0   0   0   0   0   1   0   0   0   0   0 
-  0   1   0   0   0   0   0   0   0   0   0   0   0   0   0 
+  0   0   0   0   0   0   0   0   0   0   0   0   0   3   0 
+  0   0   0   0   0   0   0   1   0   1   1   1   0   0   0 
+  0   1   0   1   0   0   0   0   0   1   0   0   0   0   0 
+  3   0   0   0   0   0   0   2   0   0   0   1   0   1   0 
   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   0   0   1   0   0   0   0   0   0   0   0 
-  0   0   3   0   0   0   0   0   0   0   0   0   0   0   0 
-  0   0   0   0   0   0   0   0   1   0   0   0   0   0   1 
-  0   1   0   1   0   0   0   0   0   0   1   0   0   1   0 
-  0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
-  2   0   0   0   0   0   0   0   1   1   0   0   0   0   0 
-  3   0   0   0   0   0   0   0   1   0   0   0   0   1   0 
-  2   0   0   0   0   0   0   0   0   1   1   1   0   1   0 
-  1   0   1   1   0   1   0   3   2   0   0   1   0   0   1 
-  1   1   1   0   0   0   0   0   1   0   0   2   0   0   0 
-  0   0   0   0   0   2   0   0   0   0   1   1   0   0   0 
-  0   0   1   2   1   1   0   0   0   1   0   1   1   0   2 
-  0   0   1   0   0   1   0   0   1   2   0   0   0   1   1 
-  1   0   0   0   1   1   0   0   0   1   0   1   0   0   0 
-  1   0   0   0   1   0   0   0   1   1   1   1   0   0   0 
-  1   0   0   1   1   1   0   0   0   0   0   0   0   0   0 
-  0   0   0   1   1   1   0   0   0   0   1   0   0   0   1 
-  0   0   0   0   0   0   2   1   0   0   1   1   1   2   0 
-  0   0   0   0   0   1   0   0   0   1   2   0   1   0   0 
-  1   0   0   0   0   0   0   1   0   0   1   1   0   0   2 
-  1   0   0   1   0   0   0   2   0   0   1   0   2   1   3 
-  1   0   0   4   1   1   0   0   0   0   0   0   2   1   1 
-  0   3   0   0   1   1   0   1   2   1   0   2   1   0   1 
-  2   0   2   1   1   3   3   0   2   0   0   0   0   0   0 
-  0   1   5   0   0   0   0   1   3   0   0   0   0   1   0 
-  0   0   0   0   0   0   1   1   1   1   1   0   1   0   1 
-  0   0   1   0   0   1   0   0   2   0   1   1   0   0   0 
-  1   0   1   2   1   0   1   2   2   0   0   3   0   1   0 
-  1   2   0   1   2   1   1   3   0   3   3   2   1   0   1 
-  1   1   1   2   0   2   1   1   1   1   0   1   4   1   0 
-  1   0   1   0   0   3   0   0   0   1   0   0   1   1   1 
-  3   1   1   2   0   0   2   0   1   0   0   0   1   0   1 
-  2   1   1   3   1   1   2   2   1   4   1   1   1   1   0 
-  0   1   0   0   2   0   1   1
+  0   0   1   1   0   0   2   0   0   0   0   1   1   0   1 
+  0   0   1   0   0   1   1   1   1   0   0   1   0   0   0 
+  1   0   0   1   0   0   0   0   0   0   2   0   1   0   0 
+  0   0   0   0   0   1   0   0   0   0   0   0   0   0   0 
+  0   0   0   2   0   1   0   1   1   0   3   5   0   0   0 
+  0   0   0   0   0   0   1   0   1   0   0   0   1   1   0 
+  3   0   0   0   0   3   1   0   2   0   0   1   1   0   1 
+  1   2   0   1   0   2   1   0   2   3   0   1   0   0   0 
+  0   0   0
 
 No missing data for observation 3.
 
@@ -404,20 +197,26 @@ No missing data for observation 3.
 Reading constant actor covariates.
 ----------------------------------
 
-2 variables, named:
+4 variables, named:
 gender          
 soc             
+mig$M4          
+mig$other       
 
-A total of 2 non-changing individual covariates.
+A total of 4 non-changing individual covariates.
 
 Number of missing cases:
-gender          0 	( 0.0 %)
+gender          1 	( 0.5 %)
 soc             0 	( 0.0 %)
+mig$M4          0 	( 0.0 %)
+mig$other       0 	( 0.0 %)
 
 Information about covariates:
               minimum  maximum	  mean  centered 
-gender          0.0     1.0      0.531    Y 
-soc             0.0     1.0      0.707    Y 
+gender          0.0     1.0      0.495    Y 
+soc             0.0     1.0      0.638    Y 
+mig$M4          0.0     1.0      0.038    Y 
+mig$other       0.0     1.0      0.352    Y 
 The mean values are subtracted from the covariates.
 
 
@@ -425,34 +224,68 @@ The mean values are subtracted from the covariates.
 Reading exogenous changing actor covariates.
 --------------------------------------------
 
-1 variable, named:
-uni$ru          
+5 variables, named:
+uni$uu          
+funcs[[1]]      
+funcs[[2]]      
+funcs[[3]]      
+funcs[[4]]      
 
-A total of 1 exogenous changing actor covariate.
+A total of 5 exogenous changing actor covariates.
 
 Number of missing cases per period:
  period                    1       2     overall
-uni$ru                   449     445      894 	   ( 79.4 %)
+uni$uu                    50      84      134 	   ( 31.5 %)
+funcs[[1]]                84      84      168 	   ( 39.4 %)
+funcs[[2]]                84      84      168 	   ( 39.4 %)
+funcs[[3]]                84      84      168 	   ( 39.4 %)
+funcs[[4]]                84      84      168 	   ( 39.4 %)
 
 Information about changing covariates:
 
               minimum  maximum	  mean  centered 
-uni$ru                                     N 
-	period   1     0.0     1.0      0.649 
-	period   2     0.0     1.0      0.619 
-Overall                            0.634 
+uni$uu                                     N 
+	period   1     0.0     1.0      0.344 
+	period   2     0.0     1.0      0.326 
+Overall                            0.336 
+
+funcs[[1]]                                 N 
+	period   1     0.0     1.0      0.171 
+	period   2     0.0     1.0      0.171 
+Overall                            0.171 
+
+funcs[[2]]                                 N 
+	period   1     0.0     1.0      0.279 
+	period   2     0.0     1.0      0.279 
+Overall                            0.279 
+
+funcs[[3]]                                 N 
+	period   1     0.0     1.0      0.124 
+	period   2     0.0     1.0      0.124 
+Overall                            0.124 
+
+funcs[[4]]                                 N 
+	period   1     0.0     1.0      0.140 
+	period   2     0.0     1.0      0.140 
+Overall                            0.140 
 
 
 
 The mean structural dissimilarity value subtracted in the
-balance calculations is         0.0029.
+balance calculations is         0.0053.
 
 For the similarity variable calculated from each actor covariate,
 the mean is subtracted.
 These means are:
-Similarity gender                   :       0.5010 
-Similarity soc                      :       0.5849 
-Similarity uni$ru                   :       0.5320 
+Similarity gender                   :       0.4977 
+Similarity soc                      :       0.5362 
+Similarity mig$M4                   :       0.9274 
+Similarity mig$other                :       0.5416 
+Similarity uni$uu                   :       0.5505 
+Similarity funcs[[1]]               :       0.7149 
+Similarity funcs[[2]]               :       0.5945 
+Similarity funcs[[3]]               :       0.7810 
+Similarity funcs[[4]]               :       0.7580 
 
 
 
@@ -469,38 +302,38 @@ For the following statistics, missing values (if any) are not counted.
 
 Network density indicators:
 observation time              1      2      3
-density                    0.002  0.001  0.001
-average degree             0.934  0.707  0.492
-number of ties               526    398    277
+density                    0.003  0.003  0.002
+average degree             0.554  0.577  0.366
+number of ties               118    123     78
 missing fraction           0.000  0.000  0.000
 
-The average degree is 0.711 
+The average degree is 0.499 
 
 
 Tie changes between subsequent observations:
  periods        0 =>  0   0 =>  1   1 =>  0   1 =>  1   Distance Jaccard   Missing
-  1 ==>   2    315687       193       321       205       514     0.285         0 (0%)
-  2 ==>   3    315847       161       282       116       443     0.208         0 (0%)
+  1 ==>   2     44974        64        59        59       123     0.324         0 (0%)
+  2 ==>   3     44995        38        83        40       121     0.248         0 (0%)
 
 Directed dyad Counts:
  observation    total    mutual    asymm.     null
-     1.        316406        0      1052    315354
-     2.        316406        2       792    315612
-     3.        316406        2       550    315854
+     1.         45156        0       236     44920
+     2.         45156        0       246     44910
+     3.         45156        0       156     45000
 
 Standard values for initial parameter values
 -------------------------------------------------
 
-constant net rate (period 1)            1.8295 
-constant net rate (period 2)            1.5769 
-outdegree (density)                               -1.7441 
+constant net rate (period 1)            1.1613 
+constant net rate (period 2)            1.1424 
+outdegree (density)                               -1.6761 
 
 Initialisation of data set <<./init>> executed succesfully.
 
 
 -----------------------------------
 New Analysis started.
-Date and time: 07/03/2026 17:45:31
+Date and time: 10/03/2026 17:08:40
 New results follow.
 -----------------------------------
 
@@ -512,7 +345,7 @@ Estimation by stochastic approximation algorithm.
 =================================================
 
 Random initialization of random number stream.
-Current random number seed is 117654.
+Current random number seed is 428916.
 Effects object used: myeff 
 Model Type:
  Standard actor-oriented model 
@@ -521,7 +354,7 @@ Conditioning variable is the total number of observed changes ("distance")
 in the network variable.
 Distances for simulations are
 period   :   1   2
-distance :  514 443.
+distance :  123 121.
 Standard errors are estimated with the likelihood ratio method.
 Dolby method (regression on scores) is used.
 Initial value of gain parameter is  0.2000000.
@@ -529,28 +362,303 @@ Reduction factor for gain parameter is  0.5000000.
 Number of subphases in Phase 2 is 4.
 
 Initial parameter values are 
-  0.1  Rate parameter                         1.8295
-  0.2  Rate parameter                         1.5769
-  1. eval:  outdegree (density)                            -1.7441
+  0.1  Rate parameter                         1.1613
+  0.2  Rate parameter                         1.1424
+  1. eval:  outdegree (density)                            -1.6761
   2. eval:  reciprocity                                     0.0000
-  3. eval:  indegree - popularity                           0.0000
-  4. eval:  network-isolate                                 0.0000
-  5. eval:  gender ego                                      0.0000
-  6. eval:  same gender                                     0.0000
-  7. eval:  soc ego                                         0.0000
-  8. eval:  uni$ru ego                                      0.0000
+  3. eval:  soc ego                                         0.0000
+  4. eval:  uni$uu ego                                      0.0000
 
 
 Values of target statistics are
-  1. Number of ties                                                     675.0000
-  2. Number of reciprocated ties                                          4.0000
-  3. Sum of squared indegrees                                          1421.0000
-  4. Number of isolates                                                 430.0000
-  5. Sum outdegrees x gender                                            -58.4813
-  6. Same values on gender                                              363.0000
-  7. Sum outdegrees x soc                                                60.8242
-  8. Sum outdegrees x uni$ru                                            125.0000
+  1. Number of ties                                                     201.0000
+  2. Number of reciprocated ties                                          0.0000
+  3. Sum outdegrees x soc                                                46.6620
+  4. Sum outdegrees x uni$uu                                             69.0000
 These were calculated from the data.
 
- 8 parameters, 8 statistics
+ 4 parameters, 4 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2375 iterations.
+Parameter estimates based on 1375 iterations,
+basic rate parameters as well as 
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   1.0040  12.1466   0.0827 
+  2.   0.0300   0.2432   0.1233 
+  3.   0.0049   4.6683   0.0011 
+  4.  -0.0210   6.3434  -0.0033 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1599 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2375 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+Rate parameters:
+ 0.1  Rate parameter period 1     2.3325  (   0.3491)
+ 0.2  Rate parameter period 2     1.9963  (   0.2732)
+
+Other parameters:
+ 1. eval:  outdegree (density)                                    -6.0013  (   0.3252)
+ 2. eval:  reciprocity                                            -2.2094  (   8.2323)
+ 3. eval:  soc ego                                                 1.9252  (   0.4957)
+ 4. eval:  uni$uu ego                                              0.6111  (   0.7795)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.106      0.224      0.065     -0.189
+     0.084     67.771      0.668     -0.574
+     0.404      0.164      0.246     -0.156
+    -0.744     -0.089     -0.404      0.608
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 26.75 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 10/03/2026 17:09:07
+New results follow.
+-----------------------------------
+
+RSiena version 1.6.2 (26 Feb 26)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Random initialization of random number stream.
+Current random number seed is 617285.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: conditional moment estimation.
+Conditioning variable is the total number of observed changes ("distance") 
+in the network variable.
+Distances for simulations are
+period   :   1   2
+distance :  123 121.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  0.1  Rate parameter                         1.1613
+  0.2  Rate parameter                         1.1424
+  1. eval:  outdegree (density)                            -1.6761
+  2. eval:  reciprocity                                     0.0000
+  3. eval:  gender alter                                    0.0000
+  4. eval:  gender ego                                      0.0000
+  5. eval:  same gender                                     0.0000
+  6. eval:  soc ego                                         0.0000
+  7. eval:  mig$M4 alter                                    0.0000
+  8. eval:  mig$M4 ego                                      0.0000
+  9. eval:  same mig$M4                                     0.0000
+ 10. eval:  mig$other alter                                 0.0000
+ 11. eval:  mig$other ego                                   0.0000
+ 12. eval:  same mig$other                                  0.0000
+ 13. eval:  uni$uu ego                                      0.0000
+
+
+Values of target statistics are
+  1. Number of ties                                                     201.0000
+  2. Number of reciprocated ties                                          0.0000
+  3. Sum indegrees x gender                                               4.4481
+  4. Sum outdegrees x gender                                            -22.5519
+  5. Same values on gender                                              110.0000
+  6. Sum outdegrees x soc                                                46.6620
+  7. Sum indegrees x mig$M4                                              -2.5493
+  8. Sum outdegrees x mig$M4                                              2.4507
+  9. Same values on mig$M4                                              186.0000
+ 10. Sum indegrees x mig$other                                          -25.7746
+ 11. Sum outdegrees x mig$other                                         -31.7746
+ 12. Same values on mig$other                                           135.0000
+ 13. Sum outdegrees x uni$uu                                             69.0000
+These were calculated from the data.
+
+ 13 parameters, 13 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 3141 iterations.
+Parameter estimates based on 2141 iterations,
+basic rate parameters as well as 
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+Overall maximum t-ratio for convergence not computable.
+  1.  -0.4720  12.1970  -0.0387 
+  2.   0.0000   0.0000   0.0000 
+  3.   0.0822   6.2519   0.0131 
+  4.  -0.4093   5.5553  -0.0737 
+  5.  -0.5610   8.8228  -0.0636 
+  6.  -0.0726   4.6610  -0.0156 
+  7.   0.0077   1.9398   0.0040 
+  8.  -0.1903   2.4322  -0.0782 
+  9.  -0.2540  11.7956  -0.0215 
+ 10.   0.1212   5.3195   0.0228 
+ 11.  -0.0698   4.9602  -0.0141 
+ 12.  -0.4610   9.6825  -0.0476 
+ 13.  -0.3940   6.2552  -0.0630 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  NA .
+*** Warning: Covariance matrix not positive definite *** 
+***            Standard errors not reliable           *** 
+The approximate linear combination that has variance 0 is
+-1 * beta[2] + 0.11 * beta[7] + 0.11 * beta[8] + 0.11 * beta[9]
+Do not use any reported standard errors.
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 3141 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+Rate parameters:
+ 0.1  Rate parameter period 1     2.3675  (   0.3516)
+ 0.2  Rate parameter period 2     2.0534  (   0.2775)
+
+Other parameters:
+ 1. eval:  outdegree (density)                                  NANA
+ 2. eval:  reciprocity                                          NANA
+ 3. eval:  gender alter                                         NANA
+ 4. eval:  gender ego                                           NANA
+ 5. eval:  same gender                                          NANA
+ 6. eval:  soc ego                                              NANA
+ 7. eval:  mig$M4 alter                                         NANA
+ 8. eval:  mig$M4 ego                                           NANA
+ 9. eval:  same mig$M4                                          NANA
+10. eval:  mig$other alter                                      NANA
+11. eval:  mig$other ego                                        NANA
+12. eval:  same mig$other                                       NANA
+13. eval:  uni$uu ego                                           NANA
+
+
+@3
+Covariance matrices
+                   
+There is a linear dependency between the parameter estimates
+ therefore the covariance matrix should not be used.
+
+Total computation time 92.86 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 10/03/2026 17:10:40
+New results follow.
+-----------------------------------
+
+RSiena version 1.6.2 (26 Feb 26)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Random initialization of random number stream.
+Current random number seed is 927539.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: conditional moment estimation.
+Conditioning variable is the total number of observed changes ("distance") 
+in the network variable.
+Distances for simulations are
+period   :   1   2
+distance :  123 121.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  0.1  Rate parameter                         1.1613
+  0.2  Rate parameter                         1.1424
+  1. eval:  outdegree (density)                            -1.6761
+  2. eval:  reciprocity                                     0.0000
+  3. eval:  gender alter                                    0.0000
+  4. eval:  gender ego                                      0.0000
+  5. eval:  same gender                                     0.0000
+  6. eval:  soc ego                                         0.0000
+  7. eval:  mig$M4 alter                                    0.0000
+  8. eval:  mig$M4 ego                                      0.0000
+  9. eval:  same mig$M4                                     0.0000
+ 10. eval:  mig$other alter                                 0.0000
+ 11. eval:  mig$other ego                                   0.0000
+ 12. eval:  same mig$other                                  0.0000
+ 13. eval:  uni$uu ego                                      0.0000
+ 14. eval:  funcs[[1]] ego                                  0.0000
+ 15. eval:  funcs[[2]] ego                                  0.0000
+ 16. eval:  funcs[[3]] ego                                  0.0000
+ 17. eval:  funcs[[4]] ego                                  0.0000
+
+
+Values of target statistics are
+  1. Number of ties                                                     201.0000
+  2. Number of reciprocated ties                                          0.0000
+  3. Sum indegrees x gender                                               4.4481
+  4. Sum outdegrees x gender                                            -22.5519
+  5. Same values on gender                                              110.0000
+  6. Sum outdegrees x soc                                                46.6620
+  7. Sum indegrees x mig$M4                                              -2.5493
+  8. Sum outdegrees x mig$M4                                              2.4507
+  9. Same values on mig$M4                                              186.0000
+ 10. Sum indegrees x mig$other                                          -25.7746
+ 11. Sum outdegrees x mig$other                                         -31.7746
+ 12. Same values on mig$other                                           135.0000
+ 13. Sum outdegrees x uni$uu                                             69.0000
+ 14. Sum outdegrees x funcs[[1]]                                         15.0000
+ 15. Sum outdegrees x funcs[[2]]                                         42.0000
+ 16. Sum outdegrees x funcs[[3]]                                         21.0000
+ 17. Sum outdegrees x funcs[[4]]                                         46.0000
+These were calculated from the data.
+
+ 17 parameters, 17 statistics
 

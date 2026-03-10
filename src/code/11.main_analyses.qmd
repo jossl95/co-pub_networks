@@ -17,11 +17,13 @@ format:
 #| output: false
 # load custom functions
 source("src/utils/custom_functions.r")
-BASEDIR = stringr::str_replace(getwd(), '/results', '')
 
 # clear the global environment and set dependencies
 .clear_global_environment()
 .load_quarto_dependencies()
+
+BASEDIR = stringr::str_replace_all(getwd(), '/results', '')
+setwd(BASEDIR)
 ```
 
 ```{r}
@@ -44,7 +46,6 @@ library(tibble)
 ```{r}
 data <- freadRDS2('data', location = "./data/analysis/")
 topics <-freadRDS2('topics', location = './data/analysis/')
-samp <- freadRDS2('samp', location = './data/analysis')
 ```
 
 
@@ -55,7 +56,9 @@ make_adjacency_matrix <- function(
   ) {
   
   # make edgelist from works
-  edges <- data[['works']][uids] |> bind_rows() |>
+  edges <- data[['works']][uids] |> 
+    purrr::keep(~ nrow(.x) > 0) |>
+    bind_rows() |>
     filter(publication_year >= min_year, publication_year <= max_year) |>
     select(uid, work_id, authorships, publication_year) |>
     rename(e_uid = uid) |>
@@ -72,7 +75,7 @@ make_adjacency_matrix <- function(
   edge_counts <- edges |> count(e_uid, uid, name="w")
 
   # make edgelist symetrical
-  if (type != 'all') {
+  if (type == 'all') {
     edge_counts <- bind_rows(
       edge_counts,
       edge_counts %>% transmute(uid = e_uid, e_uid = uid, w = w)
@@ -119,7 +122,6 @@ make_adjacency_matrix <- function(
 
   # copy overlap block
   mat_full[!is.na(ri), !is.na(ci)] <- mat[ri[!is.na(ri)], ci[!is.na(ci)], drop = FALSE]
-
   mat <- mat_full
   
   #optional: no self-loops on diagonal
@@ -159,7 +161,7 @@ fcolnet2 <- function(
   max_year   <- max(unlist(waves))
 
   # step 1: make selection of nodes
-  authors <- data[["nodes"]] |>
+  authors <- data[["demographics"]] |>
     filter(
       if_any(c(university_22_first, university_24_first, university_25_first),
             ~ .x %in% university),
@@ -190,8 +192,10 @@ fcolnet2 <- function(
 ```
 
 ```{r}
-harmonize_covariates <- function(data, uni_levels){
-  data[['data']] = data[['data']] |>
+harmonize_covariates <- function(data, what = 'data'){
+  uni_levels = c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU")
+
+  data[[what]] = data[[what]] |>
     mutate(
       female = as.integer(gender == 'female'),
       soc = pmap_chr(
@@ -208,7 +212,9 @@ harmonize_covariates <- function(data, uni_levels){
     mutate(
       across(
         starts_with('uni') & ends_with('p'),
-        ~ factor(tolower(.x), levels = uni_levels, ordered = TRUE)
+        ~ factor(tolower(.x), 
+        levels = tolower(uni_levels), 
+        ordered = TRUE)
       )
     )
 
@@ -217,15 +223,23 @@ harmonize_covariates <- function(data, uni_levels){
 ```
 
 ```{r}
-# uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))
-uni_levels = tolower(c("EUR", "RU" ))
+# s = samp |>
+#   harmonize_covariates(what = 'nodes') |> [['nodes']] |>
+#   group_by(gender, migrant, discipline) | |>
+#   summarize(n = n())
 
-colnet <- fcolnet2(samp, 
+```
+
+```{r}
+# uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))
+uni_levels = tolower(c("RU", "UU" ))
+
+colnet <- fcolnet2(data, 
     # discipline = "Sociology",
     university = toupper(uni_levels),
     type = 'all',
   ) |>
-  harmonize_covariates(uni_levels)
+  harmonize_covariates(what='data') 
 
 wave1 = colnet[['nets']][[1]]
 wave2 = colnet[['nets']][[2]]
@@ -253,12 +267,34 @@ uni <- uni_levels[-1] |>
   map(function(level) {
     mat <- uni |>
       transmute(
-        u22 = as.integer(uni22p == level),
+        # u22 = as.integer(uni22p == level), # excluded for model specification
         u24 = as.integer(uni24p == level),
         u25 = as.integer(uni25p == level)
       ) |>
       as.matrix()
 
+    varCovar(mat, centered = FALSE)
+  })
+
+# functions
+funcs = colnet[['data']] |> select(position_22, position_24, position_25)
+funcs_levels = c(
+  "PhD Candidate", "Researcher or Lecturer", 
+  "Assistant Professor", "Associate Professor", 
+  "Full Professor"
+)
+
+funcs = funcs_levels[-1] |>
+  set_names() |>
+  map(function(level){
+    mat <- funcs |>
+      transmute(
+        # f22 = as.integer(position_22 == level),
+        f24 = as.integer(position_25 == level),
+        f25 = as.integer(position_25 == level)
+      ) |>
+      as.matrix()
+    
     varCovar(mat, centered = FALSE)
   })
 ```
@@ -280,13 +316,14 @@ mig <- migrant_groups[-1] |>
 mydata <- sienaDataCreate(
   net, gender, soc,
   mig$M4, mig$other,
-  uni$ru
-  # uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu
+  # uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,
+  uni$uu,
+  funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]]
 )
 
+setwd(BASEDIR)
 if(!dir.exists("results")) dir.create("results")
-BASEDIR = getwd()
-setwd('./results')
+setwd(paste0(BASEDIR, '/results'))
 print01Report(mydata, modelname = "./init")
 ```
 
@@ -294,29 +331,64 @@ print01Report(mydata, modelname = "./init")
 ```{r}
 # specify model
 myeff <- getEffects(mydata)
-myeff <- includeEffects(myeff, isolateNet, inPop)
+# myeff <- includeEffects(myeff, isolateNet) # leads to model nonconvergence
 myeff <- includeEffects(myeff, egoX, interaction1 = "soc")
-myeff <- includeEffects(myeff, egoX, interaction1 = "uni$ru")
+# myeff <- includeEffects(myeff, egoX, interaction1 = "uni$ru")
 # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$lu")
-# myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uu")
+myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uu")
 # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uva")
 # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uvg")
 # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uvt")
 # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$vu")
-myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = "gender")
-myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$M4')
-myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$other')
-
 ```
 
 ```{r}
 # estimate model
 myAlgorithm <- sienaAlgorithmCreate(projname = "init")
-ansM1 <- siena07(myAlgorithm, data = mydata, effects = myeff, returnDeps = TRUE)
+ansM1 <- siena07(
+  myAlgorithm, 
+  data = mydata, 
+  effects = myeff, 
+  returnDeps = TRUE
+)
 
 ansM1
 save(ansM1, file = './ansm1')
 ```
+```{r}
+myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = "gender")
+# myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$M4')
+myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$other')
+
+ansM2 <- siena07(
+  myAlgorithm, 
+  data = mydata, 
+  effects = myeff, 
+  returnDeps = TRUE,
+  # prevAns = ansM1 # the exclusion of the previous answer seems to speed up the calculation
+)
+
+save(ansM2, file = './ansm2')
+
+```
+
+```{r}
+myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[1]]')
+myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[2]]')
+myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[3]]')
+myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[4]]')
+
+ansM3 <- siena07(
+  myAlgorithm, 
+  data = mydata, 
+  effects = myeff, 
+  returnDeps = TRUE,
+)
+
+save(ansM3, file = './ansm3')
+```
+
+
 
 
 ```{r}
@@ -356,9 +428,17 @@ tidy_rsiena <- function(ans) {
 }
 
 tidy_rsiena(ansM1)
+tidy_rsiena(ansM2)
+tidy_rsiena(ansM3)
 ```
 
 
 ```{r}
 setwd(BASEDIR)
 ```
+
+<!-- rekening houden met directed
+max convergence r
+rate parameter 1
+rate parameter 2
+ -->
