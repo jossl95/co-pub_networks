@@ -731,7 +731,3 @@ tt_position2
 tt_migrant2
 ```
 
-
-```{r}
-samp |> fsaveRDS('samp', location = './data/analysis/')
-```

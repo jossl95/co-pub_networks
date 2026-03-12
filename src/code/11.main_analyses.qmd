@@ -8,9 +8,20 @@ format:
       - href: 0a.custom_functions.html
         icon: file-code
         text: Custom Functions
+
+execute: 
+  eval: false
 ---
 
 ## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+#| echo: false
+BASEDIR = stringr::str_replace_all(getwd(), '/results', '')
+setwd(BASEDIR)
+```
 
 ```{r}
 #| warning: false
@@ -331,7 +342,8 @@ print01Report(mydata, modelname = "./init")
 ```{r}
 # specify model
 myeff <- getEffects(mydata)
-# myeff <- includeEffects(myeff, isolateNet) # leads to model nonconvergence
+myeff <- includeEffects(myeff, density, recip)
+myeff <- includeEffects(myeff, isolatePop, inIsDegree)
 myeff <- includeEffects(myeff, egoX, interaction1 = "soc")
 # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$ru")
 # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$lu")
@@ -357,7 +369,8 @@ save(ansM1, file = './ansm1')
 ```
 ```{r}
 myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = "gender")
-# myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$M4')
+# too few minority in sample leave out for now.
+myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$M4')
 myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$other')
 
 ansM2 <- siena07(
