@@ -243,12 +243,12 @@ harmonize_covariates <- function(data, what = 'data'){
 
 ```{r}
 # uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))
-uni_levels = tolower(c("RU", "UU" ))
+uni_levels = tolower(c("RU", "UU", "UVA"))
 
 colnet <- fcolnet2(data, 
     # discipline = "Sociology",
     university = toupper(uni_levels),
-    type = 'all',
+    type = 'first',
   ) |>
   harmonize_covariates(what='data') 
 
@@ -328,7 +328,7 @@ mydata <- sienaDataCreate(
   net, gender, soc,
   mig$M4, mig$other,
   # uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,
-  uni$uu,
+  uni$uu, uni$uva,
   funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]]
 )
 
@@ -342,13 +342,13 @@ print01Report(mydata, modelname = "./init")
 ```{r}
 # specify model
 myeff <- getEffects(mydata)
-myeff <- includeEffects(myeff, density, recip)
+# myeff <- includeEffects(myeff, density, recip)
 myeff <- includeEffects(myeff, isolatePop, inIsDegree)
-myeff <- includeEffects(myeff, egoX, interaction1 = "soc")
-# myeff <- includeEffects(myeff, egoX, interaction1 = "uni$ru")
-# myeff <- includeEffects(myeff, egoX, interaction1 = "uni$lu")
+# myeff <- includeEffects(myeff, egoX, interaction1 = "soc")
+# # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$ru")
+# # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$lu")
 myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uu")
-# myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uva")
+myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uva")
 # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uvg")
 # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uvt")
 # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$vu")
@@ -356,32 +356,33 @@ myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uu")
 
 ```{r}
 # estimate model
+ans = list()
 myAlgorithm <- sienaAlgorithmCreate(projname = "init")
-ansM1 <- siena07(
+ansm1 <- siena07(
   myAlgorithm, 
   data = mydata, 
   effects = myeff, 
   returnDeps = TRUE
 )
 
-ansM1
-save(ansM1, file = './ansm1')
+ansm1
+save(ansm1, file = './ansm1')
 ```
 ```{r}
 myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = "gender")
 # too few minority in sample leave out for now.
-myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$M4')
+# myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$M4')
 myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$other')
 
-ansM2 <- siena07(
+ansm2 <- siena07(
   myAlgorithm, 
   data = mydata, 
-  effects = myeff, 
+  effects = myeff,
   returnDeps = TRUE,
-  # prevAns = ansM1 # the exclusion of the previous answer seems to speed up the calculation
+  # prevAns = ansm1 # the exclusion of the previous answer seems to speed up the calculation
 )
 
-save(ansM2, file = './ansm2')
+save(ansm2, file = './ansm2')
 
 ```
 
@@ -391,35 +392,74 @@ myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[2]]')
 myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[3]]')
 myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[4]]')
 
-ansM3 <- siena07(
+ansm3 <- siena07(
   myAlgorithm, 
   data = mydata, 
   effects = myeff, 
   returnDeps = TRUE,
 )
 
-save(ansM3, file = './ansm3')
+save(ansm3, file = './ansm3')
 ```
 
+```{r}
+# myeff <- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[1]]'))
+# myeff <- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[2]]'))
+# myeff <- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[3]]'))
+# myeff <- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[4]]'))
+
+ansm4 <- siena07(
+  myAlgorithm, 
+  data = mydata, 
+  effects = myeff, 
+  returnDeps = TRUE,
+)
+
+save(ansm4, file = './ansm4')
+```
 
 
 
 ```{r}
 tidy_rsiena <- function(ans) {
-  tibble(
-    depvar = ans$effects$name,
-    effect = ans$effects$effectName,
-    short  = ans$effects$shortName,
-    interaction1 = ans$effects$interaction1,
-    interaction2 = ans$effects$interaction2,
-    include = ans$effects$include,
-    estimate = ans$theta,
-    se = ans$se,
-    conv_t = ans$tconv
-  ) |>
-    filter(include) |>
+  # extract effects
+  effects = tibble(
+      depvar = ans$effects$name,
+      effect = ans$effects$effectName,
+      short  = ans$effects$shortName,
+      interaction1 = ans$effects$interaction1,
+      interaction2 = ans$effects$interaction2,
+      include = ans$effects$include,
+      estimate = ans$theta,
+      se = ans$se,
+      conv_t = ans$tconv
+    ) |>
+    filter(include) 
+  
+  # extract rate parameters
+  rate = tibble(
+    depvar = unique(ans$effects$name),
+    effect = c('Rate parameter period 1', 'Rate parameter period 2'),
+    short = 'rate',
+    estimate = ans$rate,
+    se = ans$vrate
+  )
+
+  #extract max conv rate
+  tconv.max = tibble(
+    depvar = unique(ans$effects$name),
+    effect = 'Overall maximum convergence ratio',
+    short = 'tconv.max',
+    estimate = ans$tconv.max[[1]]
+  )
+
+  # combine and format
+  rate |> 
+    bind_rows(effects) |> 
+    bind_rows(tconv.max) |>
     mutate(
       z = estimate / se,
+      z = ifelse(short %in% c('rate', 'tconv.max'), NA, z),
       p_value = 2 * pnorm(-abs(z)),
       stars = case_when(
         p_value < 0.001 ~ "***",
@@ -430,28 +470,25 @@ tidy_rsiena <- function(ans) {
       ),
       festimate = sprintf("%.3f%s", estimate, stars),
       fse = sprintf("(%.3f)", se),
+      fse = ifelse(short == 'tconv.max', '', fse),
       z = round(z, 3),
       p_value = round(p_value, 4),
       conv_t = round(conv_t, 3)
-    ) |>
+    )  |>
     select(
       depvar, effect, short, interaction1, interaction2,
       estimate, se, z, p_value, stars, conv_t, festimate, fse
     )
 }
 
-tidy_rsiena(ansM1)
-tidy_rsiena(ansM2)
-tidy_rsiena(ansM3)
+tidy_rsiena(ansm1)
+tidy_rsiena(ansm2)
+tidy_rsiena(ansm3)
+tidy_rsiena(ansm4)
 ```
+
 
 
 ```{r}
 setwd(BASEDIR)
 ```
-
-<!-- rekening houden met directed
-max convergence r
-rate parameter 1
-rate parameter 2
- -->

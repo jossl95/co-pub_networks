@@ -1,0 +1,385 @@
+---
+title: Network Visualization
+date: today
+
+format:
+  html:
+    code-fold: true
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+
+execute: 
+  echo: false
+---
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(RSiena)
+library(igraph)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(broom)
+library(forcats)
+library(scales)
+```
+
+```{r}
+limit_observation_period <- function(data, start_date = "2020-01-01"){
+  data[['edge_table']] <- data[['edge_table']] |>
+    filter(publication_date >= ymd(start_date))
+
+  return(data)
+}
+```
+
+```{r}
+determine_complete_cases <-function(data) {
+  # authors with valid OpenAlex id
+  has_oa <- data[['scholars_oa']] |> 
+    bind_rows() |>
+    filter(has_author_id) |>
+    distinct(uid) |> pull()
+
+  # authors with published works during observation period
+  has_work <- data[['edge_table']] |> 
+    filter(uid != a__uid) |>
+    distinct(uid) |> pull()
+
+
+  data[['demographics']] <-data[['demographics']] |>
+    mutate(
+      flag = ifelse(
+        uid %in% has_work, 'is_complete',
+        ifelse(
+          uid %in% has_oa, 'no_works', 'no_oa'
+        )
+      ),
+      is_staff = dplyr::if_all(
+        c(position_22, position_24, position_25),
+        ~ is.na(.x) | (.x == "staff")
+      )
+    )
+
+  data[['nodes']] = data[['demographics']] |> 
+    filter(flag == 'is_complete', !is_staff)
+
+  return(data)
+}
+```
+
+
+```{r}
+data <- freadRDS2('data', location = "./data/analysis/")
+topics <-freadRDS2('topics', location = './data/analysis/')
+```
+
+```{r}
+data <- data |> 
+  limit_observation_period() |>
+  determine_complete_cases()
+```
+
+```{r}
+select_sample_matrix <- function(d0, sample){
+  # target: full samp x samp, default NA
+  d <- matrix(NA_real_, nrow = length(sample), ncol = length(sample),
+              dimnames = list(sample, sample))
+
+  # overlap between samp and existing d0 row/col names
+  r <- intersect(sample, rownames(d0))
+  c <- intersect(sample, colnames(d0))
+  keep <- intersect(r, c)
+
+  # copy existing values into the right positions
+  d[keep, keep] <- d0[keep, keep, drop = FALSE]
+
+  return(d)
+}
+```
+
+```{r}
+select_sample_intdis <- function(topics, sample){
+  t0 <- topics[["intdis"]][["subfield"]]
+  t <- matrix(NA_real_, nrow = length(sample), ncol = length(colnames(t0)),
+              dimnames = list(sample, colnames(t0)))
+
+  # fill rows that exist in original t0
+  keep <- intersect(sample, rownames(t0))
+  t[keep, ] <- t0[keep, , drop = FALSE]
+
+  return(t)
+}
+```
+
+
+```{r}
+
+# step 2: prune works for selection
+make_adjacency_matrix <- function(
+    data, uids, type, min_year = 2020, max_year = 2026, weighted = FALSE
+  ) {
+  
+  # make edgelist from works
+  edges <- data[['works']][uids] |>
+    purrr::keep(~ nrow(.x) > 0) |>
+    bind_rows() |>
+    filter(publication_year >= min_year, publication_year <= max_year) |>
+    select(uid, work_id, authorships, publication_year) |>
+    rename(e_uid = uid) |>
+    distinct(work_id, authorships, publication_year, .keep_all = TRUE) |>
+    unnest(authorships) |>
+    filter(e_uid != uid) |>
+    filter(uid %in% uids, e_uid %in% uids)
+
+  if (type != 'all') {
+    edges <- edges |> filter(author_position != type)
+  }
+
+  # calculate the number of edges between ego and alters.
+  edge_counts <- edges |> count(e_uid, uid, name="w")
+
+  # make edgelist symetrical
+  if (type == 'all') {
+    edge_counts <- bind_rows(
+      edge_counts,
+      edge_counts %>% 
+      rename(uid = e_uid, e_uid = uid)
+    ) %>%
+    group_by(uid, e_uid) %>%
+    summarise(w = sum(w), .groups = "drop")
+  }
+
+  # convert counts to incidences
+  if (!weighted) {
+    edge_counts <- edge_counts %>% mutate(w = 1L)
+  }
+
+  # all nodes appearing as ego or alter
+  nodes <- sort(unique(c(edge_counts$e_uid, edge_counts$uid)))
+  
+  # complete matrix grid and pivot to wide
+  adj <- edge_counts %>%
+    rename(from = e_uid, to = uid) %>%
+    complete(from = nodes, to = nodes, fill = list(w = NA)) %>%
+    pivot_wider(names_from = to, values_from = w) %>%
+    arrange(from)
+  
+  # convert to matrix and set rownames
+  mat <- adj %>% as.data.frame()
+  
+  row_ids <- mat$from
+  mat$from <- NULL
+  
+  mat <- as.matrix(mat)
+  rownames(mat) <- row_ids
+  diag(mat) <- 0
+
+  # make sure the matrices are consistent across waves
+  all_uids <- as.character(uids)
+
+  # indices of existing rows/cols in desired order
+  ri <- match(all_uids, rownames(mat))
+  ci <- match(all_uids, colnames(mat))
+
+  # start with full NA matrix
+  mat_full <- matrix(NA, nrow = length(all_uids), ncol = length(all_uids),
+                    dimnames = list(all_uids, all_uids))
+
+  # copy overlap block
+  mat_full[!is.na(ri), !is.na(ci)] <- mat[ri[!is.na(ri)], ci[!is.na(ci)], drop = FALSE]
+
+  mat <- mat_full
+  
+  #optional: no self-loops on diagonal
+  mat[is.na(mat)] <- 0
+  
+  mat
+} 
+
+
+fcolnet2 <- function(
+    data,
+    university = NULL,
+    position   = NULL,
+    discipline = NULL,
+    type = 'all',
+    waves = list(c(2019, 2022), c(2023, 2024), c(2025, 2026))
+  ){
+
+  valid_disciplines  <- c("Sociology", "Political Sciences")
+  valid_universities <- c("UVA","EUR","UL","VU","UVG","UU","RU","UVT")
+  valid_positions    <- c("Associate Professor","PhD Candidate","Full Professor",
+                          "Researcher or Lecturer","Assistant Professor")
+
+  # helper: set default + validate
+  set_and_check <- function(x, valid, name = deparse(substitute(x))) {
+    x <- if (is.null(x)) valid else x
+    bad <- setdiff(unique(na.omit(x)), valid)
+    if (length(bad)) stop("Invalid ", name, ": ", paste(bad, collapse = ", "), call. = FALSE)
+    x
+  }
+
+  # set and check values
+  discipline <- set_and_check(discipline, valid_disciplines,  "discipline")
+  university <- set_and_check(university, valid_universities, "university")
+  position   <- set_and_check(position,   valid_positions,    "position")
+  min_year   <- min(unlist(waves))
+  max_year   <- max(unlist(waves))
+
+  # step 1: make selection of nodes
+  authors <- data[["demographics"]] |>
+    filter(
+      if_any(c(university_22_first, university_24_first, university_25_first),
+            ~ .x %in% university),
+      if_any(c(discipline_22, discipline_24, discipline_25),
+            ~ .x %in% discipline),
+      if_any(c(position_22, position_24, position_25),
+            ~ .x %in% position)
+    ) |>
+    arrange(uid)
+  uids <- authors |> pull(uid) |> sort() |> unique()
+  
+  # step 3: create empty matrixes (wave, i, j)
+  nwaves <- length(waves)
+  nets <- list()
+  for (w in 1:length(waves)){
+    nets[[w]] <- make_adjacency_matrix(
+      data, uids, type, min_year = waves[[w]][1], max_year = waves[[w]][2])
+  }
+
+  # step 4: fill nets
+  output <- list(
+    data = authors,
+    nets = nets
+  )
+
+  return(output)
+}
+
+```
+
+
+```{r}
+#| echo: true
+#| column: screen-inset-shaded
+
+library(dplyr)
+library(igraph)
+library(visNetwork)
+library(tibble)
+
+net <- fcolnet2(
+  data,
+  type = "all",
+  waves = list(c(2020, 2026))
+)
+
+# remove isolates
+noisolate <- rowSums(net$nets[[1]]) > 0
+net$nets[[1]] <- net$nets[[1]][noisolate, noisolate]
+
+# build graph
+net$graph <- igraph::graph_from_adjacency_matrix(
+  net$nets[[1]],
+  mode = "undirected",
+  weighted = NULL,
+  diag = FALSE,
+  add.colnames = NULL
+)
+
+l <- layout_with_fr(net$graph, niter = 1500)
+
+# node data
+df_ego <- net$data |>
+  filter(uid %in% colnames(net$nets[[1]])) |>
+  mutate(
+    uni = coalesce(university_22_first, university_24_first, university_25_first)
+  ) |>
+  arrange(match(uid, colnames(net$nets[[1]])))
+
+# degree for sizing
+deg <- igraph::degree(net$graph, mode = "all")
+
+# university colors
+uni_colors <- c(
+  "UVA" = "red",
+  "UVG" = "lemonchiffon",
+  "VU"  = "darkgrey",
+  "UVT" = "blue",
+  "RU"  = "purple",
+  "EUR" = "yellow",
+  "UU"  = "green",
+  "UL"  = "coral"
+)
+
+# visNetwork nodes
+nodes <- tibble(
+  id = V(net$graph)$name,
+  label = NA,
+  title = paste0(
+    "<b>", df_ego$clean_name, "</b><br>",
+    "University: ", df_ego$uni, "<br>",
+    "Gender: ", df_ego$gender
+  ),
+  shape = ifelse(df_ego$gender == "female", "dot", "square"),
+  group = df_ego$uni,
+  value = 2 + sqrt(deg),
+  x = l[, 1] * 100,
+  y = l[, 2] * 100
+)
+
+# visNetwork edges
+edges <- igraph::as_data_frame(net$graph, what = "edges") |>
+  transmute(
+    from,
+    to,
+    width = 0.2
+  )
+
+visNetwork(nodes, edges, width = "100%", height = "1000px") |>
+  visNodes(
+    borderWidth = 0.5,
+    scaling = list(
+      min = 40,
+      max = 80
+    )
+  ) |>
+  visEdges(
+    smooth = TRUE,
+    color = list(color = "rgba(120,120,120,0.5)")
+  ) |>
+  visPhysics(
+    solver = "barnesHut",
+    barnesHut = list(
+      gravitationalConstant = -4000,
+      centralGravity = 0.10,
+      avoidOverlap = 0.4,
+      springLength = 300,
+      springConstant = 0.05
+    )
+  ) |>
+  visInteraction(
+    dragNodes = FALSE,
+    dragView = TRUE,
+    zoomView = TRUE,
+    hover = TRUE
+  )
+```

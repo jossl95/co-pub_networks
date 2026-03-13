@@ -372,6 +372,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../../src/code/11.main_analyses.html">
  <span class="dropdown-text">Main Analyses</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/10.visualization.html">
+ <span class="dropdown-text">Network Visualization</span></a>
+  </li>  
     </ul>
   </li>
 </ul>
@@ -643,12 +647,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a>uni_levels <span class="ot">=</span> <span class="fu">tolower</span>(<span class="fu">c</span>(<span class="st">"RU"</span>, <span class="st">"UU"</span> ))</span>
+<span id="cb7-2"><a href="#cb7-2"></a>uni_levels <span class="ot">=</span> <span class="fu">tolower</span>(<span class="fu">c</span>(<span class="st">"RU"</span>, <span class="st">"UU"</span>, <span class="st">"UVA"</span>))</span>
 <span id="cb7-3"><a href="#cb7-3"></a></span>
 <span id="cb7-4"><a href="#cb7-4"></a>colnet <span class="ot">&lt;-</span> <span class="fu">fcolnet2</span>(data, </span>
 <span id="cb7-5"><a href="#cb7-5"></a>    <span class="co"># discipline = "Sociology",</span></span>
 <span id="cb7-6"><a href="#cb7-6"></a>    <span class="at">university =</span> <span class="fu">toupper</span>(uni_levels),</span>
-<span id="cb7-7"><a href="#cb7-7"></a>    <span class="at">type =</span> <span class="st">'all'</span>,</span>
+<span id="cb7-7"><a href="#cb7-7"></a>    <span class="at">type =</span> <span class="st">'first'</span>,</span>
 <span id="cb7-8"><a href="#cb7-8"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb7-9"><a href="#cb7-9"></a>  <span class="fu">harmonize_covariates</span>(<span class="at">what=</span><span class="st">'data'</span>) </span>
 <span id="cb7-10"><a href="#cb7-10"></a></span>
@@ -723,7 +727,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-3"><a href="#cb10-3"></a>  net, gender, soc,</span>
 <span id="cb10-4"><a href="#cb10-4"></a>  mig<span class="sc">$</span>M4, mig<span class="sc">$</span>other,</span>
 <span id="cb10-5"><a href="#cb10-5"></a>  <span class="co"># uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,</span></span>
-<span id="cb10-6"><a href="#cb10-6"></a>  uni<span class="sc">$</span>uu,</span>
+<span id="cb10-6"><a href="#cb10-6"></a>  uni<span class="sc">$</span>uu, uni<span class="sc">$</span>uva,</span>
 <span id="cb10-7"><a href="#cb10-7"></a>  funcs[[<span class="dv">1</span>]], funcs[[<span class="dv">2</span>]], funcs[[<span class="dv">3</span>]], funcs[[<span class="dv">4</span>]]</span>
 <span id="cb10-8"><a href="#cb10-8"></a>)</span>
 <span id="cb10-9"><a href="#cb10-9"></a></span>
@@ -735,45 +739,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># specify model</span></span>
 <span id="cb11-2"><a href="#cb11-2"></a>myeff <span class="ot">&lt;-</span> <span class="fu">getEffects</span>(mydata)</span>
-<span id="cb11-3"><a href="#cb11-3"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, density, recip)</span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="co"># myeff &lt;- includeEffects(myeff, density, recip)</span></span>
 <span id="cb11-4"><a href="#cb11-4"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, isolatePop, inIsDegree)</span>
-<span id="cb11-5"><a href="#cb11-5"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">"soc"</span>)</span>
-<span id="cb11-6"><a href="#cb11-6"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$ru")</span></span>
-<span id="cb11-7"><a href="#cb11-7"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$lu")</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, interaction1 = "soc")</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a><span class="co"># # myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$ru")</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a><span class="co"># # myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$lu")</span></span>
 <span id="cb11-8"><a href="#cb11-8"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">"uni$uu"</span>)</span>
-<span id="cb11-9"><a href="#cb11-9"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$uva")</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">"uni$uva"</span>)</span>
 <span id="cb11-10"><a href="#cb11-10"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$uvg")</span></span>
 <span id="cb11-11"><a href="#cb11-11"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$uvt")</span></span>
 <span id="cb11-12"><a href="#cb11-12"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$vu")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># estimate model</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a>myAlgorithm <span class="ot">&lt;-</span> <span class="fu">sienaAlgorithmCreate</span>(<span class="at">projname =</span> <span class="st">"init"</span>)</span>
-<span id="cb12-3"><a href="#cb12-3"></a>ansM1 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
-<span id="cb12-4"><a href="#cb12-4"></a>  myAlgorithm, </span>
-<span id="cb12-5"><a href="#cb12-5"></a>  <span class="at">data =</span> mydata, </span>
-<span id="cb12-6"><a href="#cb12-6"></a>  <span class="at">effects =</span> myeff, </span>
-<span id="cb12-7"><a href="#cb12-7"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span></span>
-<span id="cb12-8"><a href="#cb12-8"></a>)</span>
-<span id="cb12-9"><a href="#cb12-9"></a></span>
-<span id="cb12-10"><a href="#cb12-10"></a>ansM1</span>
-<span id="cb12-11"><a href="#cb12-11"></a><span class="fu">save</span>(ansM1, <span class="at">file =</span> <span class="st">'./ansm1'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-2"><a href="#cb12-2"></a>ans <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb12-3"><a href="#cb12-3"></a>myAlgorithm <span class="ot">&lt;-</span> <span class="fu">sienaAlgorithmCreate</span>(<span class="at">projname =</span> <span class="st">"init"</span>)</span>
+<span id="cb12-4"><a href="#cb12-4"></a>ansm1 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
+<span id="cb12-5"><a href="#cb12-5"></a>  myAlgorithm, </span>
+<span id="cb12-6"><a href="#cb12-6"></a>  <span class="at">data =</span> mydata, </span>
+<span id="cb12-7"><a href="#cb12-7"></a>  <span class="at">effects =</span> myeff, </span>
+<span id="cb12-8"><a href="#cb12-8"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>)</span>
+<span id="cb12-10"><a href="#cb12-10"></a></span>
+<span id="cb12-11"><a href="#cb12-11"></a>ansm1</span>
+<span id="cb12-12"><a href="#cb12-12"></a><span class="fu">save</span>(ansm1, <span class="at">file =</span> <span class="st">'./ansm1'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, altX, sameX, <span class="at">interaction1 =</span> <span class="st">"gender"</span>)</span>
 <span id="cb13-2"><a href="#cb13-2"></a><span class="co"># too few minority in sample leave out for now.</span></span>
-<span id="cb13-3"><a href="#cb13-3"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, altX, sameX, <span class="at">interaction1 =</span> <span class="st">'mig$M4'</span>)</span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$M4')</span></span>
 <span id="cb13-4"><a href="#cb13-4"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, altX, sameX, <span class="at">interaction1 =</span> <span class="st">'mig$other'</span>)</span>
 <span id="cb13-5"><a href="#cb13-5"></a></span>
-<span id="cb13-6"><a href="#cb13-6"></a>ansM2 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
+<span id="cb13-6"><a href="#cb13-6"></a>ansm2 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
 <span id="cb13-7"><a href="#cb13-7"></a>  myAlgorithm, </span>
 <span id="cb13-8"><a href="#cb13-8"></a>  <span class="at">data =</span> mydata, </span>
-<span id="cb13-9"><a href="#cb13-9"></a>  <span class="at">effects =</span> myeff, </span>
+<span id="cb13-9"><a href="#cb13-9"></a>  <span class="at">effects =</span> myeff,</span>
 <span id="cb13-10"><a href="#cb13-10"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb13-11"><a href="#cb13-11"></a>  <span class="co"># prevAns = ansM1 # the exclusion of the previous answer seems to speed up the calculation</span></span>
+<span id="cb13-11"><a href="#cb13-11"></a>  <span class="co"># prevAns = ansm1 # the exclusion of the previous answer seems to speed up the calculation</span></span>
 <span id="cb13-12"><a href="#cb13-12"></a>)</span>
 <span id="cb13-13"><a href="#cb13-13"></a></span>
-<span id="cb13-14"><a href="#cb13-14"></a><span class="fu">save</span>(ansM2, <span class="at">file =</span> <span class="st">'./ansm2'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-14"><a href="#cb13-14"></a><span class="fu">save</span>(ansm2, <span class="at">file =</span> <span class="st">'./ansm2'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">'funcs[[1]]'</span>)</span>
@@ -781,63 +786,99 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-3"><a href="#cb14-3"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">'funcs[[3]]'</span>)</span>
 <span id="cb14-4"><a href="#cb14-4"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">'funcs[[4]]'</span>)</span>
 <span id="cb14-5"><a href="#cb14-5"></a></span>
-<span id="cb14-6"><a href="#cb14-6"></a>ansM3 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
+<span id="cb14-6"><a href="#cb14-6"></a>ansm3 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
 <span id="cb14-7"><a href="#cb14-7"></a>  myAlgorithm, </span>
 <span id="cb14-8"><a href="#cb14-8"></a>  <span class="at">data =</span> mydata, </span>
 <span id="cb14-9"><a href="#cb14-9"></a>  <span class="at">effects =</span> myeff, </span>
 <span id="cb14-10"><a href="#cb14-10"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb14-11"><a href="#cb14-11"></a>)</span>
 <span id="cb14-12"><a href="#cb14-12"></a></span>
-<span id="cb14-13"><a href="#cb14-13"></a><span class="fu">save</span>(ansM3, <span class="at">file =</span> <span class="st">'./ansm3'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb14-13"><a href="#cb14-13"></a><span class="fu">save</span>(ansm3, <span class="at">file =</span> <span class="st">'./ansm3'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>tidy_rsiena <span class="ot">&lt;-</span> <span class="cf">function</span>(ans) {</span>
-<span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">tibble</span>(</span>
-<span id="cb15-3"><a href="#cb15-3"></a>    <span class="at">depvar =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>name,</span>
-<span id="cb15-4"><a href="#cb15-4"></a>    <span class="at">effect =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>effectName,</span>
-<span id="cb15-5"><a href="#cb15-5"></a>    <span class="at">short  =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>shortName,</span>
-<span id="cb15-6"><a href="#cb15-6"></a>    <span class="at">interaction1 =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>interaction1,</span>
-<span id="cb15-7"><a href="#cb15-7"></a>    <span class="at">interaction2 =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>interaction2,</span>
-<span id="cb15-8"><a href="#cb15-8"></a>    <span class="at">include =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>include,</span>
-<span id="cb15-9"><a href="#cb15-9"></a>    <span class="at">estimate =</span> ans<span class="sc">$</span>theta,</span>
-<span id="cb15-10"><a href="#cb15-10"></a>    <span class="at">se =</span> ans<span class="sc">$</span>se,</span>
-<span id="cb15-11"><a href="#cb15-11"></a>    <span class="at">conv_t =</span> ans<span class="sc">$</span>tconv</span>
-<span id="cb15-12"><a href="#cb15-12"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb15-13"><a href="#cb15-13"></a>    <span class="fu">filter</span>(include) <span class="sc">|&gt;</span></span>
-<span id="cb15-14"><a href="#cb15-14"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb15-15"><a href="#cb15-15"></a>      <span class="at">z =</span> estimate <span class="sc">/</span> se,</span>
-<span id="cb15-16"><a href="#cb15-16"></a>      <span class="at">p_value =</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="sc">-</span><span class="fu">abs</span>(z)),</span>
-<span id="cb15-17"><a href="#cb15-17"></a>      <span class="at">stars =</span> <span class="fu">case_when</span>(</span>
-<span id="cb15-18"><a href="#cb15-18"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.001</span> <span class="sc">~</span> <span class="st">"***"</span>,</span>
-<span id="cb15-19"><a href="#cb15-19"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.01</span>  <span class="sc">~</span> <span class="st">"**"</span>,</span>
-<span id="cb15-20"><a href="#cb15-20"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.05</span>  <span class="sc">~</span> <span class="st">"*"</span>,</span>
-<span id="cb15-21"><a href="#cb15-21"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.1</span>   <span class="sc">~</span> <span class="st">"+"</span>,</span>
-<span id="cb15-22"><a href="#cb15-22"></a>        <span class="cn">TRUE</span>            <span class="sc">~</span> <span class="st">""</span></span>
-<span id="cb15-23"><a href="#cb15-23"></a>      ),</span>
-<span id="cb15-24"><a href="#cb15-24"></a>      <span class="at">festimate =</span> <span class="fu">sprintf</span>(<span class="st">"%.3f%s"</span>, estimate, stars),</span>
-<span id="cb15-25"><a href="#cb15-25"></a>      <span class="at">fse =</span> <span class="fu">sprintf</span>(<span class="st">"(%.3f)"</span>, se),</span>
-<span id="cb15-26"><a href="#cb15-26"></a>      <span class="at">z =</span> <span class="fu">round</span>(z, <span class="dv">3</span>),</span>
-<span id="cb15-27"><a href="#cb15-27"></a>      <span class="at">p_value =</span> <span class="fu">round</span>(p_value, <span class="dv">4</span>),</span>
-<span id="cb15-28"><a href="#cb15-28"></a>      <span class="at">conv_t =</span> <span class="fu">round</span>(conv_t, <span class="dv">3</span>)</span>
-<span id="cb15-29"><a href="#cb15-29"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb15-30"><a href="#cb15-30"></a>    <span class="fu">select</span>(</span>
-<span id="cb15-31"><a href="#cb15-31"></a>      depvar, effect, short, interaction1, interaction2,</span>
-<span id="cb15-32"><a href="#cb15-32"></a>      estimate, se, z, p_value, stars, conv_t, festimate, fse</span>
-<span id="cb15-33"><a href="#cb15-33"></a>    )</span>
-<span id="cb15-34"><a href="#cb15-34"></a>}</span>
-<span id="cb15-35"><a href="#cb15-35"></a></span>
-<span id="cb15-36"><a href="#cb15-36"></a><span class="fu">tidy_rsiena</span>(ansM1)</span>
-<span id="cb15-37"><a href="#cb15-37"></a><span class="fu">tidy_rsiena</span>(ansM2)</span>
-<span id="cb15-38"><a href="#cb15-38"></a><span class="fu">tidy_rsiena</span>(ansM3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># myeff &lt;- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[1]]'))</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a><span class="co"># myeff &lt;- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[2]]'))</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a><span class="co"># myeff &lt;- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[3]]'))</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a><span class="co"># myeff &lt;- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[4]]'))</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a></span>
+<span id="cb15-6"><a href="#cb15-6"></a>ansm4 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
+<span id="cb15-7"><a href="#cb15-7"></a>  myAlgorithm, </span>
+<span id="cb15-8"><a href="#cb15-8"></a>  <span class="at">data =</span> mydata, </span>
+<span id="cb15-9"><a href="#cb15-9"></a>  <span class="at">effects =</span> myeff, </span>
+<span id="cb15-10"><a href="#cb15-10"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-11"><a href="#cb15-11"></a>)</span>
+<span id="cb15-12"><a href="#cb15-12"></a></span>
+<span id="cb15-13"><a href="#cb15-13"></a><span class="fu">save</span>(ansm4, <span class="at">file =</span> <span class="st">'./ansm4'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">setwd</span>(BASEDIR)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>tidy_rsiena <span class="ot">&lt;-</span> <span class="cf">function</span>(ans) {</span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="co"># extract effects</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a>  effects <span class="ot">=</span> <span class="fu">tibble</span>(</span>
+<span id="cb16-4"><a href="#cb16-4"></a>      <span class="at">depvar =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>name,</span>
+<span id="cb16-5"><a href="#cb16-5"></a>      <span class="at">effect =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>effectName,</span>
+<span id="cb16-6"><a href="#cb16-6"></a>      <span class="at">short  =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>shortName,</span>
+<span id="cb16-7"><a href="#cb16-7"></a>      <span class="at">interaction1 =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>interaction1,</span>
+<span id="cb16-8"><a href="#cb16-8"></a>      <span class="at">interaction2 =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>interaction2,</span>
+<span id="cb16-9"><a href="#cb16-9"></a>      <span class="at">include =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>include,</span>
+<span id="cb16-10"><a href="#cb16-10"></a>      <span class="at">estimate =</span> ans<span class="sc">$</span>theta,</span>
+<span id="cb16-11"><a href="#cb16-11"></a>      <span class="at">se =</span> ans<span class="sc">$</span>se,</span>
+<span id="cb16-12"><a href="#cb16-12"></a>      <span class="at">conv_t =</span> ans<span class="sc">$</span>tconv</span>
+<span id="cb16-13"><a href="#cb16-13"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb16-14"><a href="#cb16-14"></a>    <span class="fu">filter</span>(include) </span>
+<span id="cb16-15"><a href="#cb16-15"></a>  </span>
+<span id="cb16-16"><a href="#cb16-16"></a>  <span class="co"># extract rate parameters</span></span>
+<span id="cb16-17"><a href="#cb16-17"></a>  rate <span class="ot">=</span> <span class="fu">tibble</span>(</span>
+<span id="cb16-18"><a href="#cb16-18"></a>    <span class="at">depvar =</span> <span class="fu">unique</span>(ans<span class="sc">$</span>effects<span class="sc">$</span>name),</span>
+<span id="cb16-19"><a href="#cb16-19"></a>    <span class="at">effect =</span> <span class="fu">c</span>(<span class="st">'Rate parameter period 1'</span>, <span class="st">'Rate parameter period 2'</span>),</span>
+<span id="cb16-20"><a href="#cb16-20"></a>    <span class="at">short =</span> <span class="st">'rate'</span>,</span>
+<span id="cb16-21"><a href="#cb16-21"></a>    <span class="at">estimate =</span> ans<span class="sc">$</span>rate,</span>
+<span id="cb16-22"><a href="#cb16-22"></a>    <span class="at">se =</span> ans<span class="sc">$</span>vrate</span>
+<span id="cb16-23"><a href="#cb16-23"></a>  )</span>
+<span id="cb16-24"><a href="#cb16-24"></a></span>
+<span id="cb16-25"><a href="#cb16-25"></a>  <span class="co">#extract max conv rate</span></span>
+<span id="cb16-26"><a href="#cb16-26"></a>  tconv.max <span class="ot">=</span> <span class="fu">tibble</span>(</span>
+<span id="cb16-27"><a href="#cb16-27"></a>    <span class="at">depvar =</span> <span class="fu">unique</span>(ans<span class="sc">$</span>effects<span class="sc">$</span>name),</span>
+<span id="cb16-28"><a href="#cb16-28"></a>    <span class="at">effect =</span> <span class="st">'Overall maximum convergence ratio'</span>,</span>
+<span id="cb16-29"><a href="#cb16-29"></a>    <span class="at">short =</span> <span class="st">'tconv.max'</span>,</span>
+<span id="cb16-30"><a href="#cb16-30"></a>    <span class="at">estimate =</span> ans<span class="sc">$</span>tconv.max[[<span class="dv">1</span>]]</span>
+<span id="cb16-31"><a href="#cb16-31"></a>  )</span>
+<span id="cb16-32"><a href="#cb16-32"></a></span>
+<span id="cb16-33"><a href="#cb16-33"></a>  <span class="co"># combine and format</span></span>
+<span id="cb16-34"><a href="#cb16-34"></a>  rate <span class="sc">|&gt;</span> </span>
+<span id="cb16-35"><a href="#cb16-35"></a>    <span class="fu">bind_rows</span>(effects) <span class="sc">|&gt;</span> </span>
+<span id="cb16-36"><a href="#cb16-36"></a>    <span class="fu">bind_rows</span>(tconv.max) <span class="sc">|&gt;</span></span>
+<span id="cb16-37"><a href="#cb16-37"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb16-38"><a href="#cb16-38"></a>      <span class="at">z =</span> estimate <span class="sc">/</span> se,</span>
+<span id="cb16-39"><a href="#cb16-39"></a>      <span class="at">z =</span> <span class="fu">ifelse</span>(short <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">'rate'</span>, <span class="st">'tconv.max'</span>), <span class="cn">NA</span>, z),</span>
+<span id="cb16-40"><a href="#cb16-40"></a>      <span class="at">p_value =</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="sc">-</span><span class="fu">abs</span>(z)),</span>
+<span id="cb16-41"><a href="#cb16-41"></a>      <span class="at">stars =</span> <span class="fu">case_when</span>(</span>
+<span id="cb16-42"><a href="#cb16-42"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.001</span> <span class="sc">~</span> <span class="st">"***"</span>,</span>
+<span id="cb16-43"><a href="#cb16-43"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.01</span>  <span class="sc">~</span> <span class="st">"**"</span>,</span>
+<span id="cb16-44"><a href="#cb16-44"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.05</span>  <span class="sc">~</span> <span class="st">"*"</span>,</span>
+<span id="cb16-45"><a href="#cb16-45"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.1</span>   <span class="sc">~</span> <span class="st">"+"</span>,</span>
+<span id="cb16-46"><a href="#cb16-46"></a>        <span class="cn">TRUE</span>            <span class="sc">~</span> <span class="st">""</span></span>
+<span id="cb16-47"><a href="#cb16-47"></a>      ),</span>
+<span id="cb16-48"><a href="#cb16-48"></a>      <span class="at">festimate =</span> <span class="fu">sprintf</span>(<span class="st">"%.3f%s"</span>, estimate, stars),</span>
+<span id="cb16-49"><a href="#cb16-49"></a>      <span class="at">fse =</span> <span class="fu">sprintf</span>(<span class="st">"(%.3f)"</span>, se),</span>
+<span id="cb16-50"><a href="#cb16-50"></a>      <span class="at">fse =</span> <span class="fu">ifelse</span>(short <span class="sc">==</span> <span class="st">'tconv.max'</span>, <span class="st">''</span>, fse),</span>
+<span id="cb16-51"><a href="#cb16-51"></a>      <span class="at">z =</span> <span class="fu">round</span>(z, <span class="dv">3</span>),</span>
+<span id="cb16-52"><a href="#cb16-52"></a>      <span class="at">p_value =</span> <span class="fu">round</span>(p_value, <span class="dv">4</span>),</span>
+<span id="cb16-53"><a href="#cb16-53"></a>      <span class="at">conv_t =</span> <span class="fu">round</span>(conv_t, <span class="dv">3</span>)</span>
+<span id="cb16-54"><a href="#cb16-54"></a>    )  <span class="sc">|&gt;</span></span>
+<span id="cb16-55"><a href="#cb16-55"></a>    <span class="fu">select</span>(</span>
+<span id="cb16-56"><a href="#cb16-56"></a>      depvar, effect, short, interaction1, interaction2,</span>
+<span id="cb16-57"><a href="#cb16-57"></a>      estimate, se, z, p_value, stars, conv_t, festimate, fse</span>
+<span id="cb16-58"><a href="#cb16-58"></a>    )</span>
+<span id="cb16-59"><a href="#cb16-59"></a>}</span>
+<span id="cb16-60"><a href="#cb16-60"></a></span>
+<span id="cb16-61"><a href="#cb16-61"></a><span class="fu">tidy_rsiena</span>(ansm1)</span>
+<span id="cb16-62"><a href="#cb16-62"></a><span class="fu">tidy_rsiena</span>(ansm2)</span>
+<span id="cb16-63"><a href="#cb16-63"></a><span class="fu">tidy_rsiena</span>(ansm3)</span>
+<span id="cb16-64"><a href="#cb16-64"></a><span class="fu">tidy_rsiena</span>(ansm4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<!-- rekening houden met directed
-max convergence r
-rate parameter 1
-rate parameter 2
- -->
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">setwd</span>(BASEDIR)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 
 
 </section>
