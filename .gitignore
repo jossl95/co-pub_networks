@@ -19,3 +19,4 @@ combined/old_*
 
 old_*.Rds
 **/old_*.Rds
+.Rproj.user
