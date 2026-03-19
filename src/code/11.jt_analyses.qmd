@@ -810,7 +810,6 @@ wave1n = wave1[noiso, noiso]
 wave2n = wave2[noiso, noiso]
 nodes_wave = node_data |> filter(uid %in% colnames(wave1n))
 
-
 res_w1un <- summarize_colnet_wave(
   wave = wave1n,
   node_data = nodes_wave,
