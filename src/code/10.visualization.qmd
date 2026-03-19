@@ -333,7 +333,7 @@ uni_colors <- c(
 # visNetwork nodes
 nodes <- tibble(
   id = V(net$graph)$name,
-  label = NA,
+  label = df_ego$clean_name,
   title = paste0(
     "<b>", df_ego$clean_name, "</b><br>",
     "University: ", df_ego$uni, "<br>",
@@ -344,7 +344,8 @@ nodes <- tibble(
   value = 2 + sqrt(deg),
   x = l[, 1] * 100,
   y = l[, 2] * 100
-)
+)|>
+  arrange(tolower(label), id)
 
 # visNetwork edges
 edges <- igraph::as_data_frame(net$graph, what = "edges") |>
@@ -354,7 +355,7 @@ edges <- igraph::as_data_frame(net$graph, what = "edges") |>
     width = 0.2
   )
 
-visNetwork(nodes, edges, width = "100%", height = "1000px") |>
+visNetwork(nodes, edges, width = "100%", height = "800px") |>
   visNodes(
     borderWidth = 0.5,
     scaling = list(
@@ -381,5 +382,22 @@ visNetwork(nodes, edges, width = "100%", height = "1000px") |>
     dragView = TRUE,
     zoomView = TRUE,
     hover = TRUE
+  ) |>
+  visOptions(
+    highlightNearest = list(
+      enabled = TRUE,
+      degree = 2,
+      hover = FALSE
+    ),
+    nodesIdSelection = list(
+      enabled = TRUE,
+      useLabels = TRUE,
+      main = "Select author"
+    )
+  ) |>
+  visLegend(
+    position = "right",
+    width = 0.2
   )
 ```
+

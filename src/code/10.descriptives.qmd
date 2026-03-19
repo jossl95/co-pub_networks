@@ -610,9 +610,97 @@ ego <- net$stats$ego |>
 means_by_gender   <- group_means(ego, "gender")
 means_by_position <- group_means(ego, "last_position")
 means_by_migrant  <- group_means(ego, "migrant")
+means_by_affiliation <- group_means(ego, "first_affiliation")
 
-means_all <- bind_rows(means_by_gender, means_by_position, means_by_migrant)
+means_all <- bind_rows(means_by_gender, means_by_position, means_by_migrant, means_by_affiliation)
 means_all
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+
+plot_data <- means_all |>
+  pivot_longer(
+    cols = c(degree_mean, betweenness_mean, closeness_mean),
+    names_to = "metric",
+    values_to = "mean"
+  ) |>
+  mutate(
+    metric = factor(
+      metric,
+      levels = c("degree_mean", "betweenness_mean", "closeness_mean"),
+      labels = c("Degree", "Betweenness", "Closeness")
+    )
+  )
+
+base_theme <- theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    panel.grid.major.x = element_blank(),
+    legend.position = "none"
+  )
+
+pal <- c(
+  "female" = "#fca5a5",
+  "male" = "#b91c1c",
+  "NL" = "#93c5fd",
+  "M4" = "#3b82f6",
+  "other" = "#1d4ed8",
+  "Full Professor" = "#14532d",
+  "Associate Professor" = "#166534",
+  "Assistant Professor" = "#16a34a",
+  "Researcher or Lecturer" = "#4ade80",
+  "PhD Candidate" = "#bbf7d0"
+)
+
+p_degree <- plot_data |>
+  filter(metric == "Degree") |>
+  ggplot(aes(x = group, y = mean, fill = group)) +
+  geom_col() +
+  facet_wrap(~ group_var, scales = "free_x") +
+  coord_cartesian(ylim = c(0, 6)) +
+  scale_fill_manual(values = pal) +
+  labs(
+    x = NULL,
+    y = "Mean degree",
+    title = "Average degree by group"
+  ) +
+  base_theme
+
+p_betweenness <- plot_data |>
+  filter(metric == "Betweenness") |>
+  ggplot(aes(x = group, y = mean, fill = group)) +
+  geom_col() +
+  facet_wrap(~ group_var, scales = "free_x") +
+  coord_cartesian(ylim = c(0, 0.01)) +
+  scale_fill_manual(values = pal) +
+  labs(
+    x = NULL,
+    y = "Mean betweenness",
+    title = "Average betweenness by group"
+  ) +
+  base_theme
+
+p_closeness <- plot_data |>
+  filter(metric == "Closeness") |>
+  ggplot(aes(x = group, y = mean, fill = group)) +
+  geom_col() +
+  facet_wrap(~ group_var, scales = "free_x") +
+  coord_cartesian(ylim = c(0, 1)) +
+  scale_fill_manual(values = pal) +
+  labs(
+    x = NULL,
+    y = "Mean closeness",
+    title = "Average closeness by group"
+  ) +
+  base_theme
+
+p_degree 
+p_betweenness
+p_closeness
 ```
 
 
@@ -627,7 +715,16 @@ tt_gender <- ego |>
   ) |>
   mutate(tidy = map(test, broom::tidy)) |>
   select(metric, tidy) |>
-  unnest(tidy)
+  unnest(tidy) |>
+  mutate(
+    group_var = 'gender',
+    group1 = 'female',
+    group2 = 'male'
+  ) |>
+  relocate(group_var, .before = metric) |>
+  relocate(group1, group2, .after = metric) |>
+  select(-estimate1, -estimate2, -alternative) |>
+  rename(p_value = p.value)
 
 tt_gender
 ```
@@ -690,9 +787,11 @@ pairwise_ttests_with_stats <- function(
 
 tt_position <- pairwise_ttests_with_stats(ego, "last_position")
 tt_migrant  <- pairwise_ttests_with_stats(ego, "migrant")
+tt_affiliation  <- pairwise_ttests_with_stats(ego, "first_affiliation")
 
 tt_position
 tt_migrant
+tt_affiliation
 ```
 
 ```{r}
@@ -720,14 +819,211 @@ tt_gender2 <- ego2 |>
   ) |>
   mutate(tidy = map(test, broom::tidy)) |>
   select(metric, tidy) |>
-  unnest(tidy)
+  unnest(tidy)|>
+  mutate(
+    group_var = 'gender',
+    group1 = 'female',
+    group2 = 'male'
+  ) |>
+  relocate(group_var, .before = metric) |>
+  relocate(group1, group2, .after = metric)  |>
+  select(-estimate1, -estimate2, -alternative) |>
+  rename(p_value = p.value)
+
 tt_position2 <- ego2|>
   pairwise_ttests_with_stats('last_position', metrics = c('indegree', 'outdegree'))
 tt_migrant2 <- ego2|>
   pairwise_ttests_with_stats('migrant', metrics = c('indegree', 'outdegree'))
+tt_affiliation2 <- ego2|>
+  pairwise_ttests_with_stats('first_affiliation', metrics = c('indegree', 'outdegree'))
 
 tt_gender2
 tt_position2
 tt_migrant2
+tt_affiliation2
 ```
+
+
+```{r}
+library(gt)
+desc_table = desc |>
+  select(-pct) |>
+  left_join(
+    means_all |> select(-n),
+    by = join_by(
+      variable == group_var,
+      value == 'group'
+    )
+  ) |> 
+  mutate(
+    variable = case_when(
+      variable == 'first_affiliation' ~ 'Affiliation',
+      variable == 'gender' ~ 'Gender',
+      variable == 'last_position' ~ 'Position',
+      variable == 'migrant' ~ 'Migration Background'
+    ),
+    value = case_when(
+      value == 'M4' ~ 'Minority',
+      value == 'NL' ~ 'Majority',
+      value == 'other' ~ 'Other',
+      value == 'female' ~ 'Female',
+      value == 'male' ~ 'Male',
+      .default = value
+    ),
+    variable = factor(
+      variable, 
+      levels = c('Gender', 'Migration Background', 'Affiliation', 'Position')
+    ),
+    value = factor(
+      value, 
+      levels = c(
+        'Female', 'Male', 'Majority', 'Minority', 'Other', 'EUR', 'RU', 'UL',
+        'UU', 'UVA', 'UVG', 'UVT', 'VU', 'Full Professor', 'Associate Professor',
+        'Assistant Professor', 'Researcher or Lecturer', 'PhD Candidate', 'Missing'
+      )
+    )
+  ) |>
+  arrange(variable, value)
+
+saveRDS(desc_table, file = file.path('results', 'tables', 'desc.Rds'))
+
+gt_desc_table = desc_table |>
+  group_by(variable) |>
+  gt() |>
+  cols_label(
+    .list = c(
+      "variable" = "",
+      "value" = "",
+      "n" = 'N',
+      "prop" = '%',
+      'degree_mean' = 'Degree',
+      'betweenness_mean' = 'Betweenness',
+      'closeness_mean' = 'Closeness'
+    )
+  ) |>
+  tab_spanner(
+    label = 'Centrality', 
+    columns = c(degree_mean, betweenness_mean, closeness_mean)) |>
+  fmt_number(decimals = 3, drop_trailing_zeros = FALSE) |>
+  fmt_number(columns = 3, decimals = 0) |>
+  fmt_percent(columns = 4) |>
+  fmt_missing( missing_text = '') |>
+  cols_align(columns = 2, align = 'left') |>
+  cols_align(
+    columns = c(degree_mean, betweenness_mean, closeness_mean),
+    align = 'center'
+  )
+saveRDS(gt_desc_table, file = file.path('results', 'tables', 'gtdesc.Rds'))
+
+gt_desc_table
+
+```
+
+
+```{r}
+tt <- bind_rows(
+    tt_gender, tt_gender2,
+    tt_position, tt_position2, 
+    tt_migrant, tt_migrant2,
+    tt_affiliation, tt_affiliation2
+  ) |>
+  mutate(
+    metric = factor(
+      metric, levels = c(
+        'betweenness', 'closeness', 'degree', 'indegree', 'outdegree')),
+    group_var = case_when(
+        group_var == 'first_affiliation' ~ 'Affiliation',
+        group_var == 'gender' ~ 'Gender',
+        group_var == 'last_position' ~ 'Position',
+        group_var == 'migrant' ~ 'Migration Background'
+      ) |>
+      factor(
+        levels = c('Gender', 'Migration Background', 'Affiliation', 'Position')
+      ),
+    group1 = case_when(
+      group1 == 'female' ~ 'Female', 
+      group1 == 'male' ~ 'Male',
+      group1 == 'NL' ~ 'Majority',
+      group1 == 'M4' ~ 'Minority',
+      group1 == 'other' ~ 'Other',
+      .default = group1
+    ),
+    group2 = case_when(
+      group2 == 'female' ~ 'Female', 
+      group2 == 'male' ~ 'Male',
+      group2 == 'NL' ~ 'Majority',
+      group2 == 'M4' ~ 'Minority',
+      group2 == 'other' ~ 'Other',
+      .default = group2
+    ),
+    stars = case_when(
+        p_value < 0.001 ~ "***",
+        p_value < 0.01  ~ "**",
+        p_value < 0.05  ~ "*",
+        TRUE            ~ ""
+      ),
+    f = sprintf("%.3f(%.0f)%s", statistic, parameter, stars)
+  ) |>
+  arrange(group_var, metric) |>
+  select(!statistic:stars) |>
+  pivot_wider(
+    id_cols = c(group_var, group1, group2),
+    names_from = metric,
+    values_from = c(estimate, f),
+    names_glue = "{metric}_{.value}"
+  ) |>
+  (\(x) dplyr::select(
+    x,
+    group_var,
+    group1,
+    group2,
+    all_of(sort(setdiff(names(x), c("group_var", "group1", "group2"))))
+  ))()
+
+saveRDS(tt, file = file.path('results', 'tables', 'ttest.Rds'))
+
+gt_tt = tt |>
+  group_by(group_var) |>
+  gt() |>
+  cols_label_with(
+    fn = \(x) x |>
+      stringr::str_replace("^degree", "") |>
+      stringr::str_replace("^betweenness", "") |>
+      stringr::str_replace("^closeness", "") |>
+      stringr::str_replace("^indegree", "") |>
+      stringr::str_replace("^outdegree", "") |>
+      stringr::str_replace("_estimate$", "ΔM") |>
+      stringr::str_replace("_f$", "t(df)")
+  ) |>
+  cols_label(
+    group_var = "",
+    group1 = "",
+    group2 = ""
+  ) |>
+  cols_merge(
+    columns = c(group1, group2),
+    pattern = "({1} - {2})"
+  ) |>
+  tab_spanner(
+    label = 'Degree', 
+    columns = c(degree_estimate, degree_f)) |>
+  tab_spanner(
+    label = 'In-Degree', 
+    columns = c(indegree_estimate, indegree_f)) |>
+  tab_spanner(
+    label = 'Out-Degree', 
+    columns = c(outdegree_estimate, outdegree_f)) |>
+  tab_spanner(
+    label = 'Closeness', 
+    columns = c(closeness_estimate, closeness_f)) |>
+  tab_spanner(
+    label = 'Betweenness', 
+    columns = c(betweenness_estimate, betweenness_f)) |>
+  fmt_number(decimals = 3)
+
+saveRDS(gt_tt, file = file.path('results', 'tables', 'gtttest.Rds'))
+
+gt_tt
+```
+
 

@@ -134,10 +134,7 @@ make_adjacency_matrix <- function(
   # copy overlap block
   mat_full[!is.na(ri), !is.na(ci)] <- mat[ri[!is.na(ri)], ci[!is.na(ci)], drop = FALSE]
   mat <- mat_full
-  
-  #optional: no self-loops on diagonal
-  mat[is.na(mat)] <- 0
-  
+
   mat
 } 
 
@@ -243,10 +240,10 @@ harmonize_covariates <- function(data, what = 'data'){
 
 ```{r}
 # uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))
-uni_levels = tolower(c("RU", "UU", "UVA"))
+uni_levels = tolower(c("RU", "UU", "UVA", "UVG"))
 
 colnet <- fcolnet2(data, 
-    # discipline = "Sociology",
+    discipline = "Sociology",
     university = toupper(uni_levels),
     type = 'first',
   ) |>
@@ -257,7 +254,11 @@ wave2 = colnet[['nets']][[2]]
 wave3 = colnet[['nets']][[3]]
 ```
 
-
+```{r}
+for (net in colnet$nets){
+  print(rowSums(is.na(net)))
+}
+```
 
 ```{r}
 # set dependent variable
@@ -320,44 +321,114 @@ mig <- migrant_groups[-1] |>
 
     coCovar(val)
   })
+
 ```
+
+
+
+```{r}
+add_interdisciplinarity = function(colnet, topics){
+  uids <- colnet[["data"]] |>
+    dplyr::pull(uid) |>
+    unique() |> sort()
+
+  intdis <- topics[["intdis"]][["subfield"]]
+
+  colnet[["intdis"]] <- {
+    out <- matrix(
+      NA_real_,
+      nrow = length(uids),
+      ncol = ncol(intdis),
+      dimnames = list(uids, colnames(intdis))
+    )
+
+    common_uids <- intersect(uids, rownames(intdis))
+    out[common_uids, ] <- intdis[common_uids, , drop = FALSE]
+    out
+  }
+  
+  return(colnet)
+}
+
+add_dissimilarity <- function(colnet, topics) {
+  uids <- unique(dplyr::pull(colnet[["data"]], uid)) |> sort()
+
+  colnet[["dissim"]] <- purrr::map(
+    topics[["dissim"]][["subfield"]],
+    \(mat) {
+      common_uids <- Reduce(intersect, list(uids, rownames(mat), colnames(mat)))
+
+      out <- matrix(
+        NA_real_,
+        nrow = length(uids),
+        ncol = length(uids),
+        dimnames = list(uids, uids)
+      )
+
+      out[common_uids, common_uids] <- mat[common_uids, common_uids, drop = FALSE]
+      out
+    }
+  )
+
+  return(colnet)
+}
+
+colnet = colnet |>
+  add_interdisciplinarity(topics) |>
+  add_dissimilarity(topics)
+
+intdis = colnet[['intdis']][,1:2] |> varCovar(centered = TRUE)
+dissim = colnet[['dissim']][c('2022', '2024')] |> simplify2array() |> varDyadCovar(centered = TRUE)
+```
+
 
 ```{r}
 # combine variables into Rsiena data object
 mydata <- sienaDataCreate(
   net, gender, soc,
   mig$M4, mig$other,
-  # uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,
-  uni$uu, uni$uva,
-  funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]]
+  uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,
+  # uni$uu, uni$uva, uni$uvg,
+  funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]],
+  intdis, dissim
 )
 
 setwd(BASEDIR)
 if(!dir.exists("results")) dir.create("results")
 setwd(paste0(BASEDIR, '/results'))
 print01Report(mydata, modelname = "./init")
+
+# model instability: perhaps throwing cases withh full missingness out
+
 ```
 
 
 ```{r}
 # specify model
-myeff <- getEffects(mydata)
-# myeff <- includeEffects(myeff, density, recip)
-myeff <- includeEffects(myeff, isolatePop, inIsDegree)
-# myeff <- includeEffects(myeff, egoX, interaction1 = "soc")
-# # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$ru")
-# # myeff <- includeEffects(myeff, egoX, interaction1 = "uni$lu")
-myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uu")
-myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uva")
-# myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uvg")
-# myeff <- includeEffects(myeff, egoX, interaction1 = "uni$uvt")
-# myeff <- includeEffects(myeff, egoX, interaction1 = "uni$vu")
-```
+library(glue)
 
-```{r}
+includeDefaultEffects <- function(myeff){
+  myeff <- includeEffects(myeff, density, recip, gwespFF)
+  myeff <- includeEffects(myeff, inPop, outAct, isolateNet)
+  # myeff <- includeEffects(myeff, egoX, interaction1 = "soc")
+  # sameX soc collinear with university (uu has no pol-sci)
+  # for (name in names(uni)){
+  #   myeff <- includeEffects(myeff, simX, interaction1 = glue("uni${name}"))
+  #   # myeff <- includeEffects(myeff, simX, interaction1 = glue("uni${name}"))
+  #   # sameX and simX result in collinearity between outdegree and uva-similarity
+  # }
+
+  return(myeff)
+}
+
+myeff <- getEffects(mydata)
+myeff <- includeDefaultEffects(myeff)
+
+myAlgorithm <- sienaAlgorithmCreate(
+  projname = "init",
+  # n3 = 3000 # for publication ready results
+)
 # estimate model
-ans = list()
-myAlgorithm <- sienaAlgorithmCreate(projname = "init")
 ansm1 <- siena07(
   myAlgorithm, 
   data = mydata, 
@@ -369,24 +440,29 @@ ansm1
 save(ansm1, file = './ansm1')
 ```
 ```{r}
-myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = "gender")
+# myeff <- getEffects(mydata)
+# myeff <- includeDefaultEffects(myeff)
+myeff <- includeEffects(myeff, egoX, interaction1 = "gender") # altX, sameX
+myeff <- includeEffects(myeff, altX, interaction1 = "gender") 
+myeff <- includeEffects(myeff, sameX, interaction1 = "gender") 
 # too few minority in sample leave out for now.
-# myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$M4')
-myeff <- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$other')
+# myeff <- includeEffects(myeff, egoX, altX, simX, interaction1 = 'mig$M4') # altX, sameX
+# myeff <- includeEffects(myeff, egoX, altX, simX, interaction1 = 'mig$other') # altX, sameX
 
 ansm2 <- siena07(
   myAlgorithm, 
   data = mydata, 
   effects = myeff,
-  returnDeps = TRUE,
-  # prevAns = ansm1 # the exclusion of the previous answer seems to speed up the calculation
+  returnDeps = TRUE
 )
 
 save(ansm2, file = './ansm2')
-
+ansm2
 ```
 
 ```{r}
+# myeff <- getEffects(mydata)
+# myeff <- includeDefaultEffects(myeff)
 myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[1]]')
 myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[2]]')
 myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[3]]')
@@ -400,13 +476,14 @@ ansm3 <- siena07(
 )
 
 save(ansm3, file = './ansm3')
-```
 
+ansm3
+```
 ```{r}
-# myeff <- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[1]]'))
-# myeff <- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[2]]'))
-# myeff <- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[3]]'))
-# myeff <- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[4]]'))
+# myeff <- getEffects(mydata)
+# myeff <- includeDefaultEffects(myeff)
+myeff <- includeEffects(myeff, egoX, interaction1 = 'intdis')
+myeff <- includeEffects(myeff, effFrom, interaction1 = 'dissim') # this does not work
 
 ansm4 <- siena07(
   myAlgorithm, 
@@ -416,6 +493,7 @@ ansm4 <- siena07(
 )
 
 save(ansm4, file = './ansm4')
+ansm4
 ```
 
 
