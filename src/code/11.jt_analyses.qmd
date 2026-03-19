@@ -308,8 +308,7 @@ detect_university_var <- function(node_data) {
 
 detect_position_var <- function(node_data) {
   candidates <- c(
-    "position", "last_position", "position_first",
-    "academic_rank", "rank"
+    "position_22", "position_24", "position_25"
   )
 
   hit <- intersect(candidates, names(node_data))
@@ -425,7 +424,7 @@ prepare_graph_attributes <- function(graph, node_data = NULL) {
     )
   }
 
-  vdf <- as_data_frame(graph, what = "vertices")
+  vdf <- igraph::as_data_frame(graph, what = "vertices")
 
   # gender: binary
   if ("gender" %in% names(vdf)) {
@@ -471,7 +470,7 @@ prepare_graph_attributes <- function(graph, node_data = NULL) {
     graph <- set_vertex_attr(
       graph, "full_prof_bin",
       value = case_when(
-        pos_vals %in% c("full professor", "professor", "hoogleraar") ~ 1,
+        tolower(pos_vals) %in% c("full professor", "professor", "hoogleraar") ~ 1,
         !is.na(pos_vals) ~ 0,
         TRUE ~ NA_real_
       )
@@ -684,8 +683,8 @@ res_w1 <- summarize_colnet_wave(
   node_data = colnet$data,
   wave_next = wave2,
   directed = TRUE,
-  mode = "all",      # or "out" / "in"
-  i_index_var = "i_index"
+  mode = "out",      # or "out" / "in"
+  i_index_var = "i10_index_22"
 )
 
 res_w1$summary
@@ -706,8 +705,8 @@ res_w1n <- summarize_colnet_wave(
   node_data = nodes_wave,
   wave_next = wave2n,
   directed = TRUE,
-  mode = "all",      # or "out" / "in"
-  i_index_var = "i_index"
+  mode = "out",      # or "out" / "in"
+  i_index_var = "i10_index_22"
 )
 
 res_w1n$summary
@@ -738,8 +737,8 @@ res_w1l <- summarize_colnet_wave(
   node_data = node_data,
   wave_next = wave2,
   directed = TRUE,
-  mode = "in",      # or "out" / "all"
-  i_index_var = "i_index"
+  mode = "out",      # or "out" / "all"
+  i_index_var = "i10_index_22"
 )
 
 res_w1l$summary
@@ -761,8 +760,8 @@ res_w1ln <- summarize_colnet_wave(
   node_data = nodes_wave,
   wave_next = wave2n,
   directed = TRUE,
-  mode = "in",      # or "out" / "in"
-  i_index_var = "i_index"
+  mode = "out",      # or "out" / "in"
+  i_index_var = "i10_index_22"
 )
 
 res_w1ln$summary
@@ -815,10 +814,190 @@ res_w1un <- summarize_colnet_wave(
   node_data = nodes_wave,
   wave_next = wave2n,
   directed = TRUE,
-  mode = "in",      # or "out" / "in"
+  mode = "all",      # or "out" / "in"
   i_index_var = "i_index"
 )
 
 res_w1un$summary
 res_w1un$morans_i
+```
+
+
+```{r}
+
+#--------------------------------------------------
+# helpers
+#--------------------------------------------------
+
+get_nodes_at_distance <- function(graph, v, k, mode = "all") {
+  d <- distances(graph, v = v, to = V(graph), mode = mode)
+  which(as.numeric(d[1, ]) == k)
+}
+
+safe_mean <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) return(NA_real_)
+  mean(x)
+}
+
+safe_sum <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) return(NA_real_)
+  sum(x)
+}
+
+safe_n_distinct <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) return(NA_real_)
+  dplyr::n_distinct(x)
+}
+
+# EI index relative to ego's own category
+# EI = (external - internal) / (external + internal)
+ei_index <- function(ego_value, alter_values) {
+  alter_values <- alter_values[!is.na(alter_values)]
+
+  if (is.na(ego_value) || length(alter_values) == 0) {
+    return(NA_real_)
+  }
+
+  internal <- sum(alter_values == ego_value, na.rm = TRUE)
+  external <- sum(alter_values != ego_value, na.rm = TRUE)
+  total <- internal + external
+
+  if (total == 0) return(NA_real_)
+  (external - internal) / total
+}
+
+# density among alters at exact distance k
+neighborhood_density <- function(graph, vids) {
+  if (length(vids) < 2) return(NA_real_)
+
+  subg <- induced_subgraph(graph, vids = vids)
+
+  # for co-author neighborhoods, density is usually easier to interpret undirected
+  subg <- as.undirected(subg, mode = "collapse")
+
+  edge_density(subg, loops = FALSE)
+}
+
+#--------------------------------------------------
+# main function: ego-level objects for one wave
+#--------------------------------------------------
+
+compute_ego_objects <- function(
+    wave,
+    node_data,
+    directed = TRUE,
+    mode = "all",
+    gender_var = "gender",
+    discipline_var = "discipline_22",
+    university_var,
+    position_var = "position_22",
+    i_index_var = "i_index"
+) {
+  stopifnot(university_var %in% names(node_data))
+
+  graph <- make_graph_from_wave(wave, node_data, directed = directed)
+
+  n <- vcount(graph)
+
+  # graph-level / ego-level structure measures
+  bet <- betweenness(graph, directed = is_directed(graph), normalized = TRUE)
+  ecc <- eccentricity(graph, mode = mode)
+  loc_clust <- transitivity(
+    as.undirected(graph, mode = "collapse"),
+    type = "localundirected",
+    isolates = "zero"
+  )
+
+  # extract node attributes once
+  gender <- vertex_attr(graph, gender_var)
+  discipline <- vertex_attr(graph, discipline_var)
+  university <- vertex_attr(graph, university_var)
+  position <- vertex_attr(graph, position_var)
+  i_index <- vertex_attr(graph, i_index_var)
+
+  full_prof <- case_when(
+    tolower(as.character(position)) %in% c("full professor", "professor", "hoogleraar") ~ 1,
+    is.na(position) ~ NA_real_,
+    TRUE ~ 0
+  )
+
+  out <- purrr::map_dfr(seq_len(n), function(i) {
+    d1 <- get_nodes_at_distance(graph, i, 1, mode = mode)
+    d2 <- get_nodes_at_distance(graph, i, 2, mode = mode)
+
+    tibble(
+      node_id = i,
+      uid = if ("uid" %in% names(node_data)) node_data$uid[i] else i,
+
+      #------------------------------------------
+      # size
+      #------------------------------------------
+      `N co-authors distance 1` = length(d1),
+      `N co-authors distance 2` = length(d2),
+
+      #------------------------------------------
+      # structure
+      #------------------------------------------
+      `density distance 1` = neighborhood_density(graph, d1),
+      `density distance 2` = neighborhood_density(graph, d2),
+      `clustering coefficient` = loc_clust[i],
+      `betweenness centrality` = bet[i],
+      `max. path length` = unname(ecc[i]),
+
+      #------------------------------------------
+      # composition
+      #------------------------------------------
+      `gender EI index distance 1` = ei_index(gender[i], gender[d1]),
+      `gender EI index distance 2` = ei_index(gender[i], gender[d2]),
+
+      `discipline EI index distance 1` = ei_index(discipline[i], discipline[d1]),
+      `discipline EI index distance 2` = ei_index(discipline[i], discipline[d2]),
+
+      `university EI index distance 1` = ei_index(university[i], university[d1]),
+      `university EI index distance 2` = ei_index(university[i], university[d2]),
+
+      #------------------------------------------
+      # scientific capital
+      #------------------------------------------
+      `reachable full prof distance 1` = safe_sum(full_prof[d1]),
+      `reachable full prof distance 2` = safe_sum(full_prof[d2]),
+
+      `average i-index distance 1` = safe_mean(i_index[d1]),
+      `average i-index distance 2` = safe_mean(i_index[d2]),
+
+      `total i-index distance 1` = safe_sum(i_index[d1]),
+      `total i-index distance 2` = safe_sum(i_index[d2]),
+    )
+  })
+
+  out
+}
+
+```
+
+
+```{r}
+ego_w1 <- compute_ego_objects(
+  wave = wave1,
+  node_data = node_data,
+  directed = TRUE,
+  mode = "all",
+  gender_var = "gender",
+  university_var = "uni22p",
+  i_index_var = "i10_index_22"
+)
+```
+
+
+```{r}
+node_data |>
+  select(uid, gender) |>
+  left_join(ego_w1) |>
+  select(-node_id, -uid) |>
+  group_by(gender) |>
+  summarise_if(is.numeric, mean, na.rm=T)
+
 ```
