@@ -393,8 +393,8 @@ dissim = colnet[['dissim']][c('2022', '2024')] |> simplify2array() |> varDyadCov
 mydata <- sienaDataCreate(
   net, gender, soc,
   mig$M4, mig$other,
-  uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,
-  # uni$uu, uni$uva, uni$uvg,
+  # uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,
+  uni$uu, uni$uva, uni$uvg,
   funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]],
   intdis, dissim
 )

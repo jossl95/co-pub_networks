@@ -132,7 +132,6 @@ select_sample_intdis <- function(topics, sample){
 
 ```{r}
 
-# step 2: prune works for selection
 make_adjacency_matrix <- function(
     data, uids, type, min_year = 2020, max_year = 2026, weighted = FALSE
   ) {
@@ -215,7 +214,6 @@ make_adjacency_matrix <- function(
   mat
 } 
 
-
 fcolnet2 <- function(
     data,
     university = NULL,
@@ -274,6 +272,7 @@ fcolnet2 <- function(
 
   return(output)
 }
+
 ```
 
 
@@ -288,18 +287,18 @@ library(tibble)
 
 net <- fcolnet2(
   data,
-  type = "all",
+  type = "first",
   waves = list(c(2020, 2026))
 )
 
 # remove isolates
-noisolate <- rowSums(net$nets[[1]]) > 0
-net$nets[[1]] <- net$nets[[1]][noisolate, noisolate]
+noisolate <- rowSums(net$nets[[1]], na.rm = TRUE) > 0
+net$nets[[1]] = net$nets[[1]][noisolate, noisolate] 
 
 # build graph
 net$graph <- igraph::graph_from_adjacency_matrix(
   net$nets[[1]],
-  mode = "undirected",
+  mode = "directed",
   weighted = NULL,
   diag = FALSE,
   add.colnames = NULL
@@ -316,7 +315,7 @@ df_ego <- net$data |>
   arrange(match(uid, colnames(net$nets[[1]])))
 
 # degree for sizing
-deg <- igraph::degree(net$graph, mode = "all")
+deg <- igraph::degree(net$graph, mode = "out")
 
 # university colors
 uni_colors <- c(
@@ -386,7 +385,7 @@ visNetwork(nodes, edges, width = "100%", height = "800px") |>
   visOptions(
     highlightNearest = list(
       enabled = TRUE,
-      degree = 2,
+      degree = 1,
       hover = FALSE
     ),
     nodesIdSelection = list(

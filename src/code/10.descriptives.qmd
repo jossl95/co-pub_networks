@@ -181,7 +181,6 @@ select_sample_intdis <- function(topics, sample){
 
 ```{r}
 
-# step 2: prune works for selection
 make_adjacency_matrix <- function(
     data, uids, type, min_year = 2020, max_year = 2026, weighted = FALSE
   ) {
@@ -264,7 +263,6 @@ make_adjacency_matrix <- function(
   mat
 } 
 
-
 fcolnet2 <- function(
     data,
     university = NULL,
@@ -336,8 +334,8 @@ colnet <- fcolnet2(data,
 ```{r}
 n = colnet[['nets']][[1]]
 
-n[upper.tri(n)] |> sum()
-n[lower.tri(n)] |> sum()
+n[upper.tri(n)] |> sum(na.rm = TRUE)
+n[lower.tri(n)] |> sum(na.rm = TRUE)
 
 ```
 
@@ -345,19 +343,19 @@ n[lower.tri(n)] |> sum()
 #| column: page-inset
 
 net <- fcolnet2(data, 
-  type = 'all',
+  type = 'first',
   waves = list(c(2020, 2026))
 )
 
-noisolate <- rowSums(net$nets[[1]]) > 0
-net$nets[[1]] = net$nets[[1]][noisolate, noisolate]
+noisolate <- rowSums(net$nets[[1]], na.rm = TRUE) > 0
+net$nets[[1]] = net$nets[[1]][noisolate, noisolate] 
 
 net$graph  <- igraph::graph_from_adjacency_matrix(
   net$nets[[1]],
-  mode = c("undirected"),
+  mode = "directed",
   weighted = NULL,
   diag = FALSE,
-  add.colnames = NULL,)
+  add.colnames = NULL)
 
 df_ego <- net$data |> 
   filter(uid %in% colnames(net$nets[[1]]))|>
@@ -377,7 +375,7 @@ plot(net$graph,
                  ifelse(df_ego$uni == "EUR", "yellow",
                  ifelse(df_ego$uni == "UU", "green",
                  ifelse(df_ego$uni == "UL", "coral", "white")))))))),
-  vertex.shape = ifelse(df_ego$gender == 'female', "circle", 'square'),
+  # vertex.shape = ifelse(df_ego$gender == 'female', "circle", 'square'),
   vertex.size = 2 + igraph::degree(net$g, mode = 'in') ^ 0.5,
   vertex.label = NA,
   vertex.size = 4,
@@ -1028,3 +1026,7 @@ gt_tt
 ```
 
 
+
+```{r}
+
+```
