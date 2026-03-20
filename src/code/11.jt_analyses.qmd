@@ -1068,8 +1068,3 @@ resf$summary
 resf$morans_i
 ```
 
-
-```{r}
-
-
-```

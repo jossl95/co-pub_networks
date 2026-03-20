@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-03-17">
+<meta name="dcterms.date" content="2026-03-20">
 
 <title>Main Analysis – Networks</title>
 <style>
@@ -425,7 +425,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 17, 2026</p>
+      <p class="date">March 20, 2026</p>
     </div>
   </div>
   
@@ -481,133 +481,136 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-10"><a href="#cb4-10"></a>    <span class="fu">filter</span>(publication_year <span class="sc">&gt;=</span> min_year, publication_year <span class="sc">&lt;=</span> max_year) <span class="sc">|&gt;</span></span>
 <span id="cb4-11"><a href="#cb4-11"></a>    <span class="fu">select</span>(uid, work_id, authorships, publication_year) <span class="sc">|&gt;</span></span>
 <span id="cb4-12"><a href="#cb4-12"></a>    <span class="fu">rename</span>(<span class="at">e_uid =</span> uid) <span class="sc">|&gt;</span></span>
-<span id="cb4-13"><a href="#cb4-13"></a>    <span class="fu">distinct</span>(work_id, authorships, publication_year, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-14"><a href="#cb4-14"></a>    <span class="fu">unnest</span>(authorships) <span class="sc">|&gt;</span></span>
-<span id="cb4-15"><a href="#cb4-15"></a>    <span class="fu">filter</span>(e_uid <span class="sc">!=</span> uid) <span class="sc">|&gt;</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a>    <span class="fu">filter</span>(uid <span class="sc">%in%</span> uids, e_uid <span class="sc">%in%</span> uids)</span>
-<span id="cb4-17"><a href="#cb4-17"></a></span>
-<span id="cb4-18"><a href="#cb4-18"></a>  <span class="cf">if</span> (type <span class="sc">!=</span> <span class="st">'all'</span>) {</span>
-<span id="cb4-19"><a href="#cb4-19"></a>    edges <span class="ot">&lt;-</span> edges <span class="sc">|&gt;</span> <span class="fu">filter</span>(author_position <span class="sc">!=</span> type)</span>
-<span id="cb4-20"><a href="#cb4-20"></a>  }</span>
-<span id="cb4-21"><a href="#cb4-21"></a></span>
-<span id="cb4-22"><a href="#cb4-22"></a>  <span class="co"># calculate the number of edges between ego and alters.</span></span>
-<span id="cb4-23"><a href="#cb4-23"></a>  edge_counts <span class="ot">&lt;-</span> edges <span class="sc">|&gt;</span> <span class="fu">count</span>(e_uid, uid, <span class="at">name=</span><span class="st">"w"</span>)</span>
-<span id="cb4-24"><a href="#cb4-24"></a></span>
-<span id="cb4-25"><a href="#cb4-25"></a>  <span class="co"># make edgelist symetrical</span></span>
-<span id="cb4-26"><a href="#cb4-26"></a>  <span class="cf">if</span> (type <span class="sc">==</span> <span class="st">'all'</span>) {</span>
-<span id="cb4-27"><a href="#cb4-27"></a>    edge_counts <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-28"><a href="#cb4-28"></a>      edge_counts,</span>
-<span id="cb4-29"><a href="#cb4-29"></a>      edge_counts <span class="sc">%&gt;%</span> <span class="fu">transmute</span>(<span class="at">uid =</span> e_uid, <span class="at">e_uid =</span> uid, <span class="at">w =</span> w)</span>
-<span id="cb4-30"><a href="#cb4-30"></a>    ) <span class="sc">%&gt;%</span></span>
-<span id="cb4-31"><a href="#cb4-31"></a>      <span class="fu">group_by</span>(uid, e_uid) <span class="sc">%&gt;%</span></span>
-<span id="cb4-32"><a href="#cb4-32"></a>      <span class="fu">summarise</span>(<span class="at">w =</span> <span class="fu">sum</span>(w), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
-<span id="cb4-33"><a href="#cb4-33"></a>  }</span>
-<span id="cb4-34"><a href="#cb4-34"></a></span>
-<span id="cb4-35"><a href="#cb4-35"></a>  <span class="co"># convert counts to incidences</span></span>
-<span id="cb4-36"><a href="#cb4-36"></a>  <span class="cf">if</span> (<span class="sc">!</span>weighted) {</span>
-<span id="cb4-37"><a href="#cb4-37"></a>    edge_counts <span class="ot">&lt;-</span> edge_counts <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">w =</span> <span class="dv">1</span>L)</span>
-<span id="cb4-38"><a href="#cb4-38"></a>  }</span>
-<span id="cb4-39"><a href="#cb4-39"></a></span>
-<span id="cb4-40"><a href="#cb4-40"></a>  <span class="co"># all nodes appearing as ego or alter</span></span>
-<span id="cb4-41"><a href="#cb4-41"></a>  nodes <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(<span class="fu">c</span>(edge_counts<span class="sc">$</span>e_uid, edge_counts<span class="sc">$</span>uid)))</span>
-<span id="cb4-42"><a href="#cb4-42"></a>  </span>
-<span id="cb4-43"><a href="#cb4-43"></a>  <span class="co"># complete matrix grid and pivot to wide</span></span>
-<span id="cb4-44"><a href="#cb4-44"></a>  adj <span class="ot">&lt;-</span> edge_counts <span class="sc">%&gt;%</span></span>
-<span id="cb4-45"><a href="#cb4-45"></a>    <span class="fu">rename</span>(<span class="at">from =</span> e_uid, <span class="at">to =</span> uid) <span class="sc">%&gt;%</span></span>
-<span id="cb4-46"><a href="#cb4-46"></a>    <span class="fu">complete</span>(<span class="at">from =</span> nodes, <span class="at">to =</span> nodes, <span class="at">fill =</span> <span class="fu">list</span>(<span class="at">w =</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-47"><a href="#cb4-47"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> to, <span class="at">values_from =</span> w) <span class="sc">%&gt;%</span></span>
-<span id="cb4-48"><a href="#cb4-48"></a>    <span class="fu">arrange</span>(from)</span>
-<span id="cb4-49"><a href="#cb4-49"></a>  </span>
-<span id="cb4-50"><a href="#cb4-50"></a>  <span class="co"># convert to matrix and set rownames</span></span>
-<span id="cb4-51"><a href="#cb4-51"></a>  mat <span class="ot">&lt;-</span> adj <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
-<span id="cb4-52"><a href="#cb4-52"></a>  </span>
-<span id="cb4-53"><a href="#cb4-53"></a>  row_ids <span class="ot">&lt;-</span> mat<span class="sc">$</span>from</span>
-<span id="cb4-54"><a href="#cb4-54"></a>  mat<span class="sc">$</span>from <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>    <span class="fu">distinct</span>(work_id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a>    <span class="fu">unnest</span>(authorships) </span>
+<span id="cb4-15"><a href="#cb4-15"></a></span>
+<span id="cb4-16"><a href="#cb4-16"></a>  <span class="cf">if</span> (type <span class="sc">!=</span> <span class="st">'all'</span>) {</span>
+<span id="cb4-17"><a href="#cb4-17"></a>    edges <span class="ot">&lt;-</span> edges <span class="sc">|&gt;</span></span>
+<span id="cb4-18"><a href="#cb4-18"></a>      <span class="fu">group_by</span>(work_id) <span class="sc">|&gt;</span></span>
+<span id="cb4-19"><a href="#cb4-19"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb4-20"><a href="#cb4-20"></a>        <span class="at">e_uid =</span> uid[author_position <span class="sc">==</span> type][<span class="dv">1</span>]</span>
+<span id="cb4-21"><a href="#cb4-21"></a>      ) <span class="sc">|&gt;</span> <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-22"><a href="#cb4-22"></a>      <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(e_uid), e_uid <span class="sc">!=</span> uid) <span class="sc">|&gt;</span></span>
+<span id="cb4-23"><a href="#cb4-23"></a>      <span class="fu">select</span>(work_id, e_uid, uid)</span>
+<span id="cb4-24"><a href="#cb4-24"></a>  } <span class="cf">else</span> {</span>
+<span id="cb4-25"><a href="#cb4-25"></a>    edges <span class="ot">&lt;-</span> edges <span class="sc">|&gt;</span> </span>
+<span id="cb4-26"><a href="#cb4-26"></a>      <span class="fu">group_by</span>(work_id) <span class="sc">|&gt;</span></span>
+<span id="cb4-27"><a href="#cb4-27"></a>      <span class="fu">reframe</span>(</span>
+<span id="cb4-28"><a href="#cb4-28"></a>        tidyr<span class="sc">::</span><span class="fu">crossing</span>(</span>
+<span id="cb4-29"><a href="#cb4-29"></a>          <span class="at">e_uid =</span> uid,</span>
+<span id="cb4-30"><a href="#cb4-30"></a>          <span class="at">uid   =</span> uid</span>
+<span id="cb4-31"><a href="#cb4-31"></a>        )</span>
+<span id="cb4-32"><a href="#cb4-32"></a>      ) <span class="sc">|&gt;</span></span>
+<span id="cb4-33"><a href="#cb4-33"></a>      <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-34"><a href="#cb4-34"></a>      <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(e_uid), e_uid <span class="sc">!=</span> uid) <span class="sc">|&gt;</span></span>
+<span id="cb4-35"><a href="#cb4-35"></a>      <span class="fu">select</span>(work_id, e_uid, uid)</span>
+<span id="cb4-36"><a href="#cb4-36"></a>  }</span>
+<span id="cb4-37"><a href="#cb4-37"></a></span>
+<span id="cb4-38"><a href="#cb4-38"></a>  <span class="co"># calculate the number of edges between ego and alters.</span></span>
+<span id="cb4-39"><a href="#cb4-39"></a>  edge_counts <span class="ot">&lt;-</span> edges <span class="sc">|&gt;</span> <span class="fu">count</span>(e_uid, uid, <span class="at">name=</span><span class="st">"w"</span>)</span>
+<span id="cb4-40"><a href="#cb4-40"></a></span>
+<span id="cb4-41"><a href="#cb4-41"></a>  <span class="co"># convert counts to incidences</span></span>
+<span id="cb4-42"><a href="#cb4-42"></a>  <span class="cf">if</span> (<span class="sc">!</span>weighted) {</span>
+<span id="cb4-43"><a href="#cb4-43"></a>    edge_counts <span class="ot">&lt;-</span> edge_counts <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">w =</span> <span class="dv">1</span>L)</span>
+<span id="cb4-44"><a href="#cb4-44"></a>  }</span>
+<span id="cb4-45"><a href="#cb4-45"></a></span>
+<span id="cb4-46"><a href="#cb4-46"></a>  <span class="co"># all nodes appearing as ego or alter</span></span>
+<span id="cb4-47"><a href="#cb4-47"></a>  nodes <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(<span class="fu">c</span>(edge_counts<span class="sc">$</span>e_uid, edge_counts<span class="sc">$</span>uid)))</span>
+<span id="cb4-48"><a href="#cb4-48"></a>  </span>
+<span id="cb4-49"><a href="#cb4-49"></a>  <span class="co"># complete matrix grid and pivot to wide</span></span>
+<span id="cb4-50"><a href="#cb4-50"></a>  adj <span class="ot">&lt;-</span> edge_counts <span class="sc">%&gt;%</span></span>
+<span id="cb4-51"><a href="#cb4-51"></a>    <span class="fu">rename</span>(<span class="at">from =</span> e_uid, <span class="at">to =</span> uid) <span class="sc">%&gt;%</span></span>
+<span id="cb4-52"><a href="#cb4-52"></a>    <span class="fu">complete</span>(<span class="at">from =</span> nodes, <span class="at">to =</span> nodes, <span class="at">fill =</span> <span class="fu">list</span>(<span class="at">w =</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-53"><a href="#cb4-53"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> to, <span class="at">values_from =</span> w) <span class="sc">%&gt;%</span></span>
+<span id="cb4-54"><a href="#cb4-54"></a>    <span class="fu">arrange</span>(from)</span>
 <span id="cb4-55"><a href="#cb4-55"></a>  </span>
-<span id="cb4-56"><a href="#cb4-56"></a>  mat <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(mat)</span>
-<span id="cb4-57"><a href="#cb4-57"></a>  <span class="fu">rownames</span>(mat) <span class="ot">&lt;-</span> row_ids</span>
-<span id="cb4-58"><a href="#cb4-58"></a>  <span class="fu">diag</span>(mat) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb4-59"><a href="#cb4-59"></a></span>
-<span id="cb4-60"><a href="#cb4-60"></a>  <span class="co"># make sure the matrices are consistent across waves</span></span>
-<span id="cb4-61"><a href="#cb4-61"></a>  all_uids <span class="ot">&lt;-</span> <span class="fu">as.character</span>(uids)</span>
-<span id="cb4-62"><a href="#cb4-62"></a></span>
-<span id="cb4-63"><a href="#cb4-63"></a>  <span class="co"># indices of existing rows/cols in desired order</span></span>
-<span id="cb4-64"><a href="#cb4-64"></a>  ri <span class="ot">&lt;-</span> <span class="fu">match</span>(all_uids, <span class="fu">rownames</span>(mat))</span>
-<span id="cb4-65"><a href="#cb4-65"></a>  ci <span class="ot">&lt;-</span> <span class="fu">match</span>(all_uids, <span class="fu">colnames</span>(mat))</span>
-<span id="cb4-66"><a href="#cb4-66"></a></span>
-<span id="cb4-67"><a href="#cb4-67"></a>  <span class="co"># start with full NA matrix</span></span>
-<span id="cb4-68"><a href="#cb4-68"></a>  mat_full <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="fu">length</span>(all_uids), <span class="at">ncol =</span> <span class="fu">length</span>(all_uids),</span>
-<span id="cb4-69"><a href="#cb4-69"></a>                    <span class="at">dimnames =</span> <span class="fu">list</span>(all_uids, all_uids))</span>
-<span id="cb4-70"><a href="#cb4-70"></a></span>
-<span id="cb4-71"><a href="#cb4-71"></a>  <span class="co"># copy overlap block</span></span>
-<span id="cb4-72"><a href="#cb4-72"></a>  mat_full[<span class="sc">!</span><span class="fu">is.na</span>(ri), <span class="sc">!</span><span class="fu">is.na</span>(ci)] <span class="ot">&lt;-</span> mat[ri[<span class="sc">!</span><span class="fu">is.na</span>(ri)], ci[<span class="sc">!</span><span class="fu">is.na</span>(ci)], drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb4-73"><a href="#cb4-73"></a>  mat <span class="ot">&lt;-</span> mat_full</span>
-<span id="cb4-74"><a href="#cb4-74"></a>  </span>
-<span id="cb4-75"><a href="#cb4-75"></a>  <span class="co">#optional: no self-loops on diagonal</span></span>
-<span id="cb4-76"><a href="#cb4-76"></a>  mat[<span class="fu">is.na</span>(mat)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb4-77"><a href="#cb4-77"></a>  </span>
-<span id="cb4-78"><a href="#cb4-78"></a>  mat</span>
-<span id="cb4-79"><a href="#cb4-79"></a>} </span>
+<span id="cb4-56"><a href="#cb4-56"></a>  <span class="co"># convert to matrix and set rownames</span></span>
+<span id="cb4-57"><a href="#cb4-57"></a>  mat <span class="ot">&lt;-</span> adj <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb4-58"><a href="#cb4-58"></a>  </span>
+<span id="cb4-59"><a href="#cb4-59"></a>  row_ids <span class="ot">&lt;-</span> mat<span class="sc">$</span>from</span>
+<span id="cb4-60"><a href="#cb4-60"></a>  mat<span class="sc">$</span>from <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb4-61"><a href="#cb4-61"></a>  </span>
+<span id="cb4-62"><a href="#cb4-62"></a>  mat <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(mat)</span>
+<span id="cb4-63"><a href="#cb4-63"></a>  <span class="fu">rownames</span>(mat) <span class="ot">&lt;-</span> row_ids</span>
+<span id="cb4-64"><a href="#cb4-64"></a>  <span class="fu">diag</span>(mat) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb4-65"><a href="#cb4-65"></a></span>
+<span id="cb4-66"><a href="#cb4-66"></a>  <span class="co"># make sure the matrices are consistent across waves</span></span>
+<span id="cb4-67"><a href="#cb4-67"></a>  all_uids <span class="ot">&lt;-</span> <span class="fu">as.character</span>(uids)</span>
+<span id="cb4-68"><a href="#cb4-68"></a></span>
+<span id="cb4-69"><a href="#cb4-69"></a>  <span class="co"># indices of existing rows/cols in desired order</span></span>
+<span id="cb4-70"><a href="#cb4-70"></a>  ri <span class="ot">&lt;-</span> <span class="fu">match</span>(all_uids, <span class="fu">rownames</span>(mat))</span>
+<span id="cb4-71"><a href="#cb4-71"></a>  ci <span class="ot">&lt;-</span> <span class="fu">match</span>(all_uids, <span class="fu">colnames</span>(mat))</span>
+<span id="cb4-72"><a href="#cb4-72"></a></span>
+<span id="cb4-73"><a href="#cb4-73"></a>  <span class="co"># start with full NA matrix</span></span>
+<span id="cb4-74"><a href="#cb4-74"></a>  mat_full <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="fu">length</span>(all_uids), <span class="at">ncol =</span> <span class="fu">length</span>(all_uids),</span>
+<span id="cb4-75"><a href="#cb4-75"></a>                    <span class="at">dimnames =</span> <span class="fu">list</span>(all_uids, all_uids))</span>
+<span id="cb4-76"><a href="#cb4-76"></a></span>
+<span id="cb4-77"><a href="#cb4-77"></a>  <span class="co"># copy overlap block</span></span>
+<span id="cb4-78"><a href="#cb4-78"></a>  mat_full[<span class="sc">!</span><span class="fu">is.na</span>(ri), <span class="sc">!</span><span class="fu">is.na</span>(ci)] <span class="ot">&lt;-</span> mat[ri[<span class="sc">!</span><span class="fu">is.na</span>(ri)], ci[<span class="sc">!</span><span class="fu">is.na</span>(ci)], drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb4-79"><a href="#cb4-79"></a>  mat <span class="ot">&lt;-</span> mat_full</span>
 <span id="cb4-80"><a href="#cb4-80"></a></span>
-<span id="cb4-81"><a href="#cb4-81"></a></span>
-<span id="cb4-82"><a href="#cb4-82"></a>fcolnet2 <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
-<span id="cb4-83"><a href="#cb4-83"></a>    data,</span>
-<span id="cb4-84"><a href="#cb4-84"></a>    <span class="at">university =</span> <span class="cn">NULL</span>,</span>
-<span id="cb4-85"><a href="#cb4-85"></a>    <span class="at">position   =</span> <span class="cn">NULL</span>,</span>
-<span id="cb4-86"><a href="#cb4-86"></a>    <span class="at">discipline =</span> <span class="cn">NULL</span>,</span>
-<span id="cb4-87"><a href="#cb4-87"></a>    <span class="at">type =</span> <span class="st">'all'</span>,</span>
-<span id="cb4-88"><a href="#cb4-88"></a>    <span class="at">waves =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">2019</span>, <span class="dv">2022</span>), <span class="fu">c</span>(<span class="dv">2023</span>, <span class="dv">2024</span>), <span class="fu">c</span>(<span class="dv">2025</span>, <span class="dv">2026</span>))</span>
-<span id="cb4-89"><a href="#cb4-89"></a>  ){</span>
-<span id="cb4-90"><a href="#cb4-90"></a></span>
-<span id="cb4-91"><a href="#cb4-91"></a>  valid_disciplines  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Sociology"</span>, <span class="st">"Political Sciences"</span>)</span>
-<span id="cb4-92"><a href="#cb4-92"></a>  valid_universities <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"UVA"</span>,<span class="st">"EUR"</span>,<span class="st">"UL"</span>,<span class="st">"VU"</span>,<span class="st">"UVG"</span>,<span class="st">"UU"</span>,<span class="st">"RU"</span>,<span class="st">"UVT"</span>)</span>
-<span id="cb4-93"><a href="#cb4-93"></a>  valid_positions    <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Associate Professor"</span>,<span class="st">"PhD Candidate"</span>,<span class="st">"Full Professor"</span>,</span>
-<span id="cb4-94"><a href="#cb4-94"></a>                          <span class="st">"Researcher or Lecturer"</span>,<span class="st">"Assistant Professor"</span>)</span>
-<span id="cb4-95"><a href="#cb4-95"></a></span>
-<span id="cb4-96"><a href="#cb4-96"></a>  <span class="co"># helper: set default + validate</span></span>
-<span id="cb4-97"><a href="#cb4-97"></a>  set_and_check <span class="ot">&lt;-</span> <span class="cf">function</span>(x, valid, <span class="at">name =</span> <span class="fu">deparse</span>(<span class="fu">substitute</span>(x))) {</span>
-<span id="cb4-98"><a href="#cb4-98"></a>    x <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">is.null</span>(x)) valid <span class="cf">else</span> x</span>
-<span id="cb4-99"><a href="#cb4-99"></a>    bad <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">unique</span>(<span class="fu">na.omit</span>(x)), valid)</span>
-<span id="cb4-100"><a href="#cb4-100"></a>    <span class="cf">if</span> (<span class="fu">length</span>(bad)) <span class="fu">stop</span>(<span class="st">"Invalid "</span>, name, <span class="st">": "</span>, <span class="fu">paste</span>(bad, <span class="at">collapse =</span> <span class="st">", "</span>), <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb4-101"><a href="#cb4-101"></a>    x</span>
-<span id="cb4-102"><a href="#cb4-102"></a>  }</span>
-<span id="cb4-103"><a href="#cb4-103"></a></span>
-<span id="cb4-104"><a href="#cb4-104"></a>  <span class="co"># set and check values</span></span>
-<span id="cb4-105"><a href="#cb4-105"></a>  discipline <span class="ot">&lt;-</span> <span class="fu">set_and_check</span>(discipline, valid_disciplines,  <span class="st">"discipline"</span>)</span>
-<span id="cb4-106"><a href="#cb4-106"></a>  university <span class="ot">&lt;-</span> <span class="fu">set_and_check</span>(university, valid_universities, <span class="st">"university"</span>)</span>
-<span id="cb4-107"><a href="#cb4-107"></a>  position   <span class="ot">&lt;-</span> <span class="fu">set_and_check</span>(position,   valid_positions,    <span class="st">"position"</span>)</span>
-<span id="cb4-108"><a href="#cb4-108"></a>  min_year   <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="fu">unlist</span>(waves))</span>
-<span id="cb4-109"><a href="#cb4-109"></a>  max_year   <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">unlist</span>(waves))</span>
-<span id="cb4-110"><a href="#cb4-110"></a></span>
-<span id="cb4-111"><a href="#cb4-111"></a>  <span class="co"># step 1: make selection of nodes</span></span>
-<span id="cb4-112"><a href="#cb4-112"></a>  authors <span class="ot">&lt;-</span> data[[<span class="st">"demographics"</span>]] <span class="sc">|&gt;</span></span>
-<span id="cb4-113"><a href="#cb4-113"></a>    <span class="fu">filter</span>(</span>
-<span id="cb4-114"><a href="#cb4-114"></a>      <span class="fu">if_any</span>(<span class="fu">c</span>(university_22_first, university_24_first, university_25_first),</span>
-<span id="cb4-115"><a href="#cb4-115"></a>            <span class="sc">~</span> .x <span class="sc">%in%</span> university),</span>
-<span id="cb4-116"><a href="#cb4-116"></a>      <span class="fu">if_any</span>(<span class="fu">c</span>(discipline_22, discipline_24, discipline_25),</span>
-<span id="cb4-117"><a href="#cb4-117"></a>            <span class="sc">~</span> .x <span class="sc">%in%</span> discipline),</span>
-<span id="cb4-118"><a href="#cb4-118"></a>      <span class="fu">if_any</span>(<span class="fu">c</span>(position_22, position_24, position_25),</span>
-<span id="cb4-119"><a href="#cb4-119"></a>            <span class="sc">~</span> .x <span class="sc">%in%</span> position)</span>
-<span id="cb4-120"><a href="#cb4-120"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb4-121"><a href="#cb4-121"></a>    <span class="fu">arrange</span>(uid)</span>
-<span id="cb4-122"><a href="#cb4-122"></a>  uids <span class="ot">&lt;-</span> authors <span class="sc">|&gt;</span> <span class="fu">pull</span>(uid) <span class="sc">|&gt;</span> <span class="fu">sort</span>()</span>
-<span id="cb4-123"><a href="#cb4-123"></a>  </span>
-<span id="cb4-124"><a href="#cb4-124"></a>  <span class="co"># step 3: create empty matrixes (wave, i, j)</span></span>
-<span id="cb4-125"><a href="#cb4-125"></a>  nwaves <span class="ot">&lt;-</span> <span class="fu">length</span>(waves)</span>
-<span id="cb4-126"><a href="#cb4-126"></a>  nets <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb4-127"><a href="#cb4-127"></a>  <span class="cf">for</span> (w <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(waves)){</span>
-<span id="cb4-128"><a href="#cb4-128"></a>    nets[[w]] <span class="ot">&lt;-</span> <span class="fu">make_adjacency_matrix</span>(</span>
-<span id="cb4-129"><a href="#cb4-129"></a>      data, uids, type, <span class="at">min_year =</span> waves[[w]][<span class="dv">1</span>], <span class="at">max_year =</span> waves[[w]][<span class="dv">2</span>])</span>
-<span id="cb4-130"><a href="#cb4-130"></a>  }</span>
-<span id="cb4-131"><a href="#cb4-131"></a></span>
-<span id="cb4-132"><a href="#cb4-132"></a>  <span class="co"># step 4: fill nets</span></span>
-<span id="cb4-133"><a href="#cb4-133"></a>  output <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb4-134"><a href="#cb4-134"></a>    <span class="at">data =</span> authors,</span>
-<span id="cb4-135"><a href="#cb4-135"></a>    <span class="at">nets =</span> nets</span>
-<span id="cb4-136"><a href="#cb4-136"></a>  )</span>
-<span id="cb4-137"><a href="#cb4-137"></a></span>
-<span id="cb4-138"><a href="#cb4-138"></a>  <span class="fu">return</span>(output)</span>
-<span id="cb4-139"><a href="#cb4-139"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-81"><a href="#cb4-81"></a>  mat</span>
+<span id="cb4-82"><a href="#cb4-82"></a>} </span>
+<span id="cb4-83"><a href="#cb4-83"></a></span>
+<span id="cb4-84"><a href="#cb4-84"></a></span>
+<span id="cb4-85"><a href="#cb4-85"></a>fcolnet2 <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb4-86"><a href="#cb4-86"></a>    data,</span>
+<span id="cb4-87"><a href="#cb4-87"></a>    <span class="at">university =</span> <span class="cn">NULL</span>,</span>
+<span id="cb4-88"><a href="#cb4-88"></a>    <span class="at">position   =</span> <span class="cn">NULL</span>,</span>
+<span id="cb4-89"><a href="#cb4-89"></a>    <span class="at">discipline =</span> <span class="cn">NULL</span>,</span>
+<span id="cb4-90"><a href="#cb4-90"></a>    <span class="at">type =</span> <span class="st">'all'</span>,</span>
+<span id="cb4-91"><a href="#cb4-91"></a>    <span class="at">waves =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">2019</span>, <span class="dv">2022</span>), <span class="fu">c</span>(<span class="dv">2023</span>, <span class="dv">2024</span>), <span class="fu">c</span>(<span class="dv">2025</span>, <span class="dv">2026</span>))</span>
+<span id="cb4-92"><a href="#cb4-92"></a>  ){</span>
+<span id="cb4-93"><a href="#cb4-93"></a></span>
+<span id="cb4-94"><a href="#cb4-94"></a>  valid_disciplines  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Sociology"</span>, <span class="st">"Political Sciences"</span>)</span>
+<span id="cb4-95"><a href="#cb4-95"></a>  valid_universities <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"UVA"</span>,<span class="st">"EUR"</span>,<span class="st">"UL"</span>,<span class="st">"VU"</span>,<span class="st">"UVG"</span>,<span class="st">"UU"</span>,<span class="st">"RU"</span>,<span class="st">"UVT"</span>)</span>
+<span id="cb4-96"><a href="#cb4-96"></a>  valid_positions    <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Associate Professor"</span>,<span class="st">"PhD Candidate"</span>,<span class="st">"Full Professor"</span>,</span>
+<span id="cb4-97"><a href="#cb4-97"></a>                          <span class="st">"Researcher or Lecturer"</span>,<span class="st">"Assistant Professor"</span>)</span>
+<span id="cb4-98"><a href="#cb4-98"></a></span>
+<span id="cb4-99"><a href="#cb4-99"></a>  <span class="co"># helper: set default + validate</span></span>
+<span id="cb4-100"><a href="#cb4-100"></a>  set_and_check <span class="ot">&lt;-</span> <span class="cf">function</span>(x, valid, <span class="at">name =</span> <span class="fu">deparse</span>(<span class="fu">substitute</span>(x))) {</span>
+<span id="cb4-101"><a href="#cb4-101"></a>    x <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">is.null</span>(x)) valid <span class="cf">else</span> x</span>
+<span id="cb4-102"><a href="#cb4-102"></a>    bad <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">unique</span>(<span class="fu">na.omit</span>(x)), valid)</span>
+<span id="cb4-103"><a href="#cb4-103"></a>    <span class="cf">if</span> (<span class="fu">length</span>(bad)) <span class="fu">stop</span>(<span class="st">"Invalid "</span>, name, <span class="st">": "</span>, <span class="fu">paste</span>(bad, <span class="at">collapse =</span> <span class="st">", "</span>), <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-104"><a href="#cb4-104"></a>    x</span>
+<span id="cb4-105"><a href="#cb4-105"></a>  }</span>
+<span id="cb4-106"><a href="#cb4-106"></a></span>
+<span id="cb4-107"><a href="#cb4-107"></a>  <span class="co"># set and check values</span></span>
+<span id="cb4-108"><a href="#cb4-108"></a>  discipline <span class="ot">&lt;-</span> <span class="fu">set_and_check</span>(discipline, valid_disciplines,  <span class="st">"discipline"</span>)</span>
+<span id="cb4-109"><a href="#cb4-109"></a>  university <span class="ot">&lt;-</span> <span class="fu">set_and_check</span>(university, valid_universities, <span class="st">"university"</span>)</span>
+<span id="cb4-110"><a href="#cb4-110"></a>  position   <span class="ot">&lt;-</span> <span class="fu">set_and_check</span>(position,   valid_positions,    <span class="st">"position"</span>)</span>
+<span id="cb4-111"><a href="#cb4-111"></a>  min_year   <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="fu">unlist</span>(waves))</span>
+<span id="cb4-112"><a href="#cb4-112"></a>  max_year   <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">unlist</span>(waves))</span>
+<span id="cb4-113"><a href="#cb4-113"></a></span>
+<span id="cb4-114"><a href="#cb4-114"></a>  <span class="co"># step 1: make selection of nodes</span></span>
+<span id="cb4-115"><a href="#cb4-115"></a>  authors <span class="ot">&lt;-</span> data[[<span class="st">"demographics"</span>]] <span class="sc">|&gt;</span></span>
+<span id="cb4-116"><a href="#cb4-116"></a>    <span class="fu">filter</span>(</span>
+<span id="cb4-117"><a href="#cb4-117"></a>      <span class="fu">if_any</span>(<span class="fu">c</span>(university_22_first, university_24_first, university_25_first),</span>
+<span id="cb4-118"><a href="#cb4-118"></a>            <span class="sc">~</span> .x <span class="sc">%in%</span> university),</span>
+<span id="cb4-119"><a href="#cb4-119"></a>      <span class="fu">if_any</span>(<span class="fu">c</span>(discipline_22, discipline_24, discipline_25),</span>
+<span id="cb4-120"><a href="#cb4-120"></a>            <span class="sc">~</span> .x <span class="sc">%in%</span> discipline),</span>
+<span id="cb4-121"><a href="#cb4-121"></a>      <span class="fu">if_any</span>(<span class="fu">c</span>(position_22, position_24, position_25),</span>
+<span id="cb4-122"><a href="#cb4-122"></a>            <span class="sc">~</span> .x <span class="sc">%in%</span> position)</span>
+<span id="cb4-123"><a href="#cb4-123"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb4-124"><a href="#cb4-124"></a>    <span class="fu">arrange</span>(uid)</span>
+<span id="cb4-125"><a href="#cb4-125"></a>  uids <span class="ot">&lt;-</span> authors <span class="sc">|&gt;</span> <span class="fu">pull</span>(uid) <span class="sc">|&gt;</span> <span class="fu">sort</span>()</span>
+<span id="cb4-126"><a href="#cb4-126"></a>  </span>
+<span id="cb4-127"><a href="#cb4-127"></a>  <span class="co"># step 3: create empty matrixes (wave, i, j)</span></span>
+<span id="cb4-128"><a href="#cb4-128"></a>  nwaves <span class="ot">&lt;-</span> <span class="fu">length</span>(waves)</span>
+<span id="cb4-129"><a href="#cb4-129"></a>  nets <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb4-130"><a href="#cb4-130"></a>  <span class="cf">for</span> (w <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(waves)){</span>
+<span id="cb4-131"><a href="#cb4-131"></a>    nets[[w]] <span class="ot">&lt;-</span> <span class="fu">make_adjacency_matrix</span>(</span>
+<span id="cb4-132"><a href="#cb4-132"></a>      data, uids, type, <span class="at">min_year =</span> waves[[w]][<span class="dv">1</span>], <span class="at">max_year =</span> waves[[w]][<span class="dv">2</span>])</span>
+<span id="cb4-133"><a href="#cb4-133"></a>  }</span>
+<span id="cb4-134"><a href="#cb4-134"></a></span>
+<span id="cb4-135"><a href="#cb4-135"></a>  <span class="co"># step 4: fill nets</span></span>
+<span id="cb4-136"><a href="#cb4-136"></a>  output <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb4-137"><a href="#cb4-137"></a>    <span class="at">data =</span> authors,</span>
+<span id="cb4-138"><a href="#cb4-138"></a>    <span class="at">nets =</span> nets</span>
+<span id="cb4-139"><a href="#cb4-139"></a>  )</span>
+<span id="cb4-140"><a href="#cb4-140"></a></span>
+<span id="cb4-141"><a href="#cb4-141"></a>  <span class="fu">return</span>(output)</span>
+<span id="cb4-142"><a href="#cb4-142"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>harmonize_covariates <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">what =</span> <span class="st">'data'</span>){</span>
@@ -647,240 +650,320 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a>uni_levels <span class="ot">=</span> <span class="fu">tolower</span>(<span class="fu">c</span>(<span class="st">"RU"</span>, <span class="st">"UU"</span>, <span class="st">"UVA"</span>))</span>
-<span id="cb7-3"><a href="#cb7-3"></a></span>
-<span id="cb7-4"><a href="#cb7-4"></a>colnet <span class="ot">&lt;-</span> <span class="fu">fcolnet2</span>(data, </span>
-<span id="cb7-5"><a href="#cb7-5"></a>    <span class="co"># discipline = "Sociology",</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a>    <span class="at">university =</span> <span class="fu">toupper</span>(uni_levels),</span>
-<span id="cb7-7"><a href="#cb7-7"></a>    <span class="at">type =</span> <span class="st">'first'</span>,</span>
-<span id="cb7-8"><a href="#cb7-8"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb7-9"><a href="#cb7-9"></a>  <span class="fu">harmonize_covariates</span>(<span class="at">what=</span><span class="st">'data'</span>) </span>
-<span id="cb7-10"><a href="#cb7-10"></a></span>
-<span id="cb7-11"><a href="#cb7-11"></a>wave1 <span class="ot">=</span> colnet[[<span class="st">'nets'</span>]][[<span class="dv">1</span>]]</span>
-<span id="cb7-12"><a href="#cb7-12"></a>wave2 <span class="ot">=</span> colnet[[<span class="st">'nets'</span>]][[<span class="dv">2</span>]]</span>
-<span id="cb7-13"><a href="#cb7-13"></a>wave3 <span class="ot">=</span> colnet[[<span class="st">'nets'</span>]][[<span class="dv">3</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-2"><a href="#cb7-2"></a>uni_levels <span class="ot">=</span> <span class="fu">tolower</span>(<span class="fu">c</span>(</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="st">"RU"</span>, <span class="st">"UU"</span>, <span class="st">"UVA"</span>, <span class="st">"UVG"</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>))</span>
+<span id="cb7-5"><a href="#cb7-5"></a></span>
+<span id="cb7-6"><a href="#cb7-6"></a>colnet <span class="ot">&lt;-</span> <span class="fu">fcolnet2</span>(data, </span>
+<span id="cb7-7"><a href="#cb7-7"></a>    <span class="co"># discipline = "Sociology",</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>    <span class="at">university =</span> <span class="fu">toupper</span>(uni_levels),</span>
+<span id="cb7-9"><a href="#cb7-9"></a>    <span class="at">type =</span> <span class="st">'first'</span>,</span>
+<span id="cb7-10"><a href="#cb7-10"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>  <span class="fu">harmonize_covariates</span>(<span class="at">what=</span><span class="st">'data'</span>) </span>
+<span id="cb7-12"><a href="#cb7-12"></a></span>
+<span id="cb7-13"><a href="#cb7-13"></a>wave1 <span class="ot">=</span> colnet[[<span class="st">'nets'</span>]][[<span class="dv">1</span>]]</span>
+<span id="cb7-14"><a href="#cb7-14"></a>wave2 <span class="ot">=</span> colnet[[<span class="st">'nets'</span>]][[<span class="dv">2</span>]]</span>
+<span id="cb7-15"><a href="#cb7-15"></a>wave3 <span class="ot">=</span> colnet[[<span class="st">'nets'</span>]][[<span class="dv">3</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># set dependent variable</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a>net_array <span class="ot">&lt;-</span> <span class="fu">array</span>(</span>
-<span id="cb8-3"><a href="#cb8-3"></a>    <span class="at">data =</span> <span class="fu">c</span>(wave1, wave2, wave3),</span>
-<span id="cb8-4"><a href="#cb8-4"></a>    <span class="at">dim =</span> <span class="fu">c</span>(<span class="fu">dim</span>(wave1), <span class="dv">3</span>)</span>
-<span id="cb8-5"><a href="#cb8-5"></a>)</span>
-<span id="cb8-6"><a href="#cb8-6"></a>net <span class="ot">&lt;-</span> <span class="fu">sienaDependent</span>(net_array)</span>
-<span id="cb8-7"><a href="#cb8-7"></a></span>
-<span id="cb8-8"><a href="#cb8-8"></a><span class="co"># set constant variables as numeric covariances</span></span>
-<span id="cb8-9"><a href="#cb8-9"></a>gender <span class="ot">&lt;-</span> <span class="fu">coCovar</span>(colnet[[<span class="st">'data'</span>]]<span class="sc">$</span>female)</span>
-<span id="cb8-10"><a href="#cb8-10"></a>soc <span class="ot">&lt;-</span> <span class="fu">coCovar</span>(colnet[[<span class="st">'data'</span>]]<span class="sc">$</span>soc)</span>
-<span id="cb8-11"><a href="#cb8-11"></a></span>
-<span id="cb8-12"><a href="#cb8-12"></a><span class="co"># set values for time varying universities</span></span>
-<span id="cb8-13"><a href="#cb8-13"></a>uni <span class="ot">=</span> colnet[[<span class="st">'data'</span>]] <span class="sc">|&gt;</span> <span class="fu">select</span>(uni22p, uni24p, uni25p)</span>
-<span id="cb8-14"><a href="#cb8-14"></a>uni <span class="ot">&lt;-</span> uni_levels[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">|&gt;</span></span>
-<span id="cb8-15"><a href="#cb8-15"></a>  <span class="fu">set_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb8-16"><a href="#cb8-16"></a>  <span class="fu">map</span>(<span class="cf">function</span>(level) {</span>
-<span id="cb8-17"><a href="#cb8-17"></a>    mat <span class="ot">&lt;-</span> uni <span class="sc">|&gt;</span></span>
-<span id="cb8-18"><a href="#cb8-18"></a>      <span class="fu">transmute</span>(</span>
-<span id="cb8-19"><a href="#cb8-19"></a>        <span class="co"># u22 = as.integer(uni22p == level), # excluded for model specification</span></span>
-<span id="cb8-20"><a href="#cb8-20"></a>        <span class="at">u24 =</span> <span class="fu">as.integer</span>(uni24p <span class="sc">==</span> level),</span>
-<span id="cb8-21"><a href="#cb8-21"></a>        <span class="at">u25 =</span> <span class="fu">as.integer</span>(uni25p <span class="sc">==</span> level)</span>
-<span id="cb8-22"><a href="#cb8-22"></a>      ) <span class="sc">|&gt;</span></span>
-<span id="cb8-23"><a href="#cb8-23"></a>      <span class="fu">as.matrix</span>()</span>
-<span id="cb8-24"><a href="#cb8-24"></a></span>
-<span id="cb8-25"><a href="#cb8-25"></a>    <span class="fu">varCovar</span>(mat, <span class="at">centered =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb8-26"><a href="#cb8-26"></a>  })</span>
-<span id="cb8-27"><a href="#cb8-27"></a></span>
-<span id="cb8-28"><a href="#cb8-28"></a><span class="co"># functions</span></span>
-<span id="cb8-29"><a href="#cb8-29"></a>funcs <span class="ot">=</span> colnet[[<span class="st">'data'</span>]] <span class="sc">|&gt;</span> <span class="fu">select</span>(position_22, position_24, position_25)</span>
-<span id="cb8-30"><a href="#cb8-30"></a>funcs_levels <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb8-31"><a href="#cb8-31"></a>  <span class="st">"PhD Candidate"</span>, <span class="st">"Researcher or Lecturer"</span>, </span>
-<span id="cb8-32"><a href="#cb8-32"></a>  <span class="st">"Assistant Professor"</span>, <span class="st">"Associate Professor"</span>, </span>
-<span id="cb8-33"><a href="#cb8-33"></a>  <span class="st">"Full Professor"</span></span>
-<span id="cb8-34"><a href="#cb8-34"></a>)</span>
-<span id="cb8-35"><a href="#cb8-35"></a></span>
-<span id="cb8-36"><a href="#cb8-36"></a>funcs <span class="ot">=</span> funcs_levels[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">|&gt;</span></span>
-<span id="cb8-37"><a href="#cb8-37"></a>  <span class="fu">set_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb8-38"><a href="#cb8-38"></a>  <span class="fu">map</span>(<span class="cf">function</span>(level){</span>
-<span id="cb8-39"><a href="#cb8-39"></a>    mat <span class="ot">&lt;-</span> funcs <span class="sc">|&gt;</span></span>
-<span id="cb8-40"><a href="#cb8-40"></a>      <span class="fu">transmute</span>(</span>
-<span id="cb8-41"><a href="#cb8-41"></a>        <span class="co"># f22 = as.integer(position_22 == level),</span></span>
-<span id="cb8-42"><a href="#cb8-42"></a>        <span class="at">f24 =</span> <span class="fu">as.integer</span>(position_25 <span class="sc">==</span> level),</span>
-<span id="cb8-43"><a href="#cb8-43"></a>        <span class="at">f25 =</span> <span class="fu">as.integer</span>(position_25 <span class="sc">==</span> level)</span>
-<span id="cb8-44"><a href="#cb8-44"></a>      ) <span class="sc">|&gt;</span></span>
-<span id="cb8-45"><a href="#cb8-45"></a>      <span class="fu">as.matrix</span>()</span>
-<span id="cb8-46"><a href="#cb8-46"></a>    </span>
-<span id="cb8-47"><a href="#cb8-47"></a>    <span class="fu">varCovar</span>(mat, <span class="at">centered =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb8-48"><a href="#cb8-48"></a>  })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="cf">for</span> (net <span class="cf">in</span> colnet<span class="sc">$</span>nets){</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">print</span>(<span class="fu">rowSums</span>(<span class="fu">is.na</span>(net)))</span>
+<span id="cb8-3"><a href="#cb8-3"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># set migrant constant covars</span></span>
-<span id="cb9-2"><a href="#cb9-2"></a>migrant_groups <span class="ot">=</span> <span class="fu">c</span>(<span class="st">'NL'</span>, <span class="st">'M4'</span>, <span class="st">'other'</span>)</span>
-<span id="cb9-3"><a href="#cb9-3"></a>mig <span class="ot">&lt;-</span> migrant_groups[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">|&gt;</span></span>
-<span id="cb9-4"><a href="#cb9-4"></a>  <span class="fu">set_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb9-5"><a href="#cb9-5"></a>  <span class="fu">map</span>(<span class="cf">function</span>(group){</span>
-<span id="cb9-6"><a href="#cb9-6"></a>    val <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(colnet[[<span class="st">'data'</span>]]<span class="sc">$</span>migrant <span class="sc">==</span> group)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># set dependent variable</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>net_array <span class="ot">&lt;-</span> <span class="fu">array</span>(</span>
+<span id="cb9-3"><a href="#cb9-3"></a>    <span class="at">data =</span> <span class="fu">c</span>(wave1, wave2, wave3),</span>
+<span id="cb9-4"><a href="#cb9-4"></a>    <span class="at">dim =</span> <span class="fu">c</span>(<span class="fu">dim</span>(wave1), <span class="dv">3</span>)</span>
+<span id="cb9-5"><a href="#cb9-5"></a>)</span>
+<span id="cb9-6"><a href="#cb9-6"></a>net <span class="ot">&lt;-</span> <span class="fu">sienaDependent</span>(net_array, )</span>
 <span id="cb9-7"><a href="#cb9-7"></a></span>
-<span id="cb9-8"><a href="#cb9-8"></a>    <span class="fu">coCovar</span>(val)</span>
-<span id="cb9-9"><a href="#cb9-9"></a>  })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-8"><a href="#cb9-8"></a><span class="co"># set constant variables as numeric covariances</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a>gender <span class="ot">&lt;-</span> <span class="fu">coCovar</span>(colnet[[<span class="st">'data'</span>]]<span class="sc">$</span>female)</span>
+<span id="cb9-10"><a href="#cb9-10"></a>soc <span class="ot">&lt;-</span> <span class="fu">coCovar</span>(colnet[[<span class="st">'data'</span>]]<span class="sc">$</span>soc)</span>
+<span id="cb9-11"><a href="#cb9-11"></a></span>
+<span id="cb9-12"><a href="#cb9-12"></a><span class="co"># set values for time varying universities</span></span>
+<span id="cb9-13"><a href="#cb9-13"></a>uni <span class="ot">=</span> colnet[[<span class="st">'data'</span>]] <span class="sc">|&gt;</span> <span class="fu">select</span>(uni22p, uni24p, uni25p)</span>
+<span id="cb9-14"><a href="#cb9-14"></a>uni <span class="ot">&lt;-</span> uni_levels[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">|&gt;</span></span>
+<span id="cb9-15"><a href="#cb9-15"></a>  <span class="fu">set_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb9-16"><a href="#cb9-16"></a>  <span class="fu">map</span>(<span class="cf">function</span>(level) {</span>
+<span id="cb9-17"><a href="#cb9-17"></a>    mat <span class="ot">&lt;-</span> uni <span class="sc">|&gt;</span></span>
+<span id="cb9-18"><a href="#cb9-18"></a>      <span class="fu">transmute</span>(</span>
+<span id="cb9-19"><a href="#cb9-19"></a>        <span class="co"># u22 = as.integer(uni22p == level), # excluded for model specification</span></span>
+<span id="cb9-20"><a href="#cb9-20"></a>        <span class="at">u24 =</span> <span class="fu">as.integer</span>(uni24p <span class="sc">==</span> level),</span>
+<span id="cb9-21"><a href="#cb9-21"></a>        <span class="at">u25 =</span> <span class="fu">as.integer</span>(uni25p <span class="sc">==</span> level)</span>
+<span id="cb9-22"><a href="#cb9-22"></a>      ) <span class="sc">|&gt;</span></span>
+<span id="cb9-23"><a href="#cb9-23"></a>      <span class="fu">as.matrix</span>()</span>
+<span id="cb9-24"><a href="#cb9-24"></a></span>
+<span id="cb9-25"><a href="#cb9-25"></a>    <span class="fu">varCovar</span>(mat, <span class="at">centered =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb9-26"><a href="#cb9-26"></a>  })</span>
+<span id="cb9-27"><a href="#cb9-27"></a></span>
+<span id="cb9-28"><a href="#cb9-28"></a><span class="co"># functions</span></span>
+<span id="cb9-29"><a href="#cb9-29"></a>funcs <span class="ot">=</span> colnet[[<span class="st">'data'</span>]] <span class="sc">|&gt;</span> <span class="fu">select</span>(position_22, position_24, position_25)</span>
+<span id="cb9-30"><a href="#cb9-30"></a>funcs_levels <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb9-31"><a href="#cb9-31"></a>  <span class="st">"PhD Candidate"</span>, <span class="st">"Researcher or Lecturer"</span>, </span>
+<span id="cb9-32"><a href="#cb9-32"></a>  <span class="st">"Assistant Professor"</span>, <span class="st">"Associate Professor"</span>, </span>
+<span id="cb9-33"><a href="#cb9-33"></a>  <span class="st">"Full Professor"</span></span>
+<span id="cb9-34"><a href="#cb9-34"></a>)</span>
+<span id="cb9-35"><a href="#cb9-35"></a></span>
+<span id="cb9-36"><a href="#cb9-36"></a>funcs <span class="ot">=</span> funcs_levels[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">|&gt;</span></span>
+<span id="cb9-37"><a href="#cb9-37"></a>  <span class="fu">set_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb9-38"><a href="#cb9-38"></a>  <span class="fu">map</span>(<span class="cf">function</span>(level){</span>
+<span id="cb9-39"><a href="#cb9-39"></a>    mat <span class="ot">&lt;-</span> funcs <span class="sc">|&gt;</span></span>
+<span id="cb9-40"><a href="#cb9-40"></a>      <span class="fu">transmute</span>(</span>
+<span id="cb9-41"><a href="#cb9-41"></a>        <span class="co"># f22 = as.integer(position_22 == level),</span></span>
+<span id="cb9-42"><a href="#cb9-42"></a>        <span class="at">f24 =</span> <span class="fu">as.integer</span>(position_25 <span class="sc">==</span> level),</span>
+<span id="cb9-43"><a href="#cb9-43"></a>        <span class="at">f25 =</span> <span class="fu">as.integer</span>(position_25 <span class="sc">==</span> level)</span>
+<span id="cb9-44"><a href="#cb9-44"></a>      ) <span class="sc">|&gt;</span></span>
+<span id="cb9-45"><a href="#cb9-45"></a>      <span class="fu">as.matrix</span>()</span>
+<span id="cb9-46"><a href="#cb9-46"></a>    </span>
+<span id="cb9-47"><a href="#cb9-47"></a>    <span class="fu">varCovar</span>(mat, <span class="at">centered =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb9-48"><a href="#cb9-48"></a>  })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># combine variables into Rsiena data object</span></span>
-<span id="cb10-2"><a href="#cb10-2"></a>mydata <span class="ot">&lt;-</span> <span class="fu">sienaDataCreate</span>(</span>
-<span id="cb10-3"><a href="#cb10-3"></a>  net, gender, soc,</span>
-<span id="cb10-4"><a href="#cb10-4"></a>  mig<span class="sc">$</span>M4, mig<span class="sc">$</span>other,</span>
-<span id="cb10-5"><a href="#cb10-5"></a>  <span class="co"># uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,</span></span>
-<span id="cb10-6"><a href="#cb10-6"></a>  uni<span class="sc">$</span>uu, uni<span class="sc">$</span>uva,</span>
-<span id="cb10-7"><a href="#cb10-7"></a>  funcs[[<span class="dv">1</span>]], funcs[[<span class="dv">2</span>]], funcs[[<span class="dv">3</span>]], funcs[[<span class="dv">4</span>]]</span>
-<span id="cb10-8"><a href="#cb10-8"></a>)</span>
-<span id="cb10-9"><a href="#cb10-9"></a></span>
-<span id="cb10-10"><a href="#cb10-10"></a><span class="fu">setwd</span>(BASEDIR)</span>
-<span id="cb10-11"><a href="#cb10-11"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">dir.exists</span>(<span class="st">"results"</span>)) <span class="fu">dir.create</span>(<span class="st">"results"</span>)</span>
-<span id="cb10-12"><a href="#cb10-12"></a><span class="fu">setwd</span>(<span class="fu">paste0</span>(BASEDIR, <span class="st">'/results'</span>))</span>
-<span id="cb10-13"><a href="#cb10-13"></a><span class="fu">print01Report</span>(mydata, <span class="at">modelname =</span> <span class="st">"./init"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># set migrant constant covars</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>migrant_groups <span class="ot">=</span> <span class="fu">c</span>(<span class="st">'NL'</span>, <span class="st">'M4'</span>, <span class="st">'other'</span>)</span>
+<span id="cb10-3"><a href="#cb10-3"></a>mig <span class="ot">&lt;-</span> migrant_groups[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">set_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>  <span class="fu">map</span>(<span class="cf">function</span>(group){</span>
+<span id="cb10-6"><a href="#cb10-6"></a>    val <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(colnet[[<span class="st">'data'</span>]]<span class="sc">$</span>migrant <span class="sc">==</span> group)</span>
+<span id="cb10-7"><a href="#cb10-7"></a></span>
+<span id="cb10-8"><a href="#cb10-8"></a>    <span class="fu">coCovar</span>(val)</span>
+<span id="cb10-9"><a href="#cb10-9"></a>  })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># specify model</span></span>
-<span id="cb11-2"><a href="#cb11-2"></a>myeff <span class="ot">&lt;-</span> <span class="fu">getEffects</span>(mydata)</span>
-<span id="cb11-3"><a href="#cb11-3"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, isolatePop, inIsDegree)</span>
-<span id="cb11-4"><a href="#cb11-4"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, interaction1 = "soc")</span></span>
-<span id="cb11-5"><a href="#cb11-5"></a><span class="co"># # myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$ru")</span></span>
-<span id="cb11-6"><a href="#cb11-6"></a><span class="co"># # myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$lu")</span></span>
-<span id="cb11-7"><a href="#cb11-7"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">"uni$uu"</span>)</span>
-<span id="cb11-8"><a href="#cb11-8"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">"uni$uva"</span>)</span>
-<span id="cb11-9"><a href="#cb11-9"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$uvg")</span></span>
-<span id="cb11-10"><a href="#cb11-10"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$uvt")</span></span>
-<span id="cb11-11"><a href="#cb11-11"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, interaction1 = "uni$vu")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>add_interdisciplinarity <span class="ot">=</span> <span class="cf">function</span>(colnet, topics){</span>
+<span id="cb11-2"><a href="#cb11-2"></a>  uids <span class="ot">&lt;-</span> colnet[[<span class="st">"data"</span>]] <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a>    dplyr<span class="sc">::</span><span class="fu">pull</span>(uid) <span class="sc">|&gt;</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a>    <span class="fu">unique</span>() <span class="sc">|&gt;</span> <span class="fu">sort</span>()</span>
+<span id="cb11-5"><a href="#cb11-5"></a></span>
+<span id="cb11-6"><a href="#cb11-6"></a>  intdis <span class="ot">&lt;-</span> topics[[<span class="st">"intdis"</span>]][[<span class="st">"subfield"</span>]]</span>
+<span id="cb11-7"><a href="#cb11-7"></a></span>
+<span id="cb11-8"><a href="#cb11-8"></a>  colnet[[<span class="st">"intdis"</span>]] <span class="ot">&lt;-</span> {</span>
+<span id="cb11-9"><a href="#cb11-9"></a>    out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb11-10"><a href="#cb11-10"></a>      <span class="cn">NA_real_</span>,</span>
+<span id="cb11-11"><a href="#cb11-11"></a>      <span class="at">nrow =</span> <span class="fu">length</span>(uids),</span>
+<span id="cb11-12"><a href="#cb11-12"></a>      <span class="at">ncol =</span> <span class="fu">ncol</span>(intdis),</span>
+<span id="cb11-13"><a href="#cb11-13"></a>      <span class="at">dimnames =</span> <span class="fu">list</span>(uids, <span class="fu">colnames</span>(intdis))</span>
+<span id="cb11-14"><a href="#cb11-14"></a>    )</span>
+<span id="cb11-15"><a href="#cb11-15"></a></span>
+<span id="cb11-16"><a href="#cb11-16"></a>    common_uids <span class="ot">&lt;-</span> <span class="fu">intersect</span>(uids, <span class="fu">rownames</span>(intdis))</span>
+<span id="cb11-17"><a href="#cb11-17"></a>    out[common_uids, ] <span class="ot">&lt;-</span> intdis[common_uids, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb11-18"><a href="#cb11-18"></a>    out</span>
+<span id="cb11-19"><a href="#cb11-19"></a>  }</span>
+<span id="cb11-20"><a href="#cb11-20"></a>  </span>
+<span id="cb11-21"><a href="#cb11-21"></a>  <span class="fu">return</span>(colnet)</span>
+<span id="cb11-22"><a href="#cb11-22"></a>}</span>
+<span id="cb11-23"><a href="#cb11-23"></a></span>
+<span id="cb11-24"><a href="#cb11-24"></a>add_dissimilarity <span class="ot">&lt;-</span> <span class="cf">function</span>(colnet, topics) {</span>
+<span id="cb11-25"><a href="#cb11-25"></a>  uids <span class="ot">&lt;-</span> <span class="fu">unique</span>(dplyr<span class="sc">::</span><span class="fu">pull</span>(colnet[[<span class="st">"data"</span>]], uid)) <span class="sc">|&gt;</span> <span class="fu">sort</span>()</span>
+<span id="cb11-26"><a href="#cb11-26"></a></span>
+<span id="cb11-27"><a href="#cb11-27"></a>  colnet[[<span class="st">"dissim"</span>]] <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(</span>
+<span id="cb11-28"><a href="#cb11-28"></a>    topics[[<span class="st">"dissim"</span>]][[<span class="st">"subfield"</span>]],</span>
+<span id="cb11-29"><a href="#cb11-29"></a>    \(mat) {</span>
+<span id="cb11-30"><a href="#cb11-30"></a>      common_uids <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(intersect, <span class="fu">list</span>(uids, <span class="fu">rownames</span>(mat), <span class="fu">colnames</span>(mat)))</span>
+<span id="cb11-31"><a href="#cb11-31"></a></span>
+<span id="cb11-32"><a href="#cb11-32"></a>      out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb11-33"><a href="#cb11-33"></a>        <span class="cn">NA_real_</span>,</span>
+<span id="cb11-34"><a href="#cb11-34"></a>        <span class="at">nrow =</span> <span class="fu">length</span>(uids),</span>
+<span id="cb11-35"><a href="#cb11-35"></a>        <span class="at">ncol =</span> <span class="fu">length</span>(uids),</span>
+<span id="cb11-36"><a href="#cb11-36"></a>        <span class="at">dimnames =</span> <span class="fu">list</span>(uids, uids)</span>
+<span id="cb11-37"><a href="#cb11-37"></a>      )</span>
+<span id="cb11-38"><a href="#cb11-38"></a></span>
+<span id="cb11-39"><a href="#cb11-39"></a>      out[common_uids, common_uids] <span class="ot">&lt;-</span> mat[common_uids, common_uids, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb11-40"><a href="#cb11-40"></a>      out</span>
+<span id="cb11-41"><a href="#cb11-41"></a>    }</span>
+<span id="cb11-42"><a href="#cb11-42"></a>  )</span>
+<span id="cb11-43"><a href="#cb11-43"></a></span>
+<span id="cb11-44"><a href="#cb11-44"></a>  <span class="fu">return</span>(colnet)</span>
+<span id="cb11-45"><a href="#cb11-45"></a>}</span>
+<span id="cb11-46"><a href="#cb11-46"></a></span>
+<span id="cb11-47"><a href="#cb11-47"></a>colnet <span class="ot">=</span> colnet <span class="sc">|&gt;</span></span>
+<span id="cb11-48"><a href="#cb11-48"></a>  <span class="fu">add_interdisciplinarity</span>(topics) <span class="sc">|&gt;</span></span>
+<span id="cb11-49"><a href="#cb11-49"></a>  <span class="fu">add_dissimilarity</span>(topics)</span>
+<span id="cb11-50"><a href="#cb11-50"></a></span>
+<span id="cb11-51"><a href="#cb11-51"></a>intdis <span class="ot">=</span> colnet[[<span class="st">'intdis'</span>]][,<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>] <span class="sc">|&gt;</span> <span class="fu">varCovar</span>(<span class="at">centered =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-52"><a href="#cb11-52"></a>dissim <span class="ot">=</span> colnet[[<span class="st">'dissim'</span>]][<span class="fu">c</span>(<span class="st">'2022'</span>, <span class="st">'2024'</span>)] <span class="sc">|&gt;</span> <span class="fu">simplify2array</span>() <span class="sc">|&gt;</span> <span class="fu">varDyadCovar</span>(<span class="at">centered =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># estimate model</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a>ans <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb12-3"><a href="#cb12-3"></a>myAlgorithm <span class="ot">&lt;-</span> <span class="fu">sienaAlgorithmCreate</span>(<span class="at">projname =</span> <span class="st">"init"</span>)</span>
-<span id="cb12-4"><a href="#cb12-4"></a>ansm1 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
-<span id="cb12-5"><a href="#cb12-5"></a>  myAlgorithm, </span>
-<span id="cb12-6"><a href="#cb12-6"></a>  <span class="at">data =</span> mydata, </span>
-<span id="cb12-7"><a href="#cb12-7"></a>  <span class="at">effects =</span> myeff, </span>
-<span id="cb12-8"><a href="#cb12-8"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span></span>
-<span id="cb12-9"><a href="#cb12-9"></a>)</span>
-<span id="cb12-10"><a href="#cb12-10"></a></span>
-<span id="cb12-11"><a href="#cb12-11"></a>ansm1</span>
-<span id="cb12-12"><a href="#cb12-12"></a><span class="fu">save</span>(ansm1, <span class="at">file =</span> <span class="st">'./ansm1'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># combine variables into Rsiena data object</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>mydata <span class="ot">&lt;-</span> <span class="fu">sienaDataCreate</span>(</span>
+<span id="cb12-3"><a href="#cb12-3"></a>  net, gender, soc,</span>
+<span id="cb12-4"><a href="#cb12-4"></a>  mig<span class="sc">$</span>M4, mig<span class="sc">$</span>other,</span>
+<span id="cb12-5"><a href="#cb12-5"></a>  <span class="co"># uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a>  uni<span class="sc">$</span>uu, </span>
+<span id="cb12-7"><a href="#cb12-7"></a>  uni<span class="sc">$</span>uva, uni<span class="sc">$</span>uvg,</span>
+<span id="cb12-8"><a href="#cb12-8"></a>  funcs[[<span class="dv">1</span>]], funcs[[<span class="dv">2</span>]], funcs[[<span class="dv">3</span>]], funcs[[<span class="dv">4</span>]],</span>
+<span id="cb12-9"><a href="#cb12-9"></a>  intdis, dissim</span>
+<span id="cb12-10"><a href="#cb12-10"></a>)</span>
+<span id="cb12-11"><a href="#cb12-11"></a></span>
+<span id="cb12-12"><a href="#cb12-12"></a><span class="fu">setwd</span>(BASEDIR)</span>
+<span id="cb12-13"><a href="#cb12-13"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">dir.exists</span>(<span class="st">"results"</span>)) <span class="fu">dir.create</span>(<span class="st">"results"</span>)</span>
+<span id="cb12-14"><a href="#cb12-14"></a><span class="fu">setwd</span>(<span class="fu">paste0</span>(BASEDIR, <span class="st">'/results'</span>))</span>
+<span id="cb12-15"><a href="#cb12-15"></a><span class="fu">print01Report</span>(mydata, <span class="at">modelname =</span> <span class="st">"./init"</span>)</span>
+<span id="cb12-16"><a href="#cb12-16"></a></span>
+<span id="cb12-17"><a href="#cb12-17"></a><span class="co"># model instability: perhaps throwing cases withh full missingness out</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>myeff <span class="ot">&lt;-</span> <span class="fu">getEffects</span>(mydata)</span>
-<span id="cb13-2"><a href="#cb13-2"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, isolatePop, inIsDegree)</span>
-<span id="cb13-3"><a href="#cb13-3"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, altX, sameX, <span class="at">interaction1 =</span> <span class="st">"gender"</span>)</span>
-<span id="cb13-4"><a href="#cb13-4"></a><span class="co"># too few minority in sample leave out for now.</span></span>
-<span id="cb13-5"><a href="#cb13-5"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, altX, sameX, interaction1 = 'mig$M4')</span></span>
-<span id="cb13-6"><a href="#cb13-6"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, altX, sameX, <span class="at">interaction1 =</span> <span class="st">'mig$other'</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># specify model</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="fu">library</span>(glue)</span>
+<span id="cb13-3"><a href="#cb13-3"></a></span>
+<span id="cb13-4"><a href="#cb13-4"></a>includeDefaultEffects <span class="ot">&lt;-</span> <span class="cf">function</span>(myeff){</span>
+<span id="cb13-5"><a href="#cb13-5"></a>  myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, density, recip, inPop)</span>
+<span id="cb13-6"><a href="#cb13-6"></a>  <span class="co"># myeff &lt;- includeEffects(myeff, antiInIso) # does not work in later models</span></span>
 <span id="cb13-7"><a href="#cb13-7"></a></span>
-<span id="cb13-8"><a href="#cb13-8"></a>ansm2 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
-<span id="cb13-9"><a href="#cb13-9"></a>  myAlgorithm, </span>
-<span id="cb13-10"><a href="#cb13-10"></a>  <span class="at">data =</span> mydata, </span>
-<span id="cb13-11"><a href="#cb13-11"></a>  <span class="at">effects =</span> myeff,</span>
-<span id="cb13-12"><a href="#cb13-12"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb13-13"><a href="#cb13-13"></a>  <span class="co"># prevAns = ansm1 # the exclusion of the previous answer seems to speed up the calculation</span></span>
-<span id="cb13-14"><a href="#cb13-14"></a>)</span>
+<span id="cb13-8"><a href="#cb13-8"></a>  <span class="co"># add node characteristics</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a>  myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">"soc"</span>)</span>
+<span id="cb13-10"><a href="#cb13-10"></a>  <span class="co"># sameX soc collinear with university (uu has no pol-sci)</span></span>
+<span id="cb13-11"><a href="#cb13-11"></a>  <span class="cf">for</span> (name <span class="cf">in</span> <span class="fu">names</span>(uni)){</span>
+<span id="cb13-12"><a href="#cb13-12"></a>    myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="fu">glue</span>(<span class="st">"uni${name}"</span>))</span>
+<span id="cb13-13"><a href="#cb13-13"></a>    <span class="co"># myeff &lt;- includeEffects(myeff, simX, interaction1 = glue("uni${name}"))</span></span>
+<span id="cb13-14"><a href="#cb13-14"></a>  }</span>
 <span id="cb13-15"><a href="#cb13-15"></a></span>
-<span id="cb13-16"><a href="#cb13-16"></a><span class="fu">save</span>(ansm2, <span class="at">file =</span> <span class="st">'./ansm2'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-16"><a href="#cb13-16"></a>  <span class="fu">return</span>(myeff)</span>
+<span id="cb13-17"><a href="#cb13-17"></a>}</span>
+<span id="cb13-18"><a href="#cb13-18"></a></span>
+<span id="cb13-19"><a href="#cb13-19"></a>myeff <span class="ot">&lt;-</span> <span class="fu">getEffects</span>(mydata)</span>
+<span id="cb13-20"><a href="#cb13-20"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeDefaultEffects</span>(myeff)</span>
+<span id="cb13-21"><a href="#cb13-21"></a></span>
+<span id="cb13-22"><a href="#cb13-22"></a>myAlgorithm <span class="ot">&lt;-</span> <span class="fu">sienaAlgorithmCreate</span>(</span>
+<span id="cb13-23"><a href="#cb13-23"></a>  <span class="at">projname =</span> <span class="st">"init"</span>,</span>
+<span id="cb13-24"><a href="#cb13-24"></a>  <span class="co"># n3 = 3000 # for publication ready results</span></span>
+<span id="cb13-25"><a href="#cb13-25"></a>)</span>
+<span id="cb13-26"><a href="#cb13-26"></a><span class="co"># estimate model</span></span>
+<span id="cb13-27"><a href="#cb13-27"></a>ansm1 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
+<span id="cb13-28"><a href="#cb13-28"></a>  myAlgorithm, </span>
+<span id="cb13-29"><a href="#cb13-29"></a>  <span class="at">data =</span> mydata, </span>
+<span id="cb13-30"><a href="#cb13-30"></a>  <span class="at">effects =</span> myeff, </span>
+<span id="cb13-31"><a href="#cb13-31"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span></span>
+<span id="cb13-32"><a href="#cb13-32"></a>)</span>
+<span id="cb13-33"><a href="#cb13-33"></a></span>
+<span id="cb13-34"><a href="#cb13-34"></a>ansm1</span>
+<span id="cb13-35"><a href="#cb13-35"></a><span class="fu">save</span>(ansm1, <span class="at">file =</span> <span class="st">'./ansm1'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>myeff <span class="ot">&lt;-</span> <span class="fu">getEffects</span>(mydata)</span>
-<span id="cb14-2"><a href="#cb14-2"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, isolatePop, inIsDegree)</span>
-<span id="cb14-3"><a href="#cb14-3"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">'funcs[[1]]'</span>)</span>
-<span id="cb14-4"><a href="#cb14-4"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">'funcs[[2]]'</span>)</span>
-<span id="cb14-5"><a href="#cb14-5"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">'funcs[[3]]'</span>)</span>
-<span id="cb14-6"><a href="#cb14-6"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">'funcs[[4]]'</span>)</span>
-<span id="cb14-7"><a href="#cb14-7"></a></span>
-<span id="cb14-8"><a href="#cb14-8"></a>ansm3 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
-<span id="cb14-9"><a href="#cb14-9"></a>  myAlgorithm, </span>
-<span id="cb14-10"><a href="#cb14-10"></a>  <span class="at">data =</span> mydata, </span>
-<span id="cb14-11"><a href="#cb14-11"></a>  <span class="at">effects =</span> myeff, </span>
-<span id="cb14-12"><a href="#cb14-12"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb14-13"><a href="#cb14-13"></a>)</span>
-<span id="cb14-14"><a href="#cb14-14"></a></span>
-<span id="cb14-15"><a href="#cb14-15"></a><span class="fu">save</span>(ansm3, <span class="at">file =</span> <span class="st">'./ansm3'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># myeff &lt;- getEffects(mydata)</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="co"># myeff &lt;- includeDefaultEffects(myeff)</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, <span class="at">interaction1 =</span> <span class="st">"gender"</span>) <span class="co"># altX, sameX</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, altX, <span class="at">interaction1 =</span> <span class="st">"gender"</span>) </span>
+<span id="cb14-5"><a href="#cb14-5"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, sameX, <span class="at">interaction1 =</span> <span class="st">"gender"</span>) </span>
+<span id="cb14-6"><a href="#cb14-6"></a><span class="co"># too few minority in sample leave out for now.</span></span>
+<span id="cb14-7"><a href="#cb14-7"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, altX, simX, interaction1 = 'mig$M4') # altX, sameX</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a><span class="co"># myeff &lt;- includeEffects(myeff, egoX, altX, simX, interaction1 = 'mig$other') # altX, sameX</span></span>
+<span id="cb14-9"><a href="#cb14-9"></a></span>
+<span id="cb14-10"><a href="#cb14-10"></a>ansm2 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
+<span id="cb14-11"><a href="#cb14-11"></a>  myAlgorithm, </span>
+<span id="cb14-12"><a href="#cb14-12"></a>  <span class="at">data =</span> mydata, </span>
+<span id="cb14-13"><a href="#cb14-13"></a>  <span class="at">effects =</span> myeff,</span>
+<span id="cb14-14"><a href="#cb14-14"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span></span>
+<span id="cb14-15"><a href="#cb14-15"></a>)</span>
+<span id="cb14-16"><a href="#cb14-16"></a></span>
+<span id="cb14-17"><a href="#cb14-17"></a><span class="fu">save</span>(ansm2, <span class="at">file =</span> <span class="st">'./ansm2'</span>)</span>
+<span id="cb14-18"><a href="#cb14-18"></a>ansm2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># myeff &lt;- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[1]]'))</span></span>
-<span id="cb15-2"><a href="#cb15-2"></a><span class="co"># myeff &lt;- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[2]]'))</span></span>
-<span id="cb15-3"><a href="#cb15-3"></a><span class="co"># myeff &lt;- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[3]]'))</span></span>
-<span id="cb15-4"><a href="#cb15-4"></a><span class="co"># myeff &lt;- includeInteraction(myeff, egoX, egoX, interaction1=c("gender", 'funcs[[4]]'))</span></span>
-<span id="cb15-5"><a href="#cb15-5"></a></span>
-<span id="cb15-6"><a href="#cb15-6"></a>ansm4 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
-<span id="cb15-7"><a href="#cb15-7"></a>  myAlgorithm, </span>
-<span id="cb15-8"><a href="#cb15-8"></a>  <span class="at">data =</span> mydata, </span>
-<span id="cb15-9"><a href="#cb15-9"></a>  <span class="at">effects =</span> myeff, </span>
-<span id="cb15-10"><a href="#cb15-10"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb15-11"><a href="#cb15-11"></a>)</span>
-<span id="cb15-12"><a href="#cb15-12"></a></span>
-<span id="cb15-13"><a href="#cb15-13"></a><span class="fu">save</span>(ansm4, <span class="at">file =</span> <span class="st">'./ansm4'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># myeff &lt;- getEffects(mydata)</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a><span class="co"># myeff &lt;- includeDefaultEffects(myeff)</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, altX, simX, <span class="at">interaction1 =</span> <span class="st">'funcs[[1]]'</span>)</span>
+<span id="cb15-4"><a href="#cb15-4"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, altX, simX, <span class="at">interaction1 =</span> <span class="st">'funcs[[2]]'</span>)</span>
+<span id="cb15-5"><a href="#cb15-5"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, altX, simX, <span class="at">interaction1 =</span> <span class="st">'funcs[[3]]'</span>)</span>
+<span id="cb15-6"><a href="#cb15-6"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, altX, simX, <span class="at">interaction1 =</span> <span class="st">'funcs[[4]]'</span>)</span>
+<span id="cb15-7"><a href="#cb15-7"></a></span>
+<span id="cb15-8"><a href="#cb15-8"></a>ansm3 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
+<span id="cb15-9"><a href="#cb15-9"></a>  myAlgorithm, </span>
+<span id="cb15-10"><a href="#cb15-10"></a>  <span class="at">data =</span> mydata, </span>
+<span id="cb15-11"><a href="#cb15-11"></a>  <span class="at">effects =</span> myeff, </span>
+<span id="cb15-12"><a href="#cb15-12"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-13"><a href="#cb15-13"></a>)</span>
+<span id="cb15-14"><a href="#cb15-14"></a></span>
+<span id="cb15-15"><a href="#cb15-15"></a><span class="fu">save</span>(ansm3, <span class="at">file =</span> <span class="st">'./ansm3'</span>)</span>
+<span id="cb15-16"><a href="#cb15-16"></a></span>
+<span id="cb15-17"><a href="#cb15-17"></a>ansm3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>tidy_rsiena <span class="ot">&lt;-</span> <span class="cf">function</span>(ans) {</span>
-<span id="cb16-2"><a href="#cb16-2"></a>  <span class="co"># extract effects</span></span>
-<span id="cb16-3"><a href="#cb16-3"></a>  effects <span class="ot">=</span> <span class="fu">tibble</span>(</span>
-<span id="cb16-4"><a href="#cb16-4"></a>      <span class="at">depvar =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>name,</span>
-<span id="cb16-5"><a href="#cb16-5"></a>      <span class="at">effect =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>effectName,</span>
-<span id="cb16-6"><a href="#cb16-6"></a>      <span class="at">short  =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>shortName,</span>
-<span id="cb16-7"><a href="#cb16-7"></a>      <span class="at">interaction1 =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>interaction1,</span>
-<span id="cb16-8"><a href="#cb16-8"></a>      <span class="at">interaction2 =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>interaction2,</span>
-<span id="cb16-9"><a href="#cb16-9"></a>      <span class="at">include =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>include,</span>
-<span id="cb16-10"><a href="#cb16-10"></a>      <span class="at">estimate =</span> ans<span class="sc">$</span>theta,</span>
-<span id="cb16-11"><a href="#cb16-11"></a>      <span class="at">se =</span> ans<span class="sc">$</span>se,</span>
-<span id="cb16-12"><a href="#cb16-12"></a>      <span class="at">conv_t =</span> ans<span class="sc">$</span>tconv</span>
-<span id="cb16-13"><a href="#cb16-13"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb16-14"><a href="#cb16-14"></a>    <span class="fu">filter</span>(include) </span>
-<span id="cb16-15"><a href="#cb16-15"></a>  </span>
-<span id="cb16-16"><a href="#cb16-16"></a>  <span class="co"># extract rate parameters</span></span>
-<span id="cb16-17"><a href="#cb16-17"></a>  rate <span class="ot">=</span> <span class="fu">tibble</span>(</span>
-<span id="cb16-18"><a href="#cb16-18"></a>    <span class="at">depvar =</span> <span class="fu">unique</span>(ans<span class="sc">$</span>effects<span class="sc">$</span>name),</span>
-<span id="cb16-19"><a href="#cb16-19"></a>    <span class="at">effect =</span> <span class="fu">c</span>(<span class="st">'Rate parameter period 1'</span>, <span class="st">'Rate parameter period 2'</span>),</span>
-<span id="cb16-20"><a href="#cb16-20"></a>    <span class="at">short =</span> <span class="st">'rate'</span>,</span>
-<span id="cb16-21"><a href="#cb16-21"></a>    <span class="at">estimate =</span> ans<span class="sc">$</span>rate,</span>
-<span id="cb16-22"><a href="#cb16-22"></a>    <span class="at">se =</span> ans<span class="sc">$</span>vrate</span>
-<span id="cb16-23"><a href="#cb16-23"></a>  )</span>
-<span id="cb16-24"><a href="#cb16-24"></a></span>
-<span id="cb16-25"><a href="#cb16-25"></a>  <span class="co">#extract max conv rate</span></span>
-<span id="cb16-26"><a href="#cb16-26"></a>  tconv.max <span class="ot">=</span> <span class="fu">tibble</span>(</span>
-<span id="cb16-27"><a href="#cb16-27"></a>    <span class="at">depvar =</span> <span class="fu">unique</span>(ans<span class="sc">$</span>effects<span class="sc">$</span>name),</span>
-<span id="cb16-28"><a href="#cb16-28"></a>    <span class="at">effect =</span> <span class="st">'Overall maximum convergence ratio'</span>,</span>
-<span id="cb16-29"><a href="#cb16-29"></a>    <span class="at">short =</span> <span class="st">'tconv.max'</span>,</span>
-<span id="cb16-30"><a href="#cb16-30"></a>    <span class="at">estimate =</span> ans<span class="sc">$</span>tconv.max[[<span class="dv">1</span>]]</span>
-<span id="cb16-31"><a href="#cb16-31"></a>  )</span>
-<span id="cb16-32"><a href="#cb16-32"></a></span>
-<span id="cb16-33"><a href="#cb16-33"></a>  <span class="co"># combine and format</span></span>
-<span id="cb16-34"><a href="#cb16-34"></a>  rate <span class="sc">|&gt;</span> </span>
-<span id="cb16-35"><a href="#cb16-35"></a>    <span class="fu">bind_rows</span>(effects) <span class="sc">|&gt;</span> </span>
-<span id="cb16-36"><a href="#cb16-36"></a>    <span class="fu">bind_rows</span>(tconv.max) <span class="sc">|&gt;</span></span>
-<span id="cb16-37"><a href="#cb16-37"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb16-38"><a href="#cb16-38"></a>      <span class="at">z =</span> estimate <span class="sc">/</span> se,</span>
-<span id="cb16-39"><a href="#cb16-39"></a>      <span class="at">z =</span> <span class="fu">ifelse</span>(short <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">'rate'</span>, <span class="st">'tconv.max'</span>), <span class="cn">NA</span>, z),</span>
-<span id="cb16-40"><a href="#cb16-40"></a>      <span class="at">p_value =</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="sc">-</span><span class="fu">abs</span>(z)),</span>
-<span id="cb16-41"><a href="#cb16-41"></a>      <span class="at">stars =</span> <span class="fu">case_when</span>(</span>
-<span id="cb16-42"><a href="#cb16-42"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.001</span> <span class="sc">~</span> <span class="st">"***"</span>,</span>
-<span id="cb16-43"><a href="#cb16-43"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.01</span>  <span class="sc">~</span> <span class="st">"**"</span>,</span>
-<span id="cb16-44"><a href="#cb16-44"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.05</span>  <span class="sc">~</span> <span class="st">"*"</span>,</span>
-<span id="cb16-45"><a href="#cb16-45"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.1</span>   <span class="sc">~</span> <span class="st">"+"</span>,</span>
-<span id="cb16-46"><a href="#cb16-46"></a>        <span class="cn">TRUE</span>            <span class="sc">~</span> <span class="st">""</span></span>
-<span id="cb16-47"><a href="#cb16-47"></a>      ),</span>
-<span id="cb16-48"><a href="#cb16-48"></a>      <span class="at">festimate =</span> <span class="fu">sprintf</span>(<span class="st">"%.3f%s"</span>, estimate, stars),</span>
-<span id="cb16-49"><a href="#cb16-49"></a>      <span class="at">fse =</span> <span class="fu">sprintf</span>(<span class="st">"(%.3f)"</span>, se),</span>
-<span id="cb16-50"><a href="#cb16-50"></a>      <span class="at">fse =</span> <span class="fu">ifelse</span>(short <span class="sc">==</span> <span class="st">'tconv.max'</span>, <span class="st">''</span>, fse),</span>
-<span id="cb16-51"><a href="#cb16-51"></a>      <span class="at">z =</span> <span class="fu">round</span>(z, <span class="dv">3</span>),</span>
-<span id="cb16-52"><a href="#cb16-52"></a>      <span class="at">p_value =</span> <span class="fu">round</span>(p_value, <span class="dv">4</span>),</span>
-<span id="cb16-53"><a href="#cb16-53"></a>      <span class="at">conv_t =</span> <span class="fu">round</span>(conv_t, <span class="dv">3</span>)</span>
-<span id="cb16-54"><a href="#cb16-54"></a>    )  <span class="sc">|&gt;</span></span>
-<span id="cb16-55"><a href="#cb16-55"></a>    <span class="fu">select</span>(</span>
-<span id="cb16-56"><a href="#cb16-56"></a>      depvar, effect, short, interaction1, interaction2,</span>
-<span id="cb16-57"><a href="#cb16-57"></a>      estimate, se, z, p_value, stars, conv_t, festimate, fse</span>
-<span id="cb16-58"><a href="#cb16-58"></a>    )</span>
-<span id="cb16-59"><a href="#cb16-59"></a>}</span>
-<span id="cb16-60"><a href="#cb16-60"></a></span>
-<span id="cb16-61"><a href="#cb16-61"></a><span class="fu">tidy_rsiena</span>(ansm1)</span>
-<span id="cb16-62"><a href="#cb16-62"></a><span class="fu">tidy_rsiena</span>(ansm2)</span>
-<span id="cb16-63"><a href="#cb16-63"></a><span class="fu">tidy_rsiena</span>(ansm3)</span>
-<span id="cb16-64"><a href="#cb16-64"></a><span class="fu">tidy_rsiena</span>(ansm4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="co"># myeff &lt;- getEffects(mydata)</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="co"># myeff &lt;- includeDefaultEffects(myeff)</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a>myeff <span class="ot">&lt;-</span> <span class="fu">includeEffects</span>(myeff, egoX, altX, <span class="at">interaction1 =</span> <span class="st">'intdis'</span>) <span class="co"># simX does noet work</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a><span class="co"># myeff &lt;- includeEffects(myeff, effFrom, interaction1 = 'dissim') # this does not work</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a></span>
+<span id="cb16-6"><a href="#cb16-6"></a>ansm4 <span class="ot">&lt;-</span> <span class="fu">siena07</span>(</span>
+<span id="cb16-7"><a href="#cb16-7"></a>  myAlgorithm, </span>
+<span id="cb16-8"><a href="#cb16-8"></a>  <span class="at">data =</span> mydata, </span>
+<span id="cb16-9"><a href="#cb16-9"></a>  <span class="at">effects =</span> myeff, </span>
+<span id="cb16-10"><a href="#cb16-10"></a>  <span class="at">returnDeps =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb16-11"><a href="#cb16-11"></a>)</span>
+<span id="cb16-12"><a href="#cb16-12"></a></span>
+<span id="cb16-13"><a href="#cb16-13"></a><span class="fu">save</span>(ansm4, <span class="at">file =</span> <span class="st">'./ansm4'</span>)</span>
+<span id="cb16-14"><a href="#cb16-14"></a>ansm4</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">setwd</span>(BASEDIR)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>tidy_rsiena <span class="ot">&lt;-</span> <span class="cf">function</span>(ans) {</span>
+<span id="cb17-2"><a href="#cb17-2"></a>  <span class="co"># extract effects</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a>  effects <span class="ot">=</span> <span class="fu">tibble</span>(</span>
+<span id="cb17-4"><a href="#cb17-4"></a>      <span class="at">depvar =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>name,</span>
+<span id="cb17-5"><a href="#cb17-5"></a>      <span class="at">effect =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>effectName,</span>
+<span id="cb17-6"><a href="#cb17-6"></a>      <span class="at">short  =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>shortName,</span>
+<span id="cb17-7"><a href="#cb17-7"></a>      <span class="at">interaction1 =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>interaction1,</span>
+<span id="cb17-8"><a href="#cb17-8"></a>      <span class="at">interaction2 =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>interaction2,</span>
+<span id="cb17-9"><a href="#cb17-9"></a>      <span class="at">include =</span> ans<span class="sc">$</span>effects<span class="sc">$</span>include,</span>
+<span id="cb17-10"><a href="#cb17-10"></a>      <span class="at">estimate =</span> ans<span class="sc">$</span>theta,</span>
+<span id="cb17-11"><a href="#cb17-11"></a>      <span class="at">se =</span> ans<span class="sc">$</span>se,</span>
+<span id="cb17-12"><a href="#cb17-12"></a>      <span class="at">conv_t =</span> ans<span class="sc">$</span>tconv</span>
+<span id="cb17-13"><a href="#cb17-13"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb17-14"><a href="#cb17-14"></a>    <span class="fu">filter</span>(include) </span>
+<span id="cb17-15"><a href="#cb17-15"></a>  </span>
+<span id="cb17-16"><a href="#cb17-16"></a>  <span class="co"># extract rate parameters</span></span>
+<span id="cb17-17"><a href="#cb17-17"></a>  rate <span class="ot">=</span> <span class="fu">tibble</span>(</span>
+<span id="cb17-18"><a href="#cb17-18"></a>    <span class="at">depvar =</span> <span class="fu">unique</span>(ans<span class="sc">$</span>effects<span class="sc">$</span>name),</span>
+<span id="cb17-19"><a href="#cb17-19"></a>    <span class="at">effect =</span> <span class="fu">c</span>(<span class="st">'Rate parameter period 1'</span>, <span class="st">'Rate parameter period 2'</span>),</span>
+<span id="cb17-20"><a href="#cb17-20"></a>    <span class="at">short =</span> <span class="st">'rate'</span>,</span>
+<span id="cb17-21"><a href="#cb17-21"></a>    <span class="at">estimate =</span> ans<span class="sc">$</span>rate,</span>
+<span id="cb17-22"><a href="#cb17-22"></a>    <span class="at">se =</span> ans<span class="sc">$</span>vrate</span>
+<span id="cb17-23"><a href="#cb17-23"></a>  )</span>
+<span id="cb17-24"><a href="#cb17-24"></a></span>
+<span id="cb17-25"><a href="#cb17-25"></a>  <span class="co">#extract max conv rate</span></span>
+<span id="cb17-26"><a href="#cb17-26"></a>  tconv.max <span class="ot">=</span> <span class="fu">tibble</span>(</span>
+<span id="cb17-27"><a href="#cb17-27"></a>    <span class="at">depvar =</span> <span class="fu">unique</span>(ans<span class="sc">$</span>effects<span class="sc">$</span>name),</span>
+<span id="cb17-28"><a href="#cb17-28"></a>    <span class="at">effect =</span> <span class="st">'Overall maximum convergence ratio'</span>,</span>
+<span id="cb17-29"><a href="#cb17-29"></a>    <span class="at">short =</span> <span class="st">'tconv.max'</span>,</span>
+<span id="cb17-30"><a href="#cb17-30"></a>    <span class="at">estimate =</span> ans<span class="sc">$</span>tconv.max[[<span class="dv">1</span>]]</span>
+<span id="cb17-31"><a href="#cb17-31"></a>  )</span>
+<span id="cb17-32"><a href="#cb17-32"></a></span>
+<span id="cb17-33"><a href="#cb17-33"></a>  <span class="co"># combine and format</span></span>
+<span id="cb17-34"><a href="#cb17-34"></a>  rate <span class="sc">|&gt;</span> </span>
+<span id="cb17-35"><a href="#cb17-35"></a>    <span class="fu">bind_rows</span>(effects) <span class="sc">|&gt;</span> </span>
+<span id="cb17-36"><a href="#cb17-36"></a>    <span class="fu">bind_rows</span>(tconv.max) <span class="sc">|&gt;</span></span>
+<span id="cb17-37"><a href="#cb17-37"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb17-38"><a href="#cb17-38"></a>      <span class="at">z =</span> estimate <span class="sc">/</span> se,</span>
+<span id="cb17-39"><a href="#cb17-39"></a>      <span class="at">z =</span> <span class="fu">ifelse</span>(short <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">'rate'</span>, <span class="st">'tconv.max'</span>), <span class="cn">NA</span>, z),</span>
+<span id="cb17-40"><a href="#cb17-40"></a>      <span class="at">p_value =</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="sc">-</span><span class="fu">abs</span>(z)),</span>
+<span id="cb17-41"><a href="#cb17-41"></a>      <span class="at">stars =</span> <span class="fu">case_when</span>(</span>
+<span id="cb17-42"><a href="#cb17-42"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.001</span> <span class="sc">~</span> <span class="st">"***"</span>,</span>
+<span id="cb17-43"><a href="#cb17-43"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.01</span>  <span class="sc">~</span> <span class="st">"**"</span>,</span>
+<span id="cb17-44"><a href="#cb17-44"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.05</span>  <span class="sc">~</span> <span class="st">"*"</span>,</span>
+<span id="cb17-45"><a href="#cb17-45"></a>        p_value <span class="sc">&lt;</span> <span class="fl">0.1</span>   <span class="sc">~</span> <span class="st">"+"</span>,</span>
+<span id="cb17-46"><a href="#cb17-46"></a>        <span class="cn">TRUE</span>            <span class="sc">~</span> <span class="st">""</span></span>
+<span id="cb17-47"><a href="#cb17-47"></a>      ),</span>
+<span id="cb17-48"><a href="#cb17-48"></a>      <span class="at">festimate =</span> <span class="fu">sprintf</span>(<span class="st">"%.3f%s"</span>, estimate, stars),</span>
+<span id="cb17-49"><a href="#cb17-49"></a>      <span class="at">fse =</span> <span class="fu">sprintf</span>(<span class="st">"(%.3f)"</span>, se),</span>
+<span id="cb17-50"><a href="#cb17-50"></a>      <span class="at">fse =</span> <span class="fu">ifelse</span>(short <span class="sc">==</span> <span class="st">'tconv.max'</span>, <span class="st">''</span>, fse),</span>
+<span id="cb17-51"><a href="#cb17-51"></a>      <span class="at">z =</span> <span class="fu">round</span>(z, <span class="dv">3</span>),</span>
+<span id="cb17-52"><a href="#cb17-52"></a>      <span class="at">p_value =</span> <span class="fu">round</span>(p_value, <span class="dv">4</span>),</span>
+<span id="cb17-53"><a href="#cb17-53"></a>      <span class="at">conv_t =</span> <span class="fu">round</span>(conv_t, <span class="dv">3</span>)</span>
+<span id="cb17-54"><a href="#cb17-54"></a>    )  <span class="sc">|&gt;</span></span>
+<span id="cb17-55"><a href="#cb17-55"></a>    <span class="fu">select</span>(</span>
+<span id="cb17-56"><a href="#cb17-56"></a>      depvar, effect, short, interaction1, interaction2,</span>
+<span id="cb17-57"><a href="#cb17-57"></a>      estimate, se, z, p_value, stars, conv_t, festimate, fse</span>
+<span id="cb17-58"><a href="#cb17-58"></a>    )</span>
+<span id="cb17-59"><a href="#cb17-59"></a>}</span>
+<span id="cb17-60"><a href="#cb17-60"></a>res <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb17-61"><a href="#cb17-61"></a>res[[<span class="st">'ansm1'</span>]] <span class="ot">=</span> <span class="fu">tidy_rsiena</span>(ansm1)</span>
+<span id="cb17-62"><a href="#cb17-62"></a>res[[<span class="st">'ansm2'</span>]] <span class="ot">=</span> <span class="fu">tidy_rsiena</span>(ansm2)</span>
+<span id="cb17-63"><a href="#cb17-63"></a>res[[<span class="st">'ansm3'</span>]] <span class="ot">=</span> <span class="fu">tidy_rsiena</span>(ansm3)</span>
+<span id="cb17-64"><a href="#cb17-64"></a>res[[<span class="st">'ansm4'</span>]] <span class="ot">=</span> <span class="fu">tidy_rsiena</span>(ansm4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">setwd</span>(BASEDIR)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 

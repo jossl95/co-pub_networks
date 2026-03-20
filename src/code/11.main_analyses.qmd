@@ -246,10 +246,12 @@ harmonize_covariates <- function(data, what = 'data'){
 
 ```{r}
 # uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))
-uni_levels = tolower(c("RU", "UU", "UVA", "UVG"))
+uni_levels = tolower(c(
+  "RU", "UU", "UVA", "UVG"
+))
 
 colnet <- fcolnet2(data, 
-    discipline = "Sociology",
+    # discipline = "Sociology",
     university = toupper(uni_levels),
     type = 'first',
   ) |>
@@ -272,7 +274,7 @@ net_array <- array(
     data = c(wave1, wave2, wave3),
     dim = c(dim(wave1), 3)
 )
-net <- sienaDependent(net_array)
+net <- sienaDependent(net_array, )
 
 # set constant variables as numeric covariances
 gender <- coCovar(colnet[['data']]$female)
@@ -394,7 +396,8 @@ mydata <- sienaDataCreate(
   net, gender, soc,
   mig$M4, mig$other,
   # uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,
-  uni$uu, uni$uva, uni$uvg,
+  uni$uu, 
+  uni$uva, uni$uvg,
   funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]],
   intdis, dissim
 )
@@ -414,15 +417,16 @@ print01Report(mydata, modelname = "./init")
 library(glue)
 
 includeDefaultEffects <- function(myeff){
-  myeff <- includeEffects(myeff, density, recip, gwespFF)
-  myeff <- includeEffects(myeff, inPop, outAct, isolateNet)
-  # myeff <- includeEffects(myeff, egoX, interaction1 = "soc")
+  myeff <- includeEffects(myeff, density, recip, inPop)
+  # myeff <- includeEffects(myeff, antiInIso) # does not work in later models
+
+  # add node characteristics
+  myeff <- includeEffects(myeff, egoX, interaction1 = "soc")
   # sameX soc collinear with university (uu has no pol-sci)
-  # for (name in names(uni)){
-  #   myeff <- includeEffects(myeff, simX, interaction1 = glue("uni${name}"))
-  #   # myeff <- includeEffects(myeff, simX, interaction1 = glue("uni${name}"))
-  #   # sameX and simX result in collinearity between outdegree and uva-similarity
-  # }
+  for (name in names(uni)){
+    myeff <- includeEffects(myeff, egoX, interaction1 = glue("uni${name}"))
+    # myeff <- includeEffects(myeff, simX, interaction1 = glue("uni${name}"))
+  }
 
   return(myeff)
 }
@@ -469,10 +473,10 @@ ansm2
 ```{r}
 # myeff <- getEffects(mydata)
 # myeff <- includeDefaultEffects(myeff)
-myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[1]]')
-myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[2]]')
-myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[3]]')
-myeff <- includeEffects(myeff, egoX, interaction1 = 'funcs[[4]]')
+myeff <- includeEffects(myeff, egoX, altX, simX, interaction1 = 'funcs[[1]]')
+myeff <- includeEffects(myeff, egoX, altX, simX, interaction1 = 'funcs[[2]]')
+myeff <- includeEffects(myeff, egoX, altX, simX, interaction1 = 'funcs[[3]]')
+myeff <- includeEffects(myeff, egoX, altX, simX, interaction1 = 'funcs[[4]]')
 
 ansm3 <- siena07(
   myAlgorithm, 
@@ -488,8 +492,8 @@ ansm3
 ```{r}
 # myeff <- getEffects(mydata)
 # myeff <- includeDefaultEffects(myeff)
-myeff <- includeEffects(myeff, egoX, interaction1 = 'intdis')
-myeff <- includeEffects(myeff, effFrom, interaction1 = 'dissim') # this does not work
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'intdis') # simX does noet work
+# myeff <- includeEffects(myeff, effFrom, interaction1 = 'dissim') # this does not work
 
 ansm4 <- siena07(
   myAlgorithm, 
@@ -501,8 +505,6 @@ ansm4 <- siena07(
 save(ansm4, file = './ansm4')
 ansm4
 ```
-
-
 
 ```{r}
 tidy_rsiena <- function(ans) {
@@ -564,11 +566,11 @@ tidy_rsiena <- function(ans) {
       estimate, se, z, p_value, stars, conv_t, festimate, fse
     )
 }
-
-tidy_rsiena(ansm1)
-tidy_rsiena(ansm2)
-tidy_rsiena(ansm3)
-tidy_rsiena(ansm4)
+res = list()
+res[['ansm1']] = tidy_rsiena(ansm1)
+res[['ansm2']] = tidy_rsiena(ansm2)
+res[['ansm3']] = tidy_rsiena(ansm3)
+res[['ansm4']] = tidy_rsiena(ansm4)
 ```
 
 
