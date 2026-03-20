@@ -187,34 +187,39 @@ make_adjacency_matrix <- function(
   ) {
   
   # make edgelist from works
-  edges <- data[['works']][uids] |>
+  edges <- data[['works']][uids] |> 
     purrr::keep(~ nrow(.x) > 0) |>
     bind_rows() |>
     filter(publication_year >= min_year, publication_year <= max_year) |>
     select(uid, work_id, authorships, publication_year) |>
     rename(e_uid = uid) |>
-    distinct(work_id, authorships, publication_year, .keep_all = TRUE) |>
-    unnest(authorships) |>
-    filter(e_uid != uid) |>
-    filter(uid %in% uids, e_uid %in% uids)
+    distinct(work_id, .keep_all = TRUE) |>
+    unnest(authorships) 
 
   if (type != 'all') {
-    edges <- edges |> filter(author_position != type)
+    edges <- edges |>
+      group_by(work_id) |>
+      mutate(
+        e_uid = uid[author_position == type][1]
+      ) |> ungroup() |>
+      filter(!is.na(e_uid), e_uid != uid) |>
+      select(work_id, e_uid, uid)
+  } else {
+    edges <- edges |> 
+      group_by(work_id) |>
+      reframe(
+        tidyr::crossing(
+          e_uid = uid,
+          uid   = uid
+        )
+      ) |>
+      ungroup() |>
+      filter(!is.na(e_uid), e_uid != uid) |>
+      select(work_id, e_uid, uid)
   }
 
   # calculate the number of edges between ego and alters.
   edge_counts <- edges |> count(e_uid, uid, name="w")
-
-  # make edgelist symetrical
-  if (type == 'all') {
-    edge_counts <- bind_rows(
-      edge_counts,
-      edge_counts %>% 
-      rename(uid = e_uid, e_uid = uid)
-    ) %>%
-    group_by(uid, e_uid) %>%
-    summarise(w = sum(w), .groups = "drop")
-  }
 
   # convert counts to incidences
   if (!weighted) {
@@ -227,7 +232,7 @@ make_adjacency_matrix <- function(
   # complete matrix grid and pivot to wide
   adj <- edge_counts %>%
     rename(from = e_uid, to = uid) %>%
-    complete(from = nodes, to = nodes, fill = list(w = NA)) %>%
+    complete(from = nodes, to = nodes, fill = list(w = 0)) %>%
     pivot_wider(names_from = to, values_from = w) %>%
     arrange(from)
   
@@ -254,12 +259,8 @@ make_adjacency_matrix <- function(
 
   # copy overlap block
   mat_full[!is.na(ri), !is.na(ci)] <- mat[ri[!is.na(ri)], ci[!is.na(ci)], drop = FALSE]
-
   mat <- mat_full
-  
-  #optional: no self-loops on diagonal
-  mat[is.na(mat)] <- 0
-  
+
   mat
 } 
 
@@ -304,7 +305,7 @@ fcolnet2 <- function(
             ~ .x %in% position)
     ) |>
     arrange(uid)
-  uids <- authors |> pull(uid) |> sort() |> unique()
+  uids <- authors |> pull(uid) |> sort()
   
   # step 3: create empty matrixes (wave, i, j)
   nwaves <- length(waves)
