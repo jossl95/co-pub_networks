@@ -1,3 +1,34 @@
+---
+project:
+  type: default
+  output-dir: _output    # <-- all rendered files go here
+  extensions: 
+    - andrewheiss/hikmah
+execute:
+  freeze: auto
+
+bibliography: assets/references.bib
+csl: assets/apa.csl
+
+format:
+  hikmah-pdf:
+    papersize: a4
+    geometry:
+      - top=30mm
+      - left=30mm
+      - bottom=30mm
+      - right=30mm
+    number-sections: true
+    number-depth: 3
+    linestretch: 1.5
+
+  hikmah-manuscript-docx:
+    papersize: a4
+---
+
+
+
+
 ## Introduction
 
 <!---start met het overkoepelende probleem dat centraal staat: (gender) inequality in academia. de Y--->
