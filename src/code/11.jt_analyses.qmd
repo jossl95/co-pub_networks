@@ -134,7 +134,7 @@ make_adjacency_matrix <- function(
   ci <- match(all_uids, colnames(mat))
 
   # start with full NA matrix
-  mat_full <- matrix(NA, nrow = length(all_uids), ncol = length(all_uids),
+  mat_full <- matrix(0L, nrow = length(all_uids), ncol = length(all_uids),
                     dimnames = list(all_uids, all_uids))
 
   # copy overlap block
@@ -190,10 +190,21 @@ fcolnet2 <- function(
   # step 3: create empty matrixes (wave, i, j)
   nwaves <- length(waves)
   nets <- list()
-  for (w in 1:length(waves)){
-    nets[[w]] <- make_adjacency_matrix(
-      data, uids, type, min_year = waves[[w]][1], max_year = waves[[w]][2])
+  if (is.null(type)){
+    types = c('first', 'last', 'all')
+    for (t in types){
+      for (w in 1:length(waves)){
+        nets[[t]][[w]] <- make_adjacency_matrix(
+          data, uids, type = t, min_year = waves[[w]][1], max_year = waves[[w]][2])
+      }
+    }
+  } else {
+    for (w in 1:length(waves)){
+      nets[[w]] <- make_adjacency_matrix(
+        data, uids, type, min_year = waves[[w]][1], max_year = waves[[w]][2])
+    }
   }
+
 
   # step 4: fill nets
   output <- list(
@@ -216,7 +227,10 @@ harmonize_covariates <- function(data, what = 'data'){
         list(discipline_22, discipline_24, discipline_25),
         ~ unique(na.omit(c(...)))[1]
       ),
-      soc = as.integer(soc == 'Sociology')
+      soc = as.integer(soc == 'Sociology'),
+      position_22 = ifelse(str_detect(position2_22, 'Postdoctoral'), 'Postdoctoral Researcher', position_22),
+      position_24 = ifelse(str_detect(position2_24, 'Postdoctoral'), 'Postdoctoral Researcher', position_24),
+      position_25 = ifelse(str_detect(position2_25, 'Postdoctoral'), 'Postdoctoral Researcher', position_25)
     ) |>
     rename_with(
       ~ .x |> 
@@ -468,40 +482,27 @@ prepare_graph_attributes <- function(graph, node_data = NULL) {
   graph
 }
 
+
 #--------------------------------------------------
 # basic structure statistics
 #--------------------------------------------------
 
 get_basic_network_stats <- function(graph, node_data) {
-  pos_var <- tryCatch(detect_position_var(node_data), error = function(e) NULL)
-
   n_total <- vcount(graph)
-
-  if (!is.null(pos_var)) {
-    pos_vals <- tolower(as.character(node_data[[pos_var]]))
-    n_excluding_phd_pd <- sum(
-      !pos_vals %in% c(
-        "phd", "phd candidate", "phd student",
-        "pd", "postdoc", "postdoctoral researcher"
-      ),
-      na.rm = TRUE
-    )
-  } else {
-    n_excluding_phd_pd <- NA_integer_
-  }
+  n_non_isolates <- sum(igraph::degree(graph, mode = 'all') > 0)
 
   tibble(
     statistic = c(
       "N nodes total",
-      "N nodes excluding PhDs / PDs",
+      "N nodes excluding isolates",
       "density",
       "clustering coefficient",
       "average betweenness centrality",
-      "average path length"
+      "mean path distance"
     ),
     value = c(
       n_total,
-      n_excluding_phd_pd,
+      n_non_isolates,
       edge_density(graph, loops = FALSE), # has no directionality
       transitivity(as.undirected(graph, mode = "collapse"), type = "globalundirected"), # has no directionality
       mean(betweenness(graph, directed = is_directed(graph), normalized = TRUE), na.rm = TRUE),
@@ -848,223 +849,77 @@ calculate_ego_results <- function(wave1, node_data, mode = 'all'){
 
 ```
 
-```{r}
-uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))
-# uni_levels = tolower(c("RU", "UU", "UVA", "UVG"))
 
-colnet <- fcolnet2(data, 
-    # discipline = "Sociology",
+```{r}
+# Helper to build one colnet + results
+build_results <- function(type, mode) {
+  colnet <- fcolnet2(data,
     university = toupper(uni_levels),
-    type = 'last',
-  ) |>
-  harmonize_covariates(what='data') 
+    type = type
+  ) |> harmonize_covariates(what = 'data')
 
-wave1 = colnet[['nets']][[1]]
-wave2 = colnet[['nets']][[2]]
-wave3 = colnet[['nets']][[3]]
+  wave1 = colnet[['nets']][[1]]
+  wave2 = colnet[['nets']][[2]]
+  node_data = colnet$data
 
-node_data = colnet$data
-```
-
-```{r}
-resa <- summarize_colnet_wave(
-  wave = wave1,
-  node_data = node_data,
-  wave_next = wave2,
-  directed = TRUE,
-  mode = "out",      # or "out" / "in"
-  i_index_var = "i10_index_22"
-)
-resa$ego <- calculate_ego_results(wave1, node_data, mode = 'out')
-
-resa$summary
-resa$morans_i
-resa$ego
-```
-
-```{r}
-exclude_junior_staff <- function(colnet) {
-  out = list()
-  out[['data']] <-  colnet[['data']] |>
-    filter(!position_22 %in% c(
-      'PhD Candidate', "Researcher or Lecturer", "Staff"
-    ))
-  uids = out[['data']] |> pull(uid) |> unique()
-
-  for (i in 1:length(colnet[['nets']])) {
-    net = colnet[['nets']][[i]][uids, uids]
-    out[['nets']][[i]] = net
+  make_res <- function(w1, w2, nd, mode) {
+    res <- summarize_colnet_wave(
+      wave = w1, node_data = nd, wave_next = w2,
+      directed = TRUE, mode = mode, i_index_var = "i10_index_22"
+    )
+    res$ego <- calculate_ego_results(w1, nd, mode = 'out')
+    res
   }
-  return(out)
+
+  colnet2 <- exclude_junior_staff(colnet)
+  wave12 = colnet2[['nets']][[1]]
+  wave22 = colnet2[['nets']][[2]]
+  node_data2 = colnet2$data
+
+  list(
+    all = make_res(wave1,  wave2,  node_data,  mode),
+    sen = make_res(wave12, wave22, node_data2, 'out')
+  )
 }
 
-colnet2 <- exclude_junior_staff(colnet)
-wave12 = colnet2[['nets']][[1]]
-wave22 = colnet2[['nets']][[2]]
-wave32 = colnet2[['nets']][[3]]
+uni_levels = tolower(c("EUR", "RU", "UL", "UU", "UVA", "UVG", "UVT", "VU"))
 
-node_data2 = colnet2$data
-resa$ego2 <- calculate_ego_results(wave12, node_data2, mode = 'all')
-resa$ego2
-```
+res_first <- build_results('first', 'out')
+res_last  <- build_results('last',  'out')
+res_all   <- build_results('all',   'all')
 
-
-
-```{r}
-noiso1 = rowSums(wave1, na.rm = TRUE) + colSums(wave1, na.rm = TRUE) > 0
-noiso2 = rowSums(wave2, na.rm = TRUE) + colSums(wave2, na.rm = TRUE) > 0
-noiso = noiso1 | noiso2
-wave1n = wave1[noiso, noiso]
-wave2n = wave2[noiso, noiso]
-nodes_wave = node_data |> filter(uid %in% colnames(wave1n))
-
-
-resb <- summarize_colnet_wave(
-  wave = wave1n,
-  node_data = nodes_wave,
-  wave_next = wave2n,
-  directed = TRUE,
-  mode = "out",      # or "out" / "in"
-  i_index_var = "i10_index_22"
+results <- list(
+  first_all = res_first$all, first_sen = res_first$sen,
+  last_all  = res_last$all,  last_sen  = res_last$sen,
+  all_all   = res_all$all,   all_sen   = res_all$sen
 )
 
-resb$summary
-resb$morans_i
 ```
 
 ```{r}
-uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))
-# uni_levels = tolower(c("RU", "UU", "UVA", "UVG"))
+# Combine ego results
+ego_res <- names(results) |>
+  purrr::imap(function(name, i) {
+    results[[i]][["ego"]] |>
+      rename_with(~ paste0(name, "_", .), c(female, male))
+  }) |>
+  purrr::reduce(left_join, by = "name")
 
-colnet <- fcolnet2(data, 
-    # discipline = "Sociology",
-    university = toupper(uni_levels),
-    type = 'last',
-  ) |>
-  harmonize_covariates(what='data') 
-
-wave1 = colnet[['nets']][[1]]
-wave2 = colnet[['nets']][[2]]
-wave3 = colnet[['nets']][[3]]
-
-node_data = colnet$data
-```
-
-
-```{r}
-resc <- summarize_colnet_wave(
-  wave = wave1,
-  node_data = node_data,
-  wave_next = wave2,
-  directed = TRUE,
-  mode = "out",      # or "out" / "all"
-  i_index_var = "i10_index_22"
-)
-resc$ego <- calculate_ego_results(wave1, node_data, mode = 'out')
-
-resc$summary
-resc$morans_i
-resc$ego
+# Combine network summary results
+net_res <- names(results) |>
+  purrr::imap(function(name, i) {
+    results[[i]][["summary"]] |>
+      rename(observed = value) |>
+      bind_rows(results[[i]][['morans_i']]) |>
+      select(statistic, observed) |>
+      rename_with(~ paste0(name, "_", .), c(observed))
+  }) |>
+  purrr::reduce(left_join, by = "statistic") |>
+  filter(!str_detect(statistic, 'uni25'), !str_detect(statistic, 'uni24'))
 ```
 
 ```{r}
-colnet2 <- exclude_junior_staff(colnet)
-wave12 = colnet2[['nets']][[1]]
-wave22 = colnet2[['nets']][[2]]
-wave32 = colnet2[['nets']][[3]]
+ego_res |> writexl::write_xlsx(file.path('results', 'tables', 'ego_stats.xlsx'))
 
-node_data2 = colnet2$data
-resc$ego2 <- calculate_ego_results(wave12, node_data2, mode = 'all')
-resc$ego2
+net_res|> writexl::write_xlsx(file.path('results', 'tables', 'net_stats.xlsx'))
 ```
-
-
-```{r}
-noiso1 = rowSums(wave1, na.rm = TRUE) + colSums(wave1, na.rm = TRUE) > 0
-noiso2 = rowSums(wave2, na.rm = TRUE) + colSums(wave2, na.rm = TRUE) > 0
-noiso = noiso1 | noiso2
-wave1n = wave1[noiso, noiso]
-wave2n = wave2[noiso, noiso]
-nodes_wave = node_data |> filter(uid %in% colnames(wave1n))
-
-
-resd <- summarize_colnet_wave(
-  wave = wave1n,
-  node_data = nodes_wave,
-  wave_next = wave2n,
-  directed = TRUE,
-  mode = "out",      # or "out" / "in"
-  i_index_var = "i10_index_22"
-)
-
-resd$summary
-resd$morans_i
-```
-
-```{r}
-uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))
-# uni_levels = tolower(c("RU", "UU", "UVA", "UVG"))
-
-colnet <- fcolnet2(data, 
-    # discipline = "Sociology",
-    university = toupper(uni_levels),
-    type = 'all',
-  ) |>
-  harmonize_covariates(what='data') 
-
-wave1 = colnet[['nets']][[1]]
-wave2 = colnet[['nets']][[2]]
-wave3 = colnet[['nets']][[3]]
-
-node_data = colnet$data
-```
-
-```{r}
-rese <- summarize_colnet_wave(
-  wave = wave1,
-  node_data = node_data,
-  wave_next = wave2,
-  directed = TRUE,
-  mode = "all",      # or "out" / "all"
-  i_index_var = "i10_index_22"
-)
-rese$ego <- calculate_ego_results(wave1, node_data, mode = 'out')
-
-rese$summary
-rese$morans_i
-rese$ego
-```
-
-```{r}
-colnet2 <- exclude_junior_staff(colnet)
-wave12 = colnet2[['nets']][[1]]
-wave22 = colnet2[['nets']][[2]]
-wave32 = colnet2[['nets']][[3]]
-
-node_data2 = colnet2$data
-rese$ego2 <- calculate_ego_results(wave12, node_data2, mode = 'all')
-rese$ego2
-```
-
-
-```{r}
-noiso1 = rowSums(wave1, na.rm = TRUE) + colSums(wave1, na.rm = TRUE) > 0
-noiso2 = rowSums(wave2, na.rm = TRUE) + colSums(wave2, na.rm = TRUE)> 0
-noiso = noiso1 | noiso2
-wave1n = wave1[noiso, noiso]
-wave2n = wave2[noiso, noiso]
-nodes_wave = node_data |> filter(uid %in% colnames(wave1n))
-
-resf <- summarize_colnet_wave(
-  wave = wave1n,
-  node_data = nodes_wave,
-  wave_next = wave2n,
-  directed = TRUE,
-  mode = "all",      # or "out" / "in"
-  i_index_var = "i10_index_22"
-)
-
-resf$summary
-resf$morans_i
-```
-

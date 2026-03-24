@@ -308,9 +308,19 @@ fcolnet2 <- function(
   # step 3: create empty matrixes (wave, i, j)
   nwaves <- length(waves)
   nets <- list()
-  for (w in 1:length(waves)){
-    nets[[w]] <- make_adjacency_matrix(
-      data, uids, type, min_year = waves[[w]][1], max_year = waves[[w]][2])
+  if (is.null(type)){
+    types = c('first', 'last', 'all')
+    for (t in types){
+      for (w in 1:length(waves)){
+        nets[[t]][[w]] <- make_adjacency_matrix(
+          data, uids, type = t, min_year = waves[[w]][1], max_year = waves[[w]][2])
+      }
+    }
+  } else {
+    for (w in 1:length(waves)){
+      nets[[w]] <- make_adjacency_matrix(
+        data, uids, type, min_year = waves[[w]][1], max_year = waves[[w]][2])
+    }
   }
 
   # step 4: fill nets
