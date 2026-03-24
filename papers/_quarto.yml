@@ -1,7 +1,7 @@
 project:
   type: default
   render: 
-    - "paper1.qmd"
+    - "introduction_JT.qmd"
   output-dir: _output    # <-- all rendered files go here
 
 execute:
