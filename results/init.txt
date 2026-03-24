@@ -1557,3 +1557,5 @@ These were calculated from the data.
 
  7 parameters, 7 statistics
 
+Estimation of derivatives by the LR method (type 1).
+

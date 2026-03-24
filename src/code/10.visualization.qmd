@@ -292,7 +292,8 @@ net <- fcolnet2(
 )
 
 # remove isolates
-noisolate <- rowSums(net$nets[[1]], na.rm = TRUE) > 0
+counts <- rowSums(net$nets[[1]], na.rm = TRUE) + colSums(net$nets[[1]], na.rm = TRUE)
+noisolate <- counts > 0
 net$nets[[1]] = net$nets[[1]][noisolate, noisolate] 
 
 # build graph
