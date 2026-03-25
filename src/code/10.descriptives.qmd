@@ -181,16 +181,23 @@ select_sample_intdis <- function(topics, sample){
 
 ```{r}
 
+# step 2: prune works for selection
 make_adjacency_matrix <- function(
-    data, uids, type, min_year = 2020, max_year = 2026, weighted = FALSE
+    data, uids, type = 'first', min_year = 2020, max_year = 2026, weighted = FALSE
   ) {
-  
+
   # make edgelist from works
   edges <- data[['works']][uids] |> 
     purrr::keep(~ nrow(.x) > 0) |>
-    bind_rows() |>
-    filter(publication_year >= min_year, publication_year <= max_year) |>
-    select(uid, work_id, authorships, publication_year) |>
+    bind_rows()
+  
+  if (inherits(min_year, "Date")) {
+    edges <- edges |> filter(publication_date >= min_year, publication_date <= max_year)
+  } else {
+    edges <- edges |> filter(publication_year >= min_year, publication_year <= max_year)
+  }
+  edges <- edges |> 
+    select(uid, work_id, authorships) |>
     rename(e_uid = uid) |>
     distinct(work_id, .keep_all = TRUE) |>
     unnest(authorships) 
@@ -253,7 +260,7 @@ make_adjacency_matrix <- function(
   ci <- match(all_uids, colnames(mat))
 
   # start with full NA matrix
-  mat_full <- matrix(NA, nrow = length(all_uids), ncol = length(all_uids),
+  mat_full <- matrix(0L, nrow = length(all_uids), ncol = length(all_uids),
                     dimnames = list(all_uids, all_uids))
 
   # copy overlap block
@@ -263,12 +270,13 @@ make_adjacency_matrix <- function(
   mat
 } 
 
+
 fcolnet2 <- function(
     data,
     university = NULL,
     position   = NULL,
     discipline = NULL,
-    type = 'all',
+    type = NULL,
     waves = list(c(2019, 2022), c(2023, 2024), c(2025, 2026))
   ){
 
@@ -276,6 +284,9 @@ fcolnet2 <- function(
   valid_universities <- c("UVA","EUR","UL","VU","UVG","UU","RU","UVT")
   valid_positions    <- c("Associate Professor","PhD Candidate","Full Professor",
                           "Researcher or Lecturer","Assistant Professor")
+  valid_dates        <- list(c(ymd('20201219'), ymd('20221219')), 
+                             c(ymd('20221220'), ymd('20240419')),
+                             c(ymd('20240420'), ymd('20260201')))
 
   # helper: set default + validate
   set_and_check <- function(x, valid, name = deparse(substitute(x))) {
@@ -289,6 +300,7 @@ fcolnet2 <- function(
   discipline <- set_and_check(discipline, valid_disciplines,  "discipline")
   university <- set_and_check(university, valid_universities, "university")
   position   <- set_and_check(position,   valid_positions,    "position")
+  waves      <- if(is.null(waves)) valid_dates else waves
   min_year   <- min(unlist(waves))
   max_year   <- max(unlist(waves))
 
@@ -331,13 +343,12 @@ fcolnet2 <- function(
 
   return(output)
 }
-
 ```
 
 ```{r}
 colnet <- fcolnet2(data, 
   type = 'all',
-  waves = list(c(2020, 2026))
+  waves = list(c(ymd('20201219'), ymd('20260201')))
 )
 ```
 
@@ -406,7 +417,7 @@ plot_df <- data[["demographics"]] |>
         "Researcher or Lecturer", "PhD Candidate"
       )
     ),
-    flag = forcats::fct_na_value_to_level(as.factor(flag))
+    flag = forcats::fct_na_value_to_level(as.factor(position))
   ) |>
   filter(!is.na(position)) |>
   count(position, flag)
@@ -429,7 +440,7 @@ plot_df <- data[["demographics"]] |>
     #     "Researcher or Lecturer", "PhD Candidate"
     #   )
     # ),
-    flag = forcats::fct_na_value_to_level(as.factor(flag))
+    flag = forcats::fct_na_value_to_level(as.factor(migrant))
   ) |>
   filter(!is.na(migrant)) |>
   count(migrant, flag)

@@ -65,13 +65,19 @@ topics <-freadRDS2('topics', location = './data/analysis/')
 make_adjacency_matrix <- function(
     data, uids, type = 'first', min_year = 2020, max_year = 2026, weighted = FALSE
   ) {
-  
+
   # make edgelist from works
   edges <- data[['works']][uids] |> 
     purrr::keep(~ nrow(.x) > 0) |>
-    bind_rows() |>
-    filter(publication_year >= min_year, publication_year <= max_year) |>
-    select(uid, work_id, authorships, publication_year) |>
+    bind_rows()
+  
+  if (inherits(min_year, "Date")) {
+    edges <- edges |> filter(publication_date >= min_year, publication_date <= max_year)
+  } else {
+    edges <- edges |> filter(publication_year >= min_year, publication_year <= max_year)
+  }
+  edges <- edges |> 
+    select(uid, work_id, authorships) |>
     rename(e_uid = uid) |>
     distinct(work_id, .keep_all = TRUE) |>
     unnest(authorships) 
@@ -158,6 +164,9 @@ fcolnet2 <- function(
   valid_universities <- c("UVA","EUR","UL","VU","UVG","UU","RU","UVT")
   valid_positions    <- c("Associate Professor","PhD Candidate","Full Professor",
                           "Researcher or Lecturer","Assistant Professor")
+  valid_dates        <- list(c(ymd('20201219'), ymd('20221219')), 
+                             c(ymd('20221220'), ymd('20240419')),
+                             c(ymd('20240420'), ymd('20260201')))
 
   # helper: set default + validate
   set_and_check <- function(x, valid, name = deparse(substitute(x))) {
@@ -171,6 +180,7 @@ fcolnet2 <- function(
   discipline <- set_and_check(discipline, valid_disciplines,  "discipline")
   university <- set_and_check(university, valid_universities, "university")
   position   <- set_and_check(position,   valid_positions,    "position")
+  waves      <- if(is.null(waves)) valid_dates else waves
   min_year   <- min(unlist(waves))
   max_year   <- max(unlist(waves))
 
@@ -276,6 +286,7 @@ colnet <- fcolnet2(data,
     discipline = "Sociology",
     university = toupper(uni_levels),
     type = NULL,
+    waves = NULL
   ) |>
   harmonize_covariates(what='data')
 
@@ -306,8 +317,6 @@ last <- sienaDependent(net_array, )
 
 gender <- coCovar(colnet[['data']]$female)
 soc <- coCovar(colnet[['data']]$soc)
-
-istat <- varCovar(colnet[['data']]$soc)
 
 # set values for time varying universities
 uni = colnet[['data']] |> select(uni22p, uni24p, uni25p)
@@ -471,21 +480,22 @@ myAlgorithm <- sienaAlgorithmCreate(
 
 ```{r}
 myeff <- getEffects(mydata)
-myeff <- includeEffects(myeff, density, recip, inPopSqrt, outActSqrt,gwespFF,transTies, name='first')
+myeff <- includeEffects(myeff, density, recip, inPopSqrt, outActSqrt,gwespFF, name='first')
 myeff <- includeEffects(myeff, inIso, name='first')
 myeff <- includeEffects(myeff, egoX, interaction1="gender", name='first')
 myeff <- includeEffects(myeff, altX, interaction1="gender", name='first')
 myeff <- includeEffects(myeff, sameX, interaction1="gender", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="funcs[[1]]", name='first')
 myeff <- includeEffects(myeff, egoX, interaction1="funcs[[2]]", name='first')
 myeff <- includeEffects(myeff, egoX, interaction1="funcs[[3]]", name='first')
 myeff <- includeEffects(myeff, egoX, interaction1="funcs[[4]]", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="funcs[[1]]", name='first')
 myeff <- includeEffects(myeff, altX, interaction1="funcs[[2]]", name='first')
 myeff <- includeEffects(myeff, altX, interaction1="funcs[[3]]", name='first')
 myeff <- includeEffects(myeff, altX, interaction1="funcs[[4]]", name='first')
 myeff <- includeEffects(myeff, X, interaction1="dissim", name='first')
 myeff <- includeInteraction(myeff, inPop, altX, interaction1=c("", "gender"))
 myeff <- includeInteraction(myeff, altX, altX, interaction1=c("funcs[[4]]", "gender"))
-myeff <- includeInteraction(myeff, transTies, altX, interaction1=c("", "gender"))
 
 # estimate model
 ansm1 <- siena07(

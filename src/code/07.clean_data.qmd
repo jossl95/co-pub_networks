@@ -231,15 +231,31 @@ add_annual_statistics <- function(data){
     )
   
   df <- h_index_by_year |>
-      full_join(i10_index_by_year, by = c("uid", "year")) |>
-      full_join(counts, by = c("uid", "year")) 
+    full_join(i10_index_by_year, by = c("uid", "year")) |>
+    full_join(counts, by = c("uid", "year")) |>
+    mutate(
+      d_i10_index = lead(i10_index, 1, default = NA) - i10_index,
+      d2_i10_index = RcppRoll::roll_sum(x = d_i10_index, 2, align = "right", fill = NA),
+      d2_i10_index = coalesce(d2_i10_index, d_i10_index),
+      d_citations = lead(citations, 1, default = 0) - citations,
+      d2_citations = RcppRoll::roll_sum(x = d_citations, 2, align = "right", fill = NA),
+      d2_citations = coalesce(d2_citations, d_citations),
+      d_publications = lead(publications, 1, default = 0) - publications,
+      d2_publications = RcppRoll::roll_sum(x = d_publications, 2, align = "right", fill = NA),
+      d2_publications = coalesce(d2_publications, d_publications)
+    )
 
   # nest statistics per uid
   statistics <- df |>
-      filter(year > 2015, year < 2026) |>
+      filter(year > 2015, year <= 2026) |>
       arrange(uid, year) |>
       group_by(uid) |>
-      nest(stats_by_year = c(year, h_index, i10_index, citations, publications)) |>
+      nest(stats_by_year = c(
+        year, h_index, 
+        i10_index, d_i10_index, d2_i10_index,
+        citations, d_citations, d2_citations, 
+        publications, d_publications, d2_publications
+      )) |>
       ungroup()
 
   # aggregate statistics
@@ -248,7 +264,9 @@ add_annual_statistics <- function(data){
     summarise(
       career_start = min(year, na.rm = TRUE),
       h_index_22  = h_index[year == 2022][1],
-      i10_index_22 = i10_index[year == 2022][1],
+      i10_index_21 = i10_index[year == 2021][1],
+      i10_index_23 = i10_index[year == 2023][1],
+      i10_index_25 = i10_index[year == 2025][1],
       .groups = "drop"
     )
 
@@ -298,8 +316,8 @@ add_edge_table <- function(data, start_date = NA){
 ```{r}
 check_for_valid_coauthors = function(
     data, 
-    start_date = dmy("01/01/2016"),
-    end_date = dmy("01/01/2026")
+    start_date = dmy("19/12/2020"),
+    end_date = dmy("01/02/2026")
   ){
   tab = data[['works']] |>
     # create a coauthor table

@@ -161,7 +161,7 @@ create_pairs_with_distance <- function(affiliations, T_long, drop_self = FALSE) 
 
   pairs <- aff_key %>%
     group_by(year) %>%
-    summarise(pairs = list(crossing(uid_i = uid, uid_j = uid)), .groups = "drop") %>%
+    summarise(pairs = list(tidyr::crossing(uid_i = uid, uid_j = uid)), .groups = "drop") %>%
     unnest(pairs)
 
   if (drop_self) {

@@ -63,15 +63,21 @@ topics <-freadRDS2('topics', location = './data/analysis/')
 ```{r}
 # step 2: prune works for selection
 make_adjacency_matrix <- function(
-    data, uids, type, min_year = 2020, max_year = 2026, weighted = FALSE
+    data, uids, type = 'first', min_year = 2020, max_year = 2026, weighted = FALSE
   ) {
-  
+
   # make edgelist from works
   edges <- data[['works']][uids] |> 
     purrr::keep(~ nrow(.x) > 0) |>
-    bind_rows() |>
-    filter(publication_year >= min_year, publication_year <= max_year) |>
-    select(uid, work_id, authorships, publication_year) |>
+    bind_rows()
+  
+  if (inherits(min_year, "Date")) {
+    edges <- edges |> filter(publication_date >= min_year, publication_date <= max_year)
+  } else {
+    edges <- edges |> filter(publication_year >= min_year, publication_year <= max_year)
+  }
+  edges <- edges |> 
+    select(uid, work_id, authorships) |>
     rename(e_uid = uid) |>
     distinct(work_id, .keep_all = TRUE) |>
     unnest(authorships) 
@@ -150,7 +156,7 @@ fcolnet2 <- function(
     university = NULL,
     position   = NULL,
     discipline = NULL,
-    type = 'all',
+    type = NULL,
     waves = list(c(2019, 2022), c(2023, 2024), c(2025, 2026))
   ){
 
@@ -158,6 +164,9 @@ fcolnet2 <- function(
   valid_universities <- c("UVA","EUR","UL","VU","UVG","UU","RU","UVT")
   valid_positions    <- c("Associate Professor","PhD Candidate","Full Professor",
                           "Researcher or Lecturer","Assistant Professor")
+  valid_dates        <- list(c(ymd('20201219'), ymd('20221219')), 
+                             c(ymd('20221220'), ymd('20240419')),
+                             c(ymd('20240420'), ymd('20260201')))
 
   # helper: set default + validate
   set_and_check <- function(x, valid, name = deparse(substitute(x))) {
@@ -171,6 +180,7 @@ fcolnet2 <- function(
   discipline <- set_and_check(discipline, valid_disciplines,  "discipline")
   university <- set_and_check(university, valid_universities, "university")
   position   <- set_and_check(position,   valid_positions,    "position")
+  waves      <- if(is.null(waves)) valid_dates else waves
   min_year   <- min(unlist(waves))
   max_year   <- max(unlist(waves))
 
@@ -204,7 +214,6 @@ fcolnet2 <- function(
         data, uids, type, min_year = waves[[w]][1], max_year = waves[[w]][2])
     }
   }
-
 
   # step 4: fill nets
   output <- list(
@@ -388,7 +397,7 @@ graph_morans_i <- function(graph, var, nb_distance = 1, mode = "all") {
   }
 
   out <- tryCatch(
-    ape::Moran.I(x_sub, W),
+    ape::Moran.I(x_sub, W, scaled = FALSE),
     error = function(e) NULL
   )
 
@@ -747,7 +756,7 @@ compute_ego_objects <- function(
 
   # graph-level / ego-level structure measures
   bet <- betweenness(graph, directed = is_directed(graph), normalized = TRUE)
-  ecc <- eccentricity(graph, mode = mode)
+  mnd <- mean_distance(graph, directed = is_directed(graph), unconnected = TRUE)
   loc_clust <- transitivity(
     as.undirected(graph, mode = "collapse"),
     type = "localundirected",
@@ -788,7 +797,7 @@ compute_ego_objects <- function(
       `density distance 2` = neighborhood_density(graph, d2),
       `clustering coefficient` = loc_clust[i],
       `betweenness centrality` = bet[i],
-      `max. path length` = unname(ecc[i]),
+      `avg. path length` = mnd,
 
       #------------------------------------------
       # composition
@@ -849,13 +858,31 @@ calculate_ego_results <- function(wave1, node_data, mode = 'all'){
 
 ```
 
+```{r}
+exclude_junior_staff <- function(colnet) {
+  out = list()
+  out[['data']] <-  colnet[['data']] |>
+    filter(!position_22 %in% c(
+      'PhD Candidate', "Staff", "Postdoctoral Researcher"
+    ))
+  uids = out[['data']] |> pull(uid) |> unique()
+
+  for (i in 1:length(colnet[['nets']])) {
+    net = colnet[['nets']][[i]][uids, uids]
+    out[['nets']][[i]] = net
+  }
+  return(out)
+}
+```
+
 
 ```{r}
 # Helper to build one colnet + results
 build_results <- function(type, mode) {
   colnet <- fcolnet2(data,
     university = toupper(uni_levels),
-    type = type
+    type = type,
+    waves = NULL
   ) |> harmonize_covariates(what = 'data')
 
   wave1 = colnet[['nets']][[1]]
