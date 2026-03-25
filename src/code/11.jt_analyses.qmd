@@ -422,6 +422,83 @@ graph_morans_i <- function(graph, var, nb_distance = 1, mode = "all") {
   )
 }
 
+graph_morans_i <- function(graph, var, nb_distance = 1, mode = "all") {
+  x <- vertex_attr(graph, var)
+
+  if (!is.numeric(x)) {
+    stop(sprintf("Variable '%s' must be numeric for Moran's I.", var))
+  }
+
+  keep <- !is.na(x)
+
+  if (sum(keep) < 3) {
+    return(tibble::tibble(
+      variable = var,
+      nb_distance = nb_distance,
+      observed = NA_real_,
+      expected = NA_real_,
+      sd = NA_real_,
+      p_value = NA_real_
+    ))
+  }
+
+  g_sub <- induced_subgraph(graph, vids = V(graph)[keep])
+  x_sub <- x[keep]
+
+  # no variance -> Moran's I undefined
+  if (length(unique(x_sub)) < 2 || isTRUE(all(stats::var(x_sub) == 0))) {
+    return(tibble::tibble(
+      variable = var,
+      nb_distance = nb_distance,
+      observed = NA_real_,
+      expected = NA_real_,
+      sd = NA_real_,
+      p_value = NA_real_
+    ))
+  }
+
+  geodistances <- sna::geodist(as.matrix(as_adjacency_matrix(g_sub)), count.path = TRUE)
+  geodistances <- geodistances$gdist
+  W <- geodistances == 1
+
+  # no usable ties at this distance
+  if (all(W == 0) || sum(W) == 0) {
+    return(tibble::tibble(
+      variable = var,
+      nb_distance = nb_distance,
+      observed = NA_real_,
+      expected = NA_real_,
+      sd = NA_real_,
+      p_value = NA_real_
+    ))
+  }
+
+  out <- tryCatch(
+    ape::Moran.I(x_sub, W, scaled = TRUE),
+    error = function(e) NULL
+  )
+
+  if (is.null(out) || anyNA(c(out$observed, out$expected, out$sd, out$p.value))) {
+    return(tibble::tibble(
+      variable = var,
+      nb_distance = nb_distance,
+      observed = NA_real_,
+      expected = NA_real_,
+      sd = NA_real_,
+      p_value = NA_real_
+    ))
+  }
+
+  tibble::tibble(
+    variable = var,
+    nb_distance = nb_distance,
+    observed = unname(out$observed),
+    expected = unname(out$expected),
+    sd = unname(out$sd),
+    p_value = unname(out$p.value)
+  )
+}
+
 #--------------------------------------------------
 # recodes for your requested variables
 #--------------------------------------------------
