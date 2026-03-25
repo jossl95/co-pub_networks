@@ -265,8 +265,15 @@ uni_levels = tolower(c(
   # , "UVA", "UVG"
 ))
 
+
+uni_levels = tolower(c(
+  "RU"
+  # , "UVA", "UVG"
+))
+
+
 colnet <- fcolnet2(data, 
-    # discipline = "Sociology",
+    discipline = "Sociology",
     university = toupper(uni_levels),
     type = NULL,
   ) |>
@@ -296,8 +303,11 @@ net_array <- array(
 last <- sienaDependent(net_array, )
 
 # set constant variables as numeric covariances
+
 gender <- coCovar(colnet[['data']]$female)
 soc <- coCovar(colnet[['data']]$soc)
+
+istat <- varCovar(colnet[['data']]$soc)
 
 # set values for time varying universities
 uni = colnet[['data']] |> select(uni22p, uni24p, uni25p)
@@ -437,7 +447,7 @@ mydata <- sienaDataCreate(
   first, last, gender, soc,
   mig$M4, mig$other,
   # uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,
-  uni$uu, 
+  #uni$uu, 
   # uni$uva, uni$uvg,
   funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]],
   intdis, dissim, distan
@@ -449,6 +459,42 @@ setwd(paste0(BASEDIR, '/results'))
 print01Report(mydata, modelname = "./init")
 
 # model instability: perhaps throwing cases withh full missingness out
+
+```
+```{r}
+myAlgorithm <- sienaAlgorithmCreate(
+  projname = "init",
+  # n3 = 3000 # for publication ready results
+)
+```
+
+
+```{r}
+myeff <- getEffects(mydata)
+myeff <- includeEffects(myeff, density, recip, inPopSqrt, outActSqrt,gwespFF,transTies, name='first')
+myeff <- includeEffects(myeff, inIso, name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="gender", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="gender", name='first')
+myeff <- includeEffects(myeff, sameX, interaction1="gender", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="funcs[[2]]", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="funcs[[3]]", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="funcs[[4]]", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="funcs[[2]]", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="funcs[[3]]", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="funcs[[4]]", name='first')
+myeff <- includeEffects(myeff, X, interaction1="dissim", name='first')
+myeff <- includeInteraction(myeff, inPop, altX, interaction1=c("", "gender"))
+myeff <- includeInteraction(myeff, altX, altX, interaction1=c("funcs[[4]]", "gender"))
+myeff <- includeInteraction(myeff, transTies, altX, interaction1=c("", "gender"))
+
+# estimate model
+ansm1 <- siena07(
+  myAlgorithm, 
+  data = mydata, 
+  effects = myeff, 
+  returnDeps = TRUE
+)
+ansm1
 
 ```
 
