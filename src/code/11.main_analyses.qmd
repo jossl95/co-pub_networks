@@ -247,6 +247,10 @@ harmonize_covariates <- function(data, what = 'data'){
 ```
 
 ```{r}
+
+```
+
+```{r}
 # s = samp |>
 #   harmonize_covariates(what = 'nodes') |> [['nodes']] |>
 #   group_by(gender, migrant, discipline) | |>
@@ -266,7 +270,7 @@ colnet <- fcolnet2(data,
     university = toupper(uni_levels),
     type = NULL,
   ) |>
-  harmonize_covariates(what='data') 
+  harmonize_covariates(what='data')
 
 wave1 = colnet[['nets']][['first']][[1]]
 wave2 = colnet[['nets']][['first']][[2]]
@@ -351,10 +355,7 @@ mig <- migrant_groups[-1] |>
 
 ```{r}
 add_interdisciplinarity = function(colnet, topics){
-  uids <- colnet[["data"]] |>
-    dplyr::pull(uid) |>
-    unique() |> sort()
-
+  uids = colnet$data |> pull(uid) |> unique() |> sort()
   intdis <- topics[["intdis"]][["subfield"]]
 
   colnet[["intdis"]] <- {
@@ -374,7 +375,7 @@ add_interdisciplinarity = function(colnet, topics){
 }
 
 add_dissimilarity <- function(colnet, topics) {
-  uids <- unique(dplyr::pull(colnet[["data"]], uid)) |> sort()
+  uids = colnet$data |> pull(uid) |> unique() |> sort()
 
   colnet[["dissim"]] <- purrr::map(
     topics[["dissim"]][["subfield"]],
@@ -396,12 +397,37 @@ add_dissimilarity <- function(colnet, topics) {
   return(colnet)
 }
 
+add_distances <- function(colnet, data) {
+  uids = colnet$data |> pull(uid) |> unique() |> sort()
+
+  colnet[["distances"]] <- purrr::map(
+    data[["distances"]],
+    \(mat) {
+      common_uids <- Reduce(intersect, list(uids, rownames(mat), colnames(mat)))
+
+      out <- matrix(
+        NA_real_,
+        nrow = length(uids),
+        ncol = length(uids),
+        dimnames = list(uids, uids)
+      )
+
+      out[common_uids, common_uids] <- mat[common_uids, common_uids, drop = FALSE]
+      out
+    }
+  )
+
+  return(colnet)
+}
+
 colnet = colnet |>
   add_interdisciplinarity(topics) |>
-  add_dissimilarity(topics)
+  add_dissimilarity(topics) |>
+  add_distances(data)
 
 intdis = colnet[['intdis']][,1:2] |> varCovar(centered = TRUE)
 dissim = colnet[['dissim']][c('2022', '2024')] |> simplify2array() |> varDyadCovar(centered = TRUE)
+distan = colnet[['distances']][c('2022', '2024')] |> simplify2array() |> varDyadCovar(centered = TRUE)
 ```
 
 
@@ -414,7 +440,7 @@ mydata <- sienaDataCreate(
   uni$uu, 
   # uni$uva, uni$uvg,
   funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]],
-  intdis, dissim
+  intdis, dissim, distan
 )
 
 setwd(BASEDIR)
@@ -492,30 +518,37 @@ ansm2
 ```
 
 ```{r}
-# # myeff <- getEffects(mydata)
-# # myeff <- includeDefaultEffects(myeff)
-# myeff <- includeEffects(myeff, egoX, altX, simX, interaction1 = 'funcs[[1]]')
-# myeff <- includeEffects(myeff, egoX, altX, simX, interaction1 = 'funcs[[2]]')
-# myeff <- includeEffects(myeff, egoX, altX, simX, interaction1 = 'funcs[[3]]')
-# myeff <- includeEffects(myeff, egoX, altX, simX, interaction1 = 'funcs[[4]]')
+# myeff <- getEffects(mydata)
+# myeff <- includeDefaultEffects(myeff)
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[1]]')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[2]]')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[3]]')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[4]]')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[1]]', name='last')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[2]]', name='last')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[3]]', name='last')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[4]]', name='last')
 
-# ansm3 <- siena07(
-#   myAlgorithm, 
-#   data = mydata, 
-#   effects = myeff, 
-#   returnDeps = TRUE,
-# )
+ansm3 <- siena07(
+  myAlgorithm, 
+  data = mydata, 
+  effects = myeff, 
+  returnDeps = TRUE,
+)
 
-# save(ansm3, file = './ansm3')
+save(ansm3, file = './ansm3')
 
-# ansm3
+ansm3
 ```
 ```{r}
 # myeff <- getEffects(mydata)
 # myeff <- includeDefaultEffects(myeff)
 myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'intdis') # simX does noet work
 myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'intdis', name='last') # simX does noet work
-# myeff <- includeEffects(myeff, effFrom, interaction1 = 'dissim') # this does not work
+myeff <- includeEffects(myeff, X, interaction1 = 'dissim') 
+myeff <- includeEffects(myeff, X, interaction1 = 'dissim', name='last') 
+myeff <- includeEffects(myeff, X, interaction1 = "distan")
+myeff <- includeEffects(myeff, X, interaction1 = "distan", name='last')
 
 ansm4 <- siena07(
   myAlgorithm, 
@@ -591,7 +624,7 @@ tidy_rsiena <- function(ans) {
 res = list()
 res[['ansm1']] = tidy_rsiena(ansm1)
 res[['ansm2']] = tidy_rsiena(ansm2)
-# res[['ansm3']] = tidy_rsiena(ansm3)
+res[['ansm3']] = tidy_rsiena(ansm3)
 res[['ansm4']] = tidy_rsiena(ansm4)
 ```
 
