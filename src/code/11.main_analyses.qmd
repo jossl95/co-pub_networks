@@ -577,14 +577,14 @@ tidy_rsiena <- function(ans) {
     ) |>
     filter(include) 
   
-  # extract rate parameters
-  rate = tibble(
-    depvar = unique(ans$effects$name),
-    effect = c('Rate parameter period 1', 'Rate parameter period 2'),
-    short = 'rate',
-    estimate = ans$rate,
-    se = ans$vrate
-  )
+  # # extract rate parameters
+  # rate = tibble(
+  #   depvar = unique(ans$effects$name),
+  #   effect = c('Rate parameter period 1', 'Rate parameter period 2'),
+  #   short = 'rate',
+  #   estimate = ans$rate,
+  #   se = ans$vrate
+  # )
 
   #extract max conv rate
   tconv.max = tibble(
@@ -595,8 +595,9 @@ tidy_rsiena <- function(ans) {
   )
 
   # combine and format
-  rate |> 
-    bind_rows(effects) |> 
+  effects |>
+  # rate |> 
+  #   bind_rows(effects) |> 
     bind_rows(tconv.max) |>
     mutate(
       z = estimate / se,
@@ -628,6 +629,22 @@ res[['ansm3']] = tidy_rsiena(ansm3)
 res[['ansm4']] = tidy_rsiena(ansm4)
 ```
 
+```{r}
+res_table <- names(res) |>
+  purrr::imap(function(name, i) {
+    res[[i]] |>
+      mutate(
+        effect = str_remove(effect, "first: ") |> str_remove("last: ")
+      ) |>
+      select(depvar, effect, festimate, fse) |>
+      rename_with(~ paste0(str_remove(name, 'ans'), "_", .), c(festimate, fse))
+  }) |>
+  purrr::reduce(full_join, by = join_by(depvar, effect)) |>
+  arrange(depvar)
+
+res_table |> writexl::write_xlsx(file.path(BASEDIR, 'results', 'res_table.xlsx'))
+res_table
+```
 
 
 ```{r}
