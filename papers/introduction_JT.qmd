@@ -1,0 +1,231 @@
+---
+title: "Gender inequality in co-authorship networks in Dutch academia"
+
+code-repo: "Access the code, data, and analysis at <https://github.com/jossl95/co-pub_networks>"
+correspondence-prefix: "Correspondence concerning this article should be addressed to"
+
+author: 
+  - name: "Bas Hofstra"
+    orcid: 0000-0002-9052-956X
+    affiliations:
+      - ref: RU
+  - name: "Jos Slabbekoorn"
+    orcid: 0000-0001-8419-5703
+    #email: jos.slabbekoorn@ru.nl
+    affiliations: 
+      - id: RU
+        name: Radboud University Nijmegen
+        department: Sociology
+        country: The Netherlands
+  - name: "Roza Meuleman"
+    orcid: 0000-0002-4486-253X
+    affiliations:
+      - ref: RU
+  - name: "Jochem Tolsma"
+    orcid: 0000-0002-4411-6932
+    email: jochem.tolsma@ru.nl
+    affiliations:
+      - ref: RU
+      - id: RUG
+        name: University of Groningen
+        department: Sociology
+        country: The Netherlands
+    attributes:
+      corresponding: true
+
+date: today
+
+excluded:
+  - paper1/_archive
+
+keywords: 
+   - Gender inequality in academia
+   - Co-Authorship Networks
+   - Scientific capital
+   - Social network analysis
+---
+
+## Introduction
+
+<!--# worsteling: scientific capital is nu ook gedefinieerd op het individuele niveau (mijn i-index, mijn positie) en niet enkel op het (egocentric) co-authorship network niveau. Dat is eigenlijk vreemd, want we willen het social network perspective centraal stellen. scientific capital centraal stellen, maar wmb eigenlijk vooral scientific capital embedded in networks. Oplossing, social scientific capital -->
+
+<!---start met het overkoepelende probleem dat centraal staat: (gender) inequality in academia. de Y--->
+
+Gender disparities in academic careers are persistent and well-documented [e.g., @barrios2013; @bol2023; @greska2023; @kim2022; @lutter2016]. Women earn lower salaries, secure fewer grants, receive less recognition for innovative work, and experience shorter, less prolific careers compared to men [@hofstra2020; @kim2024; @mulders2024; @tolsma2025]. They are also more likely to work on topics that yield lower career returns [@kim2024]. Inequality in academia is not limited to gender. Minoritized scholars - by national origin, ethnic background, or skin color - face similar barriers, including slower career progression and underrepresentation in senior positions [@hofstra2020; @kozlowski2022; @whittington2018]. First-generation scholars, too, often struggle to navigate the academic environment, slowing their advancement within academia.
+
+<!--al veel bekend--->
+
+The mechanisms perpetuating these inequalities are increasingly understood, ranging from biases in selection and promotion committees, overt discrimination and hidden micro aggression on the work floor leading to a chilly climate, to institutional policies (e.g. regarding parental leave) and differences in work preferences (e.g. differences in preferred discipline, or team science). Progress has been made in some areas. In the Netherlands, the current site of study, for example, targeted policies have reduced early-career disparities. Women and ethnic minority scholars are now as likely as their peers to start a PhD and after their PhD to continue in academia. Early-career grant gaps have narrowed, and more women are reaching the professorial ranks. This does not mean that gender equality in (Dutch) academia is just a matter of time. Pay gays widen quickly after the PhD-stage and women are still more likely than men to leave academia before the retirement age and do so earlier in their career. This 'leaky pipeline' not only widens pay gaps but also perpetuates the persistent underrepresentation of women at the highest levels of academia. Inequality in Dutch academia, it seems, becomes most pronounced after the early career stages. <!---hiermee sorteer ik voor op BH's PhD interacties --->
+
+<!--introductie onze angle via trechtermodel--->
+
+In this contribution, we argue that a critical yet overlooked factor in academic inequality – one that could become especially relevant after early career stages – are social networks. In labor market and health inequality research, social networks are often seen as both a potential buffer against and a catalyst for inequality. Disadvantaged groups may use networks to compensate for resource deficits, but more commonly, networks exacerbate inequality by concentrating social capital among the already privileged. In academia, knowledge production is inherently social. Journal papers are reviewed by (unanimous) peers. Departmental colleagues, disciplinary conferences, and varieties of academic committees are all central to academic norms and practices [@burt1998; @stark2020; @bourdieu1988]. Previous work demonstrated that access to prestigious academic positions depend on one’s mentors [@hofstra2022] <!---but see AM that supervisorteam do not have impact--->; that dissertation committees exhibit gender-homophilous tendencies in awarding cum laude graduate degrees [@bol2023]; and that the size and composition of co-authorship teams dictate whether papers are disruptive or consolidating in their findings [@wu2019]. Differences in academic socialization and the networks that one is able to build may therefore constitute a central pathway through which inequalities emerge and reproduce.
+
+<!---arguments why we study co-authorship netwerks--->
+
+Peer-reviewed papers are the essential form to contemporary academic knowledge production [@ref] and journal papers are still a main aspect of academic evaluation. Working together on papers dynamically shapes productivity and visibility [@abbasi2011; @ductor2015; @li2022; @moody2004; @newman2001; @wallace2012]. The average number of co-authors on papers is increasing [@ref] as team science is becoming increasingly the norm. Being less able to build a network of (past) co-authors harboring 'scientific capital', that is to be able to work with colleagues who know the scientific ropes like team science skills, possess complementary theoretical or methodological knowledge, have access to funds, data or research assistants, may leave long-lasting negative effects on academic careers. Differences in these co-author networks – whether in size, structure, or composition – may not only contribute to further inequality, they are by itself, also a potential important form of inequality within academia. In this contribution, we therefore set out to answer the following central questions: (1) *To what extent do co-authorship ego-networks differ by gender?* and *(2) How do complete co-authorship networks evolve over time, and how do these dynamics differ by gender?* While our first research question takes a static egocentric perspective, the second question deals with the evolution of the complete co-authorship network formed by the population of scholars under study. By answering these questions in combination, we aim to deepen our understanding of the degree of, and the mechanisms driving gender inequality in academia, and to contribute to solutions that work towards improving equality.
+
+<!---site of study--->
+
+Our empirical setting is the Netherlands, where we analyze the co-authorship networks of all sociologists and political scientists employed at Dutch universities between 2022 and 2025 (N=1.175). We selected these disciplines for four reasons: first, much of the literature on academic inequality focuses on STEM fields, leaving social sciences understudied; second, both disciplines have near gender parity at the PhD level, allowing us to compare network dynamics across gender; third, their research outputs are predominantly multi-authored, international journal articles – and not monographs, patents, or publications in Dutch –, enabling reliable network construction, and fourth, we assume that co-authorship networks in these fields are largely domestic, making our data more comprehensive (i.e. capturing the large majority of co-authorships) than would we have selected more internationally oriented disciplines like anthropology or physics. Moreover, a focus on a limited set of disciplines makes it manageable to model the evolution of the co-authorship networks while allowing for (gender differences in) cross-disciplinary and cross-university collaborations.
+
+<!---naar type verklaringen--->
+
+To model network evolution, we draw on social network theory. We will take into account endogenous structural network effects that commonly drive network evolution for (positive) relations, such as reciprocity, triadic closure, preferential attachment and brokerage [@barabasi1999; @bojanowski2020; @ebadi2015; @gondal2011; @gondal2018] and have have found to be relevant in collaboration networks as well [@gao2022; @kwiek2021; @whittington2024; @hancean2014]. Choice homophily, the preference to form relations with people who are similar to us, is quite ubiquitous in social life. We therefore also take into account how dyadic similarity between scholars with respect to socio-demographic characteristics such as gender and migration background drive network dynamics. Next to preferences, we also aim to take into account possible differences in collaboration opportunities. For example, we will include dyadic similarity related to the university scholars work at, their main discipline, and their specific research topics. These factors may impact preferences for collaboration but certainly also shape opportunity structures. Our primary focus, however, is on how characteristics such as career stage, productivity, and the size, structure and composition of a scholar's past co-authorship network affect attractiveness as a future co-author, and whether these 'scientific capital indicators' are valued differently for men and women. Our general hypotheses -- for which we will provide more argumentation in the next section -- are: (1) Women scholars possess less scientific capital than men, both personally as well as embedded in the co-authorship network; and (2) that women’s scientific capital is less likely to lead to co-authorships than men's, contributing to persistent gender inequality in academic networks.
+
+<!---contributions--->
+
+Our study contributes to the literature on inequality in academia in several ways. We introduce the concept of scientific capital which scholars possess in different degrees themselves and which can be embedded in their collaboration networks. We clearly introduce a social network perspective, by treating co-authorship networks as both a potential site and a driver of gender inequality. We will compare differences in scientific capital by gender but also move beyond descriptive egocentric analyses by investigating how the complete network of co-authorships develops over time. We do so by drawing from comprehensive data on the near-population of sociology and political science scholars in Dutch universities (including PhD-students) between (2022 and 2025) and their co-authorship histories. We thus reduced the influence of survivor and publication bias that commonly distorts conventional bibliometric network studies [@simko2015] with a focus on highly productive (senior) scholars or the output published within specific selected journals [@hancean2014; @ossenblok2014]. When explaining network dynamics, we recognize the importance of structural network effects, and mechanisms related to preferences and opportunity structures. But importantly, we assess the extent to which scientific capital indicators shape networks differently for men and women. We model the evolution of the complete co-authorship network with the Stoachastic Actor Orientated Model as implemented in RSiena. With this, we are among the first to explicitly model path dependency and endogenous network processes using longitudinal network models, shifting the focus from mere descriptive differences to the network processes through which these inequalities emerge and are reproduced. Finally, our data set is made publicly available for the scientific community on the replication website that accompanies this contribution (WEBLINK).
+
+## Theory
+
+<!---onze methode introduceren. hiervoor nodig om def van netwerk te geven, dit wordt eerste alinea theorie--->
+
+### Authorship in the Dutch social science context
+
+How to define and consecutively operationalize a co-author-relation is not self-evident. Scholars may work together on a paper, but contribute in different ways and have different roles. Similarly, when putting together the team of co-authors, not all scholars will have had the same agency, not in proposing potential collaborators, nor in refusing received 'invitations'. To construct our co-authorship networks we rely on the journal papers of our scholars in our sample (....unique papers). Based on this, we constructed two *directed* co-authorship networks: one in which we take a 'first author perspective' in which the first author sends the co-author ties to all other co-authors, and one in which we take a 'last author perspective and take the last author as the one sending ties to all others co-authors. While, our data at the tie-level is time-stamped (i.e. the publication data of the paper), we aggregated our network data to three approximately two-year time windows, because we collected scholar-level data (e.g. at which university they were employed) only at three time points (December 2022, March 2024, October 2025). We binarized the networks (i.e. yes/no tie) to reflect that co-authorships signal collaboration *relations* and are not short-term *events,* and because the co-authorship networks were already quite sparse and we observed only few multiple co-authorship occasions between the same scholars <!---percentage?)---> in the same time-window. This operationalization allows us to analyze the evolution of co-authorship networks via the Stochastic Actor Orientated Model as implemented in the R package RSiena which will describe in more detail in the 'Data and Methods' section.
+
+### The special (network) position of PhDs and PDs
+
+As stated before, the research sites in which we answer our questions are the disciplines of sociology and political sciences across the research universities in the Netherlands, if they have any such clearly delineated departments. In these disciplines, PhD students are often a cornerstone of a department's publishing activity, where dissertations are almost without exception a collection of (near) published papers, particularly so in the years we consider. Sociologists and political scientists in the Netherlands – PhDs and faculty alike – overwhelmingly publish in English peer-reviewed journals. <!--- The fact that PhDs publish papers during their PhD has consequences for how we will theorize on (gender differences in) collaborations. ---> But contrary to, for instance, the U.S., PhDs often do not shape their own topic, but apply to funded projects that are already carved out, oftentimes with an initial idea for what the final papers would need to look like. And the scientific norm is that PhDs and Postdocs publish with their advisors as co-authors, with the PhD or PD, who is doing the majority of work, becoming the first author and the promoter or Principle Investigator of the project the last author.[^1] Thus for PhDs and PDs the choice set of possible co-authors are oftentimes limited to their more senior colleagues (formally) involved in their project. <!---While PhD conferrals split approximately 50/50 between men and women doctoral students in the Netherlands nowadays, men's relative share increases with every step on the academic ladder. PhD (and PD) publishing practices and the gender composition of the departments alone may therefore impact how networks evolve and, for example, contribute to segregation along social identity dimensions like gender.---> <!--- The notion that PhDs (and PDs) take a special position within the co-authorship networks is underlined by the descriptives network statistics summarized in Table ... for egonets and in Table ... for the complete networks. For example, if we take the first author perspective the number of co-authors descreases if we exclude PhDs but if we take the last author perspective the number increases; thus yes,  ---> We therefore carefully need to nuance our conjectures on gender differences in co-authorship networks and developments therein based on the position of scholars involved.
+
+[^1]: Sole authored papers are rare within these disciplines within the Netherlands, especially by PhD students or Postdocs.
+
+### Social scientific Capital
+
+<!--# Bas, hier wellicht eerst de scientific capital indicators definieren/bespreken op het individuele niveau. Dan de gender ongelijkheid hierin. en dan naar wat we hebben in onze data: i-index, position, interdisciplinairy-->
+
+Scientific capital may also be embedded in the collaboration networks of a scholar, social scientific capital. <!--Roza, iets over meer algemene literatuur over netwerken op de arbeidsmarkt? --> There has not been much previous work on gender differences in social networks within academia. <!--# ons werk met AM--> Prior work showed that women publish less than men and that they populate fewer senior authorship positions [@barrios2013; @tolsma2025], even if they contribute equally. Women are also less likely than men to occupy powerful positions in (co-authorship) networks [@gao2022; @whittington2018; @whittington2024], with women’s scientific collaborations more often being local and domestic and not internationally orientated [@kwiek2021].
+
+...
+
+Given the omnipresent inequality in Dutch academia in disfavor of women, we ...
+
+This leads us to the following hypothesis:
+
+*Hypothesis 1: (a) Women in Dutch academia possess less personal scientific capital than men (i.e. lower i-index, senior rank) and (b) less social scientific capital than men, as indicated by differences in their co-authorshipnetwork: size (i.e. smaller), structure (less dense), and composition (fewer high-prestige scholars, less cross-disciplinary and cross-university ties).*
+
+Because social networks may be used as compensating strategy, we expect that inequality with respect to social scientific capital is less pronounced than inequality in personal scientific capital. A further nuance is that we know that women are more likely to leave academia than men and do so earlier in their career. Women that remain in academia are thus more heavily 'selected'. As a result we expect to observe less pronounced inequalities among more senior staff and in networks constructed by taking a last-author perspective.
+
+<!--ies over de Phds?? Finally  because PhD and PD have fewer opportunities to choose their (more senior) co-authors. ... and senior Promotores and PIs do not select???... , from a first-author perspective, we expect that differences   --->
+
+How does (social) scientific capital impact the evolution of co-authorship networks?
+
+Inequalities in (social) scientific capital may reproduce other inequalities.
+
+*Hypothesis 2: Scholars prefer to collaborate with counterparts possessing personal and social scientific capital.*
+
+But does this depend on who possesses the social scientific capital?
+
+<!--# hypo roza: vrouwen kunnen scientific capital beter omzetten naar samenwerking.-->
+
+***Hypothesis 3a: The (social) scientific capital of women scholars is more likely to lead to co-authorships?***
+
+<!--# hypo bas: undervaluation hypo -->
+
+***Hypothesis 3b: The (social) scientific capital of women scholars is less likely to lead to co-authorships?***
+
+Some scholars have more agency in picking their co-authors than others. For those it will be easier to act in accordance to their preferences. Similarly, we expect that the same holds true for last-authors as compared to first authors. Hence, social scientific capital will have a stronger impact on network dynamics among scholars who surpassed the PhD and PD stage and in networks constructed from a last author perspective. This same will hold true for underevaluation effects.
+
+### Demographic characteristics
+
+Naturally, decisions to make, maintain or break co-authorship ties are not only based on social scientific capitial indicators. Other mechanisms are at play at well and to isolate the impact of social scientific capital these need to be taken into account.
+
+...
+
+Social networks are oftentimes segregated along key social identity dimensions like gender, ethnic heritage, age and educational background. Social segregation is observed in core networks of strong ties as well as in the extended networks of acquaintances, it is observed in offline as well as online networks and both in informal networks of friendships as in formal networks of colleagues (?). <!---exceptions, negative networks, twitter networks?---> In part this is because people with similar demographic characteristics have more opportunities to meet each other due to shared 'foci', institutional and residential segregation spill-over into social segregation. Naturally, the most important foci scholars share are the department and discipline they work in. The Dutch sociology and political science departments differ to some extent in their composition (see table ...) possible thereby contributing to social segregation in the complete co-authorship network. While the gender composition within the disciplines of sociology and political science is fairly equally distributed, especially at the PhD-level (see table ...), within these disciplines there may still be differences in specific research topics scholars focus on, aligning with identity dimensions like gender and migration background, causing differences in between and within group meeting opportunities.
+
+Another important reason for social segregation within networks is choice homophily, the preferences for people to interact with others with whom they share social characteristics. Similarity would facilitate trust, make the behavior of others more predictable and this would ease communication and collaboration. Unfortunately, our data lacks explicit measures of preferences for within group ties (or ingroup bias), but given the importance of choice homophily, we expect to observe that *scholars are more like to create and maintain ties with similar others (along gender and migration background and career age), even if we take into account differences in meeting opportunities (i.e. shared university and discipline, shared research topic; hypothesis 4a).*
+
+Ingroup biases, and by extension choice homophily effects, may differ across social groups, with higher status groups commonly expressing stronger ingroup preferences. Moreover, members of lower status groups may also have stronger instrumental motives to create and maintain ties with high status outgroup members. <!---extend---> <!---queen bee effect?--->. Underlining this idea, in our data we also observe that the co-author networks of men exert a higher degree of gender homogeneity than the networks of women, as indicated by the stronger negative Krackhard and Stern's E-I index [@krackhardt1988] capturing the relative prevalence of between gender and within gender ties (see table ...). Naturally these descriptive statistics are not yet controlled for differences in opportunities or endogenous networks effects that could potentially exacerbate segregation patterns, nevertheless, *we expect to observe stronger choice homophily effects for men than for women and for native Dutch scholars as compared to scholars with an ethnic minority background (Hypothesis 4b).*
+
+A final nuance of hypothesis 4 concerns the special positon of PhDs and PDs. Because, especially PhDs and PDs will have less agency to act upon their collaboration preferences, *we expect that choice homophily effects will be less pronounced among PhD students and Postdocs and hence in our network based on the first-author perspective (Hypothesis 4c).*
+
+### Structural network effects
+
+...
+
+Structural network effects are likely to further exacerbate any initial inequalities in the network and without controlling for these effects the theorized mechanisms underlying (gender differences in) network dynamics may be overestimated.
+
+...
+
+## Data and methods
+
+### Data
+
+This study contributes a database of N_scholars = XXXX scholars and their N_publications = XXXX publications that is near-population of staff employed in Sociology (N_sociology = XXXX unique academics) and Political Science (N_politicalscience = XXXX unique academics) departments at Dutch research universities in recent years and their academic histories. We compiled these data by reconstructing rosters of department employees at three time points - 19 December 2022, 19 April 2024, and 12 October 2025 - by manually collecting staff lists from public departmental webpages of these research universities. The resulting database contains for each of the three time points staff members' their names, university affiliations, job titles, and email addresses
+
+To be able to consider co-authorship networks, we needed to link these scholars to publication histories. To this end, we use OpenAlex as a source that is increasingly used in bibliometric research [@priem2022]. OpenAlex is open source and contains scholarly metadata. It offers publication coverage comparable to major proprietary databases such as Web of Science or Scopus, with a particularly strong coverage of persistent identifiers that enable reliable author disambiguation (e.g. ORCID so as to pinpoint which authors wrote what publications). It also also provides a more balanced linguistic coverage than Web of Science, albeit with some remaining limitations in the accuracy and completeness of language metadata [see, e.g., @cespedes2025; @culbert2025]. <!--- unsure whether this last sentence is necessary --->
+
+How do we link departmental scholars to OpenAlex? We first queried OpenAlex for institutions (both their English and Dutch names) to find OpenAlex institution identifiers, such that we can match scholars' names and their OpenAlex institutional identifiers. In a next step, we query OpenAlex for full name + OpenAlex institutions to be able to link our scholars to OpenAlex scholar identifiers. Note that this crosslinking procedure allows for each scholar to be linked to multiple OpenAlex author IDs. This is important for our purposes -- and simultaneously highlights the importance of having a relevant scholarly anchor database -- because some scholars have more than one profile (XX% of our scholars) in OpenAlex due to changing names or institutional affiliations across publications. So we now have candidate OpenAlex scholar identifier and profiles that we filter through institutional matches, name similarity thresholds (Jaro–Winkler similarity), and a small set of manual heuristics. Our aim is to systematically exclude false matches and retain a high-confidence links between our scholars and OpenAlex scholar identifiers. We then compile for each linked scholar and their associated OpenAlex scholar identifier their publications, such that each row represents a unique author-publication. The associated publication metadata consists of information like OpenAlex publication identifiers, publications years, what type of publication it is, and, most importantly for our purposes, with whom the publication is written. XX% of our scholars were matched to publication data. All code and (intermediate) output of this study are documented and made available through our public replication package website: XXURLXXX.
+
+### Variables
+
+#### Dependent Variable
+
+*Co-authorship ties*, the dependent variable, was operationalized as a binary co-publishing tie between pairs of scholars. Using the OpenAlex-based publication data described above, we identified all works in which any two scholars in our roster appeared together in the authorship list. For each pair of scholars, we then coded a tie as present (1) if they had coauthored at least one publication within the observation window, and absent (0) otherwise. This information was assembled into a series of adjacency matrices in which nodes represent scholars and undirected edges represent observed co-publishing relationships.
+
+Describe: From undirected network to first-author and last-author perspective.
+
+These longitudinal collaboration networks form the outcome in our models, capturing both the existence and evolution of co-author
+
+#### Independent Variables
+
+(nog niet compleet, graag ordenen naar theorie structuur, gender, opportunities, preferences, scientific capital, controls)
+
+*Gender* was operationalized as an inferred gender indicator based on scholars’ first names. We first used the `genderizeR` package to query the genderize.io database, which provides probabilistic gender assignments for first names based on large-scale social media data [@wais2016, see also genderize.io documentation]. The underlying database aggregates first-name and gender information for more than one hundred million individuals across a wide range of countries, and returns both a predicted gender and associated probability for each name. Using this API, we obtained an initial classification for all unique first names in our scholar roster. To improve coverage for names that are common in the Netherlands and reduce misclassification, we then matched first names to the Dutch public civic registry name database hosted by the Meertens Instituut (Nederlandse Voornamenbank), which contains all officially registered first names in the Netherlands and their distribution by sex over time [@meertensinstituut]. Where available, this registry information was used to validate or refine the genderize.io-based assignments, especially for names with low counts or ambiguous probabilities in genderize.io.
+
+*Origin* was operationalized as an inferred country-of-origin indicator based on scholars’ surnames. We first used the `DemografixeR` package to query the nationalize.io API, which provides probabilistic nationality assignments for last names based on large-scale web data [@brenninkmeijer2025, see also nationalize.io documentation]. The underlying database aggregates name-country occurrences from diverse online sources, and returns, for each surname, a set of country codes with associated probabilities. Using this API, we obtained an initial nationality distribution for all unique surnames in our scholar roster. To improve coverage for surnames that are common in the Netherlands and to correct systematic misclassifications, we then complemented these predictions with information from the Dutch Database of Surnames in the Netherlands (Nederlandse Familienamenbank), which reports the number of name bearers per surname and provides etymological notes on its origin and meaning [@centrumvoorfamiliegeschiedenis]. A custom scraping and parsing pipeline extracted origin-related signals from these etymology texts (e.g., language adjectives such as “Nederlandse”, “Turkse”, or “Marokkaanse”, references to specific countries or regions, and indicators of Dutch surname particles), and combined them with national occurrence counts. And we further harmonized the various signals to ISO 3166-1 alpha-2 country codes. The resulting variable captures, for each scholar, the most likely country-of-origin signal implied by their surname. In a final than further aggregated origin, to identify whether people are from the following backgrounds: (1) Dutch; (2) Turkish, Surinamese, Morrocan, Dutch Antillean or (3) other.
+
+*Position* was operationalized as an indicator of scholars’ academic rank/role within the Dutch university system. Starting from the free-text job titles collected from departmental staff pages, we first cleaned and standardized these titles (e.g., “universitair docent”, “universitair hoofddocent”, “hoogleraar”, “postdoc-onderzoeker”, “promovendus”) and translated them into a common English terminology. We then mapped all titles to a set of seven analytically meaningful categories: *PhD student*, *Postdoc*, *Lecturer*, *Researcher*, *Assistant professor*, *Associate professor*, and *Full professor*. In cases where multiple roles were listed for the same individual (e.g., combined teaching and research appointments or endowed/visiting positions), we applied a simple priority hierarchy that privileges structural career rank (professor \> associate professor \> assistant professor \> researcher or lecturer \> lecturer \> PhD student). The resulting harmonized variable therefore captures each scholar’s primary academic position.
+
+#### Control Variables
+
+*Topic Similarity* controls for topical proximity between authors two years prior each start of each wave, we constructed a dyadic dissimilarity measure based on OpenAlex topic assignments. For each author $(i)$, we first extracted all publications in a two-year retrospective window $[t-2,\, t)$ and created an author–topic profile as the vector of topic shares (row-normalized topic counts). Next, we estimated a topic *proximity* matrix from historical publication data (a broader retrospective window) using cosine similarity between topics; proximities were rescaled to $[0,1]$ and converted to distances $M = 1-\text{proximity}$. Author-pair dissimilarity $D_{ij}$ was then computed as a weighted distance between their topic-share profiles, where differences in topic shares are combined across all topic pairs and weighted by topic distances $M$. Finally, $D_{ij}$ was normalized by the maximum observed value within each year × topic type so that higher values indicate greater topical dissimilarity (i.e., lower topic similarity) between authors $i$ and $j$. This dyadic covariate is included as a control in network models to account for homophily in collaboration driven by shared research interests.
+
+*Interdisciplinarity* controls for the diversity of topics of each author. We operationalized an author’s interdisciplinarity as the extent to which their publication portfolio spans *distant* rather than closely related topics. For each wave $t$ and topic type (OpenAlex subfields), we first constructed an author–topic profile using all publications in a two-year retrospective window $[t-2,\, t)$. Topic counts were row-normalized to obtain a vector of topic shares $P_i$ for each author $i$. We then derived a topic *proximity* matrix from historical publication data using cosine similarity between topics, rescaled to $[0,1]$, such that higher values indicate greater topical relatedness. Interdisciplinarity was computed as one minus the proximity-weighted concentration of an author’s portfolio, $\text{ID}_i = 1 - P_i^\top$, $\text{prox}$, $P_i$. This measure increases when an author distributes their work across less-related topics and decreases when publications are concentrated within closely connected topics. Scores were calculated separately for each year and topic type and used as an author-level control to account for individual differences in breadth of scholarly activity that may shape collaboration opportunities and partner choice.
+
+*Affiliation* captures scholars’ primary institutional location and is measured as a categorical indicator of the Dutch research university at which they are employed. Based on the initial manual scrape of departmental staff pages, we distinguish eight universities: Radboud University, Erasmus University Rotterdam, University of Amsterdam, Leiden University, Vrije Universiteit Amsterdam, Utrecht University, Tilburg University, and University of Groningen. We include affiliation as a control variable to account for structural differences between universities in size, funding, and collaboration culture that may shape co-publishing opportunities.
+
+*Geographical proximity* accounts for collaboration opportunities arising from spatial proximity, we included a dyadic control capturing the estimated travel time between authors’ institutional locations. For each year $t$, we assigned each author to the university of their *first recorded affiliation* in that year. Using these yearly university assignments, we constructed an $N \times N$ matrix where each entry represents the travel time (in hours) between the universities of author $i$ and author $j$. The travel-time by train in hours was sourced from the 9292.nl, which is the main public transport API for the Netherlands. Author pairs with missing affiliation information in year $t$ receive missing values for this dyadic covariate. This variable is included as a control in network models to adjust for the fact that geographically closer scholars may be more likely to collaborate due to lower coordination costs and greater opportunities for face-to-face interaction.
+
+*Discipline* indicates whether a scholar is employed in sociology or political science, derived from the manually coded departmental information in the initial staff rosters and coded as a binary indicator for sociology versus political science. We include discipline as a control variable to capture field-specific norms in publishing, collaboration rates, and typical team sizes that could otherwise confound observed differences in network positions and outcomes.
+
+*h-index* was used as a bibliometric indicator of scholars’ cumulative research impact. For each scholar, we drew on the OpenAlex publication and citation data linked to their author identifiers and calculated the Hirsch index, defined as the largest integer *h* such that the scholar has at least *h* publications with $\geq$ *h* citations each [@hirsch2005]. We first assembled, for every scholar, the full set of works retrieved from OpenAlex, along with their citation counts at the time of data collection. These works were then sorted in descending order of citations, and the h-index was computed by identifying the point at which the number of publications equals or exceeds the citation threshold. The resulting measure reflects each scholar’s career-wide citation impact within the coverage of OpenAlex over the observation window and is used as a continuous indicator of scholarly standing in our analyses.
+
+### Analytical Approach
+
+-   RSIENA
+-   multiplex
+-   structural network effects
+-   how to test hypotheses
+
+## Results
+
+### Descriptive statistics
+
+#### ego-level / scholars
+
+#### egonets
+
+To some extent, we observe similar patterns in our data. For example, in the period 2022 and 2024, the number of distinct Dutch employed sociologists or political scientists women worked with is smaller than for men (on average 1 versus 1.3). The networks of male social scientists are also more tightly knit, as indicated by the higher clustering coefficients (Table ...). However, in contrast to previous work, we observe that among Dutch sociologists and political scientists, women are more likely than men to collaborate with scholars from universities other than one's own, as indicated by the less negative Krackhard and Stern's E-I index [@krackhardt1988] capturing the relative prevalence of between university and within university ties (see table ...). and are, thus, less locally orientated. Such descriptive statistics – of prior work and our own – however, elude the complex interdependent network dynamics from which they are the result. <!---en dus? nl anders, onze disciplines anders. mis punchline. en daarom moeten we kijken naar dynamics-->
+
+<!---describe some--->
+
+.
+
+#### complete networks
+
+some graphics as well.
+
+### RSiena results
+
+## Conclusion/discussion
+
+genarative AI, future of papers/collaboration. more and more papers. instead of working with real people, with AI agentic agents? is this chance or threat to gender inequality in academica?? reduces collaboration. see paper nature 2026 Hao, q, nature 649. PD roles are shrinking the fastest?
+
+ai might be used as compensating strategy of one lacks scientific capital in real-life collaboration networks.
+
+Dong, 2026 proved that genai improves writing skills under specific conditions.
+
+## References
