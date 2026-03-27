@@ -187,8 +187,10 @@ fcolnet2 <- function(
   # step 1: make selection of nodes
   authors <- data[["demographics"]] |>
     filter(
-      if_any(c(university_22_first, university_24_first, university_25_first),
-            ~ .x %in% university),
+      if_any(c(university_22, university_24, university_25),
+            ~ .x |>
+              toupper() |>
+              str_detect(paste(university, collapse = "|"))),
       if_any(c(discipline_22, discipline_24, discipline_25),
             ~ .x %in% discipline),
       if_any(c(position_22, position_24, position_25),
@@ -257,14 +259,6 @@ harmonize_covariates <- function(data, what = 'data'){
 
   return(data)
 }
-```
-
-```{r}
-# s = samp |>
-#   harmonize_covariates(what = 'nodes') |> [['nodes']] |>
-#   group_by(gender, migrant, discipline) | |>
-#   summarize(n = n())
-
 ```
 
 ```{r}
@@ -823,7 +817,7 @@ compute_ego_objects <- function(
     discipline_var = "discipline_22",
     university_var,
     position_var = "position_22",
-    i_index_var = "i_index"
+    i_index_var = "i10_index_21"
 ) {
   stopifnot(university_var %in% names(node_data))
 
@@ -916,7 +910,7 @@ calculate_ego_results <- function(wave1, node_data, mode = 'all'){
     mode = mode,
     gender_var = "gender",
     university_var = "uni22p",
-    i_index_var = "i10_index_22"
+    i_index_var = "i10_index_21"
   )
   out <- node_data |>
     select(uid, gender) |>
@@ -952,15 +946,41 @@ exclude_junior_staff <- function(colnet) {
 }
 ```
 
+```{r}
+mask_structural_missing <- function(colnet, include_ties = FALSE, value = 10){
+  for (type in names(colnet[['nets']])){
+    for (i in 1:length(colnet[['nets']][[type]])){
+      net <- colnet[['nets']][[type]][[i]]
+      
+      no_ties <- rowSums(net) == 0 * include_ties
+      abscent <- colnet[['data']] |> 
+        column_to_rownames('uid') |>
+        pull(paste0("uni", c(22, 24, 25)[i])) |> 
+        is.na()
+
+      exclude <- no_ties & abscent
+      net[exclude, ] <- value
+      net[ ,exclude] <- value
+
+      colnet[['nets']][[type]][[i]] <- net
+    }
+  }
+
+  return(colnet)
+}
+```
+
 
 ```{r}
 # Helper to build one colnet + results
 build_results <- function(type, mode) {
   colnet <- fcolnet2(data,
-    university = toupper(uni_levels),
-    type = type,
-    waves = NULL
-  ) |> harmonize_covariates(what = 'data')
+      university = toupper(uni_levels),
+      type = type,
+      waves = NULL
+    ) |> 
+    harmonize_covariates(what = 'data') |>
+    mask_structural_missing(value = 0)
 
   wave1 = colnet[['nets']][[1]]
   wave2 = colnet[['nets']][[2]]
@@ -969,7 +989,7 @@ build_results <- function(type, mode) {
   make_res <- function(w1, w2, nd, mode) {
     res <- summarize_colnet_wave(
       wave = w1, node_data = nd, wave_next = w2,
-      directed = TRUE, mode = mode, i_index_var = "i10_index_22"
+      directed = TRUE, mode = mode, i_index_var = "i10_index_21"
     )
     res$ego <- calculate_ego_results(w1, nd, mode = 'out')
     res

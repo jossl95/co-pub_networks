@@ -70,6 +70,14 @@ clean_affilliations = function(data){
 
   data[['demographics']] = data[['demographics']] |>
     mutate(
+      across(
+        starts_with('university'),
+        # clean and split university strings
+        ~ .x |> str_replace('\\.', '/') |>
+          str_replace(regex('LEIDEN', ignore_case = TRUE), 'UL')  |>
+          str_replace('RUG', 'UVG') |>
+          str_replace('UCU', 'UU')
+      ),
       # get the first valid affiliation per author year
       across(
         starts_with('university'),
@@ -80,11 +88,7 @@ clean_affilliations = function(data){
           # select the first of valid universities
           sapply(\(chunks){
             chunks[chunks %in% valid_universities][1]
-          }) |>
-          str_to_upper() |>
-          str_replace('LEIDEN', 'UL')  |>
-          str_replace('RUG', 'UVG') |>
-          str_replace('UCU', 'UU'),
+          }),
         .names = "{.col}_first"
       ),
       # calculate the number of affiliations
@@ -143,7 +147,8 @@ create_affiliations_long <- function(demographics,
       values_to = "value"
     ) %>%
     mutate(year = paste0("20", str_extract(name, regex(year_regex)))) %>%
-    select(uid, year, value)
+    select(uid, year, value) %>%
+    mutate(value = toupper(value))
 }
 
 #' Convert travel-time matrix T to long lookup table
@@ -429,3 +434,18 @@ ggplot(plot_df, aes(x = university, y = n)) +
 ```
 
  
+
+ 
+ ```{r}
+temp =  data[['demographics']] |>
+  mutate(
+    across(
+      starts_with('university'),
+      # clean and split university strings
+      ~ .x |> str_replace('\\.', '/') |>
+        str_replace(regex('LEIDEN', ignore_case = TRUE), 'UL')  |>
+        str_replace('RUG', 'UVG') |>
+        str_replace('UCU', 'UU')
+    )) |>
+  select(university_22, university_24, university_25)
+ ```

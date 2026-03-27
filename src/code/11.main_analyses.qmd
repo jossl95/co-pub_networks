@@ -187,8 +187,10 @@ fcolnet2 <- function(
   # step 1: make selection of nodes
   authors <- data[["demographics"]] |>
     filter(
-      if_any(c(university_22_first, university_24_first, university_25_first),
-            ~ .x %in% university),
+      if_any(c(university_22, university_24, university_25),
+            ~ .x |>
+              toupper() |>
+              str_detect(paste(university, collapse = "|"))),
       if_any(c(discipline_22, discipline_24, discipline_25),
             ~ .x %in% discipline),
       if_any(c(position_22, position_24, position_25),
@@ -225,6 +227,7 @@ fcolnet2 <- function(
 }
 ```
 
+
 ```{r}
 harmonize_covariates <- function(data, what = 'data'){
   uni_levels = c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU")
@@ -257,30 +260,36 @@ harmonize_covariates <- function(data, what = 'data'){
 ```
 
 ```{r}
+mask_structural_missing <- function(colnet, include_ties = FALSE, value = 10){
+  for (type in names(colnet[['nets']])){
+    for (i in 1:length(colnet[['nets']][[type]])){
+      net <- colnet[['nets']][[type]][[i]]
+      
+      no_ties <- rowSums(net) == 0 * include_ties
+      abscent <- colnet[['data']] |> 
+        column_to_rownames('uid') |>
+        pull(paste0("uni", c(22, 24, 25)[i])) |> 
+        is.na()
 
-```
+      exclude <- no_ties & abscent
+      net[exclude, ] <- value
+      net[ ,exclude] <- value
 
-```{r}
-# s = samp |>
-#   harmonize_covariates(what = 'nodes') |> [['nodes']] |>
-#   group_by(gender, migrant, discipline) | |>
-#   summarize(n = n())
+      colnet[['nets']][[type]][[i]] <- net
+    }
+  }
 
+  return(colnet)
+}
 ```
 
 ```{r}
 # uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))
 uni_levels = tolower(c(
-  "RU", "UU"
-  # , "UVA", "UVG"
-))
-
-
-uni_levels = tolower(c(
   "RU"
+  # , "UU"
   # , "UVA", "UVG"
 ))
-
 
 colnet <- fcolnet2(data, 
     discipline = "Sociology",
@@ -288,7 +297,8 @@ colnet <- fcolnet2(data,
     type = NULL,
     waves = NULL
   ) |>
-  harmonize_covariates(what='data')
+  harmonize_covariates(what='data') |>
+  mask_structural_missing()
 
 wave1 = colnet[['nets']][['first']][[1]]
 wave2 = colnet[['nets']][['first']][[2]]
@@ -319,19 +329,22 @@ gender <- coCovar(colnet[['data']]$female)
 soc <- coCovar(colnet[['data']]$soc)
 
 # set values for time varying universities
-uni = colnet[['data']] |> select(uni22p, uni24p, uni25p)
-uni <- uni_levels[-1] |>
+uni = colnet[['data']] |>
+  select(uni22, uni24, uni25)
+
+uni <- uni_levels[-1] |> 
   set_names() |>
+  toupper() |>
   map(function(level) {
     mat <- uni |>
       transmute(
-        # u22 = as.integer(uni22p == level), # excluded for model specification
-        u24 = as.integer(uni24p == level),
-        u25 = as.integer(uni25p == level)
+        u22 = as.integer(str_detect(uni22, level)), 
+        u24 = as.integer(str_detect(uni24, level)),
+        u25 = as.integer(str_detect(uni25, level)) # excluded for model specification
       ) |>
       as.matrix()
 
-    varCovar(mat, centered = FALSE)
+    varCovar(mat[, c(1, 2)], centered = FALSE)
   })
 
 # functions
@@ -347,13 +360,13 @@ funcs = funcs_levels[-1] |>
   map(function(level){
     mat <- funcs |>
       transmute(
-        # f22 = as.integer(position_22 == level),
+        f22 = as.integer(position_22 == level),
         f24 = as.integer(position_25 == level),
-        f25 = as.integer(position_25 == level)
+        f25 = as.integer(position_25 == level) # excluded for model specification
       ) |>
       as.matrix()
     
-    varCovar(mat, centered = FALSE)
+    varCovar(mat[, c(1, 2)], centered = FALSE)
   })
 ```
 
@@ -369,8 +382,6 @@ mig <- migrant_groups[-1] |>
   })
 
 ```
-
-
 
 ```{r}
 add_interdisciplinarity = function(colnet, topics){
@@ -456,7 +467,7 @@ mydata <- sienaDataCreate(
   first, last, gender, soc,
   mig$M4, mig$other,
   # uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,
-  #uni$uu, 
+  # uni$uu, 
   # uni$uva, uni$uvg,
   funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]],
   intdis, dissim, distan

@@ -259,7 +259,7 @@ fcolnet2 <- function(
   authors <- data[["demographics"]] |>
     filter(
       if_any(c(university_22_first, university_24_first, university_25_first),
-            ~ .x %in% university),
+            ~ .x |> toupper() %in% university),
       if_any(c(discipline_22, discipline_24, discipline_25),
             ~ .x %in% discipline),
       if_any(c(position_22, position_24, position_25),
