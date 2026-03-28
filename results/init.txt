@@ -4,11 +4,11 @@
 
 Filename is ./init.txt.
 
-This file contains basic descriptives for SIENA data set <<./init>>.
+This file contains primary output for SIENA project <<./init>>.
 
-Date and time: 27/03/2026 12:41:17 
+Date and time: 28/03/2026 11:18:23 
 
-RSiena version 1.6.2 (26 02 2026)
+RSiena version 1.5.0 (06 07 2025)
 
 
 @1
@@ -235,34 +235,34 @@ A total of 5 exogenous changing actor covariates.
 
 Number of missing cases per period:
  period                    1       2     overall
-funcs[[1]]                13      26       39 	   ( 30.5 %)
-funcs[[2]]                13      26       39 	   ( 30.5 %)
-funcs[[3]]                13      26       39 	   ( 30.5 %)
-funcs[[4]]                13      26       39 	   ( 30.5 %)
+funcs[[1]]                13       5       18 	   ( 14.1 %)
+funcs[[2]]                13       5       18 	   ( 14.1 %)
+funcs[[3]]                13       5       18 	   ( 14.1 %)
+funcs[[4]]                13       5       18 	   ( 14.1 %)
 intdis                    19      11       30 	   ( 23.4 %)
 
 Information about changing covariates:
 
               minimum  maximum	  mean  centered 
 funcs[[1]]                                 N 
-	period   1     0.0     1.0      0.176 
-	period   2     0.0     1.0      0.211 
-Overall                            0.191 
+	period   1     0.0     1.0      0.118 
+	period   2     0.0     1.0      0.119 
+Overall                            0.118 
 
 funcs[[2]]                                 N 
 	period   1     0.0     1.0      0.196 
-	period   2     0.0     1.0      0.342 
-Overall                            0.258 
+	period   2     0.0     1.0      0.203 
+Overall                            0.200 
 
 funcs[[3]]                                 N 
 	period   1     0.0     1.0      0.039 
-	period   2     0.0     1.0      0.026 
-Overall                            0.034 
+	period   2     0.0     1.0      0.017 
+Overall                            0.027 
 
 funcs[[4]]                                 N 
 	period   1     0.0     1.0      0.137 
-	period   2     0.0     1.0      0.184 
-Overall                            0.157 
+	period   2     0.0     1.0      0.136 
+Overall                            0.136 
 
 intdis                                     Y 
 	period   1     0.0     0.6      0.350 
@@ -309,10 +309,10 @@ Similarity gender                   :       0.4921
 Similarity soc                      :       0.9688 
 Similarity mig$M4                   :       0.9092 
 Similarity mig$other                :       0.6711 
-Similarity funcs[[1]]               :       0.6876 
-Similarity funcs[[2]]               :       0.6284 
-Similarity funcs[[3]]               :       0.9317 
-Similarity funcs[[4]]               :       0.7346 
+Similarity funcs[[1]]               :       0.7877 
+Similarity funcs[[2]]               :       0.6738 
+Similarity funcs[[3]]               :       0.9478 
+Similarity funcs[[4]]               :       0.7602 
 Similarity intdis                   :       0.7767 
 
 
@@ -401,94 +401,4 @@ constant last rate (period 1)           1.3679
 constant last rate (period 2)           0.8918 
 last: outdegree (density)                         -1.7089 
 
-Initialisation of data set <<./init>> executed succesfully.
-
-
------------------------------------
-New Analysis started.
-Date and time: 27/03/2026 12:41:26
-New results follow.
------------------------------------
-
-RSiena version 1.6.2 (26 Feb 26)
-
-
-@1
-Estimation by stochastic approximation algorithm.
-=================================================
-
-Random initialization of random number stream.
-Current random number seed is 142283.
-Effects object used: myeff 
-Model Type:
-Network 1 first : Standard actor-oriented model 
-Network 2 last : Standard actor-oriented model 
-Estimation method: unconditional moment estimation
-.
-
-Time duration for simulations in each period is 1.0.
-Standard errors are estimated with the likelihood ratio method.
-Dolby method (regression on scores) is used.
-Initial value of gain parameter is  0.2000000.
-Reduction factor for gain parameter is  0.5000000.
-Number of subphases in Phase 2 is 4.
-
-Initial parameter values are 
-  1. rate:  constant first rate (period 1)                  1.5583
-  2. rate:  constant first rate (period 2)                  1.0505
-  3. eval:  first: outdegree (density)                     -1.6889
-  4. eval:  first: reciprocity                              0.0000
-  5. eval:  first: GWESP I -> K -> J (69)                   0.0000
-  6. eval:  first: indegree - popularity (sqrt)             0.0000
-  7. eval:  first: outdegree - activity (sqrt)              0.0000
-  8. eval:  first: dissim                                   0.0000
-  9. eval:  first: gender alter                             0.0000
- 10. eval:  first: gender ego                               0.0000
- 11. eval:  first: same gender                              0.0000
- 12. eval:  first: funcs[[1]] alter                         0.0000
- 13. eval:  first: funcs[[1]] ego                           0.0000
- 14. eval:  first: funcs[[2]] alter                         0.0000
- 15. eval:  first: funcs[[2]] ego                           0.0000
- 16. eval:  first: funcs[[3]] alter                         0.0000
- 17. eval:  first: funcs[[3]] ego                           0.0000
- 18. eval:  first: funcs[[4]] alter                         0.0000
- 19. eval:  first: funcs[[4]] ego                           0.0000
- 20. eval:  first: indegree - popularity x gender alter     0.0000
- 21. eval:  first: funcs[[4]] alter x gender alter          0.0000
- 22. rate:  constant last rate (period 1)                   1.3679
- 23. rate:  constant last rate (period 2)                   0.8918
- 24. eval:  last: outdegree (density)                      -1.7089
- 25. eval:  last: reciprocity                               0.0000
-
-
-Values of target statistics are
-  1. Amount of network change in period 1                                49.0000
-  2. Amount of network change in period 2                                33.0000
-  3. first: Number of ties                                               88.0000
-  4. first: Number of reciprocated ties                                  18.0000
-  5. first: Numb. edgew. shrd prtns.by two path (69)                     27.0000
-  6. first: Sum of indegrees x sqrt(indegree)                           167.6083
-  7. first: Sum of outdegrees^(1.5)                                     123.5883
-  8. first: Sum of ties x dissim                                        -12.6024
-  9. first: Sum indegrees x gender                                      -14.0000
- 10. first: Sum outdegrees x gender                                      13.0000
- 11. first: Same values on gender                                        45.0000
- 12. first: Sum indegrees x funcs[[1]]                                    9.0000
- 13. first: Sum outdegrees x funcs[[1]]                                  18.0000
- 14. first: Sum indegrees x funcs[[2]]                                   31.0000
- 15. first: Sum outdegrees x funcs[[2]]                                  14.0000
- 16. first: Sum indegrees x funcs[[3]]                                   12.0000
- 17. first: Sum outdegrees x funcs[[3]]                                   3.0000
- 18. first: Sum indegrees x funcs[[4]]                                   32.0000
- 19. first: Sum outdegrees x funcs[[4]]                                   7.0000
- 20. first: indegree - popularity x gender alter                       -102.0000
- 21. first: funcs[[4]] alter x gender alter                             -11.0000
- 22. Amount of network change in period 1                                43.0000
- 23. Amount of network change in period 2                                28.0000
- 24. last: Number of ties                                                70.0000
- 25. last: Number of reciprocated ties                                   14.0000
-These were calculated from the data.
-
- 25 parameters, 25 statistics
-
-Total computation time 10.98 seconds.
+Initialisation of project <<./init>> executed succesfully.
