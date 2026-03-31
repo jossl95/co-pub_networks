@@ -37,9 +37,29 @@ library(purrr)
 library(broom)
 library(forcats)
 library(scales)
+library(patchwork)
+library(gt)
 ```
 
 ## Functions
+
+### `limit_observation_period()`
+
+Restrict the edge table to co-authorships published on or after a given start date.
+
+#### Arguments
+
+**`data`**
+
+> Named list containing an `edge_table` element with a `publication_date` column.
+
+**`start_date`**
+
+> Character string (parseable by `ymd()`) or date giving the earliest publication date to keep. Defaults to `"2020-01-01"`.
+
+#### Method
+
+The function filters `data[['edge_table']]` to rows where `publication_date >= ymd(start_date)` and returns the updated list.
 
 ```{r}
 limit_observation_period <- function(data, start_date = "2020-01-01"){
@@ -50,16 +70,30 @@ limit_observation_period <- function(data, start_date = "2020-01-01"){
 }
 ```
 
+### `determine_complete_cases()`
+
+Flag scholars by data completeness and create a `nodes` table of analysis-ready scholars.
+
+#### Arguments
+
+**`data`**
+
+> Named list containing `scholars_oa` (list of tibbles with `has_author_id` and `uid`), `edge_table` (with `uid` and `a__uid`), and `demographics` (with `uid`, position columns, and other scholar metadata).
+
+#### Method
+
+The function identifies two sets of UIDs: scholars with a valid OpenAlex author ID (`has_oa`) and scholars who appear as a focal author in at least one co-authored work during the observation period (`has_work`). It adds a `flag` column to `demographics` coded `"is_complete"`, `"no_works"`, or `"no_oa"`, and an `is_staff` indicator that is `TRUE` when all three position columns (`position_22`, `position_24`, `position_25`) are either `NA` or `"staff"`. A `nodes` table is created by retaining only scholars flagged `"is_complete"` and not `is_staff`.
+
 ```{r}
 determine_complete_cases <-function(data) {
   # authors with valid OpenAlex id
-  has_oa <- data[['scholars_oa']] |> 
+  has_oa <- data[['scholars_oa']] |>
     bind_rows() |>
     filter(has_author_id) |>
     distinct(uid) |> pull()
 
   # authors with published works during observation period
-  has_work <- data[['edge_table']] |> 
+  has_work <- data[['edge_table']] |>
     filter(uid != a__uid) |>
     distinct(uid) |> pull()
 
@@ -78,32 +112,30 @@ determine_complete_cases <-function(data) {
       )
     )
 
-  data[['nodes']] = data[['demographics']] |> 
+  data[['nodes']] = data[['demographics']] |>
     filter(flag == 'is_complete', !is_staff)
 
   return(data)
 }
 ```
 
-## Application
+### `select_sample_matrix()`
 
-```{r}
-data <- freadRDS2('data', location = "./data/analysis/")
-topics <-freadRDS2('topics', location = './data/analysis/')
-```
+Subset an existing matrix to the rows and columns corresponding to a given sample of UIDs, padding with `NA` for UIDs not present in the original.
 
+#### Arguments
 
-```{r}
-data <- data |> 
-  limit_observation_period() |>
-  determine_complete_cases()
-```
+**`d0`**
 
-```{r}
-data[['demographics']] |> 
-  filter(!is_staff) |>
-  count(flag)
-```
+> A named numeric matrix with rows and columns indexed by UID strings.
+
+**`sample`**
+
+> Character vector of UIDs defining the desired output dimensions.
+
+#### Method
+
+The function initializes an `NA` matrix of dimension `length(sample) × length(sample)`. It finds the intersection of `sample` with the existing row and column names of `d0` and copies the overlapping block into the corresponding positions of the new matrix.
 
 ```{r}
 select_sample_matrix <- function(d0, sample){
@@ -123,6 +155,24 @@ select_sample_matrix <- function(d0, sample){
 }
 ```
 
+### `select_sample_intdis()`
+
+Subset the interdisciplinarity matrix to a given sample of scholars, padding with `NA` for missing rows.
+
+#### Arguments
+
+**`topics`**
+
+> Named list containing an `intdis` sub-list whose `subfield` element is a matrix with rows indexed by UID and columns indexed by year.
+
+**`sample`**
+
+> Character vector of UIDs defining the desired row set.
+
+#### Method
+
+The function extracts `topics[["intdis"]][["subfield"]]`, initializes a new matrix with `sample` as row names and the same column names as the original, and copies rows that are present in both `sample` and the original. Rows not found in the original are left as `NA`.
+
 ```{r}
 select_sample_intdis <- function(topics, sample){
   t0 <- topics[["intdis"]][["subfield"]]
@@ -137,70 +187,60 @@ select_sample_intdis <- function(topics, sample){
 }
 ```
 
-```{r}
-# select_sample <- function (data, topics){
-#   # set list with valid uids
-#   sample <- data[['nodes']] |> distinct(uid) |> pull() |> sort() 
+### `make_adjacency_matrix()`
 
-#   # select valid works and scholars
-#   data[['works']] <- data[['works']][sample]
-#   data[['scholars_oa']] <- data[['scholars_oa']][sample]
-#   data[['edge_table']] <- data[['edge_table']] |> filter(uid %in% sample)
+Build a co-authorship adjacency matrix for a specified set of scholars and time window.
 
-#   # prune distances matrices
-#   years <- c('2022', '2024', '2025')
-#   for (year in years){
-#     d0 <- data[['distances']][[year]]
-#     data[['distances']][[year]] <- select_sample_matrix(d0, sample)
-#   }
-#   return(data)
-# }
+#### Arguments
 
-# select_sample_topics <- function(samp, topics){
-#   sample <- samp[['nodes']] |> distinct(uid) |> pull() |> sort()
+**`data`**
 
-#   D <- list()
-#   years <- c('2022', '2024', '2025')
-#   for (year in years){
-#     D[[year]] <- topics[['dissim']][['subfield']][['2022']] |>
-#       select_sample_matrix(sample)
-#   }
-#   samp[['dissim']] <- D
-#   samp[['intdis']] <- topics |> select_sample_intdis(sample)
+> Named list with a `works` element (named list of per-scholar works tibbles containing `uid`, `work_id`, `authorships`, `publication_date`, and `publication_year`).
 
-#   return(samp)
-# }
+**`uids`**
 
-# samp <- data |> 
-#   select_sample() |>
-#   select_sample_topics(topics)
+> Character vector of focal scholar UIDs defining the rows and columns of the output matrix.
 
-```
+**`type`**
 
+> Character string controlling which author position is treated as the focal node. `"first"` and `"last"` use the author at that position; `"all"` creates a full crossing of all co-authors on each work. Defaults to `"first"`.
 
+**`min_year`**
+
+> Integer year or Date giving the lower bound of the publication window (inclusive).
+
+**`max_year`**
+
+> Integer year or Date giving the upper bound of the publication window (inclusive).
+
+**`weighted`**
+
+> Logical. If `TRUE`, matrix values reflect the count of shared publications; if `FALSE`, values are binarized to `1L`. Defaults to `FALSE`.
+
+#### Method
+
+The function binds the works for the requested `uids`, filters to the specified publication window (using `publication_date` for Date inputs and `publication_year` for integers), selects `uid`, `work_id`, and `authorships`, deduplicates by `work_id`, and unnests authorships. Depending on `type`, it either builds ego–alter pairs using the author at the named position or crosses all author pairs per work. Co-author pairs are counted and optionally binarized. The result is pivoted to a wide adjacency matrix, padded to the full `uids` dimension with zeros for absent pairs, and the diagonal is set to `0`.
 
 ```{r}
-
-# step 2: prune works for selection
 make_adjacency_matrix <- function(
     data, uids, type = 'first', min_year = 2020, max_year = 2026, weighted = FALSE
   ) {
 
   # make edgelist from works
-  edges <- data[['works']][uids] |> 
+  edges <- data[['works']][uids] |>
     purrr::keep(~ nrow(.x) > 0) |>
     bind_rows()
-  
+
   if (inherits(min_year, "Date")) {
     edges <- edges |> filter(publication_date >= min_year, publication_date <= max_year)
   } else {
     edges <- edges |> filter(publication_year >= min_year, publication_year <= max_year)
   }
-  edges <- edges |> 
+  edges <- edges |>
     select(uid, work_id, authorships) |>
     rename(e_uid = uid) |>
     distinct(work_id, .keep_all = TRUE) |>
-    unnest(authorships) 
+    unnest(authorships)
 
   if (type != 'all') {
     edges <- edges |>
@@ -211,7 +251,7 @@ make_adjacency_matrix <- function(
       filter(!is.na(e_uid), e_uid != uid) |>
       select(work_id, e_uid, uid)
   } else {
-    edges <- edges |> 
+    edges <- edges |>
       group_by(work_id) |>
       reframe(
         tidyr::crossing(
@@ -234,20 +274,20 @@ make_adjacency_matrix <- function(
 
   # all nodes appearing as ego or alter
   nodes <- sort(unique(c(edge_counts$e_uid, edge_counts$uid)))
-  
+
   # complete matrix grid and pivot to wide
   adj <- edge_counts %>%
     rename(from = e_uid, to = uid) %>%
     complete(from = nodes, to = nodes, fill = list(w = 0)) %>%
     pivot_wider(names_from = to, values_from = w) %>%
     arrange(from)
-  
+
   # convert to matrix and set rownames
   mat <- adj %>% as.data.frame()
-  
+
   row_ids <- mat$from
   mat$from <- NULL
-  
+
   mat <- as.matrix(mat)
   rownames(mat) <- row_ids
   diag(mat) <- 0
@@ -268,9 +308,44 @@ make_adjacency_matrix <- function(
   mat <- mat_full
 
   mat
-} 
+}
+```
 
+### `fcolnet2()`
 
+Build a multi-wave co-authorship network filtered by university, position, and discipline.
+
+#### Arguments
+
+**`data`**
+
+> Named list with a `demographics` element (containing `uid`, `university_*`, `discipline_*`, and `position_*` columns) and a `works` element used by `make_adjacency_matrix()`.
+
+**`university`**
+
+> Character vector of university abbreviations to include. Defaults to all eight valid Dutch universities.
+
+**`position`**
+
+> Character vector of academic positions to include. Defaults to all five valid positions.
+
+**`discipline`**
+
+> Character vector of disciplines to include. Defaults to `"Sociology"` and `"Political Sciences"`.
+
+**`type`**
+
+> Character string or `NULL`. If `NULL`, adjacency matrices are built for `"first"`, `"last"`, and `"all"` authorship types; otherwise the single specified type is used.
+
+**`waves`**
+
+> List of two-element vectors specifying the start and end of each observation wave. Defaults to three waves roughly corresponding to 2019–2022, 2023–2024, and 2025–2026.
+
+#### Method
+
+The function validates each filter argument against its allowed values using an internal helper. It filters `demographics` to scholars who appear with at least one of the specified universities, disciplines, and positions across the three measurement years. For each wave (and optionally each authorship type), it calls `make_adjacency_matrix()` with the corresponding year bounds. The function returns a list with `data` (the filtered demographics tibble) and `nets` (the nested list of adjacency matrices).
+
+```{r}
 fcolnet2 <- function(
     data,
     university = NULL,
@@ -284,7 +359,7 @@ fcolnet2 <- function(
   valid_universities <- c("UVA","EUR","UL","VU","UVG","UU","RU","UVT")
   valid_positions    <- c("Associate Professor","PhD Candidate","Full Professor",
                           "Researcher or Lecturer","Assistant Professor")
-  valid_dates        <- list(c(ymd('20201219'), ymd('20221219')), 
+  valid_dates        <- list(c(ymd('20201219'), ymd('20221219')),
                              c(ymd('20221220'), ymd('20240419')),
                              c(ymd('20240420'), ymd('20260201')))
 
@@ -307,8 +382,10 @@ fcolnet2 <- function(
   # step 1: make selection of nodes
   authors <- data[["demographics"]] |>
     filter(
-      if_any(c(university_22_first, university_24_first, university_25_first),
-            ~ .x %in% university),
+      if_any(c(university_22, university_24, university_25),
+            ~ .x |>
+              toupper() |>
+              str_detect(paste(university, collapse = "|"))),
       if_any(c(discipline_22, discipline_24, discipline_25),
             ~ .x %in% discipline),
       if_any(c(position_22, position_24, position_25),
@@ -316,7 +393,7 @@ fcolnet2 <- function(
     ) |>
     arrange(uid)
   uids <- authors |> pull(uid) |> sort()
-  
+
   # step 3: create empty matrixes (wave, i, j)
   nwaves <- length(waves)
   nets <- list()
@@ -345,144 +422,19 @@ fcolnet2 <- function(
 }
 ```
 
-```{r}
-colnet <- fcolnet2(data, 
-  type = 'all',
-  waves = list(c(ymd('20201219'), ymd('20260201')))
-)
-```
+### `compute_ego_statistics()`
 
-```{r}
-n = colnet[['nets']][[1]]
+Compute per-scholar network centrality statistics from an igraph network object.
 
-n[upper.tri(n)] |> sum(na.rm = TRUE)
-n[lower.tri(n)] |> sum(na.rm = TRUE)
+#### Arguments
 
-```
+**`nets`**
 
-```{r}
-#| column: page-inset
+> A list with at least a `graph` element (an igraph object) and optionally a `data` element (a demographics tibble with a `uid` column).
 
-net <- fcolnet2(data, 
-  type = 'first',
-  waves = list(c(2020, 2026))
-)
+#### Method
 
-noisolate <- rowSums(net$nets[[1]], na.rm = TRUE) > 0
-net$nets[[1]] = net$nets[[1]][noisolate, noisolate] 
-
-net$graph  <- igraph::graph_from_adjacency_matrix(
-  net$nets[[1]],
-  mode = "directed",
-  weighted = NULL,
-  diag = FALSE,
-  add.colnames = NULL)
-
-df_ego <- net$data |> 
-  filter(uid %in% colnames(net$nets[[1]]))|>
-  mutate(
-    uni = coalesce(university_22_first, university_24_first, university_25_first)
-  ) |>
-  arrange(uid)
-
-l <- layout_with_fr(net$graph, niter = 1500)
-
-plot(net$graph,
-  vertex.color = ifelse(df_ego$uni == "UVA", "red",  
-                 ifelse(df_ego$uni == "UVG", "lemonchiffon", 
-                 ifelse(df_ego$uni == "VU", "darkgrey", 
-                 ifelse(df_ego$uni == "UVT", "blue",  
-                 ifelse(df_ego$uni == "RU", "purple",
-                 ifelse(df_ego$uni == "EUR", "yellow",
-                 ifelse(df_ego$uni == "UU", "green",
-                 ifelse(df_ego$uni == "UL", "coral", "white")))))))),
-  # vertex.shape = ifelse(df_ego$gender == 'female', "circle", 'square'),
-  vertex.size = 2 + igraph::degree(net$g, mode = 'in') ^ 0.5,
-  vertex.label = NA,
-  vertex.size = 4,
-  edge.width = 0.2,
-  edge.arrow.size = 0.2,
-  layout = l)
-
-
-```
-
-```{r}
-plot_df <- data[["demographics"]] |>
-  mutate(
-    position = factor(
-      coalesce(position_25, position_24, position_22),
-      levels = c(
-        "Full Professor", "Associate Professor", "Assistant Professor",
-        "Researcher or Lecturer", "PhD Candidate"
-      )
-    ),
-    flag = forcats::fct_na_value_to_level(as.factor(position))
-  ) |>
-  filter(!is.na(position)) |>
-  count(position, flag)
-
-ggplot(plot_df, aes(x = position, y = n, fill = flag)) +
-  geom_col() +
-  labs(x = NULL, y = "Count", fill = "Flag") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  
-```
-
-```{r}
-plot_df <- data[["demographics"]] |>
-  mutate(
-    # position = factor(
-    #   coalesce(position_25, position_24, position_22),
-    #   levels = c(
-    #     "Full Professor", "Associate Professor", "Assistant Professor",
-    #     "Researcher or Lecturer", "PhD Candidate"
-    #   )
-    # ),
-    flag = forcats::fct_na_value_to_level(as.factor(migrant))
-  ) |>
-  filter(!is.na(migrant)) |>
-  count(migrant, flag)
-
-ggplot(plot_df, aes(x = migrant, y = n, fill = flag)) +
-  geom_col() +
-  labs(x = NULL, y = "Count", fill = "Flag") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  
-```
-
-```{r}
-net_first <- fcolnet2(data, 
-  type = 'first',
-  waves = list(c(2019, 2026))
-)
-noisolate = rowSums(net_first$nets[[1]]) > 0
-# net_first$nets[[1]] <- net_first$nets[[1]][noisolate, noisolate]
-
-net_first$graph  <- igraph::graph_from_adjacency_matrix(
-  net_first$nets[[1]],
-  mode = c("directed"),
-  weighted = NULL,
-  diag = FALSE,
-  add.colnames = NULL,)
-
-net_last <- fcolnet2(data, 
-  type = 'last',
-  waves = list(c(2019, 2026))
-)
-noisolate <- rowSums(net_last$nets[[1]]) > 0
-# net_last$nets[[1]] <- net_last$nets[[1]][noisolate, noisolate]
-
-net_last$graph <- igraph::graph_from_adjacency_matrix(
-  net_last$nets[[1]],
-  mode = c("directed"),
-  weighted = NULL,
-  diag = FALSE,
-  add.colnames = NULL,)
-```
-
+The function checks whether the graph is directed and computes total, in-, and out-degree (filling `NA` for undirected graphs), normalized betweenness centrality, and normalized closeness centrality for every vertex. These are assembled into a tibble indexed by vertex name as `uid`. If `nets$data` contains a `uid` column, the centrality tibble is right-joined to demographics and a subset of personal identifier columns is dropped before returning the result.
 
 ```{r}
 compute_ego_statistics <- function(nets) {
@@ -545,17 +497,241 @@ compute_ego_statistics <- function(nets) {
 
   return(stats)
 }
-
 ```
 
-<!-- 
+### `group_means()`
+
+Summarize mean network centrality statistics by a grouping variable.
+
+#### Arguments
+
+**`df`**
+
+> A tibble containing `degree`, `betweenness`, and `closeness` columns (as produced by `compute_ego_statistics()`) along with the grouping column.
+
+**`group_var`**
+
+> Character string naming the column to group by (e.g. `"gender"`, `"last_position"`).
+
+#### Method
+
+The function filters out rows where `group_var` is `NA`, groups by that variable, and computes the count of scholars and the mean of `degree`, `betweenness`, and `closeness`. The grouping column is renamed to `group` and a `group_var` identifier column is prepended to facilitate downstream `bind_rows()` calls.
+
+```{r}
+group_means <- function(df, group_var) {
+  df |>
+    filter(!is.na(.data[[group_var]])) |>
+    group_by(.data[[group_var]]) |>
+    summarise(
+      n = n(),
+      degree_mean      = mean(degree, na.rm = TRUE),
+      betweenness_mean = mean(betweenness, na.rm = TRUE),
+      closeness_mean   = mean(closeness, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    rename(group = 1) |>
+    mutate(group_var = group_var, .before = group)
+}
+```
+
+### `pairwise_ttests_with_stats()`
+
+Run pairwise Welch t-tests across all group level combinations for multiple network metrics.
+
+#### Arguments
+
+**`df`**
+
+> A tibble with scholar-level metrics and at least the columns named in `group_var` and `metrics`.
+
+**`group_var`**
+
+> Character string naming the grouping column (e.g. `"last_position"`, `"migrant"`).
+
+**`metrics`**
+
+> Character vector of metric column names to test. Defaults to `c("degree", "betweenness", "closeness")`.
+
+**`p_adjust`**
+
+> Character string naming the p-value adjustment method passed to `p.adjust()`. Defaults to `"holm"`.
+
+#### Method
+
+The function converts `group_var` to a factor (dropping unused levels after filtering `NA`s), enumerates all unordered pairs of group levels using `combn()`, and for each pair runs a Welch t-test per metric using `broom::tidy()` to extract results. The output is a tibble with columns for the group variable, metric, the two group labels, t-statistic, degrees of freedom, mean difference, confidence interval bounds, raw p-value, and a Holm-adjusted p-value computed within each (group_var, metric) combination.
+
+```{r}
+pairwise_ttests_with_stats <- function(
+    df, group_var, metrics = c("degree","betweenness","closeness"),
+    p_adjust = "holm"
+  ) {
+  df2 <- df |>
+    filter(!is.na(.data[[group_var]])) |>
+    select(all_of(c(group_var, metrics))) |>
+    mutate("{group_var}" := droplevels(as.factor(.data[[group_var]])))
+
+  # all unordered pairs of group levels
+  lvls <- levels(df2[[group_var]])
+  pairs <- combn(lvls, 2, simplify = FALSE)
+
+  # long metrics
+  df_long <- df2 |>
+    pivot_longer(all_of(metrics), names_to = "metric", values_to = "value")
+
+  out <- map_dfr(pairs, function(pr) {
+    g1 <- pr[[1]]; g2 <- pr[[2]]
+
+    df_pair <- df_long |>
+      filter(.data[[group_var]] %in% c(g1, g2)) |>
+      mutate(g = droplevels(.data[[group_var]]))
+
+    df_pair |>
+      group_by(metric) |>
+      summarise(
+        test = list(t.test(value ~ g)),  # Welch by default
+        .groups = "drop"
+      ) |>
+      mutate(tidy = map(test, broom::tidy)) |>
+      unnest(tidy) |>
+      transmute(
+        group_var = group_var,
+        metric,
+        group1 = g1,
+        group2 = g2,
+        statistic = as.numeric(statistic), # this is t
+        parameter = as.numeric(parameter), # df
+        estimate = estimate,               # diff in means (group2 - group1) per broom
+        conf.low, conf.high,
+        p_value = p.value,
+        method
+      )
+  })
+
+  # adjust p-values within each (group_var, metric)
+  out |>
+    group_by(group_var, metric) |>
+    mutate(p_adj = p.adjust(p_value, method = p_adjust)) |>
+    ungroup()
+}
+```
+
+## Application
+
+```{r}
+data <- freadRDS2('data', location = "./data/analysis/")
+topics <-freadRDS2('topics', location = './data/analysis/')
+```
+
+```{r}
+data <- data |>
+  limit_observation_period() |>
+  determine_complete_cases()
+```
+
+```{r}
+data[['demographics']] |>
+  filter(!is_staff) |>
+  count(flag)
+```
+
+```{r}
+colnet <- fcolnet2(data,
+  type = 'all',
+  waves = list(c(ymd('20201219'), ymd('20260201')))
+)
+```
+
+```{r}
+n = colnet[['nets']][[1]]
+
+n[upper.tri(n)] |> sum(na.rm = TRUE)
+n[lower.tri(n)] |> sum(na.rm = TRUE)
+```
+
+```{r}
+#| column: page-inset
+
+net <- fcolnet2(data,
+  type = 'first',
+  waves = list(c(2020, 2026))
+)
+
+noisolate <- rowSums(net$nets[[1]], na.rm = TRUE) > 0
+net$nets[[1]] = net$nets[[1]][noisolate, noisolate]
+
+net$graph  <- igraph::graph_from_adjacency_matrix(
+  net$nets[[1]],
+  mode = "directed",
+  weighted = NULL,
+  diag = FALSE,
+  add.colnames = NULL)
+
+df_ego <- net$data |>
+  filter(uid %in% colnames(net$nets[[1]]))|>
+  mutate(
+    uni = coalesce(university_22_first, university_24_first, university_25_first) |>
+      toupper()
+  ) |>
+  arrange(uid)
+
+l <- layout_with_fr(net$graph, niter = 1500)
+
+plot(net$graph,
+  vertex.color = ifelse(df_ego$uni == "UVA", "red",
+                 ifelse(df_ego$uni == "UVG", "lemonchiffon",
+                 ifelse(df_ego$uni == "VU", "darkgrey",
+                 ifelse(df_ego$uni == "UVT", "blue",
+                 ifelse(df_ego$uni == "RU", "purple",
+                 ifelse(df_ego$uni == "EUR", "yellow",
+                 ifelse(df_ego$uni == "UU", "green",
+                 ifelse(df_ego$uni == "UL", "coral", "white")))))))),
+  vertex.shape = ifelse(df_ego$gender == 'female', "circle", 'square'),
+  vertex.size = 2 + igraph::degree(net$g, mode = 'in') ^ 0.5,
+  vertex.label = NA,
+  vertex.size = 4,
+  edge.width = 0.2,
+  edge.arrow.size = 0.1,
+  layout = l)
+```
+
+```{r}
+net_first <- fcolnet2(data,
+  type = 'first',
+  waves = list(c(2019, 2026))
+)
+noisolate = rowSums(net_first$nets[[1]]) > 0
+# net_first$nets[[1]] <- net_first$nets[[1]][noisolate, noisolate]
+
+net_first$graph  <- igraph::graph_from_adjacency_matrix(
+  net_first$nets[[1]],
+  mode = c("directed"),
+  weighted = NULL,
+  diag = FALSE,
+  add.colnames = NULL,)
+
+net_last <- fcolnet2(data,
+  type = 'last',
+  waves = list(c(2019, 2026))
+)
+noisolate <- rowSums(net_last$nets[[1]]) > 0
+# net_last$nets[[1]] <- net_last$nets[[1]][noisolate, noisolate]
+
+net_last$graph <- igraph::graph_from_adjacency_matrix(
+  net_last$nets[[1]],
+  mode = c("directed"),
+  weighted = NULL,
+  diag = FALSE,
+  add.colnames = NULL,)
+```
+
+<!--
 ieder die wetenschappelijk personeel is
 niet selecteren op openalex of publicatie
 -->
 ```{r}
 desc_data <- data[["demographics"]] |>
   mutate(
-    first_affiliation = coalesce(university_22_first, university_24_first, university_25_first),
+    first_affiliation = coalesce(university_22_first, university_24_first, university_25_first) |> toupper(),
     last_position = factor(
       coalesce(position_25, position_24, position_22),
       levels = c(
@@ -565,8 +741,8 @@ desc_data <- data[["demographics"]] |>
     ),
     gender  = factor(gender,  levels = c("female", "male")),
     migrant = factor(migrant, levels = c("NL", "M4", "other"))
-  ) 
-  
+  )
+
 desc <- desc_data |>
   select(gender, migrant, first_affiliation, last_position) |>
   pivot_longer(everything(), names_to = "variable", values_to = "value") |>
@@ -589,33 +765,60 @@ desc <- desc_data |>
 desc
 ```
 
-
 ```{r}
 net$stats$ego = compute_ego_statistics(net)
 net_first$stats$ego = compute_ego_statistics(net_first)
 net_last$stats$ego = compute_ego_statistics(net_last)
 ```
 
+```{r}
+plot_df <- data[["demographics"]] |>
+  mutate(
+    position = factor(
+      coalesce(position_25, position_24, position_22),
+      levels = c(
+        "Full Professor", "Associate Professor", "Assistant Professor",
+        "Researcher or Lecturer", "PhD Candidate"
+      )
+    ),
+    flag = forcats::fct_na_value_to_level(as.factor(position))
+  ) |>
+  filter(!is.na(position)) |>
+  count(position, flag)
+
+ggplot(plot_df, aes(x = position, y = n, fill = flag)) +
+  geom_col() +
+  labs(x = NULL, y = "Count", fill = "Flag") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 
 ```{r}
-group_means <- function(df, group_var) {
-  df |>
-    filter(!is.na(.data[[group_var]])) |>
-    group_by(.data[[group_var]]) |>
-    summarise(
-      n = n(),
-      degree_mean      = mean(degree, na.rm = TRUE),
-      betweenness_mean = mean(betweenness, na.rm = TRUE),
-      closeness_mean   = mean(closeness, na.rm = TRUE),
-      .groups = "drop"
-    ) |>
-    rename(group = 1) |>
-    mutate(group_var = group_var, .before = group)
-}
+plot_df <- data[["demographics"]] |>
+  mutate(
+    # position = factor(
+    #   coalesce(position_25, position_24, position_22),
+    #   levels = c(
+    #     "Full Professor", "Associate Professor", "Assistant Professor",
+    #     "Researcher or Lecturer", "PhD Candidate"
+    #   )
+    # ),
+    flag = forcats::fct_na_value_to_level(as.factor(migrant))
+  ) |>
+  filter(!is.na(migrant)) |>
+  count(migrant, flag)
 
+ggplot(plot_df, aes(x = migrant, y = n, fill = flag)) +
+  geom_col() +
+  labs(x = NULL, y = "Count", fill = "Flag") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
 ego <- net$stats$ego |>
   mutate(
-    first_affiliation = coalesce(university_22_first, university_24_first, university_25_first),
+    first_affiliation = coalesce(university_22_first, university_24_first, university_25_first) |> toupper(),
     last_position = factor(
       coalesce(position_25, position_24, position_22),
       levels = c(
@@ -637,11 +840,6 @@ means_all
 ```
 
 ```{r}
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(patchwork)
-
 plot_data <- means_all |>
   pivot_longer(
     cols = c(degree_mean, betweenness_mean, closeness_mean),
@@ -718,11 +916,10 @@ p_closeness <- plot_data |>
   ) +
   base_theme
 
-p_degree 
+p_degree
 p_betweenness
 p_closeness
 ```
-
 
 ```{r}
 tt_gender <- ego |>
@@ -749,62 +946,7 @@ tt_gender <- ego |>
 tt_gender
 ```
 
-
 ```{r}
-
-pairwise_ttests_with_stats <- function(
-    df, group_var, metrics = c("degree","betweenness","closeness"),
-    p_adjust = "holm"
-  ) {
-  df2 <- df |>
-    filter(!is.na(.data[[group_var]])) |>
-    select(all_of(c(group_var, metrics))) |>
-    mutate("{group_var}" := droplevels(as.factor(.data[[group_var]])))
-
-  # all unordered pairs of group levels
-  lvls <- levels(df2[[group_var]])
-  pairs <- combn(lvls, 2, simplify = FALSE)
-
-  # long metrics
-  df_long <- df2 |>
-    pivot_longer(all_of(metrics), names_to = "metric", values_to = "value")
-
-  out <- map_dfr(pairs, function(pr) {
-    g1 <- pr[[1]]; g2 <- pr[[2]]
-
-    df_pair <- df_long |>
-      filter(.data[[group_var]] %in% c(g1, g2)) |>
-      mutate(g = droplevels(.data[[group_var]]))
-
-    df_pair |>
-      group_by(metric) |>
-      summarise(
-        test = list(t.test(value ~ g)),  # Welch by default
-        .groups = "drop"
-      ) |>
-      mutate(tidy = map(test, broom::tidy)) |>
-      unnest(tidy) |>
-      transmute(
-        group_var = group_var,
-        metric,
-        group1 = g1,
-        group2 = g2,
-        statistic = as.numeric(statistic), # this is t
-        parameter = as.numeric(parameter), # df
-        estimate = estimate,               # diff in means (group2 - group1) per broom
-        conf.low, conf.high,
-        p_value = p.value,
-        method
-      )
-  })
-
-  # adjust p-values within each (group_var, metric)
-  out |>
-    group_by(group_var, metric) |>
-    mutate(p_adj = p.adjust(p_value, method = p_adjust)) |>
-    ungroup()
-}
-
 tt_position <- pairwise_ttests_with_stats(ego, "last_position")
 tt_migrant  <- pairwise_ttests_with_stats(ego, "migrant")
 tt_affiliation  <- pairwise_ttests_with_stats(ego, "first_affiliation")
@@ -817,7 +959,7 @@ tt_affiliation
 ```{r}
 ego2 <- net_first$stats$ego |>
   mutate(
-    first_affiliation = coalesce(university_22_first, university_24_first, university_25_first),
+    first_affiliation = coalesce(university_22_first, university_24_first, university_25_first) |> toupper(),
     last_position = factor(
       coalesce(position_25, position_24, position_22),
       levels = c(
@@ -827,7 +969,7 @@ ego2 <- net_first$stats$ego |>
     ),
     gender  = factor(gender,  levels = c("female", "male")),
     migrant = factor(migrant, levels = c("NL", "M4", "other"))
-  ) 
+  )
 
 tt_gender2 <- ego2 |>
   filter(!is.na(gender)) |>
@@ -863,9 +1005,7 @@ tt_migrant2
 tt_affiliation2
 ```
 
-
 ```{r}
-library(gt)
 desc_table = desc |>
   select(-pct) |>
   left_join(
@@ -874,7 +1014,7 @@ desc_table = desc |>
       variable == group_var,
       value == 'group'
     )
-  ) |> 
+  ) |>
   mutate(
     variable = case_when(
       variable == 'first_affiliation' ~ 'Affiliation',
@@ -891,11 +1031,11 @@ desc_table = desc |>
       .default = value
     ),
     variable = factor(
-      variable, 
+      variable,
       levels = c('Gender', 'Migration Background', 'Affiliation', 'Position')
     ),
     value = factor(
-      value, 
+      value,
       levels = c(
         'Female', 'Male', 'Majority', 'Minority', 'Other', 'EUR', 'RU', 'UL',
         'UU', 'UVA', 'UVG', 'UVT', 'VU', 'Full Professor', 'Associate Professor',
@@ -922,7 +1062,7 @@ gt_desc_table = desc_table |>
     )
   ) |>
   tab_spanner(
-    label = 'Centrality', 
+    label = 'Centrality',
     columns = c(degree_mean, betweenness_mean, closeness_mean)) |>
   fmt_number(decimals = 3, drop_trailing_zeros = FALSE) |>
   fmt_number(columns = 3, decimals = 0) |>
@@ -936,14 +1076,12 @@ gt_desc_table = desc_table |>
 saveRDS(gt_desc_table, file = file.path('results', 'tables', 'gtdesc.Rds'))
 
 gt_desc_table
-
 ```
-
 
 ```{r}
 tt <- bind_rows(
     tt_gender, tt_gender2,
-    tt_position, tt_position2, 
+    tt_position, tt_position2,
     tt_migrant, tt_migrant2,
     tt_affiliation, tt_affiliation2
   ) |>
@@ -961,7 +1099,7 @@ tt <- bind_rows(
         levels = c('Gender', 'Migration Background', 'Affiliation', 'Position')
       ),
     group1 = case_when(
-      group1 == 'female' ~ 'Female', 
+      group1 == 'female' ~ 'Female',
       group1 == 'male' ~ 'Male',
       group1 == 'NL' ~ 'Majority',
       group1 == 'M4' ~ 'Minority',
@@ -969,7 +1107,7 @@ tt <- bind_rows(
       .default = group1
     ),
     group2 = case_when(
-      group2 == 'female' ~ 'Female', 
+      group2 == 'female' ~ 'Female',
       group2 == 'male' ~ 'Male',
       group2 == 'NL' ~ 'Majority',
       group2 == 'M4' ~ 'Minority',
@@ -1025,19 +1163,19 @@ gt_tt = tt |>
     pattern = "({1} - {2})"
   ) |>
   tab_spanner(
-    label = 'Degree', 
+    label = 'Degree',
     columns = c(degree_estimate, degree_f)) |>
   tab_spanner(
-    label = 'In-Degree', 
+    label = 'In-Degree',
     columns = c(indegree_estimate, indegree_f)) |>
   tab_spanner(
-    label = 'Out-Degree', 
+    label = 'Out-Degree',
     columns = c(outdegree_estimate, outdegree_f)) |>
   tab_spanner(
-    label = 'Closeness', 
+    label = 'Closeness',
     columns = c(closeness_estimate, closeness_f)) |>
   tab_spanner(
-    label = 'Betweenness', 
+    label = 'Betweenness',
     columns = c(betweenness_estimate, betweenness_f)) |>
   fmt_number(decimals = 3)
 
@@ -1045,8 +1183,6 @@ saveRDS(gt_tt, file = file.path('results', 'tables', 'gtttest.Rds'))
 
 gt_tt
 ```
-
-
 
 ```{r}
 

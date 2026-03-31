@@ -9,7 +9,7 @@ format:
         icon: file-code
         text: Custom Functions
 
-execute: 
+execute:
   eval: false
 ---
 
@@ -42,6 +42,27 @@ library(purrr)
 
 ## Functions
 
+### `create_topic_table()`
+
+Build a long-form topic table from works data within a specified look-back window.
+
+#### Arguments
+
+**`data`**
+
+> Named list that contains a `works` element (list of works tibbles with at least `uid`, `work_id`, `publication_year`, and `topics`).
+
+**`base_year`**
+
+> Integer. The reference year; only works published in the `window` years preceding this year are included. Defaults to `2022`.
+
+**`window`**
+
+> Integer. Number of years to look back from `base_year`. Defaults to `5`.
+
+#### Method
+
+The function binds all non-empty works tibbles together and filters to works whose `publication_year` falls in `[base_year - window, base_year)`. It selects `uid`, `work_id`, `publication_year`, and `topics`, then unnests and widens the `topics` column. Finally it strips the OpenAlex base URL and maps `subfields/`, `fields/`, and `domains/` prefixes to compact short codes (`S`, `F`, `D`).
 
 ```{r}
 create_topic_table = function(data, base_year = 2022, window = 5){
@@ -60,9 +81,27 @@ create_topic_table = function(data, base_year = 2022, window = 5){
         str_replace('subfields/', 'S') |>
         str_replace('fields/', 'F') |>
         str_replace('domains/', 'D')
-    ) 
+    )
 }
 ```
+
+### `pivot_topic_table()`
+
+Filter a long topic table to a given topic type and pivot it to a wide binary indicator matrix.
+
+#### Arguments
+
+**`topic_table`**
+
+> A long-form topic tibble as returned by `create_topic_table()`, with at least `uid`, `work_id`, `publication_year`, `id`, and `type` columns.
+
+**`topic_type`**
+
+> Character string. The topic hierarchy level to select (e.g. `"field"`, `"subfield"`). Must be a value present in the `type` column. Defaults to `NA`.
+
+#### Method
+
+The function validates that `topic_type` is present in the `type` column, emitting a warning if not. It filters to the specified type, selects `uid`, `work_id`, `publication_year`, and `id`, adds a binary indicator column, and pivots wider so each unique topic `id` becomes a column. Duplicate topic–work pairs are summed; missing values are filled with `0L`.
 
 ```{r}
 pivot_topic_table = function(topic_table, topic_type = NA){
@@ -86,24 +125,76 @@ pivot_topic_table = function(topic_table, topic_type = NA){
       values_fill = 0L
     )
 }
+```
 
+### `aggregate_topic_table()`
+
+Aggregate a wide topic indicator table to one row per scholar by summing across works.
+
+#### Arguments
+
+**`table`**
+
+> A wide topic tibble as returned by `pivot_topic_table()`, with a `uid` column and numeric topic indicator columns whose names end in a digit.
+
+#### Method
+
+The function groups by `uid` and summarises all columns whose names end with a digit using `sum`, collapsing all per-work rows into a single per-scholar topic profile.
+
+```{r}
 aggregate_topic_table = function(table){
   table |>
     group_by(uid) |>
     summarise(across(matches("\\d$"), sum))
 }
+```
 
+### `calculate_proximity_matrix()`
+
+Compute a normalized cosine-proximity matrix between topics from a scholar-by-topic counts table.
+
+#### Arguments
+
+**`counts`**
+
+> A wide tibble with topic indicator or count columns (column names ending in a digit), as returned by `aggregate_topic_table()`.
+
+#### Method
+
+The function extracts the numeric topic columns and computes pairwise cosine distances using `coop::cosine()`. The diagonal is set to `0`. The resulting distance matrix is normalized to a 0–1 proximity scale via `1 - (d / max(d))^2` and returned.
+
+```{r}
 calculate_proximity_matrix = function(counts){
   d <- 1 - counts |>
     select(matches("\\d$")) |>
     coop::cosine()
   diag(d) = 0
-  
+
   prox <- 1 - (d/max(d))^2
-  
+
   return(prox)
 }
+```
 
+### `calculate_interdisciplinarity()`
+
+Compute a scalar interdisciplinarity score for each scholar from their topic-proportion vector and the topic proximity matrix.
+
+#### Arguments
+
+**`P`**
+
+> A numeric matrix of topic proportions (rows = scholars, columns = topics).
+
+**`proximity`**
+
+> A square numeric proximity matrix (topics × topics), as returned by `calculate_proximity_matrix()`.
+
+#### Method
+
+The function aligns `proximity` to the columns of `P` and replaces `NA` values with `0` in both matrices. Interdisciplinarity is computed as `1 - rowSums((P %*% prox) * P)`, yielding a named numeric vector of length `nrow(P)` where higher values indicate broader spread across dissimilar topics.
+
+```{r}
 calculate_interdisciplinarity = function(P, proximity){
   # align proximity once (same for every row)
   prox <- proximity[colnames(P), colnames(P)]
@@ -117,6 +208,24 @@ calculate_interdisciplinarity = function(P, proximity){
 }
 ```
 
+### `create_empty_author_matrix()`
+
+Initialize an empty square `NA` matrix indexed by the scholars present in the topics counts table.
+
+#### Arguments
+
+**`topics`**
+
+> Named list containing a `counts` element with a `field` tibble that has a `uid` column.
+
+**`topic_type`**
+
+> Placeholder argument for consistency with related functions; currently unused.
+
+#### Method
+
+The function extracts all `uid` values from `topics[['counts']][['field']]`, determines the number of distinct scholars, and returns an `n × n` matrix filled with `NA` with both row and column names set to the scholar `uid` values.
+
 ```{r}
 create_empty_author_matrix = function(topics, topic_type){
   # get all author information
@@ -129,7 +238,31 @@ create_empty_author_matrix = function(topics, topic_type){
   )
   return (D)
 }
+```
 
+### `calculate_dissimilarity()`
+
+Calculate a pairwise normalized dissimilarity matrix between scholars for a given year and topic type.
+
+#### Arguments
+
+**`topics`**
+
+> Named list with `counts` and `prox` sub-lists as produced by the processing pipeline.
+
+**`year`**
+
+> Integer. The reference year passed to `create_topic_table()` with a look-back window of 2.
+
+**`topic_type`**
+
+> Character string. Topic hierarchy level to use (e.g. `"field"`, `"subfield"`).
+
+#### Method
+
+The function initializes an empty author matrix via `create_empty_author_matrix()`. It then builds a topic-proportion matrix `A` for the specified year and type by calling `create_topic_table()`, `pivot_topic_table()`, `aggregate_topic_table()`, and `prop.table()`. The stored proximity matrix for the topic type is converted to a distance matrix `M`. For every scholar pair `(i, j)`, dissimilarity is computed as the sum of the outer product of absolute half-differences weighted by `M`, multiplied by `2`. The resulting matrix is normalized by its maximum value and returned.
+
+```{r}
 calculate_dissimilarity = function (topics, year, topic_type){
   # create empty dissimilarity table for all possible authors
   D = create_empty_author_matrix(topics)
@@ -139,7 +272,7 @@ calculate_dissimilarity = function (topics, year, topic_type){
     create_topic_table(base_year = year, window = 2) |>
     pivot_topic_table(topic_type = topic_type) |>
     aggregate_topic_table() |>
-    column_to_rownames(var="uid") |> 
+    column_to_rownames(var="uid") |>
     as.matrix() |>
     prop.table(margin = 1)
 
@@ -162,7 +295,8 @@ calculate_dissimilarity = function (topics, year, topic_type){
 }
 ```
 
-## Applications
+## Application
+
 ```{r}
 topics = list()
 data = freadRDS2('scholars', location = "./data/clean/")
@@ -188,13 +322,13 @@ years = c(2022, 2024, 2025)
 for (topic_type in topic_types) {
   for (year in years){
     year_lab = as.character(year)
-    
+
     # create a proportions table
     P = data |>
       create_topic_table(base_year = year, window = 2) |>
       pivot_topic_table(topic_type = topic_type) |>
       aggregate_topic_table() |>
-      column_to_rownames(var="uid") |> 
+      column_to_rownames(var="uid") |>
       as.matrix() |>
       prop.table(margin = 1)
 
@@ -203,7 +337,7 @@ for (topic_type in topic_types) {
 
     # calculate interdisciplinarity
     topics[['intdis']][[topic_type]][[year_lab]] = P |>
-      calculate_interdisciplinarity(prox) 
+      calculate_interdisciplinarity(prox)
   }
 
   # combine results into matrix
@@ -211,7 +345,6 @@ for (topic_type in topic_types) {
   colnames(res) = as.character(paste('int', years, sep = '_'))
   topics[['intdis']][[topic_type]] = res
 }
-
 ```
 
 ```{r}
@@ -223,7 +356,6 @@ for (topic_type in topic_types){
       calculate_dissimilarity(year, topic_type)
   }
 }
-
 ```
 
 ```{r}

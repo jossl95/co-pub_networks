@@ -1,0 +1,1562 @@
+---
+title: Network Descriptives
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+
+execute:
+  eval: false
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+#| echo: false
+BASEDIR = stringr::str_replace_all(getwd(), '/results', '')
+setwd(BASEDIR)
+```
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+
+BASEDIR = stringr::str_replace_all(getwd(), '/results', '')
+setwd(BASEDIR)
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(sna)
+library(RSiena)
+library(igraph)
+library(dplyr)
+library(tibble)
+library(purrr)
+library(ape)
+```
+
+## Functions
+
+### `make_adjacency_matrix()`
+
+Build a co-authorship adjacency matrix for a specified set of scholars and time window.
+
+#### Arguments
+
+**`data`**
+
+> Named list with a `works` element (named list of per-scholar works tibbles containing `uid`, `work_id`, `authorships`, `publication_date`, and `publication_year`).
+
+**`uids`**
+
+> Character vector of focal scholar UIDs defining the rows and columns of the output matrix.
+
+**`type`**
+
+> Character string controlling which author position is treated as the focal node. `"first"` and `"last"` use the author at that position; `"all"` creates a full crossing of all co-authors on each work. Defaults to `"first"`.
+
+**`min_year`**
+
+> Integer year or Date giving the lower bound of the publication window (inclusive).
+
+**`max_year`**
+
+> Integer year or Date giving the upper bound of the publication window (inclusive).
+
+**`weighted`**
+
+> Logical. If `TRUE`, matrix values reflect the count of shared publications; if `FALSE`, values are binarized to `1L`. Defaults to `FALSE`.
+
+#### Method
+
+The function binds the works for the requested `uids`, filters to the specified publication window (using `publication_date` for Date inputs and `publication_year` for integers), selects `uid`, `work_id`, and `authorships`, deduplicates by `work_id`, and unnests authorships. Depending on `type`, it either builds ego–alter pairs using the author at the named position or crosses all author pairs per work. Co-author pairs are counted and optionally binarized. The result is pivoted to a wide adjacency matrix, padded to the full `uids` dimension with zeros for absent pairs, and the diagonal is set to `0`.
+
+```{r}
+make_adjacency_matrix <- function(
+    data, uids, type = 'first', min_year = 2020, max_year = 2026, weighted = FALSE
+  ) {
+
+  # make edgelist from works
+  edges <- data[['works']][uids] |>
+    purrr::keep(~ nrow(.x) > 0) |>
+    bind_rows()
+
+  if (inherits(min_year, "Date")) {
+    edges <- edges |> filter(publication_date >= min_year, publication_date <= max_year)
+  } else {
+    edges <- edges |> filter(publication_year >= min_year, publication_year <= max_year)
+  }
+  edges <- edges |>
+    select(uid, work_id, authorships) |>
+    rename(e_uid = uid) |>
+    distinct(work_id, .keep_all = TRUE) |>
+    unnest(authorships)
+
+  if (type != 'all') {
+    edges <- edges |>
+      group_by(work_id) |>
+      mutate(
+        e_uid = uid[author_position == type][1]
+      ) |> ungroup() |>
+      filter(!is.na(e_uid), e_uid != uid) |>
+      select(work_id, e_uid, uid)
+  } else {
+    edges <- edges |>
+      group_by(work_id) |>
+      reframe(
+        tidyr::crossing(
+          e_uid = uid,
+          uid   = uid
+        )
+      ) |>
+      ungroup() |>
+      filter(!is.na(e_uid), e_uid != uid) |>
+      select(work_id, e_uid, uid)
+  }
+
+  # calculate the number of edges between ego and alters.
+  edge_counts <- edges |> count(e_uid, uid, name="w")
+
+  # convert counts to incidences
+  if (!weighted) {
+    edge_counts <- edge_counts %>% mutate(w = 1L)
+  }
+
+  # all nodes appearing as ego or alter
+  nodes <- sort(unique(c(edge_counts$e_uid, edge_counts$uid)))
+
+  # complete matrix grid and pivot to wide
+  adj <- edge_counts %>%
+    rename(from = e_uid, to = uid) %>%
+    complete(from = nodes, to = nodes, fill = list(w = 0)) %>%
+    pivot_wider(names_from = to, values_from = w) %>%
+    arrange(from)
+
+  # convert to matrix and set rownames
+  mat <- adj %>% as.data.frame()
+
+  row_ids <- mat$from
+  mat$from <- NULL
+
+  mat <- as.matrix(mat)
+  rownames(mat) <- row_ids
+  diag(mat) <- 0
+
+  # make sure the matrices are consistent across waves
+  all_uids <- as.character(uids)
+
+  # indices of existing rows/cols in desired order
+  ri <- match(all_uids, rownames(mat))
+  ci <- match(all_uids, colnames(mat))
+
+  # start with full NA matrix
+  mat_full <- matrix(0L, nrow = length(all_uids), ncol = length(all_uids),
+                    dimnames = list(all_uids, all_uids))
+
+  # copy overlap block
+  mat_full[!is.na(ri), !is.na(ci)] <- mat[ri[!is.na(ri)], ci[!is.na(ci)], drop = FALSE]
+  mat <- mat_full
+
+  mat
+}
+```
+
+### `fcolnet2()`
+
+Build a multi-wave co-authorship network filtered by university, position, and discipline.
+
+#### Arguments
+
+**`data`**
+
+> Named list with a `demographics` element (containing `uid`, `university_*`, `discipline_*`, and `position_*` columns) and a `works` element used by `make_adjacency_matrix()`.
+
+**`university`**
+
+> Character vector of university abbreviations to include. Defaults to all eight valid Dutch universities.
+
+**`position`**
+
+> Character vector of academic positions to include. Defaults to all five valid positions.
+
+**`discipline`**
+
+> Character vector of disciplines to include. Defaults to `"Sociology"` and `"Political Sciences"`.
+
+**`type`**
+
+> Character string or `NULL`. If `NULL`, adjacency matrices are built for `"first"`, `"last"`, and `"all"` authorship types; otherwise the single specified type is used.
+
+**`waves`**
+
+> List of two-element vectors specifying the start and end of each observation wave. Defaults to three waves roughly corresponding to 2019–2022, 2023–2024, and 2025–2026.
+
+#### Method
+
+The function validates each filter argument against its allowed values using an internal helper. It filters `demographics` to scholars who appear with at least one of the specified universities, disciplines, and positions across the three measurement years. For each wave (and optionally each authorship type), it calls `make_adjacency_matrix()` with the corresponding year bounds. The function returns a list with `data` (the filtered demographics tibble) and `nets` (the nested list of adjacency matrices).
+
+```{r}
+fcolnet2 <- function(
+    data,
+    university = NULL,
+    position   = NULL,
+    discipline = NULL,
+    type = NULL,
+    waves = list(c(2019, 2022), c(2023, 2024), c(2025, 2026))
+  ){
+
+  valid_disciplines  <- c("Sociology", "Political Sciences")
+  valid_universities <- c("UVA","EUR","UL","VU","UVG","UU","RU","UVT")
+  valid_positions    <- c("Associate Professor","PhD Candidate","Full Professor",
+                          "Researcher or Lecturer","Assistant Professor")
+  valid_dates        <- list(c(ymd('20201219'), ymd('20221219')),
+                             c(ymd('20221220'), ymd('20240419')),
+                             c(ymd('20240420'), ymd('20260201')))
+
+  # helper: set default + validate
+  set_and_check <- function(x, valid, name = deparse(substitute(x))) {
+    x <- if (is.null(x)) valid else x
+    bad <- setdiff(unique(na.omit(x)), valid)
+    if (length(bad)) stop("Invalid ", name, ": ", paste(bad, collapse = ", "), call. = FALSE)
+    x
+  }
+
+  # set and check values
+  discipline <- set_and_check(discipline, valid_disciplines,  "discipline")
+  university <- set_and_check(university, valid_universities, "university")
+  position   <- set_and_check(position,   valid_positions,    "position")
+  waves      <- if(is.null(waves)) valid_dates else waves
+  min_year   <- min(unlist(waves))
+  max_year   <- max(unlist(waves))
+
+  # step 1: make selection of nodes
+  authors <- data[["demographics"]] |>
+    filter(
+      if_any(c(university_22, university_24, university_25),
+            ~ .x |>
+              toupper() |>
+              str_detect(paste(university, collapse = "|"))),
+      if_any(c(discipline_22, discipline_24, discipline_25),
+            ~ .x %in% discipline),
+      if_any(c(position_22, position_24, position_25),
+            ~ .x %in% position)
+    ) |>
+    arrange(uid)
+  uids <- authors |> pull(uid) |> sort()
+
+  # step 3: create empty matrixes (wave, i, j)
+  nwaves <- length(waves)
+  nets <- list()
+  if (is.null(type)){
+    types = c('first', 'last', 'all')
+    for (t in types){
+      for (w in 1:length(waves)){
+        nets[[t]][[w]] <- make_adjacency_matrix(
+          data, uids, type = t, min_year = waves[[w]][1], max_year = waves[[w]][2])
+      }
+    }
+  } else {
+    for (w in 1:length(waves)){
+      nets[[w]] <- make_adjacency_matrix(
+        data, uids, type, min_year = waves[[w]][1], max_year = waves[[w]][2])
+    }
+  }
+
+  # step 4: fill nets
+  output <- list(
+    data = authors,
+    nets = nets
+  )
+
+  return(output)
+}
+```
+
+### `harmonize_covariates()`
+
+Standardize and rename covariate columns in a colnet data sub-list for use in analysis.
+
+#### Arguments
+
+**`data`**
+
+> A colnet list whose `data` (or other named) sub-element contains demographics columns for `gender`, `discipline_*`, `position_*`, `position2_*`, and `university_*_first`.
+
+**`what`**
+
+> Character string naming the sub-element of `data` to transform. Defaults to `'data'`.
+
+#### Method
+
+The function adds a `female` integer indicator and a `soc` integer indicator for Sociology (using the first non-missing discipline across the three measurement years). It also reclassifies scholars whose `position2_*` columns indicate a postdoctoral role as `"Postdoctoral Researcher"` in the corresponding `position_*` columns. It renames `university_*_first` columns to `uni*p` and converts all `uni*p` columns to ordered factors using a predefined set of eight university abbreviations as levels.
+
+```{r}
+harmonize_covariates <- function(data, what = 'data'){
+  uni_levels = c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU")
+
+  data[[what]] = data[[what]] |>
+    mutate(
+      female = as.integer(gender == 'female'),
+      soc = pmap_chr(
+        list(discipline_22, discipline_24, discipline_25),
+        ~ unique(na.omit(c(...)))[1]
+      ),
+      soc = as.integer(soc == 'Sociology'),
+      position_22 = ifelse(str_detect(position2_22, 'Postdoctoral'), 'Postdoctoral Researcher', position_22),
+      position_24 = ifelse(str_detect(position2_24, 'Postdoctoral'), 'Postdoctoral Researcher', position_24),
+      position_25 = ifelse(str_detect(position2_25, 'Postdoctoral'), 'Postdoctoral Researcher', position_25)
+    ) |>
+    rename_with(
+      ~ .x |>
+        str_replace('university_', 'uni') |>
+        str_replace('_first$', 'p')
+    ) |>
+    mutate(
+      across(
+        starts_with('uni') & ends_with('p'),
+        ~ factor(tolower(.x),
+        levels = tolower(uni_levels),
+        ordered = TRUE)
+      )
+    )
+
+  return(data)
+}
+```
+
+### `make_graph_from_wave()`
+
+Construct an igraph object from an adjacency matrix wave and attach node-level attributes.
+
+#### Arguments
+
+**`wave`**
+
+> A square numeric adjacency matrix with row and column names set to scholar UIDs.
+
+**`node_data`**
+
+> A tibble of node attributes whose row order matches the adjacency matrix. All columns are attached as vertex attributes.
+
+**`directed`**
+
+> Logical. If `TRUE`, the resulting graph is directed. Defaults to `TRUE`.
+
+#### Method
+
+The function calls `igraph::graph_from_adjacency_matrix()` with the appropriate mode. It then asserts that the vertex count equals the number of rows in `node_data` and iterates over all columns of `node_data`, attaching each as a named vertex attribute via `set_vertex_attr()`.
+
+```{r}
+make_graph_from_wave <- function(wave, node_data, directed = TRUE) {
+  graph <- igraph::graph_from_adjacency_matrix(
+    wave,
+    mode = if (directed) "directed" else "undirected",
+    weighted = NULL,
+    diag = FALSE,
+    add.colnames = NULL
+  )
+
+  stopifnot(vcount(graph) == nrow(node_data))
+
+  for (nm in names(node_data)) {
+    graph <- set_vertex_attr(graph, nm, value = node_data[[nm]])
+  }
+
+  graph
+}
+```
+
+### `detect_university_var()`
+
+Identify the university affiliation variable present in a node data frame.
+
+#### Arguments
+
+**`node_data`**
+
+> A data frame or tibble of node attributes, typically `colnet$data` or the vertex data frame of a graph.
+
+#### Method
+
+The function checks a set of candidate column names (`"university"`, `"university_first"`, `"first_affiliation"`, `"uni"`) against the columns present in `node_data`. It returns the first match, or stops with an error if none are found.
+
+```{r}
+detect_university_var <- function(node_data) {
+  candidates <- c(
+    "university", "university_first", "first_affiliation",
+    "uni"
+  )
+
+  hit <- intersect(candidates, names(node_data))
+  if (length(hit) == 0) {
+    stop("No university variable found in colnet$data.")
+  }
+  hit[[1]]
+}
+```
+
+### `detect_position_var()`
+
+Identify the position variable present in a node data frame.
+
+#### Arguments
+
+**`node_data`**
+
+> A data frame or tibble of node attributes, typically `colnet$data` or the vertex data frame of a graph.
+
+#### Method
+
+The function checks a set of candidate column names (`"position_22"`, `"position_24"`, `"position_25"`) against the columns present in `node_data`. It returns the first match, or stops with an error if none are found.
+
+```{r}
+detect_position_var <- function(node_data) {
+  candidates <- c(
+    "position_22", "position_24", "position_25"
+  )
+
+  hit <- intersect(candidates, names(node_data))
+  if (length(hit) == 0) {
+    stop("No position variable found in colnet$data.")
+  }
+  hit[[1]]
+}
+```
+
+### `make_distance_weights()`
+
+Build a binary weight matrix identifying all node pairs at an exact geodesic distance.
+
+#### Arguments
+
+**`graph`**
+
+> An igraph object.
+
+**`nb_distance`**
+
+> Integer. The geodesic distance at which to set weights to `1`. Defaults to `1`.
+
+**`mode`**
+
+> Character string passed to `igraph::distances()`. One of `"out"`, `"in"`, or `"all"`. Defaults to `"all"`.
+
+#### Method
+
+The function computes the full pairwise distance matrix via `igraph::distances()`, sets cells equal to `nb_distance` to `1`, sets all other cells (including unreachable pairs) to `0`, and zeroes the diagonal.
+
+```{r}
+make_distance_weights <- function(graph, nb_distance = 1, mode = "all") {
+  D <- distances(graph, mode = mode)
+  W <- (D == nb_distance) * 1
+  W[is.infinite(D)] <- 0
+  diag(W) <- 0
+  W
+}
+```
+
+### `graph_morans_i()` (igraph distances)
+
+Compute Moran's I for a numeric vertex attribute at a given graph-theoretic neighbor distance using igraph-based weights.
+
+#### Arguments
+
+**`graph`**
+
+> An igraph object with the target variable set as a vertex attribute.
+
+**`var`**
+
+> Character string. Name of the numeric vertex attribute to test.
+
+**`nb_distance`**
+
+> Integer. Neighbor distance at which to define the spatial weights. Defaults to `1`.
+
+**`mode`**
+
+> Character string passed to `make_distance_weights()`. Defaults to `"all"`.
+
+#### Method
+
+The function extracts the vertex attribute, subsets to non-missing observations, and checks for minimum sample size and non-zero variance. It constructs binary spatial weights via `make_distance_weights()` and calls `ape::Moran.I()` (unscaled). Returns a one-row tibble with `variable`, `nb_distance`, `observed`, `expected`, `sd`, and `p_value`; all numeric fields are `NA` when the statistic cannot be computed.
+
+```{r}
+graph_morans_i <- function(graph, var, nb_distance = 1, mode = "all") {
+  x <- vertex_attr(graph, var)
+
+  if (!is.numeric(x)) {
+    stop(sprintf("Variable '%s' must be numeric for Moran's I.", var))
+  }
+
+  keep <- !is.na(x)
+
+  if (sum(keep) < 3) {
+    return(tibble::tibble(
+      variable = var,
+      nb_distance = nb_distance,
+      observed = NA_real_,
+      expected = NA_real_,
+      sd = NA_real_,
+      p_value = NA_real_
+    ))
+  }
+
+  g_sub <- induced_subgraph(graph, vids = V(graph)[keep])
+  x_sub <- x[keep]
+
+  # no variance -> Moran's I undefined
+  if (length(unique(x_sub)) < 2 || isTRUE(all(stats::var(x_sub) == 0))) {
+    return(tibble::tibble(
+      variable = var,
+      nb_distance = nb_distance,
+      observed = NA_real_,
+      expected = NA_real_,
+      sd = NA_real_,
+      p_value = NA_real_
+    ))
+  }
+
+  W <- make_distance_weights(g_sub, nb_distance = nb_distance, mode = mode)
+
+  # no usable ties at this distance
+  if (all(W == 0) || sum(W) == 0) {
+    return(tibble::tibble(
+      variable = var,
+      nb_distance = nb_distance,
+      observed = NA_real_,
+      expected = NA_real_,
+      sd = NA_real_,
+      p_value = NA_real_
+    ))
+  }
+
+  out <- tryCatch(
+    ape::Moran.I(x_sub, W, scaled = FALSE),
+    error = function(e) NULL
+  )
+
+  if (is.null(out) || anyNA(c(out$observed, out$expected, out$sd, out$p.value))) {
+    return(tibble::tibble(
+      variable = var,
+      nb_distance = nb_distance,
+      observed = NA_real_,
+      expected = NA_real_,
+      sd = NA_real_,
+      p_value = NA_real_
+    ))
+  }
+
+  tibble::tibble(
+    variable = var,
+    nb_distance = nb_distance,
+    observed = unname(out$observed),
+    expected = unname(out$expected),
+    sd = unname(out$sd),
+    p_value = unname(out$p.value)
+  )
+}
+```
+
+### `graph_morans_i()` (sna geodistances)
+
+Compute Moran's I for a numeric vertex attribute using `sna::geodist`-based weights (scaled). Overrides the igraph-based definition above.
+
+#### Arguments
+
+**`graph`**
+
+> An igraph object with the target variable set as a vertex attribute.
+
+**`var`**
+
+> Character string. Name of the numeric vertex attribute to test.
+
+**`nb_distance`**
+
+> Integer. Neighbor distance at which to define the spatial weights. Defaults to `1`.
+
+**`mode`**
+
+> Unused in this version; retained for interface compatibility.
+
+#### Method
+
+Identical guards to the igraph-distances version (minimum sample size, non-zero variance, non-empty weight matrix). Constructs the binary weight matrix using `sna::geodist()` on the adjacency matrix extracted from the induced subgraph, selecting rows where geodesic distance equals `1`. Calls `ape::Moran.I()` with `scaled = TRUE`. Returns the same one-row tibble schema as the previous definition.
+
+```{r}
+graph_morans_i <- function(graph, var, nb_distance = 1, mode = "all") {
+  x <- vertex_attr(graph, var)
+
+  if (!is.numeric(x)) {
+    stop(sprintf("Variable '%s' must be numeric for Moran's I.", var))
+  }
+
+  keep <- !is.na(x)
+
+  if (sum(keep) < 3) {
+    return(tibble::tibble(
+      variable = var,
+      nb_distance = nb_distance,
+      observed = NA_real_,
+      expected = NA_real_,
+      sd = NA_real_,
+      p_value = NA_real_
+    ))
+  }
+
+  g_sub <- induced_subgraph(graph, vids = V(graph)[keep])
+  x_sub <- x[keep]
+
+  # no variance -> Moran's I undefined
+  if (length(unique(x_sub)) < 2 || isTRUE(all(stats::var(x_sub) == 0))) {
+    return(tibble::tibble(
+      variable = var,
+      nb_distance = nb_distance,
+      observed = NA_real_,
+      expected = NA_real_,
+      sd = NA_real_,
+      p_value = NA_real_
+    ))
+  }
+
+  geodistances <- sna::geodist(as.matrix(as_adjacency_matrix(g_sub)), count.path = TRUE)
+  geodistances <- geodistances$gdist
+  W <- geodistances == 1
+
+  # no usable ties at this distance
+  if (all(W == 0) || sum(W) == 0) {
+    return(tibble::tibble(
+      variable = var,
+      nb_distance = nb_distance,
+      observed = NA_real_,
+      expected = NA_real_,
+      sd = NA_real_,
+      p_value = NA_real_
+    ))
+  }
+
+  out <- tryCatch(
+    ape::Moran.I(x_sub, W, scaled = TRUE),
+    error = function(e) NULL
+  )
+
+  if (is.null(out) || anyNA(c(out$observed, out$expected, out$sd, out$p.value))) {
+    return(tibble::tibble(
+      variable = var,
+      nb_distance = nb_distance,
+      observed = NA_real_,
+      expected = NA_real_,
+      sd = NA_real_,
+      p_value = NA_real_
+    ))
+  }
+
+  tibble::tibble(
+    variable = var,
+    nb_distance = nb_distance,
+    observed = unname(out$observed),
+    expected = unname(out$expected),
+    sd = unname(out$sd),
+    p_value = unname(out$p.value)
+  )
+}
+```
+
+### `prepare_graph_attributes()`
+
+Add binary vertex attribute indicators for gender, discipline, university, and position to a graph.
+
+#### Arguments
+
+**`graph`**
+
+> An igraph object, optionally without vertex attributes already attached.
+
+**`node_data`**
+
+> Optional tibble of node attributes. If provided, the graph is rebuilt via `make_graph_from_wave()` before attributes are added. Defaults to `NULL`.
+
+#### Method
+
+If `node_data` is supplied, the function first calls `make_graph_from_wave()`. It then extracts the vertex data frame and adds: a `gender_bin` indicator (`1` = male, `0` = female); a `discipline_bin` indicator from the `soc` column; one binary `university__<name>` indicator per unique university level; and a `full_prof_bin` indicator (`1` = full professor). Helper functions `detect_university_var()` and `detect_position_var()` are used to locate the relevant columns automatically.
+
+```{r}
+prepare_graph_attributes <- function(graph, node_data = NULL) {
+  if (!is.null(node_data)) {
+    graph <- make_graph_from_wave(
+      wave = as_adjacency_matrix(graph, sparse = FALSE),
+      node_data = node_data,
+      directed = is_directed(graph)
+    )
+  }
+
+  vdf <- igraph::as_data_frame(graph, what = "vertices")
+
+  # gender: binary
+  if ("gender" %in% names(vdf)) {
+    gender_low <- tolower(as.character(vdf$gender))
+    graph <- set_vertex_attr(
+      graph, "gender_bin",
+      value = case_when(
+        gender_low %in% c("male", "man", "m") ~ 1,
+        gender_low %in% c("female", "woman", "f") ~ 0,
+        TRUE ~ NA_real_
+      )
+    )
+  }
+
+  # discipline: binary sociology indicator
+  if ("soc" %in% names(vdf)) {
+    graph <- set_vertex_attr(
+      graph, "discipline_bin",
+      value = vdf$soc
+    )
+  }
+
+  # university: one binary indicator for each category
+  uni_var <- tryCatch(detect_university_var(vdf), error = function(e) NULL)
+  if (!is.null(uni_var)) {
+    uni_vals <- as.character(vdf[[uni_var]])
+    uni_levels <- sort(unique(stats::na.omit(uni_vals)))
+
+    for (u in uni_levels) {
+      nm <- paste0("university__", make.names(tolower(u)))
+      graph <- set_vertex_attr(
+        graph,
+        nm,
+        value = ifelse(uni_vals == u, 1, ifelse(is.na(uni_vals), NA, 0))
+      )
+    }
+  }
+
+  # full professor indicator
+  pos_var <- tryCatch(detect_position_var(vdf), error = function(e) NULL)
+  if (!is.null(pos_var)) {
+    pos_vals <- tolower(as.character(vdf[[pos_var]]))
+    graph <- set_vertex_attr(
+      graph, "full_prof_bin",
+      value = case_when(
+        tolower(pos_vals) %in% c("full professor", "professor", "hoogleraar") ~ 1,
+        !is.na(pos_vals) ~ 0,
+        TRUE ~ NA_real_
+      )
+    )
+  }
+
+  graph
+}
+```
+
+### `get_basic_network_stats()`
+
+Compute a standard set of graph-level descriptive statistics for a single wave.
+
+#### Arguments
+
+**`graph`**
+
+> An igraph object.
+
+**`node_data`**
+
+> A tibble of node attributes (currently unused in the computation; retained for interface consistency).
+
+#### Method
+
+The function computes: total node count, count of non-isolate nodes, edge density (undirected, no loops), global clustering coefficient (on the collapsed undirected graph), mean normalized betweenness centrality, and mean path distance. Results are returned as a two-column tibble with `statistic` and `value` columns.
+
+```{r}
+get_basic_network_stats <- function(graph, node_data) {
+  n_total <- vcount(graph)
+  n_non_isolates <- sum(igraph::degree(graph, mode = 'all') > 0)
+
+  tibble(
+    statistic = c(
+      "N nodes total",
+      "N nodes excluding isolates",
+      "density",
+      "clustering coefficient",
+      "average betweenness centrality",
+      "mean path distance"
+    ),
+    value = c(
+      n_total,
+      n_non_isolates,
+      edge_density(graph, loops = FALSE),
+      transitivity(as.undirected(graph, mode = "collapse"), type = "globalundirected"),
+      mean(igraph::betweenness(graph), na.rm = TRUE),
+      mean_distance(graph, directed = is_directed(graph), unconnected = TRUE)
+    )
+  )
+}
+```
+
+### `graph_jaccard()`
+
+Compute the edge-level Jaccard similarity index between two network waves.
+
+#### Arguments
+
+**`wave_a`**
+
+> A square numeric adjacency matrix for the first wave.
+
+**`wave_b`**
+
+> A square numeric adjacency matrix for the second wave.
+
+**`directed`**
+
+> Logical. If `TRUE`, all cells are compared; if `FALSE`, only the upper triangle is used. Defaults to `TRUE`.
+
+#### Method
+
+Both matrices are binarized (`> 0`). For directed networks the full vectorized matrices are compared; for undirected networks only the upper triangle is used. The Jaccard index is computed as `intersection / union` over present edges, returning `NA` if the union is empty.
+
+```{r}
+graph_jaccard <- function(wave_a, wave_b, directed = TRUE) {
+  A1 <- wave_a > 0
+  A2 <- wave_b > 0
+
+  if (!directed) {
+    A1 <- A1[upper.tri(A1)]
+    A2 <- A2[upper.tri(A2)]
+  } else {
+    A1 <- as.vector(A1)
+    A2 <- as.vector(A2)
+  }
+
+  inter <- sum(A1 & A2, na.rm = TRUE)
+  union <- sum(A1 | A2, na.rm = TRUE)
+
+  if (union == 0) return(NA_real_)
+  inter / union
+}
+```
+
+### `summarize_colnet_wave()`
+
+Produce a full descriptive summary for a single network wave, including basic statistics, Moran's I tests, and optional inter-wave stability.
+
+#### Arguments
+
+**`wave`**
+
+> A square numeric adjacency matrix for the wave to summarize.
+
+**`node_data`**
+
+> A tibble of node attributes aligned to the adjacency matrix.
+
+**`wave_next`**
+
+> Optional adjacency matrix for the subsequent wave. If provided, the Jaccard index between `wave` and `wave_next` is appended to the summary. Defaults to `NULL`.
+
+**`directed`**
+
+> Logical. Whether to treat the network as directed. Defaults to `TRUE`.
+
+**`mode`**
+
+> Character string passed to `graph_morans_i()`. Defaults to `"all"`.
+
+**`i_index_var`**
+
+> Character string. Name of the vertex attribute holding the i-index measure. Defaults to `"i_index"`.
+
+#### Method
+
+The function builds the igraph object via `make_graph_from_wave()`, enriches it with binary indicators via `prepare_graph_attributes()`, and computes basic statistics via `get_basic_network_stats()`. It then runs `graph_morans_i()` at neighbor distances 1 and 2 for gender, discipline, university dummy indicators (from `uni*p` columns), full professor status, and the i-index variable. Moran's I results are relabeled to human-readable statistic names. If `wave_next` is supplied, a Jaccard stability row is appended. The function returns a named list with `graph`, `summary` (basic stats + stability), and `morans_i` (the Moran's I table).
+
+```{r}
+summarize_colnet_wave <- function(
+    wave,
+    node_data,
+    wave_next = NULL,
+    directed = TRUE,
+    mode = "all",
+    i_index_var = "i_index"
+) {
+  graph <- make_graph_from_wave(wave, node_data, directed = directed)
+  graph <- prepare_graph_attributes(graph)
+
+  basic <- get_basic_network_stats(graph, node_data)
+
+  moran_results <- list()
+
+  # gender
+  if ("gender_bin" %in% vertex_attr_names(graph)) {
+    moran_results <- append(moran_results, list(
+      graph_morans_i(graph, "gender_bin", 1, mode),
+      graph_morans_i(graph, "gender_bin", 2, mode)
+    ))
+  }
+
+  # discipline
+  if ("discipline_bin" %in% vertex_attr_names(graph)) {
+    moran_results <- append(moran_results, list(
+      graph_morans_i(graph, "discipline_bin", 1, mode),
+      graph_morans_i(graph, "discipline_bin", 2, mode)
+    ))
+  }
+
+  # university dummies from uni22p:uni25p
+  uni_vars <- vertex_attr_names(graph) |>
+    (\(x) x[grepl("^uni\\d{2}p$", x)])()
+
+  if (length(uni_vars) > 0) {
+    moran_results <- append(
+      moran_results,
+      purrr::map(uni_vars, \(u) {
+        vals <- vertex_attr(graph, u)
+        levs <- levels(vals)
+
+        # keep only actually observed levels in this wave
+        levs <- levs[levs %in% unique(as.character(stats::na.omit(vals)))]
+
+        dummy_results <- purrr::map(levs, \(lev) {
+          tmp_name <- paste0(u, "__", lev)
+
+          graph <<- set_vertex_attr(
+            graph,
+            tmp_name,
+            value = dplyr::case_when(
+              is.na(vals) ~ NA_real_,
+              as.character(vals) == lev ~ 1,
+              TRUE ~ 0
+            )
+          )
+
+          dplyr::bind_rows(
+            graph_morans_i(graph, tmp_name, 1, mode),
+            graph_morans_i(graph, tmp_name, 2, mode)
+          )
+        })
+
+        dplyr::bind_rows(dummy_results)
+      })
+    )
+  }
+
+  # full professor
+  if ("full_prof_bin" %in% vertex_attr_names(graph)) {
+    moran_results <- append(moran_results, list(
+      graph_morans_i(graph, "full_prof_bin", 1, mode),
+      graph_morans_i(graph, "full_prof_bin", 2, mode)
+    ))
+  }
+
+  # i-index
+  if (i_index_var %in% vertex_attr_names(graph)) {
+    moran_results <- append(moran_results, list(
+      graph_morans_i(graph, i_index_var, 1, mode),
+      graph_morans_i(graph, i_index_var, 2, mode)
+    ))
+  }
+
+  moran_tbl <- bind_rows(moran_results)
+
+  moran_tbl <- moran_tbl |>
+    mutate(
+      statistic = case_when(
+        variable == "gender_bin" & nb_distance == 1 ~ "gender Moran's I (nb distance 1)",
+        variable == "gender_bin" & nb_distance == 2 ~ "gender Moran's I (nb distance 2)",
+        variable == "discipline_bin" & nb_distance == 1 ~ "discipline Moran's I (nb distance 1)",
+        variable == "discipline_bin" & nb_distance == 2 ~ "discipline Moran's I (nb distance 2)",
+        variable == "full_prof_bin" & nb_distance == 1 ~ "full prof Moran's I (nb distance 1)",
+        variable == "full_prof_bin" & nb_distance == 2 ~ "full prof Moran's I (nb distance 2)",
+        variable == i_index_var & nb_distance == 1 ~ "I index Moran's I (nb distance 1)",
+        variable == i_index_var & nb_distance == 2 ~ "I index Moran's I (nb distance 2)",
+        grepl("^university__", variable) & nb_distance == 1 ~
+          paste0(gsub("^university__", "", variable), " Moran's I (nb distance 1)"),
+        grepl("^university__", variable) & nb_distance == 2 ~
+          paste0(gsub("^university__", "", variable), " Moran's I (nb distance 2)"),
+        TRUE ~ paste(variable, "Moran's I (nb distance", nb_distance, ")")
+      )
+    ) |>
+    select(statistic, observed, expected, sd, p_value)
+
+  stability_tbl <- tibble(
+    statistic = character(),
+    value = numeric()
+  )
+
+  if (!is.null(wave_next)) {
+    stability_tbl <- tibble(
+      statistic = "Jaccard's Index (period 1 - 2)",
+      value = graph_jaccard(wave, wave_next, directed = directed)
+    )
+  }
+
+  list(
+    graph = graph,
+    summary = bind_rows(basic, stability_tbl),
+    morans_i = moran_tbl
+  )
+}
+```
+
+### `get_nodes_at_distance()`
+
+Return the indices of all vertices at an exact geodesic distance from a focal node.
+
+#### Arguments
+
+**`graph`**
+
+> An igraph object.
+
+**`v`**
+
+> Integer or vertex selector. The focal node from which distances are measured.
+
+**`k`**
+
+> Integer. The exact geodesic distance to select.
+
+**`mode`**
+
+> Character string passed to `igraph::distances()`. Defaults to `"all"`.
+
+#### Method
+
+Computes the full distance vector from `v` to all other vertices and returns the integer indices of vertices whose distance equals exactly `k`.
+
+```{r}
+get_nodes_at_distance <- function(graph, v, k, mode = "all") {
+  d <- distances(graph, v = v, to = V(graph), mode = mode)
+  which(as.numeric(d[1, ]) == k)
+}
+```
+
+### `safe_mean()`
+
+Compute the mean of a numeric vector after removing `NA` values, returning `NA` if no non-missing values remain.
+
+#### Arguments
+
+**`x`**
+
+> A numeric vector.
+
+#### Method
+
+Removes `NA` values from `x`; returns `NA_real_` if the result is empty, otherwise returns `mean(x)`.
+
+```{r}
+safe_mean <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) return(NA_real_)
+  mean(x)
+}
+```
+
+### `safe_sum()`
+
+Compute the sum of a numeric vector after removing `NA` values, returning `NA` if no non-missing values remain.
+
+#### Arguments
+
+**`x`**
+
+> A numeric vector.
+
+#### Method
+
+Removes `NA` values from `x`; returns `NA_real_` if the result is empty, otherwise returns `sum(x)`.
+
+```{r}
+safe_sum <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) return(NA_real_)
+  sum(x)
+}
+```
+
+### `safe_n_distinct()`
+
+Count the number of distinct non-missing values in a vector, returning `NA` if no non-missing values remain.
+
+#### Arguments
+
+**`x`**
+
+> A vector of any type.
+
+#### Method
+
+Removes `NA` values from `x`; returns `NA_real_` if the result is empty, otherwise returns `dplyr::n_distinct(x)`.
+
+```{r}
+safe_n_distinct <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) return(NA_real_)
+  dplyr::n_distinct(x)
+}
+```
+
+### `ei_index()`
+
+Compute the EI (External–Internal) index of a focal node's neighborhood composition.
+
+#### Arguments
+
+**`ego_value`**
+
+> The category value of the focal node (scalar).
+
+**`alter_values`**
+
+> A vector of category values for the focal node's neighbors.
+
+#### Method
+
+After removing `NA`s from `alter_values`, the function counts internal ties (alters sharing the ego's category) and external ties (alters in a different category). The EI index is computed as `(external - internal) / (external + internal)`, ranging from `–1` (fully homophilous) to `+1` (fully heterophilous). Returns `NA` if `ego_value` is missing or `alter_values` is empty after cleaning.
+
+```{r}
+ei_index <- function(ego_value, alter_values) {
+  alter_values <- alter_values[!is.na(alter_values)]
+
+  if (is.na(ego_value) || length(alter_values) == 0) {
+    return(NA_real_)
+  }
+
+  internal <- sum(alter_values == ego_value, na.rm = TRUE)
+  external <- sum(alter_values != ego_value, na.rm = TRUE)
+  total <- internal + external
+
+  if (total == 0) return(NA_real_)
+  (external - internal) / total
+}
+```
+
+### `neighborhood_density()`
+
+Compute the edge density among a set of vertices (e.g. an ego's neighborhood).
+
+#### Arguments
+
+**`graph`**
+
+> The full igraph object from which the subgraph is induced.
+
+**`vids`**
+
+> Integer vector of vertex indices defining the neighborhood.
+
+#### Method
+
+If fewer than two vertices are supplied, the function returns `NA`. Otherwise it inducts a subgraph on `vids`, collapses it to an undirected graph, and returns `igraph::edge_density()` (without loops).
+
+```{r}
+neighborhood_density <- function(graph, vids) {
+  if (length(vids) < 2) return(NA_real_)
+
+  subg <- induced_subgraph(graph, vids = vids)
+
+  # for co-author neighborhoods, density is usually easier to interpret undirected
+  subg <- as.undirected(subg, mode = "collapse")
+
+  edge_density(subg, loops = FALSE)
+}
+```
+
+### `compute_ego_objects()`
+
+Compute ego-level network statistics for every scholar in a single wave.
+
+#### Arguments
+
+**`wave`**
+
+> A square numeric adjacency matrix for the wave.
+
+**`node_data`**
+
+> A tibble of node attributes aligned to the adjacency matrix.
+
+**`directed`**
+
+> Logical. Whether to treat the network as directed. Defaults to `TRUE`.
+
+**`mode`**
+
+> Character string controlling directionality when computing neighbor sets. Defaults to `"all"`.
+
+**`gender_var`**, **`discipline_var`**, **`university_var`**, **`position_var`**, **`i_index_var`**
+
+> Character strings naming the vertex attribute columns to use for composition and capital measures. `university_var` is required and validated.
+
+#### Method
+
+The function builds an igraph object from `wave` and attaches `node_data` as vertex attributes. For each scholar it finds neighbors at distances 1 and 2 using `get_nodes_at_distance()`, then computes: neighborhood size, neighborhood density, local clustering coefficient, betweenness centrality, mean path length, gender/discipline/university EI indices, reachable full-professor counts, and mean/total i-index at each distance. Results are returned as a tibble with one row per scholar.
+
+```{r}
+compute_ego_objects <- function(
+    wave,
+    node_data,
+    directed = TRUE,
+    mode = "all",
+    gender_var = "gender",
+    discipline_var = "discipline_22",
+    university_var,
+    position_var = "position_22",
+    i_index_var = "i10_index_21"
+) {
+  stopifnot(university_var %in% names(node_data))
+
+  graph <- make_graph_from_wave(wave, node_data, directed = directed)
+
+  n <- vcount(graph)
+
+  # graph-level / ego-level structure measures
+  bet <- igraph::betweenness(graph)
+  mnd <- mean_distance(graph, directed = is_directed(graph), unconnected = TRUE)
+  loc_clust <- transitivity(
+    as.undirected(graph, mode = "collapse"),
+    type = "localundirected",
+    isolates = "zero"
+  )
+
+  # extract node attributes once
+  gender <- vertex_attr(graph, gender_var)
+  discipline <- vertex_attr(graph, discipline_var)
+  university <- vertex_attr(graph, university_var)
+  position <- vertex_attr(graph, position_var)
+  i_index <- vertex_attr(graph, i_index_var)
+
+  full_prof <- case_when(
+    tolower(as.character(position)) %in% c("full professor", "professor", "hoogleraar") ~ 1,
+    is.na(position) ~ NA_real_,
+    TRUE ~ 0
+  )
+
+  out <- purrr::map_dfr(seq_len(n), function(i) {
+    d1 <- get_nodes_at_distance(graph, i, 1, mode = mode)
+    d2 <- get_nodes_at_distance(graph, i, 2, mode = mode)
+
+    tibble(
+      node_id = i,
+      uid = if ("uid" %in% names(node_data)) node_data$uid[i] else i,
+
+      #------------------------------------------
+      # size
+      #------------------------------------------
+      `N co-authors distance 1` = length(d1),
+      `N co-authors distance 2` = length(d2),
+
+      #------------------------------------------
+      # structure
+      #------------------------------------------
+      `density distance 1` = neighborhood_density(graph, d1),
+      `density distance 2` = neighborhood_density(graph, d2),
+      `clustering coefficient` = loc_clust[i],
+      `betweenness centrality` = bet[i],
+      `avg. path length` = mnd,
+
+      #------------------------------------------
+      # composition
+      #------------------------------------------
+      `gender EI index distance 1` = ei_index(gender[i], gender[d1]),
+      `gender EI index distance 2` = ei_index(gender[i], gender[d2]),
+
+      `discipline EI index distance 1` = ei_index(discipline[i], discipline[d1]),
+      `discipline EI index distance 2` = ei_index(discipline[i], discipline[d2]),
+
+      `university EI index distance 1` = ei_index(university[i], university[d1]),
+      `university EI index distance 2` = ei_index(university[i], university[d2]),
+
+      #------------------------------------------
+      # scientific capital
+      #------------------------------------------
+      `reachable full prof distance 1` = safe_sum(full_prof[d1]),
+      `reachable full prof distance 2` = safe_sum(full_prof[d2]),
+
+      `average i-index distance 1` = safe_mean(i_index[d1]),
+      `average i-index distance 2` = safe_mean(i_index[d2]),
+
+      `total i-index distance 1` = safe_sum(i_index[d1]),
+      `total i-index distance 2` = safe_sum(i_index[d2]),
+    )
+  })
+
+  out
+}
+```
+
+### `calculate_ego_results()`
+
+Compute ego-level network statistics for a wave and summarize them by gender.
+
+#### Arguments
+
+**`wave1`**
+
+> A square numeric adjacency matrix for the wave to analyze.
+
+**`node_data`**
+
+> A tibble of node attributes aligned to the adjacency matrix, including `uid` and `gender`.
+
+**`mode`**
+
+> Character string passed to `compute_ego_objects()`. Defaults to `"all"`.
+
+#### Method
+
+The function calls `compute_ego_objects()` with fixed variable names (`gender`, `uni22p`, `i10_index_21`), then joins the result to `node_data`, groups by `gender`, takes column means across all numeric columns, transposes the result, and returns a tibble with one row per statistic and one column per gender category.
+
+```{r}
+calculate_ego_results <- function(wave1, node_data, mode = 'all'){
+  ego_w1 <- compute_ego_objects(
+    wave = wave1,
+    node_data = node_data,
+    directed = TRUE,
+    mode = mode,
+    gender_var = "gender",
+    university_var = "uni22p",
+    i_index_var = "i10_index_21"
+  )
+  out <- node_data |>
+    select(uid, gender) |>
+    filter(!is.na(gender)) |>
+    left_join(ego_w1) |>
+    select(-node_id, -uid) |>
+    group_by(gender) |>
+    summarise_if(is.numeric, mean, na.rm=T) |>
+    column_to_rownames(var = 'gender') |> t()
+
+  names = rownames(out)
+  out = out |> as_tibble() |> mutate(name = names, .before = 1)
+
+  return(out)
+}
+```
+
+### `exclude_junior_staff()`
+
+Subset a colnet object to senior scholars only, removing PhD candidates, postdoctoral researchers, and staff.
+
+#### Arguments
+
+**`colnet`**
+
+> A colnet list with `data` (demographics tibble with a `position_22` column) and `nets` (list of adjacency matrices).
+
+#### Method
+
+The function filters `colnet[['data']]` to exclude scholars whose `position_22` is `"PhD Candidate"`, `"Staff"`, or `"Postdoctoral Researcher"`. It then subsets each adjacency matrix in `colnet[['nets']]` to the remaining UIDs and returns the pruned list.
+
+```{r}
+exclude_junior_staff <- function(colnet) {
+  out = list()
+  out[['data']] <-  colnet[['data']] |>
+    filter(!position_22 %in% c(
+      'PhD Candidate', "Staff", "Postdoctoral Researcher"
+    ))
+  uids = out[['data']] |> pull(uid) |> unique()
+
+  for (i in 1:length(colnet[['nets']])) {
+    net = colnet[['nets']][[i]][uids, uids]
+    out[['nets']][[i]] = net
+  }
+  return(out)
+}
+```
+
+### `select_junior_staff()`
+
+Subset a colnet object to junior scholars only, retaining only PhD candidates and postdoctoral researchers.
+
+#### Arguments
+
+**`colnet`**
+
+> A colnet list with `data` (demographics tibble with a `position_22` column) and `nets` (list of adjacency matrices).
+
+#### Method
+
+The function filters `colnet[['data']]` to scholars whose `position_22` is `"PhD Candidate"` or `"Postdoctoral Researcher"`. It then subsets each adjacency matrix in `colnet[['nets']]` to the remaining UIDs and returns the pruned list.
+
+```{r}
+select_junior_staff <- function(colnet) {
+  out = list()
+  out[['data']] <-  colnet[['data']] |>
+    filter(position_22 %in% c(
+      'PhD Candidate', "Postdoctoral Researcher"
+    ))
+  uids = out[['data']] |> pull(uid) |> unique()
+
+  for (i in 1:length(colnet[['nets']])) {
+    net = colnet[['nets']][[i]][uids, uids]
+    out[['nets']][[i]] = net
+  }
+  return(out)
+}
+```
+
+### `mask_structural_missing()`
+
+Set structurally missing observations to a sentinel value in all network matrices of a colnet object.
+
+#### Arguments
+
+**`colnet`**
+
+> A colnet list as produced by `fcolnet2()`, with `nets` (a nested list of adjacency matrices by type and wave) and `data` (a demographics tibble with `uid` and `uni*` affiliation columns).
+
+**`include_ties`**
+
+> Logical. If `TRUE`, scholars with zero ties are also masked regardless of affiliation; if `FALSE` (the default), only scholars who have both zero ties and a missing affiliation for that wave are masked.
+
+**`value`**
+
+> Numeric. The sentinel value assigned to masked rows and columns. Defaults to `10`.
+
+#### Method
+
+For each combination of network type and wave index, the function identifies scholars who have zero row sums in the network matrix (optionally combined with `include_ties`) and for whom the corresponding wave-year university affiliation (`uni22`, `uni24`, or `uni25`) is `NA`. Rows and columns corresponding to these structurally absent scholars are set to `value` in the matrix, and the modified matrix is stored back in `colnet`.
+
+```{r}
+mask_structural_missing <- function(colnet, include_ties = FALSE, value = 10){
+  for (type in names(colnet[['nets']])){
+    for (i in 1:length(colnet[['nets']][[type]])){
+      net <- colnet[['nets']][[type]][[i]]
+
+      no_ties <- rowSums(net) == 0 * include_ties
+      abscent <- colnet[['data']] |>
+        column_to_rownames('uid') |>
+        pull(paste0("uni", c(22, 24, 25)[i])) |>
+        is.na()
+
+      exclude <- no_ties & abscent
+      net[exclude, ] <- value
+      net[ ,exclude] <- value
+
+      colnet[['nets']][[type]][[i]] <- net
+    }
+  }
+
+  return(colnet)
+}
+```
+
+### `build_results()`
+
+Orchestrate building a colnet and computing wave summaries and ego statistics for all and senior-only samples.
+
+#### Arguments
+
+**`type`**
+
+> Character string. Authorship type passed to `fcolnet2()` (e.g. `"first"`, `"last"`, `"all"`).
+
+**`mode`**
+
+> Character string. Network mode passed to `summarize_colnet_wave()` and `calculate_ego_results()` (e.g. `"out"`, `"all"`).
+
+#### Method
+
+The function calls `fcolnet2()` with the globally defined `uni_levels`, applies `harmonize_covariates()` and `mask_structural_missing()`. It extracts the first two waves and node data, then defines an internal helper `make_res()` that calls `summarize_colnet_wave()` and `calculate_ego_results()` for a given wave–node data combination. It computes results for both the full sample and the senior-only subsample (via `exclude_junior_staff()`). Returns a named list with elements `all` and `sen`.
+
+```{r}
+build_results <- function(type, mode) {
+  colnet <- fcolnet2(data,
+      university = toupper(uni_levels),
+      type = type,
+      waves = NULL
+    ) |>
+    harmonize_covariates(what = 'data') |>
+    mask_structural_missing(value = NA)
+
+  wave1 = colnet[['nets']][[1]]
+  wave2 = colnet[['nets']][[2]]
+  node_data = colnet$data
+
+  make_res <- function(w1, w2, nd, mode) {
+    res <- summarize_colnet_wave(
+      wave = w1, node_data = nd, wave_next = w2,
+      directed = TRUE, mode = mode, i_index_var = "i10_index_21"
+    )
+    res$ego <- calculate_ego_results(w1, nd, mode = mode)
+    res
+  }
+
+  colnet2 <- exclude_junior_staff(colnet)
+  wave12 = colnet2[['nets']][[1]]
+  wave22 = colnet2[['nets']][[2]]
+  node_data2 = colnet2$data
+
+  list(
+    all = make_res(wave1,  wave2,  node_data,  mode),
+    sen = make_res(wave12, wave22, node_data2, mode)
+  )
+}
+```
+
+## Application
+
+```{r}
+data <- freadRDS2('data', location = "./data/analysis/")
+topics <-freadRDS2('topics', location = './data/analysis/')
+```
+
+```{r}
+uni_levels = tolower(c("EUR", "RU", "UL", "UU", "UVA", "UVG", "UVT", "VU"))
+
+res_first <- build_results('first', 'out')
+res_last  <- build_results('last',  'out')
+res_all   <- build_results('all',   'all')
+
+results <- list(
+  first_all = res_first$all, first_sen = res_first$sen,
+  last_all  = res_last$all,  last_sen  = res_last$sen,
+  all_all   = res_all$all,   all_sen   = res_all$sen
+)
+```
+
+```{r}
+# Combine ego results
+ego_res <- names(results) |>
+  purrr::imap(function(name, i) {
+    results[[i]][["ego"]] |>
+      rename_with(~ paste0(name, "_", .), c(female, male))
+  }) |>
+  purrr::reduce(left_join, by = "name")
+
+# Combine network summary results
+net_res <- names(results) |>
+  purrr::imap(function(name, i) {
+    results[[i]][["summary"]] |>
+      rename(observed = value) |>
+      bind_rows(results[[i]][['morans_i']]) |>
+      select(statistic, observed) |>
+      rename_with(~ paste0(name, "_", .), c(observed))
+  }) |>
+  purrr::reduce(left_join, by = "statistic") |>
+  filter(!str_detect(statistic, 'uni25'), !str_detect(statistic, 'uni24'))
+```
+
+```{r}
+ego_res |> writexl::write_xlsx(file.path('results', 'tables', 'ego_stats.xlsx'))
+
+net_res |> writexl::write_xlsx(file.path('results', 'tables', 'net_stats.xlsx'))
+```

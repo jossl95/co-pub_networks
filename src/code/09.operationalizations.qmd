@@ -8,6 +8,7 @@ format:
       - href: 0a.custom_functions.html
         icon: file-code
         text: Custom Functions
+
 ---
 
 ## Getting Started
@@ -39,6 +40,20 @@ library(purrr)
 
 ## Functions
 
+### `categorize_ethnicity()`
+
+Classify scholars into migrant-origin groups based on their country of origin code.
+
+#### Arguments
+
+**`data`**
+
+> Named list containing a `demographics` element with at least a `country_id` column.
+
+#### Method
+
+The function defines a set of minority country codes corresponding to the four largest migrant groups in the Netherlands (`MA`, `TR`, `BQ`, `CW`, `SX`, `AW`, `SR`) and adds a `migrant` column. Scholars from the Netherlands are coded `"NL"`, scholars from minority-coded countries are coded `"M4"`, scholars with a missing country code receive `NA`, and all others are coded `"other"`. The new column is relocated to follow `country_id`.
+
 ```{r}
 categorize_ethnicity = function(data){
   minority_codes =  c('MA', 'TR', 'BQ', 'CW', 'SX', 'AW', 'SR')
@@ -56,16 +71,27 @@ categorize_ethnicity = function(data){
 
   return(data)
 }
-
-
 ```
 
-```{r}
+### `clean_affilliations()`
 
+Standardize university affiliation strings, extract the first valid affiliation per year, and count the number of affiliations per year.
+
+#### Arguments
+
+**`data`**
+
+> Named list containing a `demographics` element with `university_*` columns (one per measurement year).
+
+#### Method
+
+The function first normalizes raw affiliation strings across all `university_*` columns by replacing `.` with `/`, mapping `LEIDEN` to `UL`, `RUG` to `UVG`, and `UCU` to `UU`. It then splits each normalized string on `/` and extracts the first token that appears in a predefined list of valid university codes, storing the result in new `university_*_first` columns. Finally, it counts the number of non-missing affiliation tokens per year and stores this in `university_*_k` columns.
+
+```{r}
 clean_affilliations = function(data){
   valid_universities = c(
     'uu', 'uva', 'rug', 'ru', 'ucu', 'leiden', 'eur',
-    'uvt', 'uvg', 'vu', 'wur'
+    'uvt', 'uvg', 'vu', 'wur', 'ul'
   )
 
   data[['demographics']] = data[['demographics']] |>
@@ -102,12 +128,23 @@ clean_affilliations = function(data){
           }),
         .names = "{.col}_k"
       )
-    )    
-  
+    )
+
   return(data)
 }
-
 ```
+
+### `set_time_matrix()`
+
+Build a symmetric 8×8 travel-time distance matrix between Dutch universities.
+
+#### Arguments
+
+None.
+
+#### Method
+
+The function defines the upper triangle of a travel-time matrix as a named numeric vector and constructs an 8×8 matrix with row and column labels `UVG`, `VU`, `UVA`, `UL`, `EUR`, `UVT`, `UU`, and `RU`. The lower triangle is filled by mirroring the upper triangle, producing a symmetric matrix which is returned.
 
 ```{r}
 set_time_matrix = function(){
@@ -115,7 +152,7 @@ set_time_matrix = function(){
     UVG = c(0,    NA,   NA,    NA,    NA,    NA,    NA,    NA),
     VU  = c(2.52, 0,    NA,    NA,    NA,    NA,    NA,    NA),
     UVA = c(2.58, 0.52, 0,     NA,    NA,    NA,    NA,    NA),
-    UL  = c(3.12, 0.91, 1.04,  0,     NA,    NA,    NA,    NA), 
+    UL  = c(3.12, 0.91, 1.04,  0,     NA,    NA,    NA,    NA),
     EUR = c(3.17, 1.32, 1.38,  1.18,  0,     NA,    NA,    NA),
     EVT = c(3.30, 1.70, 1.57,  1.67,  1.35,  0,     NA,    NA),
     UU  = c(2.47, 0.98, 0.88,  1.40,  1.33,  1.36,  0,     NA),
@@ -130,12 +167,31 @@ set_time_matrix = function(){
   T[lower.tri(T)] = T[upper.tri(T)]
   return(T)
 }
-
-
 ```
 
+### `create_affiliations_long()`
+
+Reshape demographics to a long (uid × year × affiliation) table.
+
+#### Arguments
+
+**`demographics`**
+
+> A tibble with a `uid` column and one or more `university_*_first` columns (one per measurement year).
+
+**`affix`**
+
+> Character string suffix used to select the relevant affiliation columns. Defaults to `"first"`.
+
+**`year_regex`**
+
+> Regular expression used to extract the two-digit year from column names. Defaults to `"\\d{2}"`.
+
+#### Method
+
+The function selects `uid` and all columns ending in `affix`, pivots them to long format, extracts the two-digit year from the column name using `year_regex` and prepends `"20"` to produce a four-digit year string, retains `uid`, `year`, and `value`, and uppercases the affiliation codes.
+
 ```{r}
-#' Create long affiliation table (uid-year-first affiliation)
 create_affiliations_long <- function(demographics,
                                      affix = "first",
                                      year_regex = "\\d{2}") {
@@ -150,8 +206,23 @@ create_affiliations_long <- function(demographics,
     select(uid, year, value) %>%
     mutate(value = toupper(value))
 }
+```
 
-#' Convert travel-time matrix T to long lookup table
+### `create_time_lookup()`
+
+Convert the travel-time matrix to a long-format lookup table for use in joins.
+
+#### Arguments
+
+**`T`**
+
+> A square numeric matrix of travel-time distances between universities, as returned by `set_time_matrix()`.
+
+#### Method
+
+The function coerces the matrix to a long-format data frame via `as.table()`, converts it to a tibble, and renames the columns to `value_i`, `value_j`, and `distance` to align with the naming conventions used in dyad join operations.
+
+```{r}
 create_time_lookup <- function(T) {
   as.data.frame(as.table(T)) %>%
     as_tibble() %>%
@@ -159,8 +230,29 @@ create_time_lookup <- function(T) {
 }
 ```
 
+### `create_pairs_with_distance()`
+
+Build a dyadic table of all scholar pairs per year, enriched with institutional travel-time distances.
+
+#### Arguments
+
+**`affiliations`**
+
+> A long (uid × year × affiliation) tibble as returned by `create_affiliations_long()`.
+
+**`T_long`**
+
+> A long-format travel-time lookup table as returned by `create_time_lookup()`.
+
+**`drop_self`**
+
+> Logical. If `TRUE`, self-pairs (`uid_i == uid_j`) are removed. Defaults to `FALSE`.
+
+#### Method
+
+The function creates a distinct uid–year–affiliation key table and crosses all uid pairs within each year using `tidyr::crossing()`. If `drop_self` is `TRUE`, self-pairs are removed. It then left-joins affiliation codes for both the focal scholar and partner, drops rows where either affiliation is missing, and joins on `T_long` to attach `distance`, dropping pairs for which no travel-time is available.
+
 ```{r}
-#' Create dyad table per year with affiliation values and travel-time distance
 create_pairs_with_distance <- function(affiliations, T_long, drop_self = FALSE) {
   aff_key <- affiliations %>% distinct(year, uid, value)
 
@@ -184,8 +276,25 @@ create_pairs_with_distance <- function(affiliations, T_long, drop_self = FALSE) 
 }
 ```
 
+### `make_year_matrix()`
+
+Populate a full uid × uid distance matrix for a single year from a dyad table.
+
+#### Arguments
+
+**`df_year`**
+
+> A tibble with `uid_i`, `uid_j`, and `distance` columns for a single year, as produced by splitting the output of `create_pairs_with_distance()`.
+
+**`all_uids`**
+
+> Character vector defining the complete set of row and column names for the output matrix.
+
+#### Method
+
+The function initializes an `NA` matrix of dimension `length(all_uids) × length(all_uids)` with row and column names set to `all_uids`. It uses `match()` to resolve each dyad to row and column indices, discards pairs whose UIDs are not found in `all_uids`, and fills the corresponding cells with their `distance` values. The populated matrix is returned.
+
 ```{r}
-#' Build a full (all_uids x all_uids) matrix for a single year from dyad table
 make_year_matrix <- function(df_year, all_uids) {
   M <- matrix(
     NA_real_,
@@ -203,8 +312,25 @@ make_year_matrix <- function(df_year, all_uids) {
 }
 ```
 
+### `create_distance_matrices()`
+
+Produce a named list of uid × uid travel-time distance matrices, one per year.
+
+#### Arguments
+
+**`pairs_by_year`**
+
+> A dyadic tibble with `year`, `uid_i`, `uid_j`, and `distance` columns, as returned by `create_pairs_with_distance()`.
+
+**`all_uids`**
+
+> Character vector defining the shared set of row and column names for all yearly matrices.
+
+#### Method
+
+The function selects the four relevant columns, splits the tibble by `year` using `group_split()`, names each list element with its year string, and maps `make_year_matrix()` over each split to produce a consistently-dimensioned named list of distance matrices.
+
 ```{r}
-#' Create list of distance matrices per year (same dimnames for all years)
 create_distance_matrices <- function(pairs_by_year, all_uids) {
   pairs_by_year %>%
     select(year, uid_i, uid_j, distance) %>%
@@ -215,8 +341,25 @@ create_distance_matrices <- function(pairs_by_year, all_uids) {
 }
 ```
 
-```{r}
+### `add_distances()`
 
+Orchestrate the institutional travel-time distance pipeline and attach the resulting per-year matrices to data.
+
+#### Arguments
+
+**`data`**
+
+> Named list containing a `demographics` element with processed `university_*_first` affiliation columns.
+
+**`topics`**
+
+> Named list containing a `dissim` sub-list whose `field` element provides the reference UID ordering used to dimension the output matrices.
+
+#### Method
+
+The function calls `create_affiliations_long()` to reshape affiliations to long format, `set_time_matrix()` and `create_time_lookup()` to build the travel-time lookup, and `create_pairs_with_distance()` to compute all pairwise institutional distances per year. It extracts the reference UID set from `topics[["dissim"]][["field"]][["2022"]]` and passes it to `create_distance_matrices()` to produce consistently-dimensioned per-year matrices. The resulting list is stored in `data[['distances']]` and the updated list is returned.
+
+```{r}
 add_distances <- function(data, topics){
   # affiliations
   affiliations <- create_affiliations_long(data[["demographics"]])
@@ -236,7 +379,6 @@ add_distances <- function(data, topics){
 
   return(data)
 }
-
 ```
 
 ## Application
@@ -247,7 +389,7 @@ topics = freadRDS2('topics', location = './data/clean/')
 ```
 
 ```{r}
-data = data |> 
+data = data |>
   categorize_ethnicity() |>
   clean_affilliations() |>
   add_distances(topics)
@@ -297,8 +439,8 @@ data[['demographics']] |>
 
 ```{r}
 data[['demographics']] |>
-  filter(!is.na(i10_index_22)) |>
-  ggplot(aes(x = i10_index_22)) +
+  filter(!is.na(i10_index_21)) |>
+  ggplot(aes(x = i10_index_21)) +
   geom_density() +
   labs(x = "i10_index", y = "Density", title = "Kernel density of i10-index in 2022") +
   theme_minimal()
@@ -433,10 +575,8 @@ ggplot(plot_df, aes(x = university, y = n)) +
   labs(x = NULL, y = "Count")
 ```
 
- 
 
- 
- ```{r}
+```{r}
 temp =  data[['demographics']] |>
   mutate(
     across(
@@ -448,4 +588,4 @@ temp =  data[['demographics']] |>
         str_replace('UCU', 'UU')
     )) |>
   select(university_22, university_24, university_25)
- ```
+```

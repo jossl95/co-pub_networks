@@ -4,11 +4,11 @@
 
 Filename is ./init.txt.
 
-This file contains primary output for SIENA project <<./init>>.
+This file contains basic descriptives for SIENA data set <<./init>>.
 
-Date and time: 28/03/2026 11:18:23 
+Date and time: 31/03/2026 13:35:29 
 
-RSiena version 1.5.0 (06 07 2025)
+RSiena version 1.6.2 (26 02 2026)
 
 
 @1
@@ -235,34 +235,34 @@ A total of 5 exogenous changing actor covariates.
 
 Number of missing cases per period:
  period                    1       2     overall
-funcs[[1]]                13       5       18 	   ( 14.1 %)
-funcs[[2]]                13       5       18 	   ( 14.1 %)
-funcs[[3]]                13       5       18 	   ( 14.1 %)
-funcs[[4]]                13       5       18 	   ( 14.1 %)
+funcs[[1]]                13      26       39 	   ( 30.5 %)
+funcs[[2]]                13      26       39 	   ( 30.5 %)
+funcs[[3]]                13      26       39 	   ( 30.5 %)
+funcs[[4]]                13      26       39 	   ( 30.5 %)
 intdis                    19      11       30 	   ( 23.4 %)
 
 Information about changing covariates:
 
               minimum  maximum	  mean  centered 
 funcs[[1]]                                 N 
-	period   1     0.0     1.0      0.118 
-	period   2     0.0     1.0      0.119 
-Overall                            0.118 
+	period   1     0.0     1.0      0.176 
+	period   2     0.0     1.0      0.211 
+Overall                            0.191 
 
 funcs[[2]]                                 N 
 	period   1     0.0     1.0      0.196 
-	period   2     0.0     1.0      0.203 
-Overall                            0.200 
+	period   2     0.0     1.0      0.342 
+Overall                            0.258 
 
 funcs[[3]]                                 N 
 	period   1     0.0     1.0      0.039 
-	period   2     0.0     1.0      0.017 
-Overall                            0.027 
+	period   2     0.0     1.0      0.026 
+Overall                            0.034 
 
 funcs[[4]]                                 N 
 	period   1     0.0     1.0      0.137 
-	period   2     0.0     1.0      0.136 
-Overall                            0.136 
+	period   2     0.0     1.0      0.184 
+Overall                            0.157 
 
 intdis                                     Y 
 	period   1     0.0     0.6      0.350 
@@ -309,10 +309,10 @@ Similarity gender                   :       0.4921
 Similarity soc                      :       0.9688 
 Similarity mig$M4                   :       0.9092 
 Similarity mig$other                :       0.6711 
-Similarity funcs[[1]]               :       0.7877 
-Similarity funcs[[2]]               :       0.6738 
-Similarity funcs[[3]]               :       0.9478 
-Similarity funcs[[4]]               :       0.7602 
+Similarity funcs[[1]]               :       0.6876 
+Similarity funcs[[2]]               :       0.6284 
+Similarity funcs[[3]]               :       0.9317 
+Similarity funcs[[4]]               :       0.7346 
 Similarity intdis                   :       0.7767 
 
 
@@ -401,4 +401,1029 @@ constant last rate (period 1)           1.3679
 constant last rate (period 2)           0.8918 
 last: outdegree (density)                         -1.7089 
 
-Initialisation of project <<./init>> executed succesfully.
+Initialisation of data set <<./init>> executed succesfully.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 31/03/2026 13:35:42
+New results follow.
+-----------------------------------
+
+RSiena version 1.6.2 (26 Feb 26)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Random initialization of random number stream.
+Current random number seed is 191009.
+Effects object used: myeff 
+Model Type:
+Network 1 first : Standard actor-oriented model 
+Network 2 last : Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations in each period is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  constant first rate (period 1)                  1.5583
+  2. rate:  constant first rate (period 2)                  1.0505
+  3. eval:  first: outdegree (density)                     -1.6889
+  4. eval:  first: reciprocity                              0.0000
+  5. eval:  first: GWESP I -> K -> J (69)                   0.0000
+  6. eval:  first: indegree - popularity (sqrt)             0.0000
+  7. eval:  first: outdegree - activity (sqrt)              0.0000
+  8. eval:  first: dissim                                   0.0000
+  9. eval:  first: gender alter                             0.0000
+ 10. eval:  first: gender ego                               0.0000
+ 11. eval:  first: same gender                              0.0000
+ 12. eval:  first: funcs[[1]] alter                         0.0000
+ 13. eval:  first: funcs[[1]] ego                           0.0000
+ 14. eval:  first: funcs[[2]] alter                         0.0000
+ 15. eval:  first: funcs[[2]] ego                           0.0000
+ 16. eval:  first: funcs[[3]] alter                         0.0000
+ 17. eval:  first: funcs[[3]] ego                           0.0000
+ 18. eval:  first: funcs[[4]] alter                         0.0000
+ 19. eval:  first: funcs[[4]] ego                           0.0000
+ 20. eval:  first: indegree - popularity x gender alter     0.0000
+ 21. eval:  first: funcs[[4]] alter x gender alter          0.0000
+ 22. rate:  constant last rate (period 1)                   1.3679
+ 23. rate:  constant last rate (period 2)                   0.8918
+ 24. eval:  last: outdegree (density)                      -1.7089
+ 25. eval:  last: reciprocity                               0.0000
+
+
+Values of target statistics are
+  1. Amount of network change in period 1                                49.0000
+  2. Amount of network change in period 2                                33.0000
+  3. first: Number of ties                                               88.0000
+  4. first: Number of reciprocated ties                                  18.0000
+  5. first: Numb. edgew. shrd prtns.by two path (69)                     27.0000
+  6. first: Sum of indegrees x sqrt(indegree)                           167.6083
+  7. first: Sum of outdegrees^(1.5)                                     123.5883
+  8. first: Sum of ties x dissim                                        -12.6024
+  9. first: Sum indegrees x gender                                      -14.0000
+ 10. first: Sum outdegrees x gender                                      13.0000
+ 11. first: Same values on gender                                        45.0000
+ 12. first: Sum indegrees x funcs[[1]]                                    9.0000
+ 13. first: Sum outdegrees x funcs[[1]]                                  18.0000
+ 14. first: Sum indegrees x funcs[[2]]                                   31.0000
+ 15. first: Sum outdegrees x funcs[[2]]                                  14.0000
+ 16. first: Sum indegrees x funcs[[3]]                                   12.0000
+ 17. first: Sum outdegrees x funcs[[3]]                                   3.0000
+ 18. first: Sum indegrees x funcs[[4]]                                   32.0000
+ 19. first: Sum outdegrees x funcs[[4]]                                   7.0000
+ 20. first: indegree - popularity x gender alter                       -102.0000
+ 21. first: funcs[[4]] alter x gender alter                             -11.0000
+ 22. Amount of network change in period 1                                43.0000
+ 23. Amount of network change in period 2                                28.0000
+ 24. last: Number of ties                                                70.0000
+ 25. last: Number of reciprocated ties                                   14.0000
+These were calculated from the data.
+
+ 25 parameters, 25 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 4044 iterations.
+Parameter estimates based on 3044 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   0.1200   6.0891   0.0197 
+  2.   0.1060   5.0857   0.0208 
+  3.  -0.0980   9.7845  -0.0100 
+  4.  -0.0700   5.5956  -0.0125 
+  5.  -0.2926  12.4710  -0.0235 
+  6.  -1.0239  31.6175  -0.0324 
+  7.  -0.2574  18.1461  -0.0142 
+  8.   0.0596   1.9139   0.0311 
+  9.   0.0200   5.0695   0.0039 
+ 10.   0.1050   3.6701   0.0286 
+ 11.  -0.0650   6.4907  -0.0100 
+ 12.   0.0510   3.2365   0.0158 
+ 13.   0.1520   3.4396   0.0442 
+ 14.   0.0930   5.5122   0.0169 
+ 15.  -0.1850   3.1586  -0.0586 
+ 16.  -0.1060   3.7941  -0.0279 
+ 17.   0.0930   1.3734   0.0677 
+ 18.  -0.1450   5.5704  -0.0260 
+ 19.   0.0280   2.2831   0.0123 
+ 20.   0.7590  51.8795   0.0146 
+ 21.   0.0725   2.8674   0.0253 
+ 22.  -0.4590   5.6205  -0.0817 
+ 23.   0.0760   4.4181   0.0172 
+ 24.  -0.3310   7.0832  -0.0467 
+ 25.  -0.1800   4.4519  -0.0404 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.2127 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 4044 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  constant first rate (period 1)                          2.4724  (   0.6489)
+ 2. rate:  constant first rate (period 2)                          2.1639  (   0.5648)
+ 3. eval:  first: outdegree (density)                             -3.7200  (   1.3881)
+ 4. eval:  first: reciprocity                                      3.0627  (   0.6320)
+ 5. eval:  first: GWESP I -> K -> J (69)                           3.3031  (   0.9997)
+ 6. eval:  first: indegree - popularity (sqrt)                    -0.0596  (   0.4618)
+ 7. eval:  first: outdegree - activity (sqrt)                     -0.7745  (   0.5255)
+ 8. eval:  first: dissim                                          -3.3852  (   1.2334)
+ 9. eval:  first: gender alter                                     0.1740  (   0.5886)
+10. eval:  first: gender ego                                       0.9040  (   0.4592)
+11. eval:  first: same gender                                      0.3778  (   0.2917)
+12. eval:  first: funcs[[1]] alter                                 2.3261  (   0.9318)
+13. eval:  first: funcs[[1]] ego                                  -0.1878  (   0.4990)
+14. eval:  first: funcs[[2]] alter                                 2.6212  (   0.9292)
+15. eval:  first: funcs[[2]] ego                                  -2.1966  (   0.7090)
+16. eval:  first: funcs[[3]] alter                                 2.9901  (   1.1351)
+17. eval:  first: funcs[[3]] ego                                  -1.0519  (   1.0478)
+18. eval:  first: funcs[[4]] alter                                 2.8079  (   1.0712)
+19. eval:  first: funcs[[4]] ego                                  -2.2763  (   0.8114)
+20. eval:  first: indegree - popularity x gender alter            -0.1681  (   0.2176)
+21. eval:  first: funcs[[4]] alter x gender alter                 -0.0651  (   0.9208)
+22. rate:  constant last rate (period 1)                           3.4666  (   0.9849)
+23. rate:  constant last rate (period 2)                           2.4063  (   0.7121)
+24. eval:  last: outdegree (density)                              -2.3926  (   0.1713)
+25. eval:  last: reciprocity                                       1.4474  (   0.3689)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.421      0.001     -0.093     -0.063     -0.155      0.032      0.058     -0.095     -0.103     -0.027      0.003     -0.054     -0.011     -0.069      0.034     -0.073      0.003     -0.070      0.122      0.033     -0.026      0.185     -0.024      0.013      0.005
+     0.003      0.319     -0.077     -0.006     -0.087     -0.003      0.019      0.047      0.011     -0.013     -0.023      0.006     -0.007      0.049      0.012      0.074      0.066      0.048      0.055      0.004     -0.018      0.055     -0.035     -0.005      0.002
+    -0.103     -0.098      1.927     -0.096      0.445     -0.268     -0.515     -0.449      0.103      0.084     -0.039     -0.550     -0.110     -0.493     -0.390     -0.561     -0.207     -0.351     -0.379     -0.074      0.278      0.092      0.113      0.027     -0.023
+    -0.153     -0.018     -0.110      0.399      0.140      0.007     -0.029      0.141     -0.005      0.033      0.014      0.081     -0.011      0.122     -0.178      0.094     -0.121      0.120     -0.211     -0.011      0.023     -0.102     -0.016      0.004     -0.035
+    -0.239     -0.154      0.321      0.222      0.999     -0.242     -0.195      0.054      0.151      0.066      0.063      0.069     -0.075      0.103     -0.175      0.099     -0.129      0.258     -0.227     -0.096      0.198     -0.126      0.086      0.003     -0.037
+     0.105     -0.012     -0.418      0.023     -0.523      0.213      0.071      0.058     -0.145      0.003      0.001     -0.103      0.024     -0.158      0.047     -0.161     -0.003     -0.248      0.044      0.075     -0.135     -0.062     -0.031      0.004      0.004
+     0.169      0.063     -0.706     -0.086     -0.371      0.294      0.276      0.207     -0.010     -0.093     -0.012     -0.050      0.023     -0.065      0.169     -0.086      0.012     -0.121      0.144      0.014     -0.086      0.022     -0.071     -0.006      0.011
+    -0.119      0.068     -0.262      0.181      0.044      0.102      0.320      1.521      0.042     -0.055     -0.014      0.058      0.024      0.100      0.230      0.052      0.188      0.053      0.156     -0.004      0.023     -0.107     -0.126     -0.007     -0.021
+    -0.268      0.034      0.126     -0.013      0.256     -0.533     -0.033      0.058      0.347     -0.035     -0.043      0.103     -0.028      0.149     -0.004      0.137     -0.028      0.184     -0.053     -0.096      0.018     -0.023      0.017     -0.007      0.010
+    -0.091     -0.049      0.132      0.115      0.145      0.013     -0.384     -0.096     -0.129      0.211      0.037      0.021      0.014      0.007     -0.064      0.030      0.094      0.004      0.029      0.006     -0.022     -0.018      0.047      0.008     -0.002
+     0.017     -0.137     -0.096      0.078      0.216      0.009     -0.075     -0.039     -0.250      0.277      0.085      0.000      0.001     -0.010     -0.016     -0.005      0.000     -0.002      0.017      0.005     -0.026     -0.006     -0.004      0.000     -0.002
+    -0.089      0.011     -0.425      0.138      0.074     -0.239     -0.103      0.051      0.187      0.048     -0.001      0.868     -0.035      0.770     -0.018      0.851      0.127      0.833     -0.030     -0.037      0.091     -0.055      0.042     -0.015     -0.004
+    -0.035     -0.025     -0.159     -0.033     -0.151      0.106      0.087      0.038     -0.095      0.061      0.007     -0.075      0.249     -0.028      0.087     -0.019      0.104     -0.058      0.094      0.008     -0.018     -0.065     -0.032      0.003      0.004
+    -0.115      0.094     -0.382      0.207      0.111     -0.368     -0.134      0.087      0.272      0.016     -0.036      0.890     -0.060      0.863     -0.024      0.900      0.125      0.889     -0.041     -0.057      0.104     -0.014      0.042     -0.019     -0.004
+     0.073      0.031     -0.397     -0.398     -0.246      0.144      0.455      0.263     -0.010     -0.196     -0.077     -0.028      0.246     -0.037      0.503     -0.014      0.143     -0.080      0.248      0.011     -0.053      0.039     -0.072     -0.013      0.035
+    -0.100      0.116     -0.356      0.131      0.087     -0.307     -0.144      0.037      0.205      0.058     -0.016      0.805     -0.034      0.854     -0.017      1.288      0.163      1.005     -0.007     -0.017     -0.017     -0.075      0.104     -0.025      0.006
+     0.004      0.111     -0.143     -0.183     -0.123     -0.005      0.022      0.146     -0.046      0.196      0.001      0.130      0.199      0.128      0.193      0.137      1.098      0.108      0.235      0.013      0.002     -0.035      0.027     -0.011      0.039
+    -0.101      0.079     -0.236      0.178      0.241     -0.502     -0.214      0.040      0.291      0.008     -0.005      0.834     -0.109      0.893     -0.105      0.827      0.096      1.147     -0.053     -0.078      0.348     -0.005      0.076     -0.023     -0.003
+     0.232      0.121     -0.337     -0.412     -0.280      0.117      0.337      0.155     -0.111      0.078      0.073     -0.040      0.233     -0.055      0.432     -0.007      0.276     -0.061      0.658      0.031     -0.076      0.112     -0.008     -0.014      0.028
+     0.231      0.032     -0.245     -0.080     -0.442      0.743      0.120     -0.014     -0.748      0.059      0.074     -0.180      0.077     -0.281      0.073     -0.069      0.058     -0.333      0.176      0.047     -0.075      0.015     -0.001      0.002      0.003
+    -0.044     -0.035      0.217      0.039      0.215     -0.318     -0.178      0.020      0.034     -0.053     -0.096      0.106     -0.038      0.122     -0.081     -0.016      0.002      0.353     -0.102     -0.374      0.848     -0.036      0.019      0.001     -0.008
+     0.290      0.098      0.067     -0.164     -0.128     -0.135      0.042     -0.088     -0.039     -0.040     -0.020     -0.060     -0.133     -0.015      0.055     -0.067     -0.034     -0.004      0.140      0.071     -0.040      0.970     -0.060     -0.001      0.012
+    -0.051     -0.088      0.114     -0.035      0.121     -0.095     -0.191     -0.143      0.041      0.143     -0.018      0.063     -0.090      0.063     -0.143      0.129      0.036      0.100     -0.014     -0.009      0.028     -0.085      0.507      0.000      0.008
+     0.117     -0.056      0.113      0.040      0.015      0.051     -0.065     -0.033     -0.072      0.099      0.003     -0.095      0.033     -0.118     -0.104     -0.131     -0.059     -0.128     -0.102      0.049      0.006     -0.009     -0.004      0.029     -0.025
+     0.020      0.008     -0.044     -0.148     -0.099      0.022      0.057     -0.046      0.046     -0.010     -0.015     -0.011      0.021     -0.013      0.132      0.014      0.100     -0.008      0.092      0.036     -0.024      0.032      0.032     -0.400      0.136
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 33.93 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 31/03/2026 13:36:11
+New results follow.
+-----------------------------------
+
+RSiena version 1.6.2 (26 Feb 26)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Random initialization of random number stream.
+Current random number seed is 923586.
+Effects object used: myeff 
+Model Type:
+Network 1 first : Standard actor-oriented model 
+Network 2 last : Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations in each period is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  constant first rate (period 1)                  1.5583
+  2. rate:  constant first rate (period 2)                  1.0505
+  3. eval:  first: outdegree (density)                     -1.6889
+  4. eval:  first: reciprocity                              0.0000
+  5. eval:  first: indegree - popularity                    0.0000
+  6. rate:  constant last rate (period 1)                   1.3679
+  7. rate:  constant last rate (period 2)                   0.8918
+  8. eval:  last: outdegree (density)                      -1.7089
+  9. eval:  last: reciprocity                               0.0000
+ 10. eval:  last: indegree - popularity                     0.0000
+
+
+Values of target statistics are
+  1. Amount of network change in period 1                                49.0000
+  2. Amount of network change in period 2                                33.0000
+  3. first: Number of ties                                               88.0000
+  4. first: Number of reciprocated ties                                  18.0000
+  5. first: Sum of squared indegrees                                    356.0000
+  6. Amount of network change in period 1                                43.0000
+  7. Amount of network change in period 2                                28.0000
+  8. last: Number of ties                                                70.0000
+  9. last: Number of reciprocated ties                                   14.0000
+ 10. last: Sum of squared indegrees                                     130.0000
+These were calculated from the data.
+
+ 10 parameters, 10 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2848 iterations.
+Parameter estimates based on 1848 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   0.1910   7.0239   0.0272 
+  2.   0.2530   5.4427   0.0465 
+  3.   0.8180  10.7499   0.0761 
+  4.  -0.0240   5.0661  -0.0047 
+  5.  15.1140 187.7496   0.0805 
+  6.   0.4940   5.7176   0.0864 
+  7.   0.0490   4.5218   0.0108 
+  8.  -0.4490   7.2208  -0.0622 
+  9.  -0.3320   4.4978  -0.0738 
+ 10.  -1.5190  21.7264  -0.0699 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1648 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2848 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  constant first rate (period 1)                          2.1318  (   0.4197)
+ 2. rate:  constant first rate (period 2)                          1.9360  (   0.5043)
+ 3. eval:  first: outdegree (density)                             -2.9308  (   0.2143)
+ 4. eval:  first: reciprocity                                      1.9012  (   0.3842)
+ 5. eval:  first: indegree - popularity                            0.2363  (   0.0410)
+ 6. rate:  constant last rate (period 1)                           3.5623  (   0.7277)
+ 7. rate:  constant last rate (period 2)                           2.4280  (   0.7038)
+ 8. eval:  last: outdegree (density)                              -2.3089  (   0.3649)
+ 9. eval:  last: reciprocity                                       1.4516  (   0.3953)
+10. eval:  last: indegree - popularity                            -0.0451  (   0.1519)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.176     -0.012     -0.004      0.003     -0.002      0.008      0.007     -0.005      0.022     -0.001
+    -0.056      0.254     -0.017      0.010      0.003     -0.002     -0.017      0.016     -0.023     -0.002
+    -0.048     -0.154      0.046     -0.024     -0.006      0.005     -0.001      0.000     -0.008      0.000
+     0.018      0.050     -0.289      0.148      0.001      0.013     -0.002     -0.007      0.008      0.002
+    -0.142      0.123     -0.678      0.043      0.002      0.002      0.000      0.001      0.001      0.000
+     0.028     -0.006      0.033      0.046      0.058      0.530     -0.052     -0.008      0.007      0.002
+     0.025     -0.049     -0.006     -0.007      0.016     -0.102      0.495      0.029      0.007     -0.015
+    -0.035      0.085      0.004     -0.047      0.078     -0.031      0.112      0.133     -0.027     -0.048
+     0.130     -0.114     -0.090      0.052      0.052      0.025      0.024     -0.189      0.156     -0.003
+    -0.019     -0.022      0.009      0.037     -0.078      0.016     -0.143     -0.871     -0.048      0.023
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 10.69 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 31/03/2026 13:36:22
+New results follow.
+-----------------------------------
+
+RSiena version 1.6.2 (26 Feb 26)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Random initialization of random number stream.
+Current random number seed is 97730.
+Effects object used: myeff 
+Model Type:
+Network 1 first : Standard actor-oriented model 
+Network 2 last : Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations in each period is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  constant first rate (period 1)                  1.5583
+  2. rate:  constant first rate (period 2)                  1.0505
+  3. eval:  first: outdegree (density)                     -1.6889
+  4. eval:  first: reciprocity                              0.0000
+  5. eval:  first: indegree - popularity                    0.0000
+  6. eval:  first: gender alter                             0.0000
+  7. eval:  first: gender ego                               0.0000
+  8. eval:  first: same gender                              0.0000
+  9. rate:  constant last rate (period 1)                   1.3679
+ 10. rate:  constant last rate (period 2)                   0.8918
+ 11. eval:  last: outdegree (density)                      -1.7089
+ 12. eval:  last: reciprocity                               0.0000
+ 13. eval:  last: indegree - popularity                     0.0000
+ 14. eval:  last: gender alter                              0.0000
+ 15. eval:  last: gender ego                                0.0000
+ 16. eval:  last: same gender                               0.0000
+
+
+Values of target statistics are
+  1. Amount of network change in period 1                                49.0000
+  2. Amount of network change in period 2                                33.0000
+  3. first: Number of ties                                               88.0000
+  4. first: Number of reciprocated ties                                  18.0000
+  5. first: Sum of squared indegrees                                    356.0000
+  6. first: Sum indegrees x gender                                      -14.0000
+  7. first: Sum outdegrees x gender                                      13.0000
+  8. first: Same values on gender                                        45.0000
+  9. Amount of network change in period 1                                43.0000
+ 10. Amount of network change in period 2                                28.0000
+ 11. last: Number of ties                                                70.0000
+ 12. last: Number of reciprocated ties                                   14.0000
+ 13. last: Sum of squared indegrees                                     130.0000
+ 14. last: Sum indegrees x gender                                        -3.0000
+ 15. last: Sum outdegrees x gender                                      -11.0000
+ 16. last: Same values on gender                                         38.0000
+These were calculated from the data.
+
+ 16 parameters, 16 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 3372 iterations.
+Parameter estimates based on 2372 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   0.0870   7.0027   0.0124 
+  2.   0.1740   5.8218   0.0299 
+  3.   0.6030  11.1127   0.0543 
+  4.   0.0780   5.1862   0.0150 
+  5.  21.8810 216.9246   0.1009 
+  6.  -0.5785   5.8744  -0.0985 
+  7.  -0.1635   3.7806  -0.0432 
+  8.   0.0860   7.2348   0.0119 
+  9.   0.1030   5.6574   0.0182 
+ 10.  -0.3400   4.4052  -0.0772 
+ 11.  -0.2190   7.0300  -0.0312 
+ 12.  -0.0280   4.6901  -0.0060 
+ 13.  -0.8410  21.4452  -0.0392 
+ 14.  -0.1405   3.5036  -0.0401 
+ 15.  -0.1125   3.5663  -0.0315 
+ 16.  -0.0130   5.2614  -0.0025 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1791 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 3372 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  constant first rate (period 1)                          2.2115  (   0.5209)
+ 2. rate:  constant first rate (period 2)                          2.0570  (   0.5466)
+ 3. eval:  first: outdegree (density)                             -3.2135  (   0.3060)
+ 4. eval:  first: reciprocity                                      2.1528  (   0.4520)
+ 5. eval:  first: indegree - popularity                            0.2337  (   0.0498)
+ 6. eval:  first: gender alter                                    -0.3056  (   0.2890)
+ 7. eval:  first: gender ego                                       0.9734  (   0.3589)
+ 8. eval:  first: same gender                                      0.2359  (   0.2697)
+ 9. rate:  constant last rate (period 1)                           3.5794  (   0.9241)
+10. rate:  constant last rate (period 2)                           2.3817  (   0.5361)
+11. eval:  last: outdegree (density)                              -2.4137  (   0.3884)
+12. eval:  last: reciprocity                                       1.5084  (   0.3864)
+13. eval:  last: indegree - popularity                            -0.0458  (   0.1513)
+14. eval:  last: gender alter                                      0.0585  (   0.2574)
+15. eval:  last: gender ego                                       -0.1746  (   0.3485)
+16. eval:  last: same gender                                       0.1887  (   0.2274)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.271     -0.015     -0.002      0.021     -0.002      0.017     -0.006     -0.014      0.008     -0.016      0.007      0.011     -0.007     -0.003     -0.020      0.005
+    -0.053      0.299     -0.017      0.028      0.005      0.001     -0.005     -0.013     -0.013      0.016      0.013     -0.022     -0.001      0.008      0.013     -0.007
+    -0.011     -0.103      0.094     -0.058     -0.008      0.016     -0.057     -0.046     -0.028      0.004      0.000      0.001      0.000     -0.001      0.000      0.002
+     0.091      0.114     -0.421      0.204      0.002     -0.031      0.058      0.008     -0.051      0.004      0.002     -0.004      0.001      0.000     -0.003     -0.002
+    -0.085      0.190     -0.546      0.093      0.002      0.005      0.002      0.000      0.008      0.002      0.001     -0.002      0.000      0.000      0.000     -0.001
+     0.111      0.007      0.181     -0.235      0.356      0.083     -0.020     -0.026      0.013      0.013     -0.001     -0.009      0.000      0.005     -0.004      0.004
+    -0.030     -0.024     -0.518      0.357      0.118     -0.195      0.129      0.026     -0.039     -0.006      0.000      0.001      0.001      0.005      0.003      0.000
+    -0.102     -0.089     -0.555      0.064     -0.012     -0.331      0.271      0.073      0.027     -0.001     -0.005      0.005      0.001      0.001      0.003      0.000
+     0.016     -0.025     -0.101     -0.122      0.182      0.047     -0.118      0.109      0.854     -0.046      0.012      0.001     -0.006     -0.025     -0.031     -0.021
+    -0.058      0.054      0.022      0.016      0.071      0.087     -0.030     -0.007     -0.094      0.287      0.011      0.004     -0.003     -0.009      0.013     -0.012
+     0.035      0.064     -0.003      0.013      0.060     -0.011      0.002     -0.044      0.035      0.051      0.151     -0.028     -0.049     -0.018      0.008     -0.037
+     0.053     -0.106      0.007     -0.024     -0.097     -0.080      0.009      0.050      0.003      0.018     -0.185      0.149     -0.001      0.008     -0.006      0.004
+    -0.085     -0.008      0.001      0.016     -0.014      0.000      0.027      0.017     -0.040     -0.043     -0.840     -0.010      0.023      0.008     -0.002      0.005
+    -0.023      0.060     -0.014      0.001      0.013      0.061      0.057      0.019     -0.106     -0.067     -0.182      0.078      0.206      0.066     -0.016      0.009
+    -0.112      0.068     -0.001     -0.016      0.011     -0.040      0.028      0.027     -0.096      0.070      0.056     -0.041     -0.046     -0.173      0.121      0.004
+     0.045     -0.057      0.023     -0.017     -0.072      0.062      0.003      0.007     -0.099     -0.098     -0.418      0.045      0.143      0.147      0.054      0.052
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 18.25 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 31/03/2026 13:36:41
+New results follow.
+-----------------------------------
+
+RSiena version 1.6.2 (26 Feb 26)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Random initialization of random number stream.
+Current random number seed is 736940.
+Effects object used: myeff 
+Model Type:
+Network 1 first : Standard actor-oriented model 
+Network 2 last : Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations in each period is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  constant first rate (period 1)                  1.5583
+  2. rate:  constant first rate (period 2)                  1.0505
+  3. eval:  first: outdegree (density)                     -1.6889
+  4. eval:  first: reciprocity                              0.0000
+  5. eval:  first: indegree - popularity                    0.0000
+  6. eval:  first: gender alter                             0.0000
+  7. eval:  first: gender ego                               0.0000
+  8. eval:  first: same gender                              0.0000
+  9. eval:  first: funcs[[1]] alter                         0.0000
+ 10. eval:  first: funcs[[1]] ego                           0.0000
+ 11. eval:  first: funcs[[2]] alter                         0.0000
+ 12. eval:  first: funcs[[2]] ego                           0.0000
+ 13. eval:  first: funcs[[3]] alter                         0.0000
+ 14. eval:  first: funcs[[3]] ego                           0.0000
+ 15. eval:  first: funcs[[4]] alter                         0.0000
+ 16. eval:  first: funcs[[4]] ego                           0.0000
+ 17. rate:  constant last rate (period 1)                   1.3679
+ 18. rate:  constant last rate (period 2)                   0.8918
+ 19. eval:  last: outdegree (density)                      -1.7089
+ 20. eval:  last: reciprocity                               0.0000
+ 21. eval:  last: indegree - popularity                     0.0000
+ 22. eval:  last: gender alter                              0.0000
+ 23. eval:  last: gender ego                                0.0000
+ 24. eval:  last: same gender                               0.0000
+ 25. eval:  last: funcs[[1]] alter                          0.0000
+ 26. eval:  last: funcs[[1]] ego                            0.0000
+ 27. eval:  last: funcs[[2]] alter                          0.0000
+ 28. eval:  last: funcs[[2]] ego                            0.0000
+ 29. eval:  last: funcs[[3]] alter                          0.0000
+ 30. eval:  last: funcs[[3]] ego                            0.0000
+ 31. eval:  last: funcs[[4]] alter                          0.0000
+ 32. eval:  last: funcs[[4]] ego                            0.0000
+
+
+Values of target statistics are
+  1. Amount of network change in period 1                                49.0000
+  2. Amount of network change in period 2                                33.0000
+  3. first: Number of ties                                               88.0000
+  4. first: Number of reciprocated ties                                  18.0000
+  5. first: Sum of squared indegrees                                    356.0000
+  6. first: Sum indegrees x gender                                      -14.0000
+  7. first: Sum outdegrees x gender                                      13.0000
+  8. first: Same values on gender                                        45.0000
+  9. first: Sum indegrees x funcs[[1]]                                    9.0000
+ 10. first: Sum outdegrees x funcs[[1]]                                  18.0000
+ 11. first: Sum indegrees x funcs[[2]]                                   31.0000
+ 12. first: Sum outdegrees x funcs[[2]]                                  14.0000
+ 13. first: Sum indegrees x funcs[[3]]                                   12.0000
+ 14. first: Sum outdegrees x funcs[[3]]                                   3.0000
+ 15. first: Sum indegrees x funcs[[4]]                                   32.0000
+ 16. first: Sum outdegrees x funcs[[4]]                                   7.0000
+ 17. Amount of network change in period 1                                43.0000
+ 18. Amount of network change in period 2                                28.0000
+ 19. last: Number of ties                                                70.0000
+ 20. last: Number of reciprocated ties                                   14.0000
+ 21. last: Sum of squared indegrees                                     130.0000
+ 22. last: Sum indegrees x gender                                        -3.0000
+ 23. last: Sum outdegrees x gender                                      -11.0000
+ 24. last: Same values on gender                                         38.0000
+ 25. last: Sum indegrees x funcs[[1]]                                     9.0000
+ 26. last: Sum outdegrees x funcs[[1]]                                    2.0000
+ 27. last: Sum indegrees x funcs[[2]]                                    30.0000
+ 28. last: Sum outdegrees x funcs[[2]]                                   16.0000
+ 29. last: Sum indegrees x funcs[[3]]                                     5.0000
+ 30. last: Sum outdegrees x funcs[[3]]                                   10.0000
+ 31. last: Sum indegrees x funcs[[4]]                                    10.0000
+ 32. last: Sum outdegrees x funcs[[4]]                                   27.0000
+These were calculated from the data.
+
+ 32 parameters, 32 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 4541 iterations.
+Parameter estimates based on 3541 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   0.4430   6.4435   0.0688 
+  2.  -0.1790   4.9986  -0.0358 
+  3.  -0.1140   9.4535  -0.0121 
+  4.   0.0320   5.1250   0.0062 
+  5.   0.0000 133.5957   0.0000 
+  6.  -0.2630   4.9952  -0.0527 
+  7.  -0.0940   3.7520  -0.0251 
+  8.  -0.0570   6.4253  -0.0089 
+  9.   0.0300   3.1169   0.0096 
+ 10.   0.1250   3.5735   0.0350 
+ 11.  -0.0580   5.5052  -0.0105 
+ 12.  -0.0680   3.0253  -0.0225 
+ 13.   0.1800   4.9273   0.0365 
+ 14.  -0.0370   1.3294  -0.0278 
+ 15.  -0.2480   5.7841  -0.0429 
+ 16.  -0.0400   2.2297  -0.0179 
+ 17.  -0.2780   5.2372  -0.0531 
+ 18.  -0.0740   4.4507  -0.0166 
+ 19.  -0.5200   6.8444  -0.0760 
+ 20.  -0.1600   4.5795  -0.0349 
+ 21.  -1.3100  20.9910  -0.0624 
+ 22.  -0.0130   3.5149  -0.0037 
+ 23.  -0.2980   3.4470  -0.0865 
+ 24.  -0.2150   5.0567  -0.0425 
+ 25.  -0.1220   2.5138  -0.0485 
+ 26.  -0.0760   1.2837  -0.0592 
+ 27.   0.0690   4.2781   0.0161 
+ 28.  -0.4890   3.5023  -0.1396 
+ 29.  -0.1640   1.6468  -0.0996 
+ 30.   0.1190   2.2952   0.0518 
+ 31.  -0.0370   2.6200  -0.0141 
+ 32.   0.0160   4.0623   0.0039 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.2723 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 4541 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  constant first rate (period 1)                          2.2097  (   0.5324)
+ 2. rate:  constant first rate (period 2)                          2.0450  (   0.5117)
+ 3. eval:  first: outdegree (density)                             -4.8269  (   0.9922)
+ 4. eval:  first: reciprocity                                      3.3267  (   0.6226)
+ 5. eval:  first: indegree - popularity                            0.1880  (   0.0630)
+ 6. eval:  first: gender alter                                    -0.0438  (   0.2974)
+ 7. eval:  first: gender ego                                       0.8237  (   0.3984)
+ 8. eval:  first: same gender                                      0.2382  (   0.2864)
+ 9. eval:  first: funcs[[1]] alter                                 2.1662  (   0.9747)
+10. eval:  first: funcs[[1]] ego                                  -0.2698  (   0.4240)
+11. eval:  first: funcs[[2]] alter                                 2.5970  (   0.9925)
+12. eval:  first: funcs[[2]] ego                                  -1.7544  (   0.6007)
+13. eval:  first: funcs[[3]] alter                                 2.6460  (   1.1483)
+14. eval:  first: funcs[[3]] ego                                  -0.8330  (   1.0251)
+15. eval:  first: funcs[[4]] alter                                 2.5153  (   1.0641)
+16. eval:  first: funcs[[4]] ego                                  -1.7925  (   0.7134)
+17. rate:  constant last rate (period 1)                           5.0616  (   1.7713)
+18. rate:  constant last rate (period 2)                           2.8477  (   0.8302)
+19. eval:  last: outdegree (density)                              -3.8715  (   0.6792)
+20. eval:  last: reciprocity                                       1.6554  (   0.4575)
+21. eval:  last: indegree - popularity                            -0.1237  (   0.1674)
+22. eval:  last: gender alter                                      0.1586  (   0.3132)
+23. eval:  last: gender ego                                        0.4725  (   0.4565)
+24. eval:  last: same gender                                       0.1540  (   0.2480)
+25. eval:  last: funcs[[1]] alter                                  0.8940  (   0.4311)
+26. eval:  last: funcs[[1]] ego                                   -1.0564  (   1.3965)
+27. eval:  last: funcs[[2]] alter                                  0.9505  (   0.3731)
+28. eval:  last: funcs[[2]] ego                                    0.7935  (   0.6325)
+29. eval:  last: funcs[[3]] alter                                  0.8859  (   0.6419)
+30. eval:  last: funcs[[3]] ego                                    2.3565  (   0.8024)
+31. eval:  last: funcs[[4]] alter                                  0.2136  (   0.5160)
+32. eval:  last: funcs[[4]] ego                                    2.1003  (   0.6790)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.283      0.000      0.038     -0.020     -0.003      0.020     -0.017     -0.004     -0.056      0.008     -0.072      0.033     -0.075     -0.013     -0.027      0.022     -0.217      0.019     -0.001      0.019     -0.001     -0.027      0.000     -0.005     -0.020      0.077      0.006      0.009     -0.029      0.018     -0.023      0.018
+     0.001      0.262     -0.016      0.010      0.001      0.005     -0.002     -0.001     -0.011     -0.026      0.018     -0.032      0.007     -0.015      0.020     -0.010     -0.053      0.028     -0.002     -0.009      0.005      0.018     -0.001     -0.008      0.003      0.215     -0.001      0.002      0.022      0.007      0.019      0.002
+     0.073     -0.032      0.984     -0.197      0.008      0.012     -0.019     -0.063     -0.864     -0.058     -0.910     -0.059     -0.971     -0.017     -0.945     -0.031     -0.339     -0.056      0.038      0.029     -0.022     -0.002      0.051     -0.023     -0.020      0.065      0.026     -0.036      0.013      0.048     -0.053      0.005
+    -0.062      0.033     -0.319      0.388      0.003     -0.024      0.040      0.002      0.166     -0.032      0.194     -0.152      0.178     -0.226      0.199     -0.196      0.063      0.090     -0.026     -0.020      0.005      0.012     -0.010      0.020      0.004      0.070      0.006      0.039     -0.001      0.014      0.008      0.004
+    -0.079      0.046      0.125      0.065      0.004     -0.001      0.003      0.000     -0.012     -0.003     -0.016     -0.007     -0.032     -0.007     -0.027     -0.003     -0.002      0.001      0.004     -0.002      0.000      0.001      0.000      0.000     -0.003      0.008     -0.002     -0.001     -0.001     -0.002     -0.002     -0.003
+     0.125      0.034      0.042     -0.129     -0.046      0.088     -0.026     -0.025      0.015     -0.010      0.014     -0.003      0.049     -0.028      0.041     -0.004      0.006      0.009     -0.017      0.006      0.001     -0.005      0.003      0.002      0.008      0.045      0.002      0.006     -0.003      0.000      0.014      0.007
+    -0.080     -0.010     -0.047      0.160      0.124     -0.223      0.159      0.030     -0.029      0.005     -0.037     -0.016     -0.038      0.093     -0.050      0.029     -0.155      0.011      0.002     -0.012     -0.004      0.012      0.018      0.006      0.002      0.032      0.008      0.010     -0.008      0.021      0.000      0.004
+    -0.028     -0.010     -0.222      0.011      0.012     -0.288      0.266      0.082      0.015     -0.002      0.004      0.020      0.012      0.044      0.008      0.004     -0.031      0.003      0.007     -0.009      0.004     -0.007      0.003      0.000     -0.012      0.009     -0.010     -0.002     -0.018      0.009     -0.021     -0.002
+    -0.107     -0.021     -0.894      0.273     -0.198      0.051     -0.074      0.053      0.950      0.002      0.896     -0.004      0.966     -0.106      0.934     -0.053      0.452      0.066     -0.044     -0.015      0.013      0.001     -0.067      0.017      0.033     -0.069     -0.015      0.048      0.011     -0.051      0.061      0.009
+     0.037     -0.121     -0.139     -0.121     -0.125     -0.079      0.030     -0.017      0.005      0.180      0.008      0.068      0.023      0.097      0.011      0.071     -0.008      0.002      0.018     -0.002     -0.002     -0.008      0.000     -0.003      0.013     -0.062      0.006     -0.021      0.010     -0.028      0.021     -0.015
+    -0.135      0.035     -0.924      0.315     -0.262      0.047     -0.093      0.015      0.927      0.020      0.985     -0.012      1.039     -0.095      0.999     -0.047      0.457      0.044     -0.061     -0.018      0.018      0.011     -0.070      0.020      0.033     -0.041     -0.016      0.049      0.016     -0.054      0.068      0.012
+     0.103     -0.103     -0.099     -0.405     -0.177     -0.017     -0.069      0.116     -0.006      0.266     -0.020      0.361      0.030      0.177      0.007      0.153      0.045      0.002     -0.032     -0.010      0.015     -0.023      0.036      0.007      0.001     -0.040     -0.016      0.007     -0.009      0.017     -0.010      0.012
+    -0.123      0.012     -0.852      0.248     -0.436      0.144     -0.082      0.036      0.863      0.047      0.912      0.043      1.319     -0.072      1.130     -0.027      0.462      0.059     -0.070     -0.016      0.018      0.004     -0.067      0.020      0.045     -0.099     -0.023      0.067      0.001     -0.036      0.062      0.023
+    -0.024     -0.028     -0.017     -0.354     -0.103     -0.093      0.229      0.150     -0.106      0.224     -0.093      0.288     -0.061      1.051     -0.083      0.251     -0.068     -0.117      0.016     -0.043      0.006     -0.015      0.046     -0.012      0.022     -0.049      0.011     -0.062      0.051     -0.003      0.046     -0.007
+    -0.047      0.036     -0.895      0.301     -0.400      0.130     -0.119      0.025      0.901      0.024      0.946      0.011      0.925     -0.076      1.132     -0.050      0.467      0.031     -0.064     -0.008      0.021      0.011     -0.070      0.024      0.046     -0.089     -0.007      0.035      0.011     -0.058      0.078      0.007
+     0.059     -0.026     -0.044     -0.441     -0.067     -0.020      0.101      0.019     -0.077      0.235     -0.067      0.357     -0.033      0.344     -0.065      0.509     -0.158     -0.045      0.032      0.009      0.008     -0.010      0.009     -0.008     -0.007     -0.059     -0.016     -0.048     -0.039     -0.045     -0.003     -0.051
+    -0.230     -0.059     -0.193      0.057     -0.020      0.011     -0.220     -0.061      0.262     -0.011      0.260      0.043      0.227     -0.037      0.248     -0.125      3.137     -0.220      0.024     -0.083      0.038      0.067     -0.184     -0.033      0.017      0.062     -0.162      0.117      0.182     -0.365      0.043      0.021
+     0.043      0.066     -0.068      0.174      0.020      0.035      0.032      0.014      0.082      0.005      0.053      0.003      0.062     -0.137      0.035     -0.077     -0.150      0.689     -0.015     -0.011     -0.003     -0.017      0.023      0.019      0.008     -0.007     -0.018      0.045     -0.052      0.113     -0.016     -0.010
+    -0.002     -0.006      0.056     -0.061      0.096     -0.085      0.007      0.037     -0.067      0.064     -0.090     -0.079     -0.090      0.022     -0.089      0.067      0.020     -0.027      0.461     -0.040     -0.034      0.002     -0.103     -0.020     -0.085     -0.352     -0.059     -0.280     -0.078     -0.377     -0.092     -0.357
+     0.077     -0.037      0.063     -0.071     -0.080      0.048     -0.067     -0.067     -0.035     -0.008     -0.039     -0.038     -0.030     -0.091     -0.016      0.027     -0.102     -0.029     -0.129      0.209     -0.015     -0.006      0.005     -0.009      0.002     -0.022      0.011      0.005     -0.053      0.052     -0.032      0.063
+    -0.012      0.057     -0.135      0.044      0.000      0.028     -0.060      0.077      0.079     -0.024      0.111      0.152      0.093      0.035      0.119      0.068      0.129     -0.024     -0.303     -0.190      0.028      0.001      0.000      0.001     -0.004      0.017     -0.017     -0.004     -0.017     -0.009      0.001     -0.010
+    -0.162      0.112     -0.008      0.060      0.074     -0.054      0.095     -0.076      0.003     -0.059      0.035     -0.120      0.010     -0.047      0.034     -0.044      0.121     -0.065      0.008     -0.039      0.017      0.098     -0.020      0.008      0.018      0.000      0.001     -0.005      0.062     -0.027      0.028     -0.016
+     0.002     -0.003      0.112     -0.036      0.011      0.022      0.097      0.021     -0.150     -0.001     -0.154      0.130     -0.128      0.098     -0.144      0.029     -0.228      0.062     -0.332      0.024     -0.001     -0.139      0.208      0.007      0.004      0.136      0.013      0.045      0.011      0.201      0.031      0.135
+    -0.035     -0.061     -0.095      0.127      0.032      0.027      0.066      0.001      0.071     -0.029      0.080      0.047      0.071     -0.048      0.093     -0.043     -0.075      0.093     -0.118     -0.076      0.033      0.102      0.059      0.061      0.005     -0.042      0.005     -0.018     -0.004     -0.009     -0.002     -0.019
+    -0.089      0.014     -0.046      0.016     -0.119      0.062      0.012     -0.097      0.078      0.069      0.078      0.005      0.090      0.050      0.099     -0.022      0.022      0.022     -0.289      0.010     -0.052      0.136      0.020      0.047      0.186     -0.043      0.086      0.003      0.098      0.032      0.107      0.018
+     0.104      0.301      0.047      0.081      0.095      0.108      0.057      0.022     -0.051     -0.104     -0.030     -0.047     -0.062     -0.034     -0.060     -0.059      0.025     -0.006     -0.371     -0.034      0.073      0.000      0.214     -0.122     -0.071      1.950     -0.033      0.320      0.096      0.357      0.078      0.371
+     0.028     -0.007      0.070      0.025     -0.096      0.014      0.051     -0.097     -0.041      0.036     -0.043     -0.072     -0.053      0.028     -0.017     -0.059     -0.246     -0.057     -0.234      0.064     -0.274      0.012      0.075      0.054      0.534     -0.063      0.139     -0.037      0.096      0.030      0.100      0.008
+     0.025      0.005     -0.057      0.098     -0.019      0.033      0.038     -0.010      0.077     -0.079      0.078      0.018      0.092     -0.095      0.052     -0.107      0.104      0.085     -0.652      0.016     -0.041     -0.026      0.156     -0.114      0.010      0.362     -0.158      0.400      0.012      0.319     -0.026      0.331
+    -0.086      0.067      0.020     -0.002     -0.018     -0.016     -0.031     -0.097      0.017      0.035      0.025     -0.024      0.001      0.077      0.016     -0.086      0.160     -0.097     -0.178     -0.182     -0.160      0.311      0.036     -0.023      0.354      0.107      0.399      0.031      0.412      0.027      0.150      0.036
+     0.042      0.017      0.060      0.029     -0.041     -0.001      0.066      0.038     -0.066     -0.083     -0.068      0.036     -0.039     -0.003     -0.068     -0.079     -0.257      0.169     -0.691      0.141     -0.065     -0.108      0.549     -0.046      0.092      0.319      0.101      0.629      0.053      0.644      0.010      0.416
+    -0.083      0.070     -0.104      0.025     -0.066      0.090     -0.002     -0.139      0.121      0.096      0.133     -0.033      0.105      0.088      0.142     -0.008      0.047     -0.037     -0.263     -0.135      0.012      0.176      0.132     -0.012      0.482      0.108      0.521     -0.081      0.453      0.025      0.266      0.009
+     0.049      0.005      0.008      0.010     -0.074      0.037      0.016     -0.009      0.014     -0.054      0.019      0.030      0.030     -0.010      0.010     -0.105      0.017     -0.018     -0.774      0.202     -0.091     -0.075      0.436     -0.112      0.061      0.391      0.033      0.771      0.083      0.764      0.027      0.461
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 38.64 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 31/03/2026 13:37:20
+New results follow.
+-----------------------------------
+
+RSiena version 1.6.2 (26 Feb 26)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Random initialization of random number stream.
+Current random number seed is 337238.
+Effects object used: myeff 
+Model Type:
+Network 1 first : Standard actor-oriented model 
+Network 2 last : Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations in each period is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  constant first rate (period 1)                  1.5583
+  2. rate:  constant first rate (period 2)                  1.0505
+  3. eval:  first: outdegree (density)                     -1.6889
+  4. eval:  first: reciprocity                              0.0000
+  5. eval:  first: indegree - popularity                    0.0000
+  6. eval:  first: dissim                                   0.0000
+  7. eval:  first: distan                                   0.0000
+  8. eval:  first: gender alter                             0.0000
+  9. eval:  first: gender ego                               0.0000
+ 10. eval:  first: same gender                              0.0000
+ 11. eval:  first: funcs[[1]] alter                         0.0000
+ 12. eval:  first: funcs[[1]] ego                           0.0000
+ 13. eval:  first: funcs[[2]] alter                         0.0000
+ 14. eval:  first: funcs[[2]] ego                           0.0000
+ 15. eval:  first: funcs[[3]] alter                         0.0000
+ 16. eval:  first: funcs[[3]] ego                           0.0000
+ 17. eval:  first: funcs[[4]] alter                         0.0000
+ 18. eval:  first: funcs[[4]] ego                           0.0000
+ 19. eval:  first: intdis alter                             0.0000
+ 20. eval:  first: intdis ego                               0.0000
+ 21. rate:  constant last rate (period 1)                   1.3679
+ 22. rate:  constant last rate (period 2)                   0.8918
+ 23. eval:  last: outdegree (density)                      -1.7089
+ 24. eval:  last: reciprocity                               0.0000
+ 25. eval:  last: indegree - popularity                     0.0000
+ 26. eval:  last: dissim                                    0.0000
+ 27. eval:  last: distan                                    0.0000
+ 28. eval:  last: gender alter                              0.0000
+ 29. eval:  last: gender ego                                0.0000
+ 30. eval:  last: same gender                               0.0000
+ 31. eval:  last: funcs[[1]] alter                          0.0000
+ 32. eval:  last: funcs[[1]] ego                            0.0000
+ 33. eval:  last: funcs[[2]] alter                          0.0000
+ 34. eval:  last: funcs[[2]] ego                            0.0000
+ 35. eval:  last: funcs[[3]] alter                          0.0000
+ 36. eval:  last: funcs[[3]] ego                            0.0000
+ 37. eval:  last: funcs[[4]] alter                          0.0000
+ 38. eval:  last: funcs[[4]] ego                            0.0000
+ 39. eval:  last: intdis alter                              0.0000
+ 40. eval:  last: intdis ego                                0.0000
+
+
+Values of target statistics are
+  1. Amount of network change in period 1                                49.0000
+  2. Amount of network change in period 2                                33.0000
+  3. first: Number of ties                                               88.0000
+  4. first: Number of reciprocated ties                                  18.0000
+  5. first: Sum of squared indegrees                                    356.0000
+  6. first: Sum of ties x dissim                                        -12.6024
+  7. first: Sum of ties x distan                                         -4.9998
+  8. first: Sum indegrees x gender                                      -14.0000
+  9. first: Sum outdegrees x gender                                      13.0000
+ 10. first: Same values on gender                                        45.0000
+ 11. first: Sum indegrees x funcs[[1]]                                    9.0000
+ 12. first: Sum outdegrees x funcs[[1]]                                  18.0000
+ 13. first: Sum indegrees x funcs[[2]]                                   31.0000
+ 14. first: Sum outdegrees x funcs[[2]]                                  14.0000
+ 15. first: Sum indegrees x funcs[[3]]                                   12.0000
+ 16. first: Sum outdegrees x funcs[[3]]                                   3.0000
+ 17. first: Sum indegrees x funcs[[4]]                                   32.0000
+ 18. first: Sum outdegrees x funcs[[4]]                                   7.0000
+ 19. first: Sum indegrees x intdis                                        0.7768
+ 20. first: Sum outdegrees x intdis                                      -3.4185
+ 21. Amount of network change in period 1                                43.0000
+ 22. Amount of network change in period 2                                28.0000
+ 23. last: Number of ties                                                70.0000
+ 24. last: Number of reciprocated ties                                   14.0000
+ 25. last: Sum of squared indegrees                                     130.0000
+ 26. last: Sum of ties x dissim                                         -12.9976
+ 27. last: Sum of ties x distan                                          -3.1544
+ 28. last: Sum indegrees x gender                                        -3.0000
+ 29. last: Sum outdegrees x gender                                      -11.0000
+ 30. last: Same values on gender                                         38.0000
+ 31. last: Sum indegrees x funcs[[1]]                                     9.0000
+ 32. last: Sum outdegrees x funcs[[1]]                                    2.0000
+ 33. last: Sum indegrees x funcs[[2]]                                    30.0000
+ 34. last: Sum outdegrees x funcs[[2]]                                   16.0000
+ 35. last: Sum indegrees x funcs[[3]]                                     5.0000
+ 36. last: Sum outdegrees x funcs[[3]]                                   10.0000
+ 37. last: Sum indegrees x funcs[[4]]                                    10.0000
+ 38. last: Sum outdegrees x funcs[[4]]                                   27.0000
+ 39. last: Sum indegrees x intdis                                        -0.6255
+ 40. last: Sum outdegrees x intdis                                       -0.8226
+These were calculated from the data.
+
+ 40 parameters, 40 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 5024 iterations.
+Parameter estimates based on 4024 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   0.2710   6.4200   0.0422 
+  2.  -0.2720   4.8294  -0.0563 
+  3.  -0.2470   8.9370  -0.0276 
+  4.  -0.0020   5.0443  -0.0004 
+  5.  -4.3130 106.6802  -0.0404 
+  6.   0.0090   1.6364   0.0055 
+  7.   0.0019   5.8254   0.0003 
+  8.   0.2825   4.8936   0.0577 
+  9.   0.2795   3.7416   0.0747 
+ 10.  -0.3980   6.3905  -0.0623 
+ 11.   0.1060   3.1088   0.0341 
+ 12.  -0.2320   3.2556  -0.0713 
+ 13.  -0.1530   5.2426  -0.0292 
+ 14.  -0.0380   2.9670  -0.0128 
+ 15.   0.1000   4.1684   0.0240 
+ 16.   0.0340   1.3685   0.0248 
+ 17.  -0.2580   5.3679  -0.0481 
+ 18.  -0.0570   2.1204  -0.0269 
+ 19.  -0.0201   0.8597  -0.0234 
+ 20.  -0.0226   0.9932  -0.0227 
+ 21.  -0.2930   4.8999  -0.0598 
+ 22.  -0.0980   4.4974  -0.0218 
+ 23.  -0.3450   6.1135  -0.0564 
+ 24.   0.0480   4.3396   0.0111 
+ 25.  -0.8010  18.6745  -0.0429 
+ 26.   0.0495   1.2563   0.0394 
+ 27.   0.0132   4.3208   0.0031 
+ 28.   0.1215   3.0230   0.0402 
+ 29.  -0.1205   3.2384  -0.0372 
+ 30.  -0.5550   4.8848  -0.1136 
+ 31.  -0.0810   2.2533  -0.0359 
+ 32.  -0.0730   1.2796  -0.0571 
+ 33.  -0.2240   3.8466  -0.0582 
+ 34.  -0.2280   3.4966  -0.0652 
+ 35.   0.0100   1.4512   0.0069 
+ 36.  -0.1020   2.1671  -0.0471 
+ 37.  -0.0400   2.3761  -0.0168 
+ 38.   0.1660   3.8405   0.0432 
+ 39.  -0.0238   0.6944  -0.0343 
+ 40.   0.0318   0.7292   0.0437 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.2635 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 5024 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  constant first rate (period 1)                          2.6652  (   0.6215)
+ 2. rate:  constant first rate (period 2)                          2.2288  (   0.6269)
+ 3. eval:  first: outdegree (density)                             -4.8597  (   0.9431)
+ 4. eval:  first: reciprocity                                      2.9151  (   0.5726)
+ 5. eval:  first: indegree - popularity                            0.1547  (   0.0578)
+ 6. eval:  first: dissim                                          -4.0320  (   1.1799)
+ 7. eval:  first: distan                                          -0.2006  (   0.2080)
+ 8. eval:  first: gender alter                                    -0.1043  (   0.3117)
+ 9. eval:  first: gender ego                                       0.7259  (   0.3504)
+10. eval:  first: same gender                                      0.2239  (   0.2594)
+11. eval:  first: funcs[[1]] alter                                 2.1283  (   0.9554)
+12. eval:  first: funcs[[1]] ego                                  -0.2414  (   0.4571)
+13. eval:  first: funcs[[2]] alter                                 2.3768  (   0.9013)
+14. eval:  first: funcs[[2]] ego                                  -2.0153  (   0.5955)
+15. eval:  first: funcs[[3]] alter                                 2.5534  (   1.0674)
+16. eval:  first: funcs[[3]] ego                                  -1.1287  (   0.9705)
+17. eval:  first: funcs[[4]] alter                                 2.4552  (   0.9596)
+18. eval:  first: funcs[[4]] ego                                  -2.0386  (   0.7101)
+19. eval:  first: intdis alter                                     0.7969  (   1.2610)
+20. eval:  first: intdis ego                                       1.0208  (   1.3941)
+21. rate:  constant last rate (period 1)                           6.7387  (   2.0877)
+22. rate:  constant last rate (period 2)                           3.1032  (   0.8327)
+23. eval:  last: outdegree (density)                              -3.8523  (   0.8109)
+24. eval:  last: reciprocity                                       1.1013  (   0.5002)
+25. eval:  last: indegree - popularity                            -0.3928  (   0.2225)
+26. eval:  last: dissim                                           -6.2703  (   1.5552)
+27. eval:  last: distan                                           -0.2724  (   0.2084)
+28. eval:  last: gender alter                                     -0.0304  (   0.3159)
+29. eval:  last: gender ego                                       -0.0671  (   0.4184)
+30. eval:  last: same gender                                       0.0723  (   0.2581)
+31. eval:  last: funcs[[1]] alter                                  0.8679  (   0.5695)
+32. eval:  last: funcs[[1]] ego                                   -1.0526  (   1.2892)
+33. eval:  last: funcs[[2]] alter                                  0.8332  (   0.4411)
+34. eval:  last: funcs[[2]] ego                                    0.5958  (   0.6765)
+35. eval:  last: funcs[[3]] alter                                  0.9393  (   0.7761)
+36. eval:  last: funcs[[3]] ego                                    1.9003  (   0.8112)
+37. eval:  last: funcs[[4]] alter                                  0.0939  (   0.5520)
+38. eval:  last: funcs[[4]] ego                                    1.9238  (   0.7765)
+39. eval:  last: intdis alter                                      1.2972  (   1.4146)
+40. eval:  last: intdis ego                                       -1.5921  (   1.7467)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.386     -0.049      0.014     -0.030     -0.007     -0.101      0.016     -0.026     -0.001      0.022     -0.042      0.049     -0.047      0.024     -0.044      0.030     -0.028      0.069     -0.031     -0.093      0.096      0.022     -0.081      0.029     -0.010     -0.022     -0.016     -0.010     -0.014      0.011      0.041     -0.032      0.034      0.056     -0.028      0.034      0.025      0.056      0.008     -0.054
+    -0.127      0.393      0.050     -0.015      0.001      0.066     -0.003      0.004      0.002     -0.008     -0.063     -0.067     -0.015     -0.014     -0.018     -0.008     -0.039     -0.001     -0.001      0.018      0.050     -0.070      0.032     -0.027     -0.001      0.147     -0.001      0.026      0.027      0.000      0.022      0.063     -0.017      0.012      0.007      0.042      0.037      0.011     -0.020      0.010
+     0.023      0.084      0.890     -0.093      0.004      0.163     -0.002      0.016     -0.066     -0.055     -0.810     -0.058     -0.768     -0.052     -0.846     -0.034     -0.793     -0.076      0.086     -0.022      0.204      0.054     -0.021     -0.032      0.015      0.183     -0.016      0.046      0.036     -0.010      0.044     -0.047     -0.008      0.023      0.119      0.052      0.043      0.020      0.001      0.067
+    -0.086     -0.043     -0.173      0.328      0.005      0.099      0.005     -0.017      0.021      0.017      0.058     -0.029      0.095     -0.136      0.082     -0.135      0.082     -0.197     -0.074     -0.026      0.010     -0.043     -0.008      0.017     -0.003     -0.030      0.000     -0.011     -0.009      0.004      0.042     -0.032      0.027     -0.011     -0.037     -0.022     -0.003     -0.013     -0.034      0.048
+    -0.190      0.026      0.081      0.146      0.003      0.007      0.001      0.001      0.000     -0.002     -0.009     -0.003     -0.011     -0.003     -0.024      0.002     -0.020     -0.005      0.008     -0.005     -0.011     -0.001      0.005      0.000      0.000     -0.002      0.001      0.001      0.000      0.000      0.000     -0.003      0.000     -0.005      0.000     -0.003     -0.002     -0.004     -0.002     -0.006
+    -0.137      0.090      0.146      0.146      0.108      1.392     -0.011     -0.013      0.008      0.026     -0.113      0.046     -0.038      0.070     -0.120      0.155     -0.082      0.050     -0.218     -0.476      0.498     -0.029     -0.006     -0.034      0.019      0.117     -0.015     -0.008      0.026     -0.039      0.007      0.016     -0.057      0.048      0.003      0.087      0.001      0.025     -0.022     -0.009
+     0.127     -0.027     -0.011      0.040      0.075     -0.045      0.043      0.006      0.002     -0.002     -0.006     -0.005      0.003      0.010      0.005      0.006     -0.002     -0.006     -0.022      0.002      0.036     -0.001     -0.023      0.022      0.003      0.016     -0.006      0.005      0.001     -0.004      0.021      0.045      0.002      0.008     -0.007      0.013      0.000      0.016     -0.019     -0.064
+    -0.133      0.020      0.053     -0.094      0.066     -0.034      0.089      0.097     -0.027     -0.030      0.009     -0.010      0.010     -0.006      0.049      0.002      0.033     -0.015      0.111      0.035      0.077      0.005      0.026     -0.006      0.007      0.049     -0.002      0.005      0.007     -0.001     -0.008      0.017     -0.026     -0.006      0.010     -0.012     -0.016     -0.015      0.020     -0.010
+    -0.002      0.010     -0.201      0.104      0.009      0.020      0.025     -0.252      0.123      0.027      0.028      0.028      0.019      0.007      0.031      0.061      0.019      0.021     -0.066      0.053     -0.035      0.025     -0.002      0.003     -0.001     -0.023      0.007     -0.006      0.010      0.005     -0.003      0.021      0.016     -0.007     -0.002      0.011     -0.001     -0.011     -0.066      0.075
+     0.139     -0.052     -0.223      0.115     -0.111      0.085     -0.040     -0.373      0.297      0.067      0.016      0.023      0.008      0.008      0.008      0.007      0.015      0.012     -0.015     -0.034      0.052     -0.006     -0.020      0.003      0.002      0.002      0.001     -0.006      0.002     -0.003      0.003     -0.011      0.005      0.009     -0.006      0.021      0.006      0.013     -0.018     -0.009
+    -0.070     -0.106     -0.899      0.106     -0.165     -0.100     -0.029      0.032      0.083      0.066      0.913      0.017      0.783     -0.007      0.860     -0.066      0.818      0.018     -0.118      0.085     -0.094     -0.079      0.010      0.018     -0.008     -0.170      0.007     -0.036     -0.044      0.003     -0.049      0.026      0.000     -0.007     -0.094     -0.057     -0.027     -0.013      0.007     -0.034
+     0.173     -0.235     -0.134     -0.112     -0.124      0.085     -0.053     -0.073      0.177      0.192      0.038      0.209     -0.007      0.058      0.000      0.113      0.008      0.091      0.016     -0.084      0.052      0.034     -0.046      0.003     -0.003     -0.083      0.001     -0.006      0.001     -0.001     -0.024      0.007      0.004      0.029     -0.007      0.027     -0.011      0.030     -0.010      0.021
+    -0.084     -0.027     -0.903      0.184     -0.205     -0.036      0.014      0.035      0.062      0.036      0.910     -0.017      0.812     -0.033      0.862     -0.057      0.808     -0.007     -0.169      0.116      0.017     -0.082      0.020      0.026     -0.006     -0.086     -0.002     -0.037     -0.032      0.000     -0.021      0.049     -0.012     -0.005     -0.093     -0.048     -0.022     -0.012      0.017     -0.086
+     0.064     -0.039     -0.093     -0.398     -0.082      0.100      0.078     -0.032      0.034      0.050     -0.012      0.212     -0.061      0.355      0.014      0.160     -0.016      0.157      0.081     -0.164     -0.150      0.036      0.031      0.002      0.008     -0.018      0.011      0.008     -0.013      0.001     -0.039      0.025     -0.011     -0.033     -0.011     -0.016     -0.011     -0.041      0.106     -0.028
+    -0.066     -0.028     -0.841      0.134     -0.383     -0.095      0.022      0.148      0.084      0.028      0.843     -0.001      0.896      0.022      1.139     -0.055      0.940      0.017     -0.136      0.125     -0.063     -0.068      0.034      0.009     -0.010     -0.094      0.001     -0.043     -0.030      0.005     -0.040      0.079     -0.019      0.004     -0.089     -0.048     -0.029     -0.015      0.019     -0.015
+     0.050     -0.013     -0.038     -0.242      0.027      0.135      0.028      0.005      0.179      0.028     -0.072      0.254     -0.065      0.277     -0.053      0.942     -0.056      0.216      0.062     -0.196     -0.044      0.204      0.011      0.028     -0.010     -0.115      0.008     -0.036      0.057      0.014     -0.026      0.141     -0.012     -0.034     -0.033      0.040     -0.064     -0.005      0.015     -0.079
+    -0.047     -0.065     -0.876      0.148     -0.356     -0.072     -0.009      0.112      0.057      0.062      0.892      0.018      0.934     -0.029      0.917     -0.060      0.921      0.005     -0.163      0.124      0.147     -0.065     -0.010      0.024      0.000     -0.061     -0.003     -0.041     -0.029     -0.003     -0.030      0.109     -0.014      0.029     -0.095     -0.023     -0.025      0.006     -0.015     -0.061
+     0.156     -0.002     -0.113     -0.484     -0.123      0.060     -0.044     -0.068      0.085      0.065      0.027      0.281     -0.011      0.371      0.022      0.314      0.007      0.504      0.033     -0.187     -0.231      0.034     -0.018      0.022     -0.007     -0.037      0.012     -0.015      0.001     -0.015     -0.057     -0.043     -0.015      0.050     -0.051      0.054     -0.044      0.066      0.048     -0.158
+    -0.039     -0.001      0.072     -0.103      0.109     -0.147     -0.085      0.283     -0.150     -0.046     -0.098      0.028     -0.148      0.109     -0.101      0.051     -0.135      0.036      1.590     -0.057     -0.299     -0.062      0.081     -0.043     -0.011     -0.101      0.013      0.017      0.012      0.019     -0.108     -0.122     -0.022     -0.071      0.115     -0.016     -0.014     -0.039      0.074      0.088
+    -0.108      0.021     -0.016     -0.033     -0.057     -0.289      0.007      0.080      0.109     -0.094      0.064     -0.131      0.092     -0.198      0.084     -0.145      0.092     -0.189     -0.032      1.943      0.191      0.044      0.055     -0.040      0.041      0.001     -0.005     -0.009     -0.026     -0.018      0.013      0.170     -0.089     -0.063     -0.027     -0.070     -0.066     -0.089      0.008      0.089
+     0.074      0.038      0.104      0.008     -0.092      0.202      0.083      0.118     -0.048      0.095     -0.047      0.054      0.009     -0.121     -0.028     -0.022      0.073     -0.156     -0.114      0.066      4.358     -0.094     -0.018     -0.058      0.043      0.908     -0.127      0.023      0.025     -0.044      0.235      0.370     -0.080      0.152      0.224      0.155      0.196     -0.081     -0.314      0.188
+     0.042     -0.135      0.068     -0.091     -0.023     -0.030     -0.006      0.021      0.085     -0.027     -0.100      0.089     -0.109      0.074     -0.077      0.252     -0.081      0.058     -0.059      0.038     -0.054      0.693      0.010      0.021      0.000     -0.113      0.023     -0.021      0.036      0.015     -0.031      0.039     -0.015     -0.020     -0.042      0.010     -0.044     -0.047      0.014      0.219
+    -0.162      0.064     -0.028     -0.018      0.105     -0.006     -0.139      0.102     -0.008     -0.096      0.013     -0.125      0.027      0.063      0.039      0.014     -0.013     -0.031      0.079      0.049     -0.011      0.014      0.658     -0.091     -0.056      0.154      0.048      0.012     -0.053      0.020     -0.053     -0.495     -0.092     -0.374      0.043     -0.454     -0.082     -0.498      0.143      0.447
+     0.093     -0.085     -0.068      0.059     -0.012     -0.057      0.207     -0.038      0.017      0.020      0.037      0.014      0.059      0.006      0.018      0.058      0.050      0.061     -0.067     -0.058     -0.056      0.049     -0.223      0.250     -0.001      0.150      0.006      0.001      0.021     -0.015      0.001      0.124      0.016      0.049     -0.105      0.082     -0.036      0.115     -0.069     -0.234
+    -0.069     -0.007      0.071     -0.023     -0.030      0.072      0.075      0.100     -0.011      0.032     -0.039     -0.032     -0.028      0.061     -0.040     -0.044      0.000     -0.045     -0.038      0.132      0.092      0.001     -0.309     -0.006      0.049      0.102     -0.005     -0.002      0.008     -0.007     -0.017      0.027     -0.037      0.006     -0.049      0.011     -0.015     -0.002      0.017     -0.032
+    -0.023      0.151      0.125     -0.033     -0.018      0.064      0.050      0.100     -0.042      0.006     -0.114     -0.117     -0.062     -0.020     -0.057     -0.076     -0.041     -0.033     -0.051      0.001      0.280     -0.088      0.122      0.193      0.294      2.419     -0.002      0.106      0.077     -0.008      0.122      0.010     -0.049      0.122      0.032      0.116      0.155     -0.042     -0.362     -0.538
+    -0.126     -0.006     -0.080     -0.002      0.059     -0.059     -0.136     -0.034      0.099      0.027      0.033      0.013     -0.011      0.091      0.004      0.039     -0.013      0.083      0.050     -0.018     -0.291      0.132      0.285      0.055     -0.101     -0.006      0.043      0.001      0.007      0.007     -0.025     -0.049     -0.006     -0.025     -0.016     -0.018     -0.029     -0.035      0.017      0.050
+    -0.049      0.129      0.153     -0.060      0.069     -0.022      0.073      0.048     -0.051     -0.069     -0.119     -0.042     -0.131      0.041     -0.127     -0.119     -0.134     -0.066      0.044     -0.020      0.036     -0.081      0.045      0.007     -0.032      0.215      0.017      0.100     -0.003      0.007      0.035     -0.034      0.013     -0.013      0.081     -0.010      0.047     -0.007      0.074     -0.014
+    -0.054      0.104      0.092     -0.038      0.006      0.053      0.012      0.050      0.070      0.019     -0.111      0.006     -0.084     -0.050     -0.066      0.140     -0.073      0.004      0.023     -0.044      0.028      0.102     -0.158      0.101      0.089      0.119      0.079     -0.019      0.175     -0.005     -0.025      0.101     -0.013      0.036     -0.002      0.164     -0.027      0.104      0.015      0.048
+     0.068     -0.001     -0.043      0.029      0.026     -0.128     -0.079     -0.016      0.056     -0.041      0.013     -0.006      0.000      0.005      0.019      0.057     -0.012     -0.081      0.059     -0.049     -0.082      0.069      0.098     -0.119     -0.128     -0.020      0.125      0.092     -0.051      0.067      0.006     -0.073      0.007     -0.038      0.031     -0.045      0.002     -0.049      0.010      0.088
+     0.115      0.061      0.081      0.130      0.004      0.011      0.176     -0.047     -0.014      0.019     -0.091     -0.093     -0.042     -0.114     -0.066     -0.047     -0.055     -0.141     -0.150      0.016      0.198     -0.066     -0.114      0.003     -0.135      0.138     -0.208      0.197     -0.107      0.038      0.324     -0.059      0.142     -0.036      0.167     -0.039      0.155     -0.039     -0.047     -0.002
+    -0.040      0.078     -0.038     -0.043     -0.041      0.011      0.168      0.041      0.047     -0.033      0.021      0.011      0.042      0.032      0.057      0.112      0.088     -0.047     -0.075      0.095      0.137      0.037     -0.473      0.193      0.096      0.005     -0.182     -0.082      0.188     -0.219     -0.080      1.662     -0.045      0.444     -0.126      0.513     -0.025      0.520     -0.117     -0.536
+     0.125     -0.060     -0.020      0.109      0.008     -0.109      0.023     -0.192      0.101      0.043     -0.001      0.021     -0.031     -0.042     -0.040     -0.027     -0.033     -0.048     -0.040     -0.144     -0.087     -0.040     -0.256      0.074     -0.382     -0.071     -0.063      0.095     -0.069      0.066      0.563     -0.079      0.195      0.000      0.143      0.019      0.143      0.030     -0.164      0.019
+     0.133      0.027      0.036     -0.028     -0.129      0.060      0.055     -0.026     -0.028      0.053     -0.012      0.095     -0.008     -0.083      0.006     -0.051      0.044      0.105     -0.083     -0.067      0.108     -0.036     -0.682      0.145      0.042      0.116     -0.178     -0.063      0.126     -0.216     -0.092      0.509      0.000      0.458     -0.095      0.400      0.006      0.418     -0.086     -0.396
+    -0.057      0.015      0.162     -0.083      0.006      0.003     -0.041      0.043     -0.007     -0.028     -0.126     -0.020     -0.133     -0.023     -0.107     -0.043     -0.128     -0.093      0.118     -0.025      0.138     -0.064      0.068     -0.271     -0.285      0.026     -0.099      0.329     -0.006      0.157      0.378     -0.126      0.419     -0.181      0.602     -0.050      0.189     -0.076     -0.094      0.182
+     0.067      0.083      0.069     -0.048     -0.057      0.091      0.076     -0.049      0.039      0.099     -0.073      0.073     -0.066     -0.034     -0.055      0.051     -0.029      0.093     -0.016     -0.062      0.091      0.015     -0.690      0.201      0.059      0.092     -0.104     -0.039      0.483     -0.215     -0.084      0.491      0.054      0.728     -0.079      0.658     -0.005      0.517     -0.105     -0.438
+     0.073      0.107      0.083     -0.010     -0.056      0.002     -0.003     -0.094     -0.004      0.039     -0.051     -0.045     -0.045     -0.035     -0.049     -0.120     -0.048     -0.113     -0.020     -0.086      0.170     -0.096     -0.182     -0.132     -0.125      0.181     -0.249      0.270     -0.118      0.012      0.493     -0.036      0.586      0.016      0.441     -0.012      0.305     -0.006     -0.202      0.009
+     0.116      0.022      0.027     -0.030     -0.086      0.027      0.100     -0.063     -0.040      0.064     -0.018      0.086     -0.017     -0.089     -0.018     -0.007      0.008      0.119     -0.040     -0.082     -0.050     -0.072     -0.790      0.295     -0.013     -0.035     -0.218     -0.030      0.320     -0.247     -0.088      0.520      0.089      0.795     -0.126      0.821     -0.013      0.603     -0.057     -0.569
+     0.009     -0.023      0.000     -0.041     -0.019     -0.013     -0.063      0.044     -0.133     -0.050      0.005     -0.016      0.013      0.126      0.013      0.011     -0.011      0.048      0.042      0.004     -0.106      0.012      0.124     -0.097      0.053     -0.165      0.058      0.165      0.025      0.027     -0.059     -0.064     -0.262     -0.090     -0.086     -0.091     -0.258     -0.052      2.001      0.044
+    -0.050      0.009      0.041      0.048     -0.058     -0.005     -0.177     -0.017      0.123     -0.020     -0.021      0.026     -0.055     -0.027     -0.008     -0.046     -0.037     -0.127      0.040      0.037      0.051      0.151      0.316     -0.268     -0.082     -0.198      0.137     -0.025      0.066      0.194     -0.002     -0.238      0.024     -0.335      0.134     -0.309      0.009     -0.419      0.018      3.051
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 67.79 seconds.

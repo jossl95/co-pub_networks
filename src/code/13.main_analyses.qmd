@@ -1,0 +1,900 @@
+---
+title: Main Analysis
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+
+execute:
+  eval: false
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+#| echo: false
+BASEDIR = stringr::str_replace_all(getwd(), '/results', '')
+setwd(BASEDIR)
+```
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+
+BASEDIR = stringr::str_replace_all(getwd(), '/results', '')
+setwd(BASEDIR)
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(RSiena)
+library(igraph)
+library(dplyr)
+library(tibble)
+library(glue)
+```
+
+## Functions
+
+### `make_adjacency_matrix()`
+
+Build a co-authorship adjacency matrix for a specified set of scholars and time window.
+
+#### Arguments
+
+**`data`**
+
+> Named list with a `works` element (named list of per-scholar works tibbles containing `uid`, `work_id`, `authorships`, `publication_date`, and `publication_year`).
+
+**`uids`**
+
+> Character vector of focal scholar UIDs defining the rows and columns of the output matrix.
+
+**`type`**
+
+> Character string controlling which author position is treated as the focal node. `"first"` and `"last"` use the author at that position; `"all"` creates a full crossing of all co-authors on each work. Defaults to `"first"`.
+
+**`min_year`**
+
+> Integer year or Date giving the lower bound of the publication window (inclusive).
+
+**`max_year`**
+
+> Integer year or Date giving the upper bound of the publication window (inclusive).
+
+**`weighted`**
+
+> Logical. If `TRUE`, matrix values reflect the count of shared publications; if `FALSE`, values are binarized to `1L`. Defaults to `FALSE`.
+
+#### Method
+
+The function binds the works for the requested `uids`, filters to the specified publication window (using `publication_date` for Date inputs and `publication_year` for integers), selects `uid`, `work_id`, and `authorships`, deduplicates by `work_id`, and unnests authorships. Depending on `type`, it either builds ego–alter pairs using the author at the named position or crosses all author pairs per work. Co-author pairs are counted and optionally binarized. The result is pivoted to a wide adjacency matrix, padded to the full `uids` dimension with zeros for absent pairs, and the diagonal is set to `0`.
+
+```{r}
+make_adjacency_matrix <- function(
+    data, uids, type = 'first', min_year = 2020, max_year = 2026, weighted = FALSE
+  ) {
+
+  # make edgelist from works
+  edges <- data[['works']][uids] |>
+    purrr::keep(~ nrow(.x) > 0) |>
+    bind_rows()
+
+  if (inherits(min_year, "Date")) {
+    edges <- edges |> filter(publication_date >= min_year, publication_date <= max_year)
+  } else {
+    edges <- edges |> filter(publication_year >= min_year, publication_year <= max_year)
+  }
+  edges <- edges |>
+    select(uid, work_id, authorships) |>
+    rename(e_uid = uid) |>
+    distinct(work_id, .keep_all = TRUE) |>
+    unnest(authorships)
+
+  if (type != 'all') {
+    edges <- edges |>
+      group_by(work_id) |>
+      mutate(
+        e_uid = uid[author_position == type][1]
+      ) |> ungroup() |>
+      filter(!is.na(e_uid), e_uid != uid) |>
+      select(work_id, e_uid, uid)
+  } else {
+    edges <- edges |>
+      group_by(work_id) |>
+      reframe(
+        tidyr::crossing(
+          e_uid = uid,
+          uid   = uid
+        )
+      ) |>
+      ungroup() |>
+      filter(!is.na(e_uid), e_uid != uid) |>
+      select(work_id, e_uid, uid)
+  }
+
+  # calculate the number of edges between ego and alters.
+  edge_counts <- edges |> count(e_uid, uid, name="w")
+
+  # convert counts to incidences
+  if (!weighted) {
+    edge_counts <- edge_counts %>% mutate(w = 1L)
+  }
+
+  # all nodes appearing as ego or alter
+  nodes <- sort(unique(c(edge_counts$e_uid, edge_counts$uid)))
+
+  # complete matrix grid and pivot to wide
+  adj <- edge_counts %>%
+    rename(from = e_uid, to = uid) %>%
+    complete(from = nodes, to = nodes, fill = list(w = 0)) %>%
+    pivot_wider(names_from = to, values_from = w) %>%
+    arrange(from)
+
+  # convert to matrix and set rownames
+  mat <- adj %>% as.data.frame()
+
+  row_ids <- mat$from
+  mat$from <- NULL
+
+  mat <- as.matrix(mat)
+  rownames(mat) <- row_ids
+  diag(mat) <- 0
+
+  # make sure the matrices are consistent across waves
+  all_uids <- as.character(uids)
+
+  # indices of existing rows/cols in desired order
+  ri <- match(all_uids, rownames(mat))
+  ci <- match(all_uids, colnames(mat))
+
+  # start with full NA matrix
+  mat_full <- matrix(0L, nrow = length(all_uids), ncol = length(all_uids),
+                    dimnames = list(all_uids, all_uids))
+
+  # copy overlap block
+  mat_full[!is.na(ri), !is.na(ci)] <- mat[ri[!is.na(ri)], ci[!is.na(ci)], drop = FALSE]
+  mat <- mat_full
+
+  mat
+}
+```
+
+### `fcolnet2()`
+
+Build a multi-wave co-authorship network filtered by university, position, and discipline.
+
+#### Arguments
+
+**`data`**
+
+> Named list with a `demographics` element (containing `uid`, `university_*`, `discipline_*`, and `position_*` columns) and a `works` element used by `make_adjacency_matrix()`.
+
+**`university`**
+
+> Character vector of university abbreviations to include. Defaults to all eight valid Dutch universities.
+
+**`position`**
+
+> Character vector of academic positions to include. Defaults to all five valid positions.
+
+**`discipline`**
+
+> Character vector of disciplines to include. Defaults to `"Sociology"` and `"Political Sciences"`.
+
+**`type`**
+
+> Character string or `NULL`. If `NULL`, adjacency matrices are built for `"first"`, `"last"`, and `"all"` authorship types; otherwise the single specified type is used.
+
+**`waves`**
+
+> List of two-element vectors specifying the start and end of each observation wave. Defaults to three waves roughly corresponding to 2019–2022, 2023–2024, and 2025–2026.
+
+#### Method
+
+The function validates each filter argument against its allowed values using an internal helper. It filters `demographics` to scholars who appear with at least one of the specified universities, disciplines, and positions across the three measurement years. For each wave (and optionally each authorship type), it calls `make_adjacency_matrix()` with the corresponding year bounds. The function returns a list with `data` (the filtered demographics tibble) and `nets` (the nested list of adjacency matrices).
+
+```{r}
+fcolnet2 <- function(
+    data,
+    university = NULL,
+    position   = NULL,
+    discipline = NULL,
+    type = NULL,
+    waves = list(c(2019, 2022), c(2023, 2024), c(2025, 2026))
+  ){
+
+  valid_disciplines  <- c("Sociology", "Political Sciences")
+  valid_universities <- c("UVA","EUR","UL","VU","UVG","UU","RU","UVT")
+  valid_positions    <- c("Associate Professor","PhD Candidate","Full Professor",
+                          "Researcher or Lecturer","Assistant Professor")
+  valid_dates        <- list(c(ymd('20201219'), ymd('20221219')),
+                             c(ymd('20221220'), ymd('20240419')),
+                             c(ymd('20240420'), ymd('20260201')))
+
+  # helper: set default + validate
+  set_and_check <- function(x, valid, name = deparse(substitute(x))) {
+    x <- if (is.null(x)) valid else x
+    bad <- setdiff(unique(na.omit(x)), valid)
+    if (length(bad)) stop("Invalid ", name, ": ", paste(bad, collapse = ", "), call. = FALSE)
+    x
+  }
+
+  # set and check values
+  discipline <- set_and_check(discipline, valid_disciplines,  "discipline")
+  university <- set_and_check(university, valid_universities, "university")
+  position   <- set_and_check(position,   valid_positions,    "position")
+  waves      <- if(is.null(waves)) valid_dates else waves
+  min_year   <- min(unlist(waves))
+  max_year   <- max(unlist(waves))
+
+  # step 1: make selection of nodes
+  authors <- data[["demographics"]] |>
+    filter(
+      if_any(c(university_22, university_24, university_25),
+            ~ .x |>
+              toupper() |>
+              str_detect(paste(university, collapse = "|"))),
+      if_any(c(discipline_22, discipline_24, discipline_25),
+            ~ .x %in% discipline),
+      if_any(c(position_22, position_24, position_25),
+            ~ .x %in% position)
+    ) |>
+    arrange(uid)
+  uids <- authors |> pull(uid) |> sort()
+
+  # step 3: create empty matrixes (wave, i, j)
+  nwaves <- length(waves)
+  nets <- list()
+  if (is.null(type)){
+    types = c('first', 'last', 'all')
+    for (t in types){
+      for (w in 1:length(waves)){
+        nets[[t]][[w]] <- make_adjacency_matrix(
+          data, uids, type = t, min_year = waves[[w]][1], max_year = waves[[w]][2])
+      }
+    }
+  } else {
+    for (w in 1:length(waves)){
+      nets[[w]] <- make_adjacency_matrix(
+        data, uids, type, min_year = waves[[w]][1], max_year = waves[[w]][2])
+    }
+  }
+
+  # step 4: fill nets
+  output <- list(
+    data = authors,
+    nets = nets
+  )
+
+  return(output)
+}
+```
+
+### `harmonize_covariates()`
+
+Standardize and rename covariate columns in a colnet data sub-list for use in RSiena models.
+
+#### Arguments
+
+**`data`**
+
+> A colnet list whose `data` (or other named) sub-element contains demographics columns for `gender`, `discipline_*`, and `university_*_first`.
+
+**`what`**
+
+> Character string naming the sub-element of `data` to transform. Defaults to `'data'`.
+
+#### Method
+
+The function adds a `female` integer indicator (1 if `gender == "female"`, 0 otherwise) and a `soc` integer indicator (1 if the first non-missing discipline across the three measurement years is `"Sociology"`). It renames `university_*_first` columns to `uni*p` (e.g. `university_22_first` → `uni22p`) and converts all `uni*p` columns to ordered factors using a predefined set of eight university abbreviations as levels.
+
+```{r}
+harmonize_covariates <- function(data, what = 'data'){
+  uni_levels = c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU")
+
+  data[[what]] = data[[what]] |>
+    mutate(
+      female = as.integer(gender == 'female'),
+      soc = pmap_chr(
+        list(discipline_22, discipline_24, discipline_25),
+        ~ unique(na.omit(c(...)))[1]
+      ),
+      soc = as.integer(soc == 'Sociology')
+    ) |>
+    rename_with(
+      ~ .x |>
+        str_replace('university_', 'uni') |>
+        str_replace('_first$', 'p')
+    ) |>
+    mutate(
+      across(
+        starts_with('uni') & ends_with('p'),
+        ~ factor(tolower(.x),
+        levels = tolower(uni_levels),
+        ordered = TRUE)
+      )
+    )
+
+  return(data)
+}
+```
+
+### `mask_structural_missing()`
+
+Set structurally missing observations to a sentinel value in all network matrices of a colnet object.
+
+#### Arguments
+
+**`colnet`**
+
+> A colnet list as produced by `fcolnet2()`, with `nets` (a nested list of adjacency matrices by type and wave) and `data` (a demographics tibble with `uid` and `uni*` affiliation columns).
+
+**`include_ties`**
+
+> Logical. If `TRUE`, scholars with zero ties are also masked regardless of affiliation; if `FALSE` (the default), only scholars who have both zero ties and a missing affiliation for that wave are masked.
+
+**`value`**
+
+> Numeric. The sentinel value assigned to masked rows and columns. Defaults to `10`.
+
+#### Method
+
+For each combination of network type and wave index, the function identifies scholars who have zero row sums in the network matrix (optionally combined with `include_ties`) and for whom the corresponding wave-year university affiliation (`uni22`, `uni24`, or `uni25`) is `NA`. Rows and columns corresponding to these structurally absent scholars are set to `value` in the matrix, and the modified matrix is stored back in `colnet`.
+
+```{r}
+mask_structural_missing <- function(colnet, include_ties = FALSE, value = 10){
+  for (type in names(colnet[['nets']])){
+    for (i in 1:length(colnet[['nets']][[type]])){
+      net <- colnet[['nets']][[type]][[i]]
+
+      no_ties <- rowSums(net) == 0 * include_ties
+      abscent <- colnet[['data']] |>
+        column_to_rownames('uid') |>
+        pull(paste0("uni", c(22, 24, 25)[i])) |>
+        is.na()
+
+      exclude <- no_ties & abscent
+      net[exclude, ] <- value
+      net[ ,exclude] <- value
+
+      colnet[['nets']][[type]][[i]] <- net
+    }
+  }
+
+  return(colnet)
+}
+```
+
+### `add_interdisciplinarity()`
+
+Align the subfield interdisciplinarity matrix to the scholars in a colnet object.
+
+#### Arguments
+
+**`colnet`**
+
+> A colnet list containing a `data` element with a `uid` column.
+
+**`topics`**
+
+> Named list with an `intdis` sub-list whose `subfield` element is a matrix with rows indexed by UID and columns indexed by year.
+
+#### Method
+
+The function extracts the sorted UIDs from `colnet$data`, initializes an output matrix with those UIDs as rows and the same column names as `topics[["intdis"]][["subfield"]]`, and fills the rows present in both the output and the source matrix. The result is stored in `colnet[["intdis"]]` and the updated list is returned.
+
+```{r}
+add_interdisciplinarity = function(colnet, topics){
+  uids = colnet$data |> pull(uid) |> unique() |> sort()
+  intdis <- topics[["intdis"]][["subfield"]]
+
+  colnet[["intdis"]] <- {
+    out <- matrix(
+      NA_real_,
+      nrow = length(uids),
+      ncol = ncol(intdis),
+      dimnames = list(uids, colnames(intdis))
+    )
+
+    common_uids <- intersect(uids, rownames(intdis))
+    out[common_uids, ] <- intdis[common_uids, , drop = FALSE]
+    out
+  }
+
+  return(colnet)
+}
+```
+
+### `add_dissimilarity()`
+
+Align per-year subfield dissimilarity matrices to the scholars in a colnet object.
+
+#### Arguments
+
+**`colnet`**
+
+> A colnet list containing a `data` element with a `uid` column.
+
+**`topics`**
+
+> Named list with a `dissim` sub-list whose `subfield` element is a named list of square UID × UID dissimilarity matrices (one per year).
+
+#### Method
+
+For each year's dissimilarity matrix in `topics[["dissim"]][["subfield"]]`, the function finds the UIDs common to `colnet$data`, the matrix rows, and the matrix columns, initializes a new `n × n` NA matrix (where `n = length(uids)`), and fills the overlapping block. The resulting named list of aligned matrices is stored in `colnet[["dissim"]]` and the updated list is returned.
+
+```{r}
+add_dissimilarity <- function(colnet, topics) {
+  uids = colnet$data |> pull(uid) |> unique() |> sort()
+
+  colnet[["dissim"]] <- purrr::map(
+    topics[["dissim"]][["subfield"]],
+    \(mat) {
+      common_uids <- Reduce(intersect, list(uids, rownames(mat), colnames(mat)))
+
+      out <- matrix(
+        NA_real_,
+        nrow = length(uids),
+        ncol = length(uids),
+        dimnames = list(uids, uids)
+      )
+
+      out[common_uids, common_uids] <- mat[common_uids, common_uids, drop = FALSE]
+      out
+    }
+  )
+
+  return(colnet)
+}
+```
+
+### `add_distances()`
+
+Align per-year institutional travel-time distance matrices to the scholars in a colnet object.
+
+#### Arguments
+
+**`colnet`**
+
+> A colnet list containing a `data` element with a `uid` column.
+
+**`data`**
+
+> Named list containing a `distances` element (a named list of per-year UID × UID travel-time distance matrices, as produced in `09.operationalizations.qmd`).
+
+#### Method
+
+For each year's distance matrix in `data[["distances"]]`, the function finds the UIDs common to `colnet$data`, the matrix rows, and the matrix columns, initializes a new `n × n` NA matrix, and fills the overlapping block. The resulting named list of aligned matrices is stored in `colnet[["distances"]]` and the updated list is returned.
+
+```{r}
+add_distances <- function(colnet, data) {
+  uids = colnet$data |> pull(uid) |> unique() |> sort()
+
+  colnet[["distances"]] <- purrr::map(
+    data[["distances"]],
+    \(mat) {
+      common_uids <- Reduce(intersect, list(uids, rownames(mat), colnames(mat)))
+
+      out <- matrix(
+        NA_real_,
+        nrow = length(uids),
+        ncol = length(uids),
+        dimnames = list(uids, uids)
+      )
+
+      out[common_uids, common_uids] <- mat[common_uids, common_uids, drop = FALSE]
+      out
+    }
+  )
+
+  return(colnet)
+}
+```
+
+### `includeDefaultEffects()`
+
+Add a standard set of structural and covariate RSiena effects to an effects object for both network outcomes.
+
+#### Arguments
+
+**`myeff`**
+
+> An RSiena effects object as returned by `getEffects()`.
+
+#### Method
+
+The function includes `density`, `recip`, and `inPop` structural effects for both the `first` and `last` network outcomes. It then loops over all university covariates in `uni` and adds `egoX` effects for each to both outcomes, using `glue()` to construct the interaction term names. The updated effects object is returned.
+
+```{r}
+includeDefaultEffects <- function(myeff){
+  myeff <- includeEffects(myeff, density, recip, inPop) #name='first'
+  myeff <- includeEffects(myeff, density, recip, inPop, name='last')
+  # myeff <- includeEffects(myeff, antiInIso) # does not work in later models
+
+  # # add node characteristics
+  # myeff <- includeEffects(myeff, egoX, interaction1 = "soc")
+  # myeff <- includeEffects(myeff, egoX, interaction1 = "soc", name='last')
+  # # sameX soc collinear with university (uu has no pol-sci)
+  for (name in names(uni)){
+    myeff <- includeEffects(myeff, egoX, interaction1 = glue("uni${name}"))
+    myeff <- includeEffects(myeff, egoX, interaction1 = glue("uni${name}"), name='last')
+    # myeff <- includeEffects(myeff, simX, interaction1 = glue("uni${name}"))
+  }
+
+  return(myeff)
+}
+```
+
+### `tidy_rsiena()`
+
+Extract and format RSiena estimation results as a tidy tibble.
+
+#### Arguments
+
+**`ans`**
+
+> An RSiena results object as returned by `siena07()`.
+
+#### Method
+
+The function builds a tibble from the included effects in `ans$effects`, joining in `theta` (estimates), `se` (standard errors), and `tconv` (per-effect convergence t-ratios). It appends a row for the overall maximum convergence ratio (`tconv.max`). For each included effect it computes a z-statistic, two-tailed p-value, significance stars (`+`, `*`, `**`, `***`), and formatted strings for the estimate (with stars) and standard error. The returned tibble contains columns for dependent variable, effect name, short name, interaction terms, estimate, SE, z, p-value, stars, convergence t-ratio, and the two formatted strings.
+
+```{r}
+tidy_rsiena <- function(ans) {
+  # extract effects
+  effects = tibble(
+      depvar = ans$effects$name,
+      effect = ans$effects$effectName,
+      short  = ans$effects$shortName,
+      interaction1 = ans$effects$interaction1,
+      interaction2 = ans$effects$interaction2,
+      include = ans$effects$include,
+      estimate = ans$theta,
+      se = ans$se,
+      conv_t = ans$tconv
+    ) |>
+    filter(include)
+
+  #extract max conv rate
+  tconv.max = tibble(
+    depvar = unique(ans$effects$name),
+    effect = 'Overall maximum convergence ratio',
+    short = 'tconv.max',
+    estimate = ans$tconv.max[[1]]
+  )
+
+  # combine and format
+  effects |>
+    bind_rows(tconv.max) |>
+    mutate(
+      z = estimate / se,
+      z = ifelse(short %in% c('rate', 'tconv.max'), NA, z),
+      p_value = 2 * pnorm(-abs(z)),
+      stars = case_when(
+        p_value < 0.001 ~ "***",
+        p_value < 0.01  ~ "**",
+        p_value < 0.05  ~ "*",
+        p_value < 0.1   ~ "+",
+        TRUE            ~ ""
+      ),
+      festimate = sprintf("%.3f%s", estimate, stars),
+      fse = sprintf("(%.3f)", se),
+      fse = ifelse(short == 'tconv.max', '', fse),
+      z = round(z, 3),
+      p_value = round(p_value, 4),
+      conv_t = round(conv_t, 3)
+    )  |>
+    select(
+      depvar, effect, short, interaction1, interaction2,
+      estimate, se, z, p_value, stars, conv_t, festimate, fse
+    )
+}
+```
+
+## Application
+
+```{r}
+data <- freadRDS2('data', location = "./data/analysis/")
+topics <-freadRDS2('topics', location = './data/analysis/')
+```
+
+```{r}
+# uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))
+uni_levels = tolower(c(
+  "RU"
+  # , "UU"
+  # , "UVA", "UVG"
+))
+
+colnet <- fcolnet2(data,
+    discipline = "Sociology",
+    university = toupper(uni_levels),
+    type = NULL,
+    waves = NULL
+  ) |>
+  harmonize_covariates(what='data') |>
+  mask_structural_missing()
+
+wave1 = colnet[['nets']][['first']][[1]]
+wave2 = colnet[['nets']][['first']][[2]]
+wave3 = colnet[['nets']][['first']][[3]]
+
+wave1l = colnet[['nets']][['last']][[1]]
+wave2l = colnet[['nets']][['last']][[2]]
+wave3l = colnet[['nets']][['last']][[3]]
+```
+
+```{r}
+# set dependent variable
+net_array <- array(
+    data = c(wave1, wave2, wave3),
+    dim = c(dim(wave1), 3)
+)
+first <- sienaDependent(net_array, )
+
+net_array <- array(
+    data = c(wave1l, wave2l, wave3l),
+    dim = c(dim(wave1l), 3)
+)
+last <- sienaDependent(net_array, )
+
+# set constant variables as numeric covariances
+
+gender <- coCovar(colnet[['data']]$female)
+soc <- coCovar(colnet[['data']]$soc)
+
+# set values for time varying universities
+uni = colnet[['data']] |>
+  select(uni22p, uni24p, uni25p)
+
+uni <- uni_levels[-1] |>
+  set_names() |>
+  toupper() |>
+  map(function(level) {
+    mat <- uni |>
+      transmute(
+        u22 = as.integer(str_detect(uni22p, level)),
+        u24 = as.integer(str_detect(uni24p, level)),
+        u25 = as.integer(str_detect(uni25p, level)) # excluded for model specification
+      ) |>
+      as.matrix()
+
+    varCovar(mat[, c(1, 2)], centered = FALSE)
+  })
+
+# functions
+funcs = colnet[['data']] |> select(position_22, position_24, position_25)
+funcs_levels = c(
+  "PhD Candidate", "Researcher or Lecturer",
+  "Assistant Professor", "Associate Professor",
+  "Full Professor"
+)
+
+funcs = funcs_levels[-1] |>
+  set_names() |>
+  map(function(level){
+    mat <- funcs |>
+      transmute(
+        f22 = as.integer(position_22 == level),
+        f24 = as.integer(position_25 == level),
+        f25 = as.integer(position_25 == level) # excluded for model specification
+      ) |>
+      as.matrix()
+
+    varCovar(mat[, c(1, 2)], centered = FALSE)
+  })
+```
+
+```{r}
+# set migrant constant covars
+migrant_groups = c('NL', 'M4', 'other')
+mig <- migrant_groups[-1] |>
+  set_names() |>
+  map(function(group){
+    val <- as.integer(colnet[['data']]$migrant == group)
+
+    coCovar(val)
+  })
+```
+
+```{r}
+colnet = colnet |>
+  add_interdisciplinarity(topics) |>
+  add_dissimilarity(topics) |>
+  add_distances(data)
+
+intdis = colnet[['intdis']][,1:2] |> varCovar(centered = TRUE)
+dissim = colnet[['dissim']][c('2022', '2024')] |> simplify2array() |> varDyadCovar(centered = TRUE)
+distan = colnet[['distances']][c('2022', '2024')] |> simplify2array() |> varDyadCovar(centered = TRUE)
+```
+
+```{r}
+# combine variables into Rsiena data object
+mydata <- sienaDataCreate(
+  first, last, gender, soc,
+  mig$M4, mig$other,
+  # uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,
+  # uni$uu,
+  # uni$uva, uni$uvg,
+  funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]],
+  intdis, dissim, distan
+)
+
+setwd(BASEDIR)
+if(!dir.exists("results")) dir.create("results")
+setwd(paste0(BASEDIR, '/results'))
+print01Report(mydata, modelname = "./init")
+
+# model instability: perhaps throwing cases withh full missingness out
+```
+
+```{r}
+myAlgorithm <- sienaAlgorithmCreate(
+  projname = "init",
+  # n3 = 3000 # for publication ready results
+)
+```
+
+```{r}
+myeff <- getEffects(mydata)
+myeff <- includeEffects(myeff, density, recip, inPopSqrt, outActSqrt,gwespFF, name='first')
+myeff <- includeEffects(myeff, inIso, name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="gender", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="gender", name='first')
+myeff <- includeEffects(myeff, sameX, interaction1="gender", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="funcs[[1]]", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="funcs[[2]]", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="funcs[[3]]", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="funcs[[4]]", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="funcs[[1]]", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="funcs[[2]]", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="funcs[[3]]", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="funcs[[4]]", name='first')
+myeff <- includeEffects(myeff, X, interaction1="dissim", name='first')
+myeff <- includeInteraction(myeff, inPop, altX, interaction1=c("", "gender"))
+myeff <- includeInteraction(myeff, altX, altX, interaction1=c("funcs[[4]]", "gender"))
+
+# estimate model
+ansm1 <- siena07(
+  myAlgorithm,
+  data = mydata,
+  effects = myeff,
+  returnDeps = TRUE
+)
+ansm1
+```
+
+```{r}
+myeff <- getEffects(mydata)
+myeff <- includeDefaultEffects(myeff)
+
+myAlgorithm <- sienaAlgorithmCreate(
+  projname = "init",
+  # n3 = 3000 # for publication ready results
+)
+# estimate model
+ansm1 <- siena07(
+  myAlgorithm,
+  data = mydata,
+  effects = myeff,
+  returnDeps = TRUE
+)
+
+ansm1
+save(ansm1, file = './ansm1')
+```
+
+```{r}
+# myeff <- getEffects(mydata)
+# myeff <- includeDefaultEffects(myeff)
+myeff <- includeEffects(myeff, egoX, interaction1 = "gender") # altX, sameX
+myeff <- includeEffects(myeff, altX, interaction1 = "gender")
+myeff <- includeEffects(myeff, sameX, interaction1 = "gender")
+myeff <- includeEffects(myeff, egoX, interaction1 = "gender", name='last') # altX, sameX
+myeff <- includeEffects(myeff, altX, interaction1 = "gender", name='last')
+myeff <- includeEffects(myeff, sameX, interaction1 = "gender", name='last')
+# too few minority in sample leave out for now.
+# myeff <- includeEffects(myeff, egoX, altX, simX, interaction1 = 'mig$M4') # altX, sameX
+# myeff <- includeEffects(myeff, egoX, altX, simX, interaction1 = 'mig$other') # altX, sameX
+
+ansm2 <- siena07(
+  myAlgorithm,
+  data = mydata,
+  effects = myeff,
+  returnDeps = TRUE
+)
+
+save(ansm2, file = './ansm2')
+ansm2
+```
+
+```{r}
+# myeff <- getEffects(mydata)
+# myeff <- includeDefaultEffects(myeff)
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[1]]')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[2]]')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[3]]')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[4]]')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[1]]', name='last')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[2]]', name='last')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[3]]', name='last')
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'funcs[[4]]', name='last')
+
+ansm3 <- siena07(
+  myAlgorithm,
+  data = mydata,
+  effects = myeff,
+  returnDeps = TRUE,
+)
+
+save(ansm3, file = './ansm3')
+
+ansm3
+```
+
+```{r}
+# myeff <- getEffects(mydata)
+# myeff <- includeDefaultEffects(myeff)
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'intdis') # simX does noet work
+myeff <- includeEffects(myeff, egoX, altX, interaction1 = 'intdis', name='last') # simX does noet work
+myeff <- includeEffects(myeff, X, interaction1 = 'dissim')
+myeff <- includeEffects(myeff, X, interaction1 = 'dissim', name='last')
+myeff <- includeEffects(myeff, X, interaction1 = "distan")
+myeff <- includeEffects(myeff, X, interaction1 = "distan", name='last')
+
+ansm4 <- siena07(
+  myAlgorithm,
+  data = mydata,
+  effects = myeff,
+  returnDeps = TRUE,
+)
+
+save(ansm4, file = './ansm4')
+ansm4
+```
+
+```{r}
+res = list()
+res[['ansm1']] = tidy_rsiena(ansm1)
+res[['ansm2']] = tidy_rsiena(ansm2)
+res[['ansm3']] = tidy_rsiena(ansm3)
+res[['ansm4']] = tidy_rsiena(ansm4)
+```
+
+```{r}
+res_table <- names(res) |>
+  purrr::imap(function(name, i) {
+    res[[i]] |>
+      mutate(
+        effect = str_remove(effect, "first: ") |> str_remove("last: ")
+      ) |>
+      select(depvar, effect, festimate, fse) |>
+      rename_with(~ paste0(str_remove(name, 'ans'), "_", .), c(festimate, fse))
+  }) |>
+  purrr::reduce(full_join, by = join_by(depvar, effect)) |>
+  arrange(depvar)
+
+res_table |> writexl::write_xlsx(file.path(BASEDIR, 'results', 'res_table.xlsx'))
+res_table
+```
+
+```{r}
+setwd(BASEDIR)
+```
