@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-03-20">
+<meta name="dcterms.date" content="2026-03-31">
 
 <title>Process Topic Information – Networks</title>
 <style>
@@ -369,12 +369,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">Descriptive Analysis</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../src/code/11.main_analyses.html">
- <span class="dropdown-text">Main Analyses</span></a>
+    <a class="dropdown-item" href="../../src/code/11.visualization.html">
+ <span class="dropdown-text">Network Visualization</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../src/code/10.visualization.html">
- <span class="dropdown-text">Network Visualization</span></a>
+    <a class="dropdown-item" href="../../src/code/12.net_descriptives.html">
+ <span class="dropdown-text">Network Descriptive Analysis</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/13.main_analyses.html">
+ <span class="dropdown-text">Main Analyses</span></a>
   </li>  
     </ul>
   </li>
@@ -403,8 +407,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
-  <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a></li>
-  <li><a href="#applications" id="toc-applications" class="nav-link" data-scroll-target="#applications">Applications</a></li>
+  <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a>
+  <ul class="collapse">
+  <li><a href="#create_topic_table" id="toc-create_topic_table" class="nav-link" data-scroll-target="#create_topic_table"><code>create_topic_table()</code></a></li>
+  <li><a href="#pivot_topic_table" id="toc-pivot_topic_table" class="nav-link" data-scroll-target="#pivot_topic_table"><code>pivot_topic_table()</code></a></li>
+  <li><a href="#aggregate_topic_table" id="toc-aggregate_topic_table" class="nav-link" data-scroll-target="#aggregate_topic_table"><code>aggregate_topic_table()</code></a></li>
+  <li><a href="#calculate_proximity_matrix" id="toc-calculate_proximity_matrix" class="nav-link" data-scroll-target="#calculate_proximity_matrix"><code>calculate_proximity_matrix()</code></a></li>
+  <li><a href="#calculate_interdisciplinarity" id="toc-calculate_interdisciplinarity" class="nav-link" data-scroll-target="#calculate_interdisciplinarity"><code>calculate_interdisciplinarity()</code></a></li>
+  <li><a href="#create_empty_author_matrix" id="toc-create_empty_author_matrix" class="nav-link" data-scroll-target="#create_empty_author_matrix"><code>create_empty_author_matrix()</code></a></li>
+  <li><a href="#calculate_dissimilarity" id="toc-calculate_dissimilarity" class="nav-link" data-scroll-target="#calculate_dissimilarity"><code>calculate_dissimilarity()</code></a></li>
+  </ul></li>
+  <li><a href="#application" id="toc-application" class="nav-link" data-scroll-target="#application">Application</a></li>
   </ul>
 <div class="quarto-code-links"><h2>Code Links</h2><ul><li><a href="0a.custom_functions.html"><i class="bi bi-file-code"></i>Custom Functions</a></li></ul></div></nav>
     </div>
@@ -425,7 +438,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 20, 2026</p>
+      <p class="date">March 31, 2026</p>
     </div>
   </div>
   
@@ -460,6 +473,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="functions" class="level2">
 <h2 class="anchored" data-anchor-id="functions">Functions</h2>
+<section id="create_topic_table" class="level3">
+<h3 class="anchored" data-anchor-id="create_topic_table"><code>create_topic_table()</code></h3>
+<p>Build a long-form topic table from works data within a specified look-back window.</p>
+<section id="arguments" class="level4">
+<h4 class="anchored" data-anchor-id="arguments">Arguments</h4>
+<p><strong><code>data</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list that contains a <code>works</code> element (list of works tibbles with at least <code>uid</code>, <code>work_id</code>, <code>publication_year</code>, and <code>topics</code>).</p>
+</blockquote>
+<p><strong><code>base_year</code></strong></p>
+<blockquote class="blockquote">
+<p>Integer. The reference year; only works published in the <code>window</code> years preceding this year are included. Defaults to <code>2022</code>.</p>
+</blockquote>
+<p><strong><code>window</code></strong></p>
+<blockquote class="blockquote">
+<p>Integer. Number of years to look back from <code>base_year</code>. Defaults to <code>5</code>.</p>
+</blockquote>
+</section>
+<section id="method" class="level4">
+<h4 class="anchored" data-anchor-id="method">Method</h4>
+<p>The function binds all non-empty works tibbles together and filters to works whose <code>publication_year</code> falls in <code>[base_year - window, base_year)</code>. It selects <code>uid</code>, <code>work_id</code>, <code>publication_year</code>, and <code>topics</code>, then unnests and widens the <code>topics</code> column. Finally it strips the OpenAlex base URL and maps <code>subfields/</code>, <code>fields/</code>, and <code>domains/</code> prefixes to compact short codes (<code>S</code>, <code>F</code>, <code>D</code>).</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>create_topic_table <span class="ot">=</span> <span class="cf">function</span>(data, <span class="at">base_year =</span> <span class="dv">2022</span>, <span class="at">window =</span> <span class="dv">5</span>){</span>
 <span id="cb3-2"><a href="#cb3-2"></a>  data[[<span class="st">'works'</span>]] <span class="sc">|&gt;</span></span>
@@ -477,9 +511,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-14"><a href="#cb3-14"></a>        <span class="fu">str_replace</span>(<span class="st">'subfields/'</span>, <span class="st">'S'</span>) <span class="sc">|&gt;</span></span>
 <span id="cb3-15"><a href="#cb3-15"></a>        <span class="fu">str_replace</span>(<span class="st">'fields/'</span>, <span class="st">'F'</span>) <span class="sc">|&gt;</span></span>
 <span id="cb3-16"><a href="#cb3-16"></a>        <span class="fu">str_replace</span>(<span class="st">'domains/'</span>, <span class="st">'D'</span>)</span>
-<span id="cb3-17"><a href="#cb3-17"></a>    ) </span>
+<span id="cb3-17"><a href="#cb3-17"></a>    )</span>
 <span id="cb3-18"><a href="#cb3-18"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+</section>
+<section id="pivot_topic_table" class="level3">
+<h3 class="anchored" data-anchor-id="pivot_topic_table"><code>pivot_topic_table()</code></h3>
+<p>Filter a long topic table to a given topic type and pivot it to a wide binary indicator matrix.</p>
+<section id="arguments-1" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-1">Arguments</h4>
+<p><strong><code>topic_table</code></strong></p>
+<blockquote class="blockquote">
+<p>A long-form topic tibble as returned by <code>create_topic_table()</code>, with at least <code>uid</code>, <code>work_id</code>, <code>publication_year</code>, <code>id</code>, and <code>type</code> columns.</p>
+</blockquote>
+<p><strong><code>topic_type</code></strong></p>
+<blockquote class="blockquote">
+<p>Character string. The topic hierarchy level to select (e.g.&nbsp;<code>"field"</code>, <code>"subfield"</code>). Must be a value present in the <code>type</code> column. Defaults to <code>NA</code>.</p>
+</blockquote>
+</section>
+<section id="method-1" class="level4">
+<h4 class="anchored" data-anchor-id="method-1">Method</h4>
+<p>The function validates that <code>topic_type</code> is present in the <code>type</code> column, emitting a warning if not. It filters to the specified type, selects <code>uid</code>, <code>work_id</code>, <code>publication_year</code>, and <code>id</code>, adds a binary indicator column, and pivots wider so each unique topic <code>id</code> becomes a column. Duplicate topic–work pairs are summed; missing values are filled with <code>0L</code>.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>pivot_topic_table <span class="ot">=</span> <span class="cf">function</span>(topic_table, <span class="at">topic_type =</span> <span class="cn">NA</span>){</span>
 <span id="cb4-2"><a href="#cb4-2"></a>  <span class="co"># assert topic_type is valid</span></span>
@@ -501,146 +554,243 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-18"><a href="#cb4-18"></a>      <span class="at">values_fn =</span> sum,</span>
 <span id="cb4-19"><a href="#cb4-19"></a>      <span class="at">values_fill =</span> <span class="dv">0</span>L</span>
 <span id="cb4-20"><a href="#cb4-20"></a>    )</span>
-<span id="cb4-21"><a href="#cb4-21"></a>}</span>
-<span id="cb4-22"><a href="#cb4-22"></a></span>
-<span id="cb4-23"><a href="#cb4-23"></a>aggregate_topic_table <span class="ot">=</span> <span class="cf">function</span>(table){</span>
-<span id="cb4-24"><a href="#cb4-24"></a>  table <span class="sc">|&gt;</span></span>
-<span id="cb4-25"><a href="#cb4-25"></a>    <span class="fu">group_by</span>(uid) <span class="sc">|&gt;</span></span>
-<span id="cb4-26"><a href="#cb4-26"></a>    <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>), sum))</span>
-<span id="cb4-27"><a href="#cb4-27"></a>}</span>
-<span id="cb4-28"><a href="#cb4-28"></a></span>
-<span id="cb4-29"><a href="#cb4-29"></a>calculate_proximity_matrix <span class="ot">=</span> <span class="cf">function</span>(counts){</span>
-<span id="cb4-30"><a href="#cb4-30"></a>  d <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> counts <span class="sc">|&gt;</span></span>
-<span id="cb4-31"><a href="#cb4-31"></a>    <span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb4-32"><a href="#cb4-32"></a>    coop<span class="sc">::</span><span class="fu">cosine</span>()</span>
-<span id="cb4-33"><a href="#cb4-33"></a>  <span class="fu">diag</span>(d) <span class="ot">=</span> <span class="dv">0</span></span>
-<span id="cb4-34"><a href="#cb4-34"></a>  </span>
-<span id="cb4-35"><a href="#cb4-35"></a>  prox <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (d<span class="sc">/</span><span class="fu">max</span>(d))<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb4-36"><a href="#cb4-36"></a>  </span>
-<span id="cb4-37"><a href="#cb4-37"></a>  <span class="fu">return</span>(prox)</span>
-<span id="cb4-38"><a href="#cb4-38"></a>}</span>
-<span id="cb4-39"><a href="#cb4-39"></a></span>
-<span id="cb4-40"><a href="#cb4-40"></a>calculate_interdisciplinarity <span class="ot">=</span> <span class="cf">function</span>(P, proximity){</span>
-<span id="cb4-41"><a href="#cb4-41"></a>  <span class="co"># align proximity once (same for every row)</span></span>
-<span id="cb4-42"><a href="#cb4-42"></a>  prox <span class="ot">&lt;-</span> proximity[<span class="fu">colnames</span>(P), <span class="fu">colnames</span>(P)]</span>
-<span id="cb4-43"><a href="#cb4-43"></a>  P[<span class="fu">is.na</span>(P)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb4-44"><a href="#cb4-44"></a>  prox[<span class="fu">is.na</span>(prox)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb4-45"><a href="#cb4-45"></a></span>
-<span id="cb4-46"><a href="#cb4-46"></a>  res <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">rowSums</span>((P <span class="sc">%*%</span> prox) <span class="sc">*</span> P)  <span class="co"># numeric vector, length = nrow(P)</span></span>
-<span id="cb4-47"><a href="#cb4-47"></a>  <span class="fu">names</span>(res) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(P)</span>
-<span id="cb4-48"><a href="#cb4-48"></a></span>
-<span id="cb4-49"><a href="#cb4-49"></a>  <span class="fu">return</span>(res)</span>
-<span id="cb4-50"><a href="#cb4-50"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>create_empty_author_matrix <span class="ot">=</span> <span class="cf">function</span>(topics, topic_type){</span>
-<span id="cb5-2"><a href="#cb5-2"></a>  <span class="co"># get all author information</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a>  authors <span class="ot">=</span> topics[[<span class="st">'counts'</span>]][[<span class="st">'field'</span>]] <span class="sc">|&gt;</span> <span class="fu">pull</span>(uid)</span>
-<span id="cb5-4"><a href="#cb5-4"></a>  k_authors <span class="ot">=</span>  authors <span class="sc">|&gt;</span> <span class="fu">n_distinct</span>()</span>
-<span id="cb5-5"><a href="#cb5-5"></a></span>
-<span id="cb5-6"><a href="#cb5-6"></a>  D <span class="ot">=</span> <span class="fu">matrix</span>(</span>
-<span id="cb5-7"><a href="#cb5-7"></a>    <span class="cn">NA</span>, <span class="at">nrow =</span> k_authors, <span class="at">ncol =</span> k_authors,</span>
-<span id="cb5-8"><a href="#cb5-8"></a>    <span class="at">dimnames =</span> <span class="fu">list</span>(authors, authors)</span>
-<span id="cb5-9"><a href="#cb5-9"></a>  )</span>
-<span id="cb5-10"><a href="#cb5-10"></a>  <span class="fu">return</span> (D)</span>
-<span id="cb5-11"><a href="#cb5-11"></a>}</span>
-<span id="cb5-12"><a href="#cb5-12"></a></span>
-<span id="cb5-13"><a href="#cb5-13"></a>calculate_dissimilarity <span class="ot">=</span> <span class="cf">function</span> (topics, year, topic_type){</span>
-<span id="cb5-14"><a href="#cb5-14"></a>  <span class="co"># create empty dissimilarity table for all possible authors</span></span>
-<span id="cb5-15"><a href="#cb5-15"></a>  D <span class="ot">=</span> <span class="fu">create_empty_author_matrix</span>(topics)</span>
-<span id="cb5-16"><a href="#cb5-16"></a></span>
-<span id="cb5-17"><a href="#cb5-17"></a>  <span class="co"># get author data for specified year</span></span>
-<span id="cb5-18"><a href="#cb5-18"></a>  A <span class="ot">=</span> data <span class="sc">|&gt;</span></span>
-<span id="cb5-19"><a href="#cb5-19"></a>    <span class="fu">create_topic_table</span>(<span class="at">base_year =</span> year, <span class="at">window =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-20"><a href="#cb5-20"></a>    <span class="fu">pivot_topic_table</span>(<span class="at">topic_type =</span> topic_type) <span class="sc">|&gt;</span></span>
-<span id="cb5-21"><a href="#cb5-21"></a>    <span class="fu">aggregate_topic_table</span>() <span class="sc">|&gt;</span></span>
-<span id="cb5-22"><a href="#cb5-22"></a>    <span class="fu">column_to_rownames</span>(<span class="at">var=</span><span class="st">"uid"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-23"><a href="#cb5-23"></a>    <span class="fu">as.matrix</span>() <span class="sc">|&gt;</span></span>
-<span id="cb5-24"><a href="#cb5-24"></a>    <span class="fu">prop.table</span>(<span class="at">margin =</span> <span class="dv">1</span>)</span>
-<span id="cb5-25"><a href="#cb5-25"></a></span>
-<span id="cb5-26"><a href="#cb5-26"></a>  <span class="co"># align A to prox columns</span></span>
-<span id="cb5-27"><a href="#cb5-27"></a>  prox <span class="ot">=</span> topics[[<span class="st">'prox'</span>]][[topic_type]]</span>
-<span id="cb5-28"><a href="#cb5-28"></a>  M <span class="ot">=</span> <span class="dv">1</span> <span class="sc">-</span> prox[<span class="fu">colnames</span>(A), <span class="fu">colnames</span>(A)]</span>
-<span id="cb5-29"><a href="#cb5-29"></a>  M[<span class="fu">is.na</span>(M)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb5-30"><a href="#cb5-30"></a></span>
-<span id="cb5-31"><a href="#cb5-31"></a>  <span class="co"># calculate dissimilarity per author (i) coauthor (j) pair</span></span>
-<span id="cb5-32"><a href="#cb5-32"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">rownames</span>(A)) {</span>
-<span id="cb5-33"><a href="#cb5-33"></a>    <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">rownames</span>(A)) {</span>
-<span id="cb5-34"><a href="#cb5-34"></a>      diff <span class="ot">=</span> <span class="fu">abs</span>(A[i,] <span class="sc">-</span> A[j,]) <span class="sc">/</span> <span class="dv">2</span></span>
-<span id="cb5-35"><a href="#cb5-35"></a>      D[i, j] <span class="ot">=</span> <span class="fu">sum</span>(diff <span class="sc">%o%</span> diff <span class="sc">*</span> M) <span class="sc">*</span> <span class="dv">2</span></span>
-<span id="cb5-36"><a href="#cb5-36"></a>    }</span>
-<span id="cb5-37"><a href="#cb5-37"></a>  }</span>
-<span id="cb5-38"><a href="#cb5-38"></a></span>
-<span id="cb5-39"><a href="#cb5-39"></a>  <span class="co"># normalize results</span></span>
-<span id="cb5-40"><a href="#cb5-40"></a>  D <span class="ot">&lt;-</span> D <span class="sc">/</span> <span class="fu">max</span>(D, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb5-41"><a href="#cb5-41"></a>  <span class="fu">return</span>(D)</span>
-<span id="cb5-42"><a href="#cb5-42"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-21"><a href="#cb4-21"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="applications" class="level2">
-<h2 class="anchored" data-anchor-id="applications">Applications</h2>
+</section>
+<section id="aggregate_topic_table" class="level3">
+<h3 class="anchored" data-anchor-id="aggregate_topic_table"><code>aggregate_topic_table()</code></h3>
+<p>Aggregate a wide topic indicator table to one row per scholar by summing across works.</p>
+<section id="arguments-2" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-2">Arguments</h4>
+<p><strong><code>table</code></strong></p>
+<blockquote class="blockquote">
+<p>A wide topic tibble as returned by <code>pivot_topic_table()</code>, with a <code>uid</code> column and numeric topic indicator columns whose names end in a digit.</p>
+</blockquote>
+</section>
+<section id="method-2" class="level4">
+<h4 class="anchored" data-anchor-id="method-2">Method</h4>
+<p>The function groups by <code>uid</code> and summarises all columns whose names end with a digit using <code>sum</code>, collapsing all per-work rows into a single per-scholar topic profile.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>topics <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb6-2"><a href="#cb6-2"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholars'</span>, <span class="at">location =</span> <span class="st">"./data/clean/"</span>)</span>
-<span id="cb6-3"><a href="#cb6-3"></a>topic_table <span class="ot">=</span> data <span class="sc">|&gt;</span> <span class="fu">create_topic_table</span>(<span class="at">base_year =</span> <span class="dv">2025</span>, <span class="at">window =</span> <span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>aggregate_topic_table <span class="ot">=</span> <span class="cf">function</span>(table){</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  table <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="fu">group_by</span>(uid) <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>), sum))</span>
+<span id="cb5-5"><a href="#cb5-5"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+</section>
+<section id="calculate_proximity_matrix" class="level3">
+<h3 class="anchored" data-anchor-id="calculate_proximity_matrix"><code>calculate_proximity_matrix()</code></h3>
+<p>Compute a normalized cosine-proximity matrix between topics from a scholar-by-topic counts table.</p>
+<section id="arguments-3" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-3">Arguments</h4>
+<p><strong><code>counts</code></strong></p>
+<blockquote class="blockquote">
+<p>A wide tibble with topic indicator or count columns (column names ending in a digit), as returned by <code>aggregate_topic_table()</code>.</p>
+</blockquote>
+</section>
+<section id="method-3" class="level4">
+<h4 class="anchored" data-anchor-id="method-3">Method</h4>
+<p>The function extracts the numeric topic columns and computes pairwise cosine distances using <code>coop::cosine()</code>. The diagonal is set to <code>0</code>. The resulting distance matrix is normalized to a 0–1 proximity scale via <code>1 - (d / max(d))^2</code> and returned.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>topic_types <span class="ot">=</span> <span class="fu">c</span>(<span class="st">'field'</span>, <span class="st">'subfield'</span>)</span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="cf">for</span> (topic_type <span class="cf">in</span> topic_types) {</span>
-<span id="cb7-3"><a href="#cb7-3"></a>  topics[[<span class="st">'counts'</span>]][[topic_type]] <span class="ot">=</span> topic_table <span class="sc">|&gt;</span></span>
-<span id="cb7-4"><a href="#cb7-4"></a>    <span class="fu">pivot_topic_table</span>(<span class="at">topic_type =</span> topic_type) <span class="sc">|&gt;</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a>    <span class="fu">aggregate_topic_table</span>()</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>calculate_proximity_matrix <span class="ot">=</span> <span class="cf">function</span>(counts){</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  d <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> counts <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>    coop<span class="sc">::</span><span class="fu">cosine</span>()</span>
+<span id="cb6-5"><a href="#cb6-5"></a>  <span class="fu">diag</span>(d) <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a></span>
+<span id="cb6-7"><a href="#cb6-7"></a>  prox <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (d<span class="sc">/</span><span class="fu">max</span>(d))<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a></span>
+<span id="cb6-9"><a href="#cb6-9"></a>  <span class="fu">return</span>(prox)</span>
+<span id="cb6-10"><a href="#cb6-10"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="calculate_interdisciplinarity" class="level3">
+<h3 class="anchored" data-anchor-id="calculate_interdisciplinarity"><code>calculate_interdisciplinarity()</code></h3>
+<p>Compute a scalar interdisciplinarity score for each scholar from their topic-proportion vector and the topic proximity matrix.</p>
+<section id="arguments-4" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-4">Arguments</h4>
+<p><strong><code>P</code></strong></p>
+<blockquote class="blockquote">
+<p>A numeric matrix of topic proportions (rows = scholars, columns = topics).</p>
+</blockquote>
+<p><strong><code>proximity</code></strong></p>
+<blockquote class="blockquote">
+<p>A square numeric proximity matrix (topics × topics), as returned by <code>calculate_proximity_matrix()</code>.</p>
+</blockquote>
+</section>
+<section id="method-4" class="level4">
+<h4 class="anchored" data-anchor-id="method-4">Method</h4>
+<p>The function aligns <code>proximity</code> to the columns of <code>P</code> and replaces <code>NA</code> values with <code>0</code> in both matrices. Interdisciplinarity is computed as <code>1 - rowSums((P %*% prox) * P)</code>, yielding a named numeric vector of length <code>nrow(P)</code> where higher values indicate broader spread across dissimilar topics.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>calculate_interdisciplinarity <span class="ot">=</span> <span class="cf">function</span>(P, proximity){</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="co"># align proximity once (same for every row)</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>  prox <span class="ot">&lt;-</span> proximity[<span class="fu">colnames</span>(P), <span class="fu">colnames</span>(P)]</span>
+<span id="cb7-4"><a href="#cb7-4"></a>  P[<span class="fu">is.na</span>(P)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>  prox[<span class="fu">is.na</span>(prox)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
 <span id="cb7-6"><a href="#cb7-6"></a></span>
-<span id="cb7-7"><a href="#cb7-7"></a>  <span class="co"># calculate proximity</span></span>
-<span id="cb7-8"><a href="#cb7-8"></a>  topics[[<span class="st">'prox'</span>]][[topic_type]] <span class="ot">=</span> topics[[<span class="st">'counts'</span>]][[topic_type]] <span class="sc">|&gt;</span></span>
-<span id="cb7-9"><a href="#cb7-9"></a>    <span class="fu">calculate_proximity_matrix</span>()</span>
-<span id="cb7-10"><a href="#cb7-10"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-7"><a href="#cb7-7"></a>  res <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">rowSums</span>((P <span class="sc">%*%</span> prox) <span class="sc">*</span> P)  <span class="co"># numeric vector, length = nrow(P)</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>  <span class="fu">names</span>(res) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(P)</span>
+<span id="cb7-9"><a href="#cb7-9"></a></span>
+<span id="cb7-10"><a href="#cb7-10"></a>  <span class="fu">return</span>(res)</span>
+<span id="cb7-11"><a href="#cb7-11"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="create_empty_author_matrix" class="level3">
+<h3 class="anchored" data-anchor-id="create_empty_author_matrix"><code>create_empty_author_matrix()</code></h3>
+<p>Initialize an empty square <code>NA</code> matrix indexed by the scholars present in the topics counts table.</p>
+<section id="arguments-5" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-5">Arguments</h4>
+<p><strong><code>topics</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list containing a <code>counts</code> element with a <code>field</code> tibble that has a <code>uid</code> column.</p>
+</blockquote>
+<p><strong><code>topic_type</code></strong></p>
+<blockquote class="blockquote">
+<p>Placeholder argument for consistency with related functions; currently unused.</p>
+</blockquote>
+</section>
+<section id="method-5" class="level4">
+<h4 class="anchored" data-anchor-id="method-5">Method</h4>
+<p>The function extracts all <code>uid</code> values from <code>topics[['counts']][['field']]</code>, determines the number of distinct scholars, and returns an <code>n × n</code> matrix filled with <code>NA</code> with both row and column names set to the scholar <code>uid</code> values.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>create_empty_author_matrix <span class="ot">=</span> <span class="cf">function</span>(topics, topic_type){</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="co"># get all author information</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>  authors <span class="ot">=</span> topics[[<span class="st">'counts'</span>]][[<span class="st">'field'</span>]] <span class="sc">|&gt;</span> <span class="fu">pull</span>(uid)</span>
+<span id="cb8-4"><a href="#cb8-4"></a>  k_authors <span class="ot">=</span>  authors <span class="sc">|&gt;</span> <span class="fu">n_distinct</span>()</span>
+<span id="cb8-5"><a href="#cb8-5"></a></span>
+<span id="cb8-6"><a href="#cb8-6"></a>  D <span class="ot">=</span> <span class="fu">matrix</span>(</span>
+<span id="cb8-7"><a href="#cb8-7"></a>    <span class="cn">NA</span>, <span class="at">nrow =</span> k_authors, <span class="at">ncol =</span> k_authors,</span>
+<span id="cb8-8"><a href="#cb8-8"></a>    <span class="at">dimnames =</span> <span class="fu">list</span>(authors, authors)</span>
+<span id="cb8-9"><a href="#cb8-9"></a>  )</span>
+<span id="cb8-10"><a href="#cb8-10"></a>  <span class="fu">return</span> (D)</span>
+<span id="cb8-11"><a href="#cb8-11"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="calculate_dissimilarity" class="level3">
+<h3 class="anchored" data-anchor-id="calculate_dissimilarity"><code>calculate_dissimilarity()</code></h3>
+<p>Calculate a pairwise normalized dissimilarity matrix between scholars for a given year and topic type.</p>
+<section id="arguments-6" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-6">Arguments</h4>
+<p><strong><code>topics</code></strong></p>
+<blockquote class="blockquote">
+<p>Named list with <code>counts</code> and <code>prox</code> sub-lists as produced by the processing pipeline.</p>
+</blockquote>
+<p><strong><code>year</code></strong></p>
+<blockquote class="blockquote">
+<p>Integer. The reference year passed to <code>create_topic_table()</code> with a look-back window of 2.</p>
+</blockquote>
+<p><strong><code>topic_type</code></strong></p>
+<blockquote class="blockquote">
+<p>Character string. Topic hierarchy level to use (e.g.&nbsp;<code>"field"</code>, <code>"subfield"</code>).</p>
+</blockquote>
+</section>
+<section id="method-6" class="level4">
+<h4 class="anchored" data-anchor-id="method-6">Method</h4>
+<p>The function initializes an empty author matrix via <code>create_empty_author_matrix()</code>. It then builds a topic-proportion matrix <code>A</code> for the specified year and type by calling <code>create_topic_table()</code>, <code>pivot_topic_table()</code>, <code>aggregate_topic_table()</code>, and <code>prop.table()</code>. The stored proximity matrix for the topic type is converted to a distance matrix <code>M</code>. For every scholar pair <code>(i, j)</code>, dissimilarity is computed as the sum of the outer product of absolute half-differences weighted by <code>M</code>, multiplied by <code>2</code>. The resulting matrix is normalized by its maximum value and returned.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>calculate_dissimilarity <span class="ot">=</span> <span class="cf">function</span> (topics, year, topic_type){</span>
+<span id="cb9-2"><a href="#cb9-2"></a>  <span class="co"># create empty dissimilarity table for all possible authors</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a>  D <span class="ot">=</span> <span class="fu">create_empty_author_matrix</span>(topics)</span>
+<span id="cb9-4"><a href="#cb9-4"></a></span>
+<span id="cb9-5"><a href="#cb9-5"></a>  <span class="co"># get author data for specified year</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a>  A <span class="ot">=</span> data <span class="sc">|&gt;</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>    <span class="fu">create_topic_table</span>(<span class="at">base_year =</span> year, <span class="at">window =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a>    <span class="fu">pivot_topic_table</span>(<span class="at">topic_type =</span> topic_type) <span class="sc">|&gt;</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a>    <span class="fu">aggregate_topic_table</span>() <span class="sc">|&gt;</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a>    <span class="fu">column_to_rownames</span>(<span class="at">var=</span><span class="st">"uid"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a>    <span class="fu">as.matrix</span>() <span class="sc">|&gt;</span></span>
+<span id="cb9-12"><a href="#cb9-12"></a>    <span class="fu">prop.table</span>(<span class="at">margin =</span> <span class="dv">1</span>)</span>
+<span id="cb9-13"><a href="#cb9-13"></a></span>
+<span id="cb9-14"><a href="#cb9-14"></a>  <span class="co"># align A to prox columns</span></span>
+<span id="cb9-15"><a href="#cb9-15"></a>  prox <span class="ot">=</span> topics[[<span class="st">'prox'</span>]][[topic_type]]</span>
+<span id="cb9-16"><a href="#cb9-16"></a>  M <span class="ot">=</span> <span class="dv">1</span> <span class="sc">-</span> prox[<span class="fu">colnames</span>(A), <span class="fu">colnames</span>(A)]</span>
+<span id="cb9-17"><a href="#cb9-17"></a>  M[<span class="fu">is.na</span>(M)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb9-18"><a href="#cb9-18"></a></span>
+<span id="cb9-19"><a href="#cb9-19"></a>  <span class="co"># calculate dissimilarity per author (i) coauthor (j) pair</span></span>
+<span id="cb9-20"><a href="#cb9-20"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">rownames</span>(A)) {</span>
+<span id="cb9-21"><a href="#cb9-21"></a>    <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">rownames</span>(A)) {</span>
+<span id="cb9-22"><a href="#cb9-22"></a>      diff <span class="ot">=</span> <span class="fu">abs</span>(A[i,] <span class="sc">-</span> A[j,]) <span class="sc">/</span> <span class="dv">2</span></span>
+<span id="cb9-23"><a href="#cb9-23"></a>      D[i, j] <span class="ot">=</span> <span class="fu">sum</span>(diff <span class="sc">%o%</span> diff <span class="sc">*</span> M) <span class="sc">*</span> <span class="dv">2</span></span>
+<span id="cb9-24"><a href="#cb9-24"></a>    }</span>
+<span id="cb9-25"><a href="#cb9-25"></a>  }</span>
+<span id="cb9-26"><a href="#cb9-26"></a></span>
+<span id="cb9-27"><a href="#cb9-27"></a>  <span class="co"># normalize results</span></span>
+<span id="cb9-28"><a href="#cb9-28"></a>  D <span class="ot">&lt;-</span> D <span class="sc">/</span> <span class="fu">max</span>(D, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-29"><a href="#cb9-29"></a>  <span class="fu">return</span>(D)</span>
+<span id="cb9-30"><a href="#cb9-30"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+</section>
+<section id="application" class="level2">
+<h2 class="anchored" data-anchor-id="application">Application</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>topics <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb10-2"><a href="#cb10-2"></a>data <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'scholars'</span>, <span class="at">location =</span> <span class="st">"./data/clean/"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3"></a>topic_table <span class="ot">=</span> data <span class="sc">|&gt;</span> <span class="fu">create_topic_table</span>(<span class="at">base_year =</span> <span class="dv">2025</span>, <span class="at">window =</span> <span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>years <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">2022</span>, <span class="dv">2024</span>, <span class="dv">2025</span>)</span>
-<span id="cb8-2"><a href="#cb8-2"></a></span>
-<span id="cb8-3"><a href="#cb8-3"></a><span class="cf">for</span> (topic_type <span class="cf">in</span> topic_types) {</span>
-<span id="cb8-4"><a href="#cb8-4"></a>  <span class="cf">for</span> (year <span class="cf">in</span> years){</span>
-<span id="cb8-5"><a href="#cb8-5"></a>    year_lab <span class="ot">=</span> <span class="fu">as.character</span>(year)</span>
-<span id="cb8-6"><a href="#cb8-6"></a>    </span>
-<span id="cb8-7"><a href="#cb8-7"></a>    <span class="co"># create a proportions table</span></span>
-<span id="cb8-8"><a href="#cb8-8"></a>    P <span class="ot">=</span> data <span class="sc">|&gt;</span></span>
-<span id="cb8-9"><a href="#cb8-9"></a>      <span class="fu">create_topic_table</span>(<span class="at">base_year =</span> year, <span class="at">window =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-10"><a href="#cb8-10"></a>      <span class="fu">pivot_topic_table</span>(<span class="at">topic_type =</span> topic_type) <span class="sc">|&gt;</span></span>
-<span id="cb8-11"><a href="#cb8-11"></a>      <span class="fu">aggregate_topic_table</span>() <span class="sc">|&gt;</span></span>
-<span id="cb8-12"><a href="#cb8-12"></a>      <span class="fu">column_to_rownames</span>(<span class="at">var=</span><span class="st">"uid"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb8-13"><a href="#cb8-13"></a>      <span class="fu">as.matrix</span>() <span class="sc">|&gt;</span></span>
-<span id="cb8-14"><a href="#cb8-14"></a>      <span class="fu">prop.table</span>(<span class="at">margin =</span> <span class="dv">1</span>)</span>
-<span id="cb8-15"><a href="#cb8-15"></a></span>
-<span id="cb8-16"><a href="#cb8-16"></a>    <span class="co"># fetch proximity table</span></span>
-<span id="cb8-17"><a href="#cb8-17"></a>    prox <span class="ot">=</span> topics[[<span class="st">'prox'</span>]][[topic_type]]</span>
-<span id="cb8-18"><a href="#cb8-18"></a></span>
-<span id="cb8-19"><a href="#cb8-19"></a>    <span class="co"># calculate interdisciplinarity</span></span>
-<span id="cb8-20"><a href="#cb8-20"></a>    topics[[<span class="st">'intdis'</span>]][[topic_type]][[year_lab]] <span class="ot">=</span> P <span class="sc">|&gt;</span></span>
-<span id="cb8-21"><a href="#cb8-21"></a>      <span class="fu">calculate_interdisciplinarity</span>(prox) </span>
-<span id="cb8-22"><a href="#cb8-22"></a>  }</span>
-<span id="cb8-23"><a href="#cb8-23"></a></span>
-<span id="cb8-24"><a href="#cb8-24"></a>  <span class="co"># combine results into matrix</span></span>
-<span id="cb8-25"><a href="#cb8-25"></a>  res <span class="ot">=</span> topics[[<span class="st">'intdis'</span>]][[topic_type]] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">t</span>()</span>
-<span id="cb8-26"><a href="#cb8-26"></a>  <span class="fu">colnames</span>(res) <span class="ot">=</span> <span class="fu">as.character</span>(<span class="fu">paste</span>(<span class="st">'int'</span>, years, <span class="at">sep =</span> <span class="st">'_'</span>))</span>
-<span id="cb8-27"><a href="#cb8-27"></a>  topics[[<span class="st">'intdis'</span>]][[topic_type]] <span class="ot">=</span> res</span>
-<span id="cb8-28"><a href="#cb8-28"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>topic_types <span class="ot">=</span> <span class="fu">c</span>(<span class="st">'field'</span>, <span class="st">'subfield'</span>)</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="cf">for</span> (topic_type <span class="cf">in</span> topic_types) {</span>
+<span id="cb11-3"><a href="#cb11-3"></a>  topics[[<span class="st">'counts'</span>]][[topic_type]] <span class="ot">=</span> topic_table <span class="sc">|&gt;</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a>    <span class="fu">pivot_topic_table</span>(<span class="at">topic_type =</span> topic_type) <span class="sc">|&gt;</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>    <span class="fu">aggregate_topic_table</span>()</span>
+<span id="cb11-6"><a href="#cb11-6"></a></span>
+<span id="cb11-7"><a href="#cb11-7"></a>  <span class="co"># calculate proximity</span></span>
+<span id="cb11-8"><a href="#cb11-8"></a>  topics[[<span class="st">'prox'</span>]][[topic_type]] <span class="ot">=</span> topics[[<span class="st">'counts'</span>]][[topic_type]] <span class="sc">|&gt;</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a>    <span class="fu">calculate_proximity_matrix</span>()</span>
+<span id="cb11-10"><a href="#cb11-10"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># calculate dissimilarties per year per topic type</span></span>
-<span id="cb9-2"><a href="#cb9-2"></a><span class="cf">for</span> (topic_type <span class="cf">in</span> topic_types){</span>
-<span id="cb9-3"><a href="#cb9-3"></a>  <span class="cf">for</span> (year <span class="cf">in</span> years){</span>
-<span id="cb9-4"><a href="#cb9-4"></a>    year_lab <span class="ot">=</span> <span class="fu">as.character</span>(year)</span>
-<span id="cb9-5"><a href="#cb9-5"></a>    topics[[<span class="st">'dissim'</span>]][[topic_type]][[year_lab]] <span class="ot">=</span> topics <span class="sc">|&gt;</span></span>
-<span id="cb9-6"><a href="#cb9-6"></a>      <span class="fu">calculate_dissimilarity</span>(year, topic_type)</span>
-<span id="cb9-7"><a href="#cb9-7"></a>  }</span>
-<span id="cb9-8"><a href="#cb9-8"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>years <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">2022</span>, <span class="dv">2024</span>, <span class="dv">2025</span>)</span>
+<span id="cb12-2"><a href="#cb12-2"></a></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="cf">for</span> (topic_type <span class="cf">in</span> topic_types) {</span>
+<span id="cb12-4"><a href="#cb12-4"></a>  <span class="cf">for</span> (year <span class="cf">in</span> years){</span>
+<span id="cb12-5"><a href="#cb12-5"></a>    year_lab <span class="ot">=</span> <span class="fu">as.character</span>(year)</span>
+<span id="cb12-6"><a href="#cb12-6"></a></span>
+<span id="cb12-7"><a href="#cb12-7"></a>    <span class="co"># create a proportions table</span></span>
+<span id="cb12-8"><a href="#cb12-8"></a>    P <span class="ot">=</span> data <span class="sc">|&gt;</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>      <span class="fu">create_topic_table</span>(<span class="at">base_year =</span> year, <span class="at">window =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-10"><a href="#cb12-10"></a>      <span class="fu">pivot_topic_table</span>(<span class="at">topic_type =</span> topic_type) <span class="sc">|&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11"></a>      <span class="fu">aggregate_topic_table</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-12"><a href="#cb12-12"></a>      <span class="fu">column_to_rownames</span>(<span class="at">var=</span><span class="st">"uid"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-13"><a href="#cb12-13"></a>      <span class="fu">as.matrix</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-14"><a href="#cb12-14"></a>      <span class="fu">prop.table</span>(<span class="at">margin =</span> <span class="dv">1</span>)</span>
+<span id="cb12-15"><a href="#cb12-15"></a></span>
+<span id="cb12-16"><a href="#cb12-16"></a>    <span class="co"># fetch proximity table</span></span>
+<span id="cb12-17"><a href="#cb12-17"></a>    prox <span class="ot">=</span> topics[[<span class="st">'prox'</span>]][[topic_type]]</span>
+<span id="cb12-18"><a href="#cb12-18"></a></span>
+<span id="cb12-19"><a href="#cb12-19"></a>    <span class="co"># calculate interdisciplinarity</span></span>
+<span id="cb12-20"><a href="#cb12-20"></a>    topics[[<span class="st">'intdis'</span>]][[topic_type]][[year_lab]] <span class="ot">=</span> P <span class="sc">|&gt;</span></span>
+<span id="cb12-21"><a href="#cb12-21"></a>      <span class="fu">calculate_interdisciplinarity</span>(prox)</span>
+<span id="cb12-22"><a href="#cb12-22"></a>  }</span>
+<span id="cb12-23"><a href="#cb12-23"></a></span>
+<span id="cb12-24"><a href="#cb12-24"></a>  <span class="co"># combine results into matrix</span></span>
+<span id="cb12-25"><a href="#cb12-25"></a>  res <span class="ot">=</span> topics[[<span class="st">'intdis'</span>]][[topic_type]] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">t</span>()</span>
+<span id="cb12-26"><a href="#cb12-26"></a>  <span class="fu">colnames</span>(res) <span class="ot">=</span> <span class="fu">as.character</span>(<span class="fu">paste</span>(<span class="st">'int'</span>, years, <span class="at">sep =</span> <span class="st">'_'</span>))</span>
+<span id="cb12-27"><a href="#cb12-27"></a>  topics[[<span class="st">'intdis'</span>]][[topic_type]] <span class="ot">=</span> res</span>
+<span id="cb12-28"><a href="#cb12-28"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">fsaveRDS</span>(topics, <span class="st">'topics'</span>, <span class="st">'./data/clean/'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># calculate dissimilarties per year per topic type</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="cf">for</span> (topic_type <span class="cf">in</span> topic_types){</span>
+<span id="cb13-3"><a href="#cb13-3"></a>  <span class="cf">for</span> (year <span class="cf">in</span> years){</span>
+<span id="cb13-4"><a href="#cb13-4"></a>    year_lab <span class="ot">=</span> <span class="fu">as.character</span>(year)</span>
+<span id="cb13-5"><a href="#cb13-5"></a>    topics[[<span class="st">'dissim'</span>]][[topic_type]][[year_lab]] <span class="ot">=</span> topics <span class="sc">|&gt;</span></span>
+<span id="cb13-6"><a href="#cb13-6"></a>      <span class="fu">calculate_dissimilarity</span>(year, topic_type)</span>
+<span id="cb13-7"><a href="#cb13-7"></a>  }</span>
+<span id="cb13-8"><a href="#cb13-8"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>topics <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'topics'</span>, <span class="at">location =</span> <span class="st">'clean'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">fsaveRDS</span>(topics, <span class="st">'topics'</span>, <span class="st">'./data/clean/'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>topics <span class="ot">=</span> <span class="fu">freadRDS2</span>(<span class="st">'topics'</span>, <span class="at">location =</span> <span class="st">'clean'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 

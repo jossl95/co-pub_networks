@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-03-20">
+<meta name="dcterms.date" content="2026-03-31">
 
 <title>Clean Data – Networks</title>
 <style>
@@ -369,12 +369,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">Descriptive Analysis</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../src/code/11.main_analyses.html">
- <span class="dropdown-text">Main Analyses</span></a>
+    <a class="dropdown-item" href="../../src/code/11.visualization.html">
+ <span class="dropdown-text">Network Visualization</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../src/code/10.visualization.html">
- <span class="dropdown-text">Network Visualization</span></a>
+    <a class="dropdown-item" href="../../src/code/12.net_descriptives.html">
+ <span class="dropdown-text">Network Descriptive Analysis</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/13.main_analyses.html">
+ <span class="dropdown-text">Main Analyses</span></a>
   </li>  
     </ul>
   </li>
@@ -432,7 +436,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 20, 2026</p>
+      <p class="date">March 31, 2026</p>
     </div>
   </div>
   
@@ -661,34 +665,52 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-27"><a href="#cb6-27"></a>    )</span>
 <span id="cb6-28"><a href="#cb6-28"></a>  </span>
 <span id="cb6-29"><a href="#cb6-29"></a>  df <span class="ot">&lt;-</span> h_index_by_year <span class="sc">|&gt;</span></span>
-<span id="cb6-30"><a href="#cb6-30"></a>      <span class="fu">full_join</span>(i10_index_by_year, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"uid"</span>, <span class="st">"year"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb6-31"><a href="#cb6-31"></a>      <span class="fu">full_join</span>(counts, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"uid"</span>, <span class="st">"year"</span>)) </span>
-<span id="cb6-32"><a href="#cb6-32"></a></span>
-<span id="cb6-33"><a href="#cb6-33"></a>  <span class="co"># nest statistics per uid</span></span>
-<span id="cb6-34"><a href="#cb6-34"></a>  statistics <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
-<span id="cb6-35"><a href="#cb6-35"></a>      <span class="fu">filter</span>(year <span class="sc">&gt;</span> <span class="dv">2015</span>, year <span class="sc">&lt;</span> <span class="dv">2026</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-36"><a href="#cb6-36"></a>      <span class="fu">arrange</span>(uid, year) <span class="sc">|&gt;</span></span>
-<span id="cb6-37"><a href="#cb6-37"></a>      <span class="fu">group_by</span>(uid) <span class="sc">|&gt;</span></span>
-<span id="cb6-38"><a href="#cb6-38"></a>      <span class="fu">nest</span>(<span class="at">stats_by_year =</span> <span class="fu">c</span>(year, h_index, i10_index, citations, publications)) <span class="sc">|&gt;</span></span>
-<span id="cb6-39"><a href="#cb6-39"></a>      <span class="fu">ungroup</span>()</span>
-<span id="cb6-40"><a href="#cb6-40"></a></span>
-<span id="cb6-41"><a href="#cb6-41"></a>  <span class="co"># aggregate statistics</span></span>
-<span id="cb6-42"><a href="#cb6-42"></a>  aggregated <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
-<span id="cb6-43"><a href="#cb6-43"></a>    <span class="fu">group_by</span>(uid) <span class="sc">|&gt;</span></span>
-<span id="cb6-44"><a href="#cb6-44"></a>    <span class="fu">summarise</span>(</span>
-<span id="cb6-45"><a href="#cb6-45"></a>      <span class="at">career_start =</span> <span class="fu">min</span>(year, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb6-46"><a href="#cb6-46"></a>      <span class="at">h_index_22  =</span> h_index[year <span class="sc">==</span> <span class="dv">2022</span>][<span class="dv">1</span>],</span>
-<span id="cb6-47"><a href="#cb6-47"></a>      <span class="at">i10_index_22 =</span> i10_index[year <span class="sc">==</span> <span class="dv">2022</span>][<span class="dv">1</span>],</span>
-<span id="cb6-48"><a href="#cb6-48"></a>      <span class="at">.groups =</span> <span class="st">"drop"</span></span>
-<span id="cb6-49"><a href="#cb6-49"></a>    )</span>
-<span id="cb6-50"><a href="#cb6-50"></a></span>
-<span id="cb6-51"><a href="#cb6-51"></a>  <span class="co"># add statistics to demographics</span></span>
-<span id="cb6-52"><a href="#cb6-52"></a>  data<span class="sc">$</span>demographics <span class="ot">&lt;-</span> data<span class="sc">$</span>demographics <span class="sc">|&gt;</span></span>
-<span id="cb6-53"><a href="#cb6-53"></a>    <span class="fu">left_join</span>(statistics) <span class="sc">|&gt;</span></span>
-<span id="cb6-54"><a href="#cb6-54"></a>    <span class="fu">left_join</span>(aggregated)</span>
-<span id="cb6-55"><a href="#cb6-55"></a></span>
-<span id="cb6-56"><a href="#cb6-56"></a>  <span class="fu">return</span>(data)</span>
-<span id="cb6-57"><a href="#cb6-57"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-30"><a href="#cb6-30"></a>    <span class="fu">full_join</span>(i10_index_by_year, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"uid"</span>, <span class="st">"year"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb6-31"><a href="#cb6-31"></a>    <span class="fu">full_join</span>(counts, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"uid"</span>, <span class="st">"year"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb6-32"><a href="#cb6-32"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb6-33"><a href="#cb6-33"></a>      <span class="at">d_i10_index =</span> <span class="fu">lead</span>(i10_index, <span class="dv">1</span>, <span class="at">default =</span> <span class="cn">NA</span>) <span class="sc">-</span> i10_index,</span>
+<span id="cb6-34"><a href="#cb6-34"></a>      <span class="at">d2_i10_index =</span> RcppRoll<span class="sc">::</span><span class="fu">roll_sum</span>(<span class="at">x =</span> d_i10_index, <span class="dv">2</span>, <span class="at">align =</span> <span class="st">"right"</span>, <span class="at">fill =</span> <span class="cn">NA</span>),</span>
+<span id="cb6-35"><a href="#cb6-35"></a>      <span class="at">d2_i10_index =</span> <span class="fu">coalesce</span>(d2_i10_index, d_i10_index),</span>
+<span id="cb6-36"><a href="#cb6-36"></a>      <span class="at">d_citations =</span> <span class="fu">lead</span>(citations, <span class="dv">1</span>, <span class="at">default =</span> <span class="dv">0</span>) <span class="sc">-</span> citations,</span>
+<span id="cb6-37"><a href="#cb6-37"></a>      <span class="at">d2_citations =</span> RcppRoll<span class="sc">::</span><span class="fu">roll_sum</span>(<span class="at">x =</span> d_citations, <span class="dv">2</span>, <span class="at">align =</span> <span class="st">"right"</span>, <span class="at">fill =</span> <span class="cn">NA</span>),</span>
+<span id="cb6-38"><a href="#cb6-38"></a>      <span class="at">d2_citations =</span> <span class="fu">coalesce</span>(d2_citations, d_citations),</span>
+<span id="cb6-39"><a href="#cb6-39"></a>      <span class="at">d_publications =</span> <span class="fu">lead</span>(publications, <span class="dv">1</span>, <span class="at">default =</span> <span class="dv">0</span>) <span class="sc">-</span> publications,</span>
+<span id="cb6-40"><a href="#cb6-40"></a>      <span class="at">d2_publications =</span> RcppRoll<span class="sc">::</span><span class="fu">roll_sum</span>(<span class="at">x =</span> d_publications, <span class="dv">2</span>, <span class="at">align =</span> <span class="st">"right"</span>, <span class="at">fill =</span> <span class="cn">NA</span>),</span>
+<span id="cb6-41"><a href="#cb6-41"></a>      <span class="at">d2_publications =</span> <span class="fu">coalesce</span>(d2_publications, d_publications)</span>
+<span id="cb6-42"><a href="#cb6-42"></a>    )</span>
+<span id="cb6-43"><a href="#cb6-43"></a></span>
+<span id="cb6-44"><a href="#cb6-44"></a>  <span class="co"># nest statistics per uid</span></span>
+<span id="cb6-45"><a href="#cb6-45"></a>  statistics <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
+<span id="cb6-46"><a href="#cb6-46"></a>      <span class="fu">filter</span>(year <span class="sc">&gt;</span> <span class="dv">2015</span>, year <span class="sc">&lt;=</span> <span class="dv">2026</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-47"><a href="#cb6-47"></a>      <span class="fu">arrange</span>(uid, year) <span class="sc">|&gt;</span></span>
+<span id="cb6-48"><a href="#cb6-48"></a>      <span class="fu">group_by</span>(uid) <span class="sc">|&gt;</span></span>
+<span id="cb6-49"><a href="#cb6-49"></a>      <span class="fu">nest</span>(<span class="at">stats_by_year =</span> <span class="fu">c</span>(</span>
+<span id="cb6-50"><a href="#cb6-50"></a>        year, h_index, </span>
+<span id="cb6-51"><a href="#cb6-51"></a>        i10_index, d_i10_index, d2_i10_index,</span>
+<span id="cb6-52"><a href="#cb6-52"></a>        citations, d_citations, d2_citations, </span>
+<span id="cb6-53"><a href="#cb6-53"></a>        publications, d_publications, d2_publications</span>
+<span id="cb6-54"><a href="#cb6-54"></a>      )) <span class="sc">|&gt;</span></span>
+<span id="cb6-55"><a href="#cb6-55"></a>      <span class="fu">ungroup</span>()</span>
+<span id="cb6-56"><a href="#cb6-56"></a></span>
+<span id="cb6-57"><a href="#cb6-57"></a>  <span class="co"># aggregate statistics</span></span>
+<span id="cb6-58"><a href="#cb6-58"></a>  aggregated <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
+<span id="cb6-59"><a href="#cb6-59"></a>    <span class="fu">group_by</span>(uid) <span class="sc">|&gt;</span></span>
+<span id="cb6-60"><a href="#cb6-60"></a>    <span class="fu">summarise</span>(</span>
+<span id="cb6-61"><a href="#cb6-61"></a>      <span class="at">career_start =</span> <span class="fu">min</span>(year, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-62"><a href="#cb6-62"></a>      <span class="at">h_index_22  =</span> h_index[year <span class="sc">==</span> <span class="dv">2022</span>][<span class="dv">1</span>],</span>
+<span id="cb6-63"><a href="#cb6-63"></a>      <span class="at">i10_index_21 =</span> i10_index[year <span class="sc">==</span> <span class="dv">2021</span>][<span class="dv">1</span>],</span>
+<span id="cb6-64"><a href="#cb6-64"></a>      <span class="at">i10_index_23 =</span> i10_index[year <span class="sc">==</span> <span class="dv">2023</span>][<span class="dv">1</span>],</span>
+<span id="cb6-65"><a href="#cb6-65"></a>      <span class="at">i10_index_25 =</span> i10_index[year <span class="sc">==</span> <span class="dv">2025</span>][<span class="dv">1</span>],</span>
+<span id="cb6-66"><a href="#cb6-66"></a>      <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb6-67"><a href="#cb6-67"></a>    )</span>
+<span id="cb6-68"><a href="#cb6-68"></a></span>
+<span id="cb6-69"><a href="#cb6-69"></a>  <span class="co"># add statistics to demographics</span></span>
+<span id="cb6-70"><a href="#cb6-70"></a>  data<span class="sc">$</span>demographics <span class="ot">&lt;-</span> data<span class="sc">$</span>demographics <span class="sc">|&gt;</span></span>
+<span id="cb6-71"><a href="#cb6-71"></a>    <span class="fu">left_join</span>(statistics) <span class="sc">|&gt;</span></span>
+<span id="cb6-72"><a href="#cb6-72"></a>    <span class="fu">left_join</span>(aggregated)</span>
+<span id="cb6-73"><a href="#cb6-73"></a></span>
+<span id="cb6-74"><a href="#cb6-74"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb6-75"><a href="#cb6-75"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
@@ -729,8 +751,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>check_for_valid_coauthors <span class="ot">=</span> <span class="cf">function</span>(</span>
 <span id="cb8-2"><a href="#cb8-2"></a>    data, </span>
-<span id="cb8-3"><a href="#cb8-3"></a>    <span class="at">start_date =</span> <span class="fu">dmy</span>(<span class="st">"01/01/2016"</span>),</span>
-<span id="cb8-4"><a href="#cb8-4"></a>    <span class="at">end_date =</span> <span class="fu">dmy</span>(<span class="st">"01/01/2026"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="at">start_date =</span> <span class="fu">dmy</span>(<span class="st">"19/12/2020"</span>),</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="at">end_date =</span> <span class="fu">dmy</span>(<span class="st">"01/02/2026"</span>)</span>
 <span id="cb8-5"><a href="#cb8-5"></a>  ){</span>
 <span id="cb8-6"><a href="#cb8-6"></a>  tab <span class="ot">=</span> data[[<span class="st">'works'</span>]] <span class="sc">|&gt;</span></span>
 <span id="cb8-7"><a href="#cb8-7"></a>    <span class="co"># create a coauthor table</span></span>

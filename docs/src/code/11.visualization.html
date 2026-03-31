@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.14">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-03-31">
+
+<title>Network Visualization – Networks</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-4f72c1afe59a4edb82ad8e59b4b7d712.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-cada5050e646ab9f5721bf60d918d5a1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-4f72c1afe59a4edb82ad8e59b4b7d712.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-89b8ddf5ef4096b39ef33ee4d6e393de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6f9f77ecbc4ee60efa7fbe137cac528c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-89b8ddf5ef4096b39ef33ee4d6e393de.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="../../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="../../site_libs/vis-9.1.0/vis-network.min.css" rel="stylesheet">
+<script src="../../site_libs/vis-9.1.0/vis-network.min.js"></script>
+<script src="../../site_libs/visNetwork-binding-2.1.4/visNetwork.js"></script>
+<link href="../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const queryPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeDefault = queryPrefersDark.matches;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    queryPrefersDark.addEventListener("change", e => {
+      if(window.localStorage.getItem("quarto-color-scheme") !== null)
+        return;
+      const alternate = e.matches
+      toggleColorMode(alternate);
+      localAlternateSentinel = e.matches ? 'alternate' : 'default'; // this is used alongside local storage!
+      toggleGiscusIfUsed(alternate, darkModeDefault);
+    });
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Networks</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-data-processing" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Data Processing</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-data-processing">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/01.create_scholars.html">
+ <span class="dropdown-text">Create Scholars</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/02.process_names.html">
+ <span class="dropdown-text">Process Names</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/03.process_gender.html">
+ <span class="dropdown-text">Process Gender</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/04.process_ethnicity.html">
+ <span class="dropdown-text">Process Ethnicity</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-data-scraping" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Data Scraping</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-data-scraping">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/05.scrape_openalex.html">
+ <span class="dropdown-text">Scrape Information from OpenAlex</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-data-preparation" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Data Preparation</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-data-preparation">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/06.combine_data.html">
+ <span class="dropdown-text">Combine OpenAlex data</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/07.clean_data.html">
+ <span class="dropdown-text">Data Cleaning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/08.process_topics.html">
+ <span class="dropdown-text">Process Topics</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/09.operationalizations.html">
+ <span class="dropdown-text">Operationalizations</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-analyses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Analyses</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-analyses">    
+        <li>
+    <a class="dropdown-item" href="../../src/code/10.descriptives.html">
+ <span class="dropdown-text">Descriptive Analysis</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/11.visualization.html">
+ <span class="dropdown-text">Network Visualization</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/12.net_descriptives.html">
+ <span class="dropdown-text">Network Descriptive Analysis</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../src/code/13.main_analyses.html">
+ <span class="dropdown-text">Main Analyses</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jossl95/co-pub_networks"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    <div class="quarto-code-links"><h2>Code Links</h2><ul><li><a href="0a.custom_functions.html"><i class="bi bi-file-code"></i>Custom Functions</a></li></ul></div></div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Network Visualization</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 31, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell page-columns page-full">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(igraph)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(visNetwork)</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb1-5"><a href="#cb1-5"></a></span>
+<span id="cb1-6"><a href="#cb1-6"></a>net <span class="ot">&lt;-</span> <span class="fu">fcolnet2</span>(</span>
+<span id="cb1-7"><a href="#cb1-7"></a>  data,</span>
+<span id="cb1-8"><a href="#cb1-8"></a>  <span class="at">type =</span> <span class="st">"first"</span>,</span>
+<span id="cb1-9"><a href="#cb1-9"></a>  <span class="at">waves =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">2020</span>, <span class="dv">2026</span>))</span>
+<span id="cb1-10"><a href="#cb1-10"></a>)</span>
+<span id="cb1-11"><a href="#cb1-11"></a></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co"># remove isolates</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a>counts <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(net<span class="sc">$</span>nets[[<span class="dv">1</span>]], <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">colSums</span>(net<span class="sc">$</span>nets[[<span class="dv">1</span>]], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-14"><a href="#cb1-14"></a>noisolate <span class="ot">&lt;-</span> counts <span class="sc">&gt;</span> <span class="dv">0</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a>net<span class="sc">$</span>nets[[<span class="dv">1</span>]] <span class="ot">=</span> net<span class="sc">$</span>nets[[<span class="dv">1</span>]][noisolate, noisolate] </span>
+<span id="cb1-16"><a href="#cb1-16"></a></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="co"># build graph</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a>net<span class="sc">$</span>graph <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">graph_from_adjacency_matrix</span>(</span>
+<span id="cb1-19"><a href="#cb1-19"></a>  net<span class="sc">$</span>nets[[<span class="dv">1</span>]],</span>
+<span id="cb1-20"><a href="#cb1-20"></a>  <span class="at">mode =</span> <span class="st">"directed"</span>,</span>
+<span id="cb1-21"><a href="#cb1-21"></a>  <span class="at">weighted =</span> <span class="cn">NULL</span>,</span>
+<span id="cb1-22"><a href="#cb1-22"></a>  <span class="at">diag =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-23"><a href="#cb1-23"></a>  <span class="at">add.colnames =</span> <span class="cn">NULL</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a>)</span>
+<span id="cb1-25"><a href="#cb1-25"></a></span>
+<span id="cb1-26"><a href="#cb1-26"></a>l <span class="ot">&lt;-</span> <span class="fu">layout_with_fr</span>(net<span class="sc">$</span>graph, <span class="at">niter =</span> <span class="dv">1500</span>)</span>
+<span id="cb1-27"><a href="#cb1-27"></a></span>
+<span id="cb1-28"><a href="#cb1-28"></a><span class="co"># node data</span></span>
+<span id="cb1-29"><a href="#cb1-29"></a>df_ego <span class="ot">&lt;-</span> net<span class="sc">$</span>data <span class="sc">|&gt;</span></span>
+<span id="cb1-30"><a href="#cb1-30"></a>  <span class="fu">filter</span>(uid <span class="sc">%in%</span> <span class="fu">colnames</span>(net<span class="sc">$</span>nets[[<span class="dv">1</span>]])) <span class="sc">|&gt;</span></span>
+<span id="cb1-31"><a href="#cb1-31"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-32"><a href="#cb1-32"></a>    <span class="at">uni =</span> <span class="fu">coalesce</span>(university_22_first, university_24_first, university_25_first)</span>
+<span id="cb1-33"><a href="#cb1-33"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-34"><a href="#cb1-34"></a>  <span class="fu">arrange</span>(<span class="fu">match</span>(uid, <span class="fu">colnames</span>(net<span class="sc">$</span>nets[[<span class="dv">1</span>]])))</span>
+<span id="cb1-35"><a href="#cb1-35"></a></span>
+<span id="cb1-36"><a href="#cb1-36"></a><span class="co"># degree for sizing</span></span>
+<span id="cb1-37"><a href="#cb1-37"></a>deg <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">degree</span>(net<span class="sc">$</span>graph, <span class="at">mode =</span> <span class="st">"out"</span>)</span>
+<span id="cb1-38"><a href="#cb1-38"></a></span>
+<span id="cb1-39"><a href="#cb1-39"></a><span class="co"># university colors</span></span>
+<span id="cb1-40"><a href="#cb1-40"></a>uni_colors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb1-41"><a href="#cb1-41"></a>  <span class="st">"UVA"</span> <span class="ot">=</span> <span class="st">"red"</span>,</span>
+<span id="cb1-42"><a href="#cb1-42"></a>  <span class="st">"UVG"</span> <span class="ot">=</span> <span class="st">"lemonchiffon"</span>,</span>
+<span id="cb1-43"><a href="#cb1-43"></a>  <span class="st">"VU"</span>  <span class="ot">=</span> <span class="st">"darkgrey"</span>,</span>
+<span id="cb1-44"><a href="#cb1-44"></a>  <span class="st">"UVT"</span> <span class="ot">=</span> <span class="st">"blue"</span>,</span>
+<span id="cb1-45"><a href="#cb1-45"></a>  <span class="st">"RU"</span>  <span class="ot">=</span> <span class="st">"purple"</span>,</span>
+<span id="cb1-46"><a href="#cb1-46"></a>  <span class="st">"EUR"</span> <span class="ot">=</span> <span class="st">"yellow"</span>,</span>
+<span id="cb1-47"><a href="#cb1-47"></a>  <span class="st">"UU"</span>  <span class="ot">=</span> <span class="st">"green"</span>,</span>
+<span id="cb1-48"><a href="#cb1-48"></a>  <span class="st">"UL"</span>  <span class="ot">=</span> <span class="st">"coral"</span></span>
+<span id="cb1-49"><a href="#cb1-49"></a>)</span>
+<span id="cb1-50"><a href="#cb1-50"></a></span>
+<span id="cb1-51"><a href="#cb1-51"></a><span class="co"># visNetwork nodes</span></span>
+<span id="cb1-52"><a href="#cb1-52"></a>nodes <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-53"><a href="#cb1-53"></a>  <span class="at">id =</span> <span class="fu">V</span>(net<span class="sc">$</span>graph)<span class="sc">$</span>name,</span>
+<span id="cb1-54"><a href="#cb1-54"></a>  <span class="at">label =</span> df_ego<span class="sc">$</span>clean_name,</span>
+<span id="cb1-55"><a href="#cb1-55"></a>  <span class="at">title =</span> <span class="fu">paste0</span>(</span>
+<span id="cb1-56"><a href="#cb1-56"></a>    <span class="st">"&lt;b&gt;"</span>, df_ego<span class="sc">$</span>clean_name, <span class="st">"&lt;/b&gt;&lt;br&gt;"</span>,</span>
+<span id="cb1-57"><a href="#cb1-57"></a>    <span class="st">"University: "</span>, df_ego<span class="sc">$</span>uni, <span class="st">"&lt;br&gt;"</span>,</span>
+<span id="cb1-58"><a href="#cb1-58"></a>    <span class="st">"Gender: "</span>, df_ego<span class="sc">$</span>gender</span>
+<span id="cb1-59"><a href="#cb1-59"></a>  ),</span>
+<span id="cb1-60"><a href="#cb1-60"></a>  <span class="at">shape =</span> <span class="fu">ifelse</span>(df_ego<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">"female"</span>, <span class="st">"dot"</span>, <span class="st">"square"</span>),</span>
+<span id="cb1-61"><a href="#cb1-61"></a>  <span class="at">group =</span> df_ego<span class="sc">$</span>uni,</span>
+<span id="cb1-62"><a href="#cb1-62"></a>  <span class="at">value =</span> <span class="dv">2</span> <span class="sc">+</span> <span class="fu">sqrt</span>(deg),</span>
+<span id="cb1-63"><a href="#cb1-63"></a>  <span class="at">x =</span> l[, <span class="dv">1</span>] <span class="sc">*</span> <span class="dv">100</span>,</span>
+<span id="cb1-64"><a href="#cb1-64"></a>  <span class="at">y =</span> l[, <span class="dv">2</span>] <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb1-65"><a href="#cb1-65"></a>)<span class="sc">|&gt;</span></span>
+<span id="cb1-66"><a href="#cb1-66"></a>  <span class="fu">arrange</span>(<span class="fu">tolower</span>(label), id)</span>
+<span id="cb1-67"><a href="#cb1-67"></a></span>
+<span id="cb1-68"><a href="#cb1-68"></a><span class="co"># visNetwork edges</span></span>
+<span id="cb1-69"><a href="#cb1-69"></a>edges <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">as_data_frame</span>(net<span class="sc">$</span>graph, <span class="at">what =</span> <span class="st">"edges"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-70"><a href="#cb1-70"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb1-71"><a href="#cb1-71"></a>    from,</span>
+<span id="cb1-72"><a href="#cb1-72"></a>    to,</span>
+<span id="cb1-73"><a href="#cb1-73"></a>    <span class="at">width =</span> <span class="fl">0.2</span></span>
+<span id="cb1-74"><a href="#cb1-74"></a>  )</span>
+<span id="cb1-75"><a href="#cb1-75"></a></span>
+<span id="cb1-76"><a href="#cb1-76"></a><span class="fu">visNetwork</span>(nodes, edges, <span class="at">width =</span> <span class="st">"100%"</span>, <span class="at">height =</span> <span class="st">"800px"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-77"><a href="#cb1-77"></a>  <span class="fu">visNodes</span>(</span>
+<span id="cb1-78"><a href="#cb1-78"></a>    <span class="at">borderWidth =</span> <span class="fl">0.5</span>,</span>
+<span id="cb1-79"><a href="#cb1-79"></a>    <span class="at">scaling =</span> <span class="fu">list</span>(</span>
+<span id="cb1-80"><a href="#cb1-80"></a>      <span class="at">min =</span> <span class="dv">40</span>,</span>
+<span id="cb1-81"><a href="#cb1-81"></a>      <span class="at">max =</span> <span class="dv">80</span></span>
+<span id="cb1-82"><a href="#cb1-82"></a>    )</span>
+<span id="cb1-83"><a href="#cb1-83"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-84"><a href="#cb1-84"></a>  <span class="fu">visEdges</span>(</span>
+<span id="cb1-85"><a href="#cb1-85"></a>    <span class="at">smooth =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-86"><a href="#cb1-86"></a>    <span class="at">color =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"rgba(120,120,120,0.5)"</span>)</span>
+<span id="cb1-87"><a href="#cb1-87"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-88"><a href="#cb1-88"></a>  <span class="fu">visPhysics</span>(</span>
+<span id="cb1-89"><a href="#cb1-89"></a>    <span class="at">solver =</span> <span class="st">"barnesHut"</span>,</span>
+<span id="cb1-90"><a href="#cb1-90"></a>    <span class="at">barnesHut =</span> <span class="fu">list</span>(</span>
+<span id="cb1-91"><a href="#cb1-91"></a>      <span class="at">gravitationalConstant =</span> <span class="sc">-</span><span class="dv">4000</span>,</span>
+<span id="cb1-92"><a href="#cb1-92"></a>      <span class="at">centralGravity =</span> <span class="fl">0.10</span>,</span>
+<span id="cb1-93"><a href="#cb1-93"></a>      <span class="at">avoidOverlap =</span> <span class="fl">0.4</span>,</span>
+<span id="cb1-94"><a href="#cb1-94"></a>      <span class="at">springLength =</span> <span class="dv">300</span>,</span>
+<span id="cb1-95"><a href="#cb1-95"></a>      <span class="at">springConstant =</span> <span class="fl">0.05</span></span>
+<span id="cb1-96"><a href="#cb1-96"></a>    )</span>
+<span id="cb1-97"><a href="#cb1-97"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-98"><a href="#cb1-98"></a>  <span class="fu">visInteraction</span>(</span>
+<span id="cb1-99"><a href="#cb1-99"></a>    <span class="at">dragNodes =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-100"><a href="#cb1-100"></a>    <span class="at">dragView =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-101"><a href="#cb1-101"></a>    <span class="at">zoomView =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-102"><a href="#cb1-102"></a>    <span class="at">hover =</span> <span class="cn">TRUE</span></span>
+<span id="cb1-103"><a href="#cb1-103"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-104"><a href="#cb1-104"></a>  <span class="fu">visOptions</span>(</span>
+<span id="cb1-105"><a href="#cb1-105"></a>    <span class="at">highlightNearest =</span> <span class="fu">list</span>(</span>
+<span id="cb1-106"><a href="#cb1-106"></a>      <span class="at">enabled =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-107"><a href="#cb1-107"></a>      <span class="at">degree =</span> <span class="dv">1</span>,</span>
+<span id="cb1-108"><a href="#cb1-108"></a>      <span class="at">hover =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-109"><a href="#cb1-109"></a>    ),</span>
+<span id="cb1-110"><a href="#cb1-110"></a>    <span class="at">nodesIdSelection =</span> <span class="fu">list</span>(</span>
+<span id="cb1-111"><a href="#cb1-111"></a>      <span class="at">enabled =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-112"><a href="#cb1-112"></a>      <span class="at">useLabels =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-113"><a href="#cb1-113"></a>      <span class="at">main =</span> <span class="st">"Select author"</span></span>
+<span id="cb1-114"><a href="#cb1-114"></a>    )</span>
+<span id="cb1-115"><a href="#cb1-115"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-116"><a href="#cb1-116"></a>  <span class="fu">visLegend</span>(</span>
+<span id="cb1-117"><a href="#cb1-117"></a>    <span class="at">position =</span> <span class="st">"right"</span>,</span>
+<span id="cb1-118"><a href="#cb1-118"></a>    <span class="at">width =</span> <span class="fl">0.2</span></span>
+<span id="cb1-119"><a href="#cb1-119"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display column-screen-inset-shaded">
+<div id="htmlwidget-a423ff34fe63ddc2a7e9" style="width:100%;height:800px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a423ff34fe63ddc2a7e9">{"x":{"nodes":{"id":["82tjl3dk","82tjl3df","82tjl2x8","82tjl3pq","82tjl2fj","82tjl31n","82tjl2sr","82tjl361","82tjl3mb","82tjl2rk","82tjl32d","82tjl30s","82tjl3sg","82tjl39k","82tjl39j","82tjl2qn","82tjl30j","82tjl38b","82tjl352","82tjl2kg","82tjl347","82tjl2hw","82tjl3j8","82tjl2m9","82tjl3n2","82tjl3hc","82tjl31g","82tjl2gh","82tjl2zw","82tjl2kn","82tjl2rj","82tjl2z9","82tjl3fh","82tjl3qd","82tjl2rt","82tjl2l7","82tjl39b","82tjl2xy","82tjl2l8","82tjl2rb","82tjl3r1","82tjl2fl","82tjl2g8","82tjl3r6","82tjl2j1","82tjl38r","82tjl2g3","82tjl31s","82tjl30h","82tjl331","82tjl2r4","82tjl2l9","82tjl3pl","82tjl3cd","82tjl2h9","82tjl3t0","82tjl2ky","82tjl2jb","82tjl360","82tjl32s","82tjl3sc","82tjl3cy","82tjl3bf","82tjl3cl","82tjl35m","82tjl35k","82tjl329","82tjl2gm","82tjl3bm","82tjl3nw","82tjl2fp","82tjl35h","82tjl2jj","82tjl328","82tjl2jc","82tjl33f","82tjl38p","82tjl2t9","82tjl3kb","82tjl2pg","82tjl3pr","82tjl2w1","82tjl3cz","82tjl3hd","82tjl2dw","82tjl2h0","82tjl2d9","82tjl3q1","82tjl2hc","82tjl3nn","82tjl2fy","82tjl3lm","82tjl3fr","82tjl2mn","82tjl2n0","82tjl3nz","82tjl3lz","82tjl2zy","82tjl3sp","82tjl2hq","82tjl2m1","82tjl2mp","82tjl2jr","82tjl2nm","82tjl2gf","82tjl3hg","82tjl2m6","82tjl3ps","82tjl3km","82tjl2xb","82tjl37f","82tjl3n3","82tjl3rf","82tjl3j3","82tjl2g5","82tjl2l5","82tjl33h","82tjl2sw","82tjl3cx","82tjl2xt","82tjl3s0","82tjl301","82tjl37k","82tjl2tn","82tjl3h7","82tjl2s5","82tjl314","82tjl2h6","82tjl39r","82tjl3dy","82tjl2ty","82tjl3k5","82tjl3gn","82tjl3qk","82tjl3f0","82tjl37m","82tjl2pm","82tjl2s4","82tjl2wz","82tjl3hp","82tjl2wt","82tjl35z","82tjl3mx","82tjl39m","82tjl3rq","82tjl2ws","82tjl3sm","82tjl311","82tjl340","82tjl38g","82tjl3jk","82tjl3cb","82tjl2qf","82tjl2kw","82tjl2dt","82tjl3fx","82tjl3q6","82tjl2wd","82tjl3g0","82tjl2y3","82tjl37d","82tjl34b","82tjl2nc","82tjl2d4","82tjl3cp","82tjl2kj","82tjl2sb","82tjl313","82tjl2qk","82tjl3dn","82tjl3b1","82tjl2g6","82tjl2hz","82tjl2dm","82tjl3mj","82tjl3k7","82tjl3pz","82tjl2gw","82tjl2p8","82tjl363","82tjl3g5","82tjl3px","82tjl3h6","82tjl34g","82tjl380","82tjl3gj","82tjl3d7","82tjl316","82tjl2zb","82tjl3d0","82tjl3bl","82tjl3kl","82tjl2hj","82tjl3bq","82tjl3lj","82tjl3qj","82tjl35d","82tjl3lh","82tjl2zx","82tjl381","82tjl3k8","82tjl3lp","82tjl2ft","82tjl35r","82tjl2ns","82tjl2s3","82tjl2gq","82tjl390","82tjl2jy","82tjl2td","82tjl2r5","82tjl3gc","82tjl34s","82tjl2hk","82tjl2gx","82tjl3kq","82tjl385","82tjl33b","82tjl32j","82tjl2k0","82tjl2jh","82tjl3dh","82tjl2zm","82tjl3bk","82tjl2q0","82tjl35y","82tjl3j1","82tjl2ld","82tjl35t","82tjl2q6","82tjl3gq","82tjl31x","82tjl338","82tjl32r","82tjl3ls","82tjl38k","82tjl370","82tjl3t1","82tjl2sq","82tjl3gs","82tjl3rm","82tjl33c","82tjl2rl","82tjl3hl","82tjl34w","82tjl2qc","82tjl3gk","82tjl33x","82tjl2w7","82tjl3qh","82tjl34f","82tjl3bs","82tjl2zj","82tjl3kk","82tjl39l","82tjl34n","82tjl30q","82tjl2lx","82tjl2jz","82tjl2p1","82tjl2fm","82tjl32n","82tjl2s0","82tjl3qz","82tjl2tr","82tjl2wh","82tjl3cs","82tjl2w6","82tjl35c","82tjl3d3","82tjl30x","82tjl2w9","82tjl3bb","82tjl3dg","82tjl2tq","82tjl2nq","82tjl3jf","82tjl367","82tjl2yp","82tjl38t","82tjl2p4","82tjl2hp","82tjl3dt","82tjl3f8","82tjl2xd","82tjl392","82tjl2gp","82tjl2g7","82tjl36y","82tjl3g4","82tjl3qp","82tjl3sh","82tjl2s8","82tjl3b4","82tjl2sf","82tjl2pp","82tjl36z","82tjl3js","82tjl3n6","82tjl3h0","82tjl3nd","82tjl3bz","82tjl3hf","82tjl3db","82tjl369","82tjl2xh","82tjl2n7","82tjl2fx","82tjl2j6","82tjl336","82tjl2l6","82tjl2f4","82tjl3fk","82tjl3my","82tjl2rn","82tjl397","82tjl3gm","82tjl2gn","82tjl3kw","82tjl3ph","82tjl36r","82tjl30w","82tjl3sd","82tjl3p5","82tjl37t","82tjl3qw","82tjl2jd","82tjl3q0","82tjl32x","82tjl2cs","82tjl2md","82tjl2x3","82tjl32m","82tjl2h5","82tjl2m0","82tjl3r2","82tjl3ll","82tjl3f2","82tjl3bn","82tjl3fg","82tjl3ql","82tjl3k9","82tjl3qs","82tjl38y","82tjl3f5","82tjl2g1","82tjl2kl","82tjl33s","82tjl2t2","82tjl2t0","82tjl2hl","82tjl3lq","82tjl3nk","82tjl35b","82tjl3s2","82tjl350","82tjl3r4","82tjl2q1","82tjl2sz","82tjl3j9","82tjl3rj","82tjl3j7","82tjl2g0","82tjl3g3","82tjl2xk","82tjl3pt","82tjl2zc","82tjl2hg","82tjl3t3","82tjl3p2","82tjl2rd","82tjl3gd","82tjl3j5","82tjl2m2","82tjl2l0","82tjl2zz","82tjl34t","82tjl2h2","82tjl2z7","82tjl2f5","82tjl2hd","82tjl36d","82tjl2fh","82tjl3jr","82tjl35s","82tjl2h8","82tjl3l4","82tjl3kz","82tjl368","82tjl3s1","82tjl2cq","82tjl33k","82tjl39n","82tjl3qt","82tjl3ms","82tjl32y","82tjl3rt","82tjl3ds","82tjl2kq","82tjl2pb","82tjl33j","82tjl3sw","82tjl3h5","82tjl3rk","82tjl353","82tjl2k9","82tjl2qd","82tjl32g","82tjl2jl","82tjl2ht","82tjl38l","82tjl2lw","82tjl2mc","82tjl2nd","82tjl3hq","82tjl2m7","82tjl3gl","82tjl3jx","82tjl2dk","82tjl2j2","82tjl39f","82tjl359","82tjl3l5","82tjl2y5","82tjl37c","82tjl3qc","82tjl33n","82tjl3pc","82tjl3m0","82tjl3m8","82tjl2rg","82tjl3q2","82tjl3p3","82tjl3h4","82tjl31t","82tjl3l3","82tjl2t8","82tjl2jw","82tjl2ct","82tjl2pj","82tjl2jn","82tjl3dd","82tjl2ds","82tjl3mk","82tjl3hz","82tjl30r","82tjl2lz","82tjl2wx","82tjl2m8","82tjl2h7","82tjl3gz","82tjl2wb","82tjl2cr","82tjl3dj","82tjl37s","82tjl356","82tjl2mq","82tjl324","82tjl3cw","82tjl3q8","82tjl3qm","82tjl34k","82tjl3qr","82tjl2rc","82tjl3lr","82tjl373","82tjl3lf","82tjl3g2","82tjl2ng","82tjl38m","82tjl2q9","82tjl32w","82tjl365","82tjl2y0","82tjl3f1","82tjl2sx","82tjl3c6","82tjl2d3","82tjl2kx","82tjl2xr","82tjl2r1","82tjl2t3","82tjl3s7","82tjl2q7","82tjl2wm","82tjl2dq","82tjl3by","82tjl305","82tjl3fp","82tjl3bx","82tjl31f","82tjl326","82tjl3cg","82tjl389","82tjl358","82tjl37r","82tjl2wp","82tjl3kf","82tjl31j","82tjl39z","82tjl2wq","82tjl34l","82tjl341","82tjl3nm","82tjl3r9","82tjl2mk","82tjl3kt","82tjl30n","82tjl2k3","82tjl2r7","82tjl2z2","82tjl2yq","82tjl3jd","82tjl3sq","82tjl3hs","82tjl33t","82tjl2q5","82tjl2s6","82tjl2kh","82tjl2py","82tjl2sj","82tjl2x6","82tjl3h9","82tjl3pn","82tjl2x4","82tjl2hn","82tjl2yj","82tjl398","82tjl30t"],"label":["Abbey Steele","Agnieszka Kanas","Aleksandra Khokhlova","Alessia Aspide","Alexandra Ciausescu","Alice de Boer","Alissa van Zijl","Alla Loseva","Amber Vellinga","Amina op de Weegh","Amy Nivette","Ana Macanovic","Ana Maria Torres Chedraui","Anastasia Ershova","Andrea Forster","Andreas Flache","Andrej Zaslove","Anja van Heelsum","Anna Keuchenius","Anna van der Vleuten","Anne Brons","Anne Gauthier","Anne Kuschel","Anne Maaike Mulders","Anne van der Put","Anne-Mei The","Anne-Rigt Poortman","Annette Freyberg","Antonie Knigge","Anuschka Peelen","Arie Glebbeek","Arjen de Wit","Arjen Leerkes","Armen Hakhverdian","Arnoud Verhoeff","Ashwin Rambaran","Asya Pisarevskaya","Asya Zhelyazkova","Aysegul Guneyli","Babak Rezaeedaryakenari","Bart Bakker","Bart van Leeuwen","Bas Hofstra","Basak Bilecen","Bastiaan van Apeldoorn","Ben Crum","Benjamin Leidorf","Bert Klandermans","Bertjan Verbeek","Bianca Suanet","Bram Lancee","Bram Peper","Bram Steijn","Brenda Vermeeren","Brian Burgoon","Carl Sterkens","Carla Bakboord","Carlijn Bussemakers","Carlijn Dekker","Carlijn van Baak","Carlos de Matos Fernandes","Carly van Mensvoort","Carola Vasileiadi","Carolien van Ham","Caroline Dewilde","Caroline Graf","Caroline Nevejan","Catharina Fokkema","Chaim la Roi","Chloe Lavest","Chloe Tolmatcheff","Chris Nijhuis","Christian Broer","Christian Fang","Christian Steglich","Christof Nagel","Christof van Mol","Christoph Janietz","Cille Kaiser","Claire van Teunenbroek","Cok Vrooman","Conny Roggeband","Corinna Jentzsch","Cynthia van Vonno","Danelien van Aalst","Daniel DeRock","Daniel Mugge","Daniel Thomas","Danielle Jansen","Daphne van der Pas","Daphne van Helden","Darshan Vigneswaran","David de Kort","Deni Mazrekaj","Dennis Nientimp","Denny van der Vlist","Desiree Verweij","Dieko Bakker","Dieuwke Zwier","Dilara Karaagac","Diliara Valeeva","Dimitris Pavlopoulos","Don Weenink","Dragana Stojmenovska","Duco Bannink","Ece Arat","Eda Kiriscioglu","Eddy Elmer","Eefje Steenvoorden","Eelco Harteveld","Elena Ponzoni","Eleonora Marucci","Elif Keskiner","Elina Jonitz","Elina Zorina","Eline Berkers","Eline Westra","Elissa el Khawli","Elizaveta Sivak","Elize Vis","Ellen Verbakel","Elsje de Vries","Elske van den Hoogen","Emilija Jokubauskaite","Emily Gravesteijn","Emily Kruidhof","Enzo Rossi","Erik Snel","Erik van Ingen","Erik Zeltner","Erika van Elsas","Erwin Gielens","Eva Jaspers","Eva-Maria Merz","Evelyne Baillergeau","Evelyne Karel","Fabian Holle","Fatma Khalil","Femke Roosma","Fenella Fleischmann","Ferry Koster","Fleur Goedkoop","Floris Vermeulen","Franca van Hooren","Franca Witlox","Francesca Giardini","Francesco Marolla","Francesco Ragazzi","Frank de Zwart","Frank van Tubergen","Frans Lelie","Frederique Six","Freek de Haan","Gabriele Jacobs","Gabriele Mari","Gemma Geuke","Georg Lorenz","Gerben Moerman","Gerbert Kraaykamp","Gerlieke Veltkamp","Gert Stulp","Gianna Eick","Gijs Huitsing","Gijs Schumacher","Gil Keppens","Gita Huijgen","Gjalt de Graaf","Glenn Houtgraaf","Godfried Engbersen","Gozde Duran","Gustav Meibauer","Guusje Enneking","Halleh Ghorashi","Han Entzinger","Hanne Stegeman","Hans Boutellier","Haylee Kelsall","Hein de Haas","Helenard Louw","Helga de Valk","Henriette Boersma","Hester Paanakker","Hidde Bekhuis","Hortense Jongen","Idris Guclu","Ids Baalbergen","Ilayda Ozoruc","Ildiko Plajas","Ilya Lavrov","Imke Harbers","Imrat Verhoeven","Ineke Maas","Inge Hendriks","Inge Sieben","Ioana Pop","Isabelle van der Vegt","Ismintha Waldring","Jaap Nieuwenhuis","Jaap van Slageren","Jaco Dagevos","Jacob Dijkstra","Jacquelien van Stekelenburg","Jan Aart Scholte","Jan Kornelis Dijkstra","Jan Willem Duyvendak","Jan-Willem Simons","Janos Betko","Jaron Harambam","Jasa Veselinovic","Jasper Muis","Jelle van Baardewijk","Jens Abbing","Jeroen Bruggeman","Jeroen Doomernik","Jeroen Rodenberg","Jeroen van der Waal","Jess Bier","Jiamin Ou","Jiska Engelbert","Jochem Tolsma","Joey Stofberg","Johan Hiemstra","Jolien Grandia","Jonas Stein","Jonathan Mijs","Joost Berkhout","Joost Oude Groeniger","Joram Pach","Joris Schroder","Jos Slabbekoorn","Jose Nederhand","Joseph van Matre","Josje Schut","Josje ten Kate","Joukje Swinkels","Joyce Pang","Judith de Jong","Judith Koops","Julia Rone","Julian Rengers","Karolina Pomorska","Kasper Otten","Katerina Manevska","Katharina Krusselmann","Katharina Natter","Katharina Stuckradt","Kathleen Brown","Katia Begall","Katie Kuschminder","Katrin Muller","Katya Ivanova","Kay Mars","Kees van Veen","Kevin Wittenberg","Kim Knipprath","Kim Stienstra","Kjell Noordzij","Klara Raiber","Kobe de Keere","Koen Migchelbrink","Kristof Jacobs","Kyohee Kim","Ladan Rahbari","Larissa Bockmann","Lars de Wildt","Laura Cleton","Laura den Dulk","Laura Eberlein","Laura Vonk","Lea Kroner","Leila Demarest","Lex Thijssen","Liesbet Heyse","Liesbet van Zoonen","Lieselotte Blommaert","Linet Durmusoglu","Lisa van der Storm","Liubov Chernysheva","Liza Mugge","Loes Aaldering","Loes Bouman","Lonneke van den Berg","Lore van Praag","Lorraine Nencel","Lotte Schrijver","Luc Fransen","Luuk Mandemakers","Maaike Homan","Maaike Hornstra","Madalina Busuioc","Maikel Meijeren","Malou Grubben","Mansoureh Shojaee","Marcel Hanegraaff","Marcel Lubbers","Marcel van Assen","Marco van Leeuwen","Margaretha Johanna Kersing","Margot Kersing","Margriet van Hek","Maria Charlotte Rast","Maria Schiller","Maria Spirova","Marie Labussiere","Marie Lindegaard","Marie Stadel","Marie Theuwis","Marieke Slootman","Marije Blok","Marijn Knieriem","Marijn Nagtzaam","Marijtje van Duijn","Marina Lazeri","Mariska van der Horst","Marjolein Broese","Mark Huisman","Mark van Ostaijen","Mark Visser","Markus Haverland","Marleen Damman","Marleen Hasselt","Marlies Glasius","Marlou Ramaekers","Martijn Huisman","Martijn van der Steen","Mathijs Kros","Matthijs Kalmijn","Matthijs Rooduijn","Maura Gardeniers","Maurice Crul","Maurice Gesthuizen","Mauricio Garnier Villarreal","Menno Fenger","Merel Serdijn","Merve Biten","Michael Sampson","Michael Savelkoul","Michal Onderco","Mieke Verloo","Miriam Matthiessen","Mohammad Hammoud","Monique Kremer","Montserrat Koloffon Rosas","Muhammad Farooq","Mustafa Firat","Myrto Tourtouri","Nana de Graaff","Naomi Gilhuis","Nardi Steverink","Nasser Mohamedhoesein","Nathalie Aerts","Nebil Kusmallah","Neeraj Prasad","Nele Cannaerts","Nella Geurts","Nick Wuestenenk","Nicolas Blarel","Niels Spierings","Niels van Willigen","Nik Linders","Nikoleta Yordanova","Nodira Kholmatova","Nora Stel","Nora Waitkus","Olav Velthuis","Olga Burlyuk","Olga Sezneva","Ozlem Terzi","Pamala Wiepking","Pascal Koenig","Patrick Overeem","Paul Raekstad","Paul Vermeer","Paula Hoffmann","Paula Vrolijk","Paulina Pankowska","Pearl Dykstra","Peer Scheepers","Peer Smets","Petar Marceta","Peter Achterberg","Peter Scholten","Petr Kopecky","Petra de Jong","Philip Karre","Philip Schleifer","Philipp Lutz","Philipp Pattberg","Philipp Schneider","Pieter Wagenaar","Pinar Sefkatli","Puck Overhaart","Quita Muis","Rachel Kollar","Rafael Wittek","Rebecca Franco","Rebekka Kesberg","Reinout van der Veer","Remco Hoekman","Renae Loh","Renate Wit","Rene Bekkers","Rene Veenstra","Rense Corten","Renske Keizer","Rianne Warsen","Rie Bosman","Rob Eisinga","Rob Franken","Robin Bouwman","Roderik Rekker","Rogier van Reekum","Rojika Maharjan","Ronald Batenburg","Roos van der Haer","Rosa Kindt","Rowan ten Kate","Roxy Damen","Roza Meuleman","Ruben van de Ven","Ruben van Gaalen","Rudy Andeweg","Rutger Blom","Ruud Luijkx","Saartje Tack","Samantha Metselaar","Samira Azabar","Samira Chatila","Samuel Ornstein","Sandra van Thiel","Sanjana Singh","Sanne Kellij","Sanne van Oosten","Santiago Gomez Echeverry","Sara Geven","Sara Hogye","Sara Wiertsema","Sarah Bracke","Sarah de Lange","Sarah Poss","Sarah Sramota","Sarah van Duijn","Saskia Bonjour","Saskia Glas","Saskia Keuzenkamp","Saskia Ruth","Sawitri Saharso","Serena Does","Siegnella Concincion","Siegwart Lindenberg","Silvia Klokgieters","Simon Otjes","Simon Venema","Simone Schneider","Sofie Lorijn","Sofie van der Maarel","Sofie Wiersma","Stef Bouwhuis","Stefan Manser","Stefano Merlo","Stephanie Steinmetz","Stijn Ruiter","Tali Spiegel","Tanja van der Lippe","Tanzhe Tang","Tara Fiorito","Teun Eikenaar","Theo van Tilburg","Thijmen Jeroense","Thijs Bol","Thijs de Boer","Thijs Lindner","Thijs Vos","Thomas Feliciani","Thomas Jocker","Thomas Swerts","Thomas Teekens","Tibor Zingora","Tijmen Weber","Tijs Laenen","Till Hovestadt","Tim Mickler","Tim Reeskens","Tim van Meurs","Timo Korstenbroek","Tine Molendijk","Tineke Fokkema","Tobias Cinjee","Tom Emery","Tom Louwerse","Tom Snijders","Tom Theuns","Tom van der Meer","Tomas Cirhan","Toon Kuppens","Trineke Palm","Twan Huijsmans","Ursula Daxecker","Valentina Carraro","Vardan Barsegyan","Vasiliki Tsagkroni","Vera de Bel","Victor Bekkers","Victor Hartman","Vincent Buskens","Vincent Homburg","Vincenz Frey","Violet Benneker","Vivien Butot","Werner Raub","Wike Been","Willem de Koster","Willem Schinkel","Willemijn Verkoren","Wojtek Przepiorka","Wolfgang Wagner","Wouter Kiekens","Wouter van der Brug","Wouter Veenendaal","Wybren Nooitgedagt","Xiao Xu","Xingna Qin","Yarin Eski","Ying Shen","Younes Younes","Zahra Runderkamp","Zakia Essanhaji","Zhe Dong","Zoltan Lippenyi"],"title":["<b>Abbey Steele<\/b><br>University: uva<br>Gender: female","<b>Agnieszka Kanas<\/b><br>University: uva<br>Gender: female","<b>Aleksandra Khokhlova<\/b><br>University: ul<br>Gender: female","<b>Alessia Aspide<\/b><br>University: ul<br>Gender: female","<b>Alexandra Ciausescu<\/b><br>University: vu<br>Gender: female","<b>Alice de Boer<\/b><br>University: vu<br>Gender: female","<b>Alissa van Zijl<\/b><br>University: eur<br>Gender: female","<b>Alla Loseva<\/b><br>University: uvg<br>Gender: female","<b>Amber Vellinga<\/b><br>University: uvg<br>Gender: female","<b>Amina op de Weegh<\/b><br>University: uu<br>Gender: female","<b>Amy Nivette<\/b><br>University: uu<br>Gender: female","<b>Ana Macanovic<\/b><br>University: uu<br>Gender: female","<b>Ana Maria Torres Chedraui<\/b><br>University: eur<br>Gender: female","<b>Anastasia Ershova<\/b><br>University: ul<br>Gender: female","<b>Andrea Forster<\/b><br>University: uu<br>Gender: female","<b>Andreas Flache<\/b><br>University: uvg<br>Gender: male","<b>Andrej Zaslove<\/b><br>University: ru<br>Gender: male","<b>Anja van Heelsum<\/b><br>University: uva<br>Gender: female","<b>Anna Keuchenius<\/b><br>University: uva<br>Gender: female","<b>Anna van der Vleuten<\/b><br>University: ru<br>Gender: female","<b>Anne Brons<\/b><br>University: uu<br>Gender: female","<b>Anne Gauthier<\/b><br>University: uvg<br>Gender: female","<b>Anne Kuschel<\/b><br>University: uvg<br>Gender: female","<b>Anne Maaike Mulders<\/b><br>University: ru<br>Gender: female","<b>Anne van der Put<\/b><br>University: uu<br>Gender: female","<b>Anne-Mei The<\/b><br>University: vu<br>Gender: female","<b>Anne-Rigt Poortman<\/b><br>University: uu<br>Gender: female","<b>Annette Freyberg<\/b><br>University: uva<br>Gender: female","<b>Antonie Knigge<\/b><br>University: uu<br>Gender: male","<b>Anuschka Peelen<\/b><br>University: ru<br>Gender: female","<b>Arie Glebbeek<\/b><br>University: uvg<br>Gender: male","<b>Arjen de Wit<\/b><br>University: vu<br>Gender: male","<b>Arjen Leerkes<\/b><br>University: eur<br>Gender: male","<b>Armen Hakhverdian<\/b><br>University: uva<br>Gender: male","<b>Arnoud Verhoeff<\/b><br>University: uva<br>Gender: male","<b>Ashwin Rambaran<\/b><br>University: ru<br>Gender: male","<b>Asya Pisarevskaya<\/b><br>University: eur<br>Gender: female","<b>Asya Zhelyazkova<\/b><br>University: eur<br>Gender: female","<b>Aysegul Guneyli<\/b><br>University: ru<br>Gender: female","<b>Babak Rezaeedaryakenari<\/b><br>University: ul<br>Gender: male","<b>Bart Bakker<\/b><br>University: vu<br>Gender: male","<b>Bart van Leeuwen<\/b><br>University: ru<br>Gender: male","<b>Bas Hofstra<\/b><br>University: ru<br>Gender: male","<b>Basak Bilecen<\/b><br>University: uvg<br>Gender: female","<b>Bastiaan van Apeldoorn<\/b><br>University: vu<br>Gender: male","<b>Ben Crum<\/b><br>University: vu<br>Gender: male","<b>Benjamin Leidorf<\/b><br>University: vu<br>Gender: male","<b>Bert Klandermans<\/b><br>University: vu<br>Gender: male","<b>Bertjan Verbeek<\/b><br>University: ru<br>Gender: male","<b>Bianca Suanet<\/b><br>University: vu<br>Gender: female","<b>Bram Lancee<\/b><br>University: uva<br>Gender: male","<b>Bram Peper<\/b><br>University: uvt<br>Gender: male","<b>Bram Steijn<\/b><br>University: eur<br>Gender: male","<b>Brenda Vermeeren<\/b><br>University: eur<br>Gender: female","<b>Brian Burgoon<\/b><br>University: uva<br>Gender: male","<b>Carl Sterkens<\/b><br>University: ru<br>Gender: male","<b>Carla Bakboord<\/b><br>University: vu<br>Gender: female","<b>Carlijn Bussemakers<\/b><br>University: ru<br>Gender: female","<b>Carlijn Dekker<\/b><br>University: vu<br>Gender: female","<b>Carlijn van Baak<\/b><br>University: uva<br>Gender: female","<b>Carlos de Matos Fernandes<\/b><br>University: uvg<br>Gender: male","<b>Carly van Mensvoort<\/b><br>University: ru<br>Gender: female","<b>Carola Vasileiadi<\/b><br>University: eur<br>Gender: female","<b>Carolien van Ham<\/b><br>University: ru<br>Gender: female","<b>Caroline Dewilde<\/b><br>University: uvt<br>Gender: female","<b>Caroline Graf<\/b><br>University: vu<br>Gender: female","<b>Caroline Nevejan<\/b><br>University: uva<br>Gender: female","<b>Catharina Fokkema<\/b><br>University: eur<br>Gender: female","<b>Chaim la Roi<\/b><br>University: uvg<br>Gender: male","<b>Chloe Lavest<\/b><br>University: uu<br>Gender: female","<b>Chloe Tolmatcheff<\/b><br>University: uvg<br>Gender: female","<b>Chris Nijhuis<\/b><br>University: ru<br>Gender: male","<b>Christian Broer<\/b><br>University: uva<br>Gender: male","<b>Christian Fang<\/b><br>University: uu<br>Gender: male","<b>Christian Steglich<\/b><br>University: uvg<br>Gender: male","<b>Christof Nagel<\/b><br>University: uu<br>Gender: male","<b>Christof van Mol<\/b><br>University: uvt<br>Gender: male","<b>Christoph Janietz<\/b><br>University: uva<br>Gender: male","<b>Cille Kaiser<\/b><br>University: vu<br>Gender: female","<b>Claire van Teunenbroek<\/b><br>University: vu<br>Gender: female","<b>Cok Vrooman<\/b><br>University: uu<br>Gender: male","<b>Conny Roggeband<\/b><br>University: uva<br>Gender: female","<b>Corinna Jentzsch<\/b><br>University: ul<br>Gender: female","<b>Cynthia van Vonno<\/b><br>University: ul<br>Gender: female","<b>Danelien van Aalst<\/b><br>University: uvg<br>Gender: female","<b>Daniel DeRock<\/b><br>University: ru<br>Gender: male","<b>Daniel Mugge<\/b><br>University: uva<br>Gender: male","<b>Daniel Thomas<\/b><br>University: ul<br>Gender: male","<b>Danielle Jansen<\/b><br>University: uvg<br>Gender: female","<b>Daphne van der Pas<\/b><br>University: uva<br>Gender: female","<b>Daphne van Helden<\/b><br>University: eur<br>Gender: female","<b>Darshan Vigneswaran<\/b><br>University: uva<br>Gender: male","<b>David de Kort<\/b><br>University: uu<br>Gender: male","<b>Deni Mazrekaj<\/b><br>University: uu<br>Gender: male","<b>Dennis Nientimp<\/b><br>University: uvg<br>Gender: male","<b>Denny van der Vlist<\/b><br>University: ul<br>Gender: male","<b>Desiree Verweij<\/b><br>University: ru<br>Gender: female","<b>Dieko Bakker<\/b><br>University: uvg<br>Gender: male","<b>Dieuwke Zwier<\/b><br>University: uva<br>Gender: female","<b>Dilara Karaagac<\/b><br>University: uvg<br>Gender: female","<b>Diliara Valeeva<\/b><br>University: uva<br>Gender: female","<b>Dimitris Pavlopoulos<\/b><br>University: vu<br>Gender: male","<b>Don Weenink<\/b><br>University: uva<br>Gender: male","<b>Dragana Stojmenovska<\/b><br>University: uva<br>Gender: female","<b>Duco Bannink<\/b><br>University: vu<br>Gender: male","<b>Ece Arat<\/b><br>University: uu<br>Gender: female","<b>Eda Kiriscioglu<\/b><br>University: uva<br>Gender: female","<b>Eddy Elmer<\/b><br>University: vu<br>Gender: male","<b>Eefje Steenvoorden<\/b><br>University: uva<br>Gender: female","<b>Eelco Harteveld<\/b><br>University: uva<br>Gender: male","<b>Elena Ponzoni<\/b><br>University: vu<br>Gender: female","<b>Eleonora Marucci<\/b><br>University: uvg<br>Gender: female","<b>Elif Keskiner<\/b><br>University: vu<br>Gender: female","<b>Elina Jonitz<\/b><br>University: eur<br>Gender: female","<b>Elina Zorina<\/b><br>University: ul<br>Gender: female","<b>Eline Berkers<\/b><br>University: uvt<br>Gender: female","<b>Eline Westra<\/b><br>University: uva<br>Gender: female","<b>Elissa el Khawli<\/b><br>University: ru<br>Gender: female","<b>Elizaveta Sivak<\/b><br>University: uvg<br>Gender: female","<b>Elize Vis<\/b><br>University: ru<br>Gender: female","<b>Ellen Verbakel<\/b><br>University: ru<br>Gender: female","<b>Elsje de Vries<\/b><br>University: uvg<br>Gender: female","<b>Elske van den Hoogen<\/b><br>University: eur<br>Gender: female","<b>Emilija Jokubauskaite<\/b><br>University: uva<br>Gender: female","<b>Emily Gravesteijn<\/b><br>University: ru<br>Gender: female","<b>Emily Kruidhof<\/b><br>University: uu<br>Gender: female","<b>Enzo Rossi<\/b><br>University: uva<br>Gender: male","<b>Erik Snel<\/b><br>University: eur<br>Gender: male","<b>Erik van Ingen<\/b><br>University: vu<br>Gender: male","<b>Erik Zeltner<\/b><br>University: uvt<br>Gender: male","<b>Erika van Elsas<\/b><br>University: ru<br>Gender: female","<b>Erwin Gielens<\/b><br>University: uvt<br>Gender: male","<b>Eva Jaspers<\/b><br>University: uu<br>Gender: female","<b>Eva-Maria Merz<\/b><br>University: vu<br>Gender: female","<b>Evelyne Baillergeau<\/b><br>University: uva<br>Gender: female","<b>Evelyne Karel<\/b><br>University: uvt<br>Gender: female","<b>Fabian Holle<\/b><br>University: vu<br>Gender: male","<b>Fatma Khalil<\/b><br>University: vu<br>Gender: female","<b>Femke Roosma<\/b><br>University: uvt<br>Gender: female","<b>Fenella Fleischmann<\/b><br>University: uva<br>Gender: female","<b>Ferry Koster<\/b><br>University: eur<br>Gender: male","<b>Fleur Goedkoop<\/b><br>University: uvg<br>Gender: female","<b>Floris Vermeulen<\/b><br>University: uva<br>Gender: male","<b>Franca van Hooren<\/b><br>University: uva<br>Gender: female","<b>Franca Witlox<\/b><br>University: uvt<br>Gender: female","<b>Francesca Giardini<\/b><br>University: uvg<br>Gender: female","<b>Francesco Marolla<\/b><br>University: uvt<br>Gender: male","<b>Francesco Ragazzi<\/b><br>University: ul<br>Gender: male","<b>Frank de Zwart<\/b><br>University: ul<br>Gender: male","<b>Frank van Tubergen<\/b><br>University: uu<br>Gender: male","<b>Frans Lelie<\/b><br>University: vu<br>Gender: male","<b>Frederique Six<\/b><br>University: vu<br>Gender: female","<b>Freek de Haan<\/b><br>University: eur<br>Gender: male","<b>Gabriele Jacobs<\/b><br>University: eur<br>Gender: female","<b>Gabriele Mari<\/b><br>University: eur<br>Gender: female","<b>Gemma Geuke<\/b><br>University: uu<br>Gender: female","<b>Georg Lorenz<\/b><br>University: uu<br>Gender: male","<b>Gerben Moerman<\/b><br>University: uva<br>Gender: male","<b>Gerbert Kraaykamp<\/b><br>University: ru<br>Gender: male","<b>Gerlieke Veltkamp<\/b><br>University: uva<br>Gender: female","<b>Gert Stulp<\/b><br>University: uvg<br>Gender: male","<b>Gianna Eick<\/b><br>University: uva<br>Gender: female","<b>Gijs Huitsing<\/b><br>University: uvg<br>Gender: male","<b>Gijs Schumacher<\/b><br>University: uva<br>Gender: male","<b>Gil Keppens<\/b><br>University: uvt<br>Gender: male","<b>Gita Huijgen<\/b><br>University: eur<br>Gender: female","<b>Gjalt de Graaf<\/b><br>University: vu<br>Gender: male","<b>Glenn Houtgraaf<\/b><br>University: eur<br>Gender: male","<b>Godfried Engbersen<\/b><br>University: eur<br>Gender: male","<b>Gozde Duran<\/b><br>University: vu<br>Gender: female","<b>Gustav Meibauer<\/b><br>University: ru<br>Gender: male","<b>Guusje Enneking<\/b><br>University: eur<br>Gender: female","<b>Halleh Ghorashi<\/b><br>University: vu<br>Gender: female","<b>Han Entzinger<\/b><br>University: eur<br>Gender: male","<b>Hanne Stegeman<\/b><br>University: uva<br>Gender: female","<b>Hans Boutellier<\/b><br>University: vu<br>Gender: male","<b>Haylee Kelsall<\/b><br>University: uva<br>Gender: female","<b>Hein de Haas<\/b><br>University: uva<br>Gender: male","<b>Helenard Louw<\/b><br>University: vu<br>Gender: male","<b>Helga de Valk<\/b><br>University: uvg<br>Gender: female","<b>Henriette Boersma<\/b><br>University: vu<br>Gender: female","<b>Hester Paanakker<\/b><br>University: vu<br>Gender: female","<b>Hidde Bekhuis<\/b><br>University: ru<br>Gender: male","<b>Hortense Jongen<\/b><br>University: vu<br>Gender: female","<b>Idris Guclu<\/b><br>University: uu<br>Gender: male","<b>Ids Baalbergen<\/b><br>University: eur<br>Gender: male","<b>Ilayda Ozoruc<\/b><br>University: uvt<br>Gender: female","<b>Ildiko Plajas<\/b><br>University: ul<br>Gender: female","<b>Ilya Lavrov<\/b><br>University: uvg<br>Gender: male","<b>Imke Harbers<\/b><br>University: uva<br>Gender: female","<b>Imrat Verhoeven<\/b><br>University: uva<br>Gender: male","<b>Ineke Maas<\/b><br>University: uu<br>Gender: female","<b>Inge Hendriks<\/b><br>University: ru<br>Gender: female","<b>Inge Sieben<\/b><br>University: uvt<br>Gender: female","<b>Ioana Pop<\/b><br>University: uvt<br>Gender: female","<b>Isabelle van der Vegt<\/b><br>University: uu<br>Gender: female","<b>Ismintha Waldring<\/b><br>University: vu<br>Gender: female","<b>Jaap Nieuwenhuis<\/b><br>University: uvg<br>Gender: male","<b>Jaap van Slageren<\/b><br>University: uva<br>Gender: male","<b>Jaco Dagevos<\/b><br>University: eur<br>Gender: male","<b>Jacob Dijkstra<\/b><br>University: uvg<br>Gender: male","<b>Jacquelien van Stekelenburg<\/b><br>University: vu<br>Gender: female","<b>Jan Aart Scholte<\/b><br>University: ul<br>Gender: male","<b>Jan Kornelis Dijkstra<\/b><br>University: uvg<br>Gender: male","<b>Jan Willem Duyvendak<\/b><br>University: uva<br>Gender: male","<b>Jan-Willem Simons<\/b><br>University: uu<br>Gender: male","<b>Janos Betko<\/b><br>University: ru<br>Gender: male","<b>Jaron Harambam<\/b><br>University: uva<br>Gender: male","<b>Jasa Veselinovic<\/b><br>University: vu<br>Gender: female","<b>Jasper Muis<\/b><br>University: vu<br>Gender: male","<b>Jelle van Baardewijk<\/b><br>University: vu<br>Gender: male","<b>Jens Abbing<\/b><br>University: vu<br>Gender: male","<b>Jeroen Bruggeman<\/b><br>University: uva<br>Gender: male","<b>Jeroen Doomernik<\/b><br>University: uva<br>Gender: male","<b>Jeroen Rodenberg<\/b><br>University: vu<br>Gender: male","<b>Jeroen van der Waal<\/b><br>University: eur<br>Gender: male","<b>Jess Bier<\/b><br>University: eur<br>Gender: female","<b>Jiamin Ou<\/b><br>University: uu<br>Gender: female","<b>Jiska Engelbert<\/b><br>University: eur<br>Gender: female","<b>Jochem Tolsma<\/b><br>University: ru<br>Gender: male","<b>Joey Stofberg<\/b><br>University: vu<br>Gender: male","<b>Johan Hiemstra<\/b><br>University: uvg<br>Gender: male","<b>Jolien Grandia<\/b><br>University: eur<br>Gender: female","<b>Jonas Stein<\/b><br>University: uvg<br>Gender: male","<b>Jonathan Mijs<\/b><br>University: eur<br>Gender: male","<b>Joost Berkhout<\/b><br>University: uva<br>Gender: male","<b>Joost Oude Groeniger<\/b><br>University: eur<br>Gender: male","<b>Joram Pach<\/b><br>University: vu<br>Gender: male","<b>Joris Schroder<\/b><br>University: vu<br>Gender: male","<b>Jos Slabbekoorn<\/b><br>University: uu<br>Gender: male","<b>Jose Nederhand<\/b><br>University: eur<br>Gender: female","<b>Joseph van Matre<\/b><br>University: vu<br>Gender: male","<b>Josje Schut<\/b><br>University: vu<br>Gender: female","<b>Josje ten Kate<\/b><br>University: eur<br>Gender: female","<b>Joukje Swinkels<\/b><br>University: vu<br>Gender: female","<b>Joyce Pang<\/b><br>University: uu<br>Gender: female","<b>Judith de Jong<\/b><br>University: uva<br>Gender: female","<b>Judith Koops<\/b><br>University: ru<br>Gender: female","<b>Julia Rone<\/b><br>University: vu<br>Gender: female","<b>Julian Rengers<\/b><br>University: uvg<br>Gender: male","<b>Karolina Pomorska<\/b><br>University: ul<br>Gender: female","<b>Kasper Otten<\/b><br>University: uu<br>Gender: male","<b>Katerina Manevska<\/b><br>University: ru<br>Gender: female","<b>Katharina Krusselmann<\/b><br>University: eur<br>Gender: female","<b>Katharina Natter<\/b><br>University: ul<br>Gender: female","<b>Katharina Stuckradt<\/b><br>University: uva<br>Gender: female","<b>Kathleen Brown<\/b><br>University: ul<br>Gender: female","<b>Katia Begall<\/b><br>University: ru<br>Gender: female","<b>Katie Kuschminder<\/b><br>University: uva<br>Gender: female","<b>Katrin Muller<\/b><br>University: ru<br>Gender: female","<b>Katya Ivanova<\/b><br>University: uvt<br>Gender: female","<b>Kay Mars<\/b><br>University: vu<br>Gender: male","<b>Kees van Veen<\/b><br>University: uvg<br>Gender: male","<b>Kevin Wittenberg<\/b><br>University: uu<br>Gender: male","<b>Kim Knipprath<\/b><br>University: vu<br>Gender: female","<b>Kim Stienstra<\/b><br>University: uu<br>Gender: female","<b>Kjell Noordzij<\/b><br>University: eur<br>Gender: male","<b>Klara Raiber<\/b><br>University: ru<br>Gender: female","<b>Kobe de Keere<\/b><br>University: uva<br>Gender: male","<b>Koen Migchelbrink<\/b><br>University: eur<br>Gender: male","<b>Kristof Jacobs<\/b><br>University: ru<br>Gender: male","<b>Kyohee Kim<\/b><br>University: vu<br>Gender: male","<b>Ladan Rahbari<\/b><br>University: uva<br>Gender: female","<b>Larissa Bockmann<\/b><br>University: uva<br>Gender: female","<b>Lars de Wildt<\/b><br>University: uvg<br>Gender: male","<b>Laura Cleton<\/b><br>University: eur<br>Gender: female","<b>Laura den Dulk<\/b><br>University: eur<br>Gender: female","<b>Laura Eberlein<\/b><br>University: vu<br>Gender: female","<b>Laura Vonk<\/b><br>University: uva<br>Gender: female","<b>Lea Kroner<\/b><br>University: uu<br>Gender: female","<b>Leila Demarest<\/b><br>University: ul<br>Gender: female","<b>Lex Thijssen<\/b><br>University: ru<br>Gender: male","<b>Liesbet Heyse<\/b><br>University: uvg<br>Gender: female","<b>Liesbet van Zoonen<\/b><br>University: eur<br>Gender: female","<b>Lieselotte Blommaert<\/b><br>University: ru<br>Gender: female","<b>Linet Durmusoglu<\/b><br>University: uva<br>Gender: female","<b>Lisa van der Storm<\/b><br>University: eur<br>Gender: female","<b>Liubov Chernysheva<\/b><br>University: uva<br>Gender: female","<b>Liza Mugge<\/b><br>University: uva<br>Gender: female","<b>Loes Aaldering<\/b><br>University: vu<br>Gender: female","<b>Loes Bouman<\/b><br>University: uvg<br>Gender: female","<b>Lonneke van den Berg<\/b><br>University: ru<br>Gender: female","<b>Lore van Praag<\/b><br>University: eur<br>Gender: female","<b>Lorraine Nencel<\/b><br>University: vu<br>Gender: female","<b>Lotte Schrijver<\/b><br>University: eur<br>Gender: female","<b>Luc Fransen<\/b><br>University: uva<br>Gender: male","<b>Luuk Mandemakers<\/b><br>University: uu<br>Gender: male","<b>Maaike Homan<\/b><br>University: uva<br>Gender: female","<b>Maaike Hornstra<\/b><br>University: eur<br>Gender: female","<b>Madalina Busuioc<\/b><br>University: vu<br>Gender: female","<b>Maikel Meijeren<\/b><br>University: ru<br>Gender: male","<b>Malou Grubben<\/b><br>University: ru<br>Gender: female","<b>Mansoureh Shojaee<\/b><br>University: vu<br>Gender: female","<b>Marcel Hanegraaff<\/b><br>University: uva<br>Gender: male","<b>Marcel Lubbers<\/b><br>University: uvg<br>Gender: male","<b>Marcel van Assen<\/b><br>University: uu<br>Gender: male","<b>Marco van Leeuwen<\/b><br>University: uu<br>Gender: male","<b>Margaretha Johanna Kersing<\/b><br>University: vu<br>Gender: female","<b>Margot Kersing<\/b><br>University: eur<br>Gender: female","<b>Margriet van Hek<\/b><br>University: ru<br>Gender: female","<b>Maria Charlotte Rast<\/b><br>University: vu<br>Gender: female","<b>Maria Schiller<\/b><br>University: eur<br>Gender: female","<b>Maria Spirova<\/b><br>University: ul<br>Gender: female","<b>Marie Labussiere<\/b><br>University: uva<br>Gender: female","<b>Marie Lindegaard<\/b><br>University: vu<br>Gender: female","<b>Marie Stadel<\/b><br>University: uvg<br>Gender: female","<b>Marie Theuwis<\/b><br>University: ru<br>Gender: female","<b>Marieke Slootman<\/b><br>University: vu<br>Gender: female","<b>Marije Blok<\/b><br>University: vu<br>Gender: female","<b>Marijn Knieriem<\/b><br>University: ru<br>Gender: male","<b>Marijn Nagtzaam<\/b><br>University: ul<br>Gender: male","<b>Marijtje van Duijn<\/b><br>University: uvg<br>Gender: female","<b>Marina Lazeri<\/b><br>University: vu<br>Gender: female","<b>Mariska van der Horst<\/b><br>University: vu<br>Gender: female","<b>Marjolein Broese<\/b><br>University: vu<br>Gender: female","<b>Mark Huisman<\/b><br>University: uvg<br>Gender: male","<b>Mark van Ostaijen<\/b><br>University: eur<br>Gender: male","<b>Mark Visser<\/b><br>University: ru<br>Gender: male","<b>Markus Haverland<\/b><br>University: eur<br>Gender: male","<b>Marleen Damman<\/b><br>University: uu<br>Gender: female","<b>Marleen Hasselt<\/b><br>University: ru<br>Gender: female","<b>Marlies Glasius<\/b><br>University: uva<br>Gender: female","<b>Marlou Ramaekers<\/b><br>University: ru<br>Gender: female","<b>Martijn Huisman<\/b><br>University: vu<br>Gender: male","<b>Martijn van der Steen<\/b><br>University: eur<br>Gender: male","<b>Mathijs Kros<\/b><br>University: uu<br>Gender: male","<b>Matthijs Kalmijn<\/b><br>University: uvg<br>Gender: male","<b>Matthijs Rooduijn<\/b><br>University: uva<br>Gender: male","<b>Maura Gardeniers<\/b><br>University: vu<br>Gender: female","<b>Maurice Crul<\/b><br>University: vu<br>Gender: male","<b>Maurice Gesthuizen<\/b><br>University: ru<br>Gender: male","<b>Mauricio Garnier Villarreal<\/b><br>University: vu<br>Gender: male","<b>Menno Fenger<\/b><br>University: eur<br>Gender: male","<b>Merel Serdijn<\/b><br>University: uva<br>Gender: female","<b>Merve Biten<\/b><br>University: uva<br>Gender: female","<b>Michael Sampson<\/b><br>University: ul<br>Gender: male","<b>Michael Savelkoul<\/b><br>University: ru<br>Gender: male","<b>Michal Onderco<\/b><br>University: eur<br>Gender: female","<b>Mieke Verloo<\/b><br>University: ru<br>Gender: female","<b>Miriam Matthiessen<\/b><br>University: eur<br>Gender: female","<b>Mohammad Hammoud<\/b><br>University: vu<br>Gender: male","<b>Monique Kremer<\/b><br>University: uva<br>Gender: female","<b>Montserrat Koloffon Rosas<\/b><br>University: vu<br>Gender: female","<b>Muhammad Farooq<\/b><br>University: vu<br>Gender: male","<b>Mustafa Firat<\/b><br>University: ru<br>Gender: male","<b>Myrto Tourtouri<\/b><br>University: vu<br>Gender: male","<b>Nana de Graaff<\/b><br>University: vu<br>Gender: female","<b>Naomi Gilhuis<\/b><br>University: ru<br>Gender: female","<b>Nardi Steverink<\/b><br>University: uvg<br>Gender: female","<b>Nasser Mohamedhoesein<\/b><br>University: vu<br>Gender: male","<b>Nathalie Aerts<\/b><br>University: uva<br>Gender: female","<b>Nebil Kusmallah<\/b><br>University: vu<br>Gender: male","<b>Neeraj Prasad<\/b><br>University: uva<br>Gender: male","<b>Nele Cannaerts<\/b><br>University: eur<br>Gender: female","<b>Nella Geurts<\/b><br>University: ru<br>Gender: female","<b>Nick Wuestenenk<\/b><br>University: uu<br>Gender: male","<b>Nicolas Blarel<\/b><br>University: ul<br>Gender: male","<b>Niels Spierings<\/b><br>University: ru<br>Gender: male","<b>Niels van Willigen<\/b><br>University: ul<br>Gender: male","<b>Nik Linders<\/b><br>University: ru<br>Gender: male","<b>Nikoleta Yordanova<\/b><br>University: ul<br>Gender: female","<b>Nodira Kholmatova<\/b><br>University: uva<br>Gender: female","<b>Nora Stel<\/b><br>University: ru<br>Gender: female","<b>Nora Waitkus<\/b><br>University: uvt<br>Gender: female","<b>Olav Velthuis<\/b><br>University: uva<br>Gender: male","<b>Olga Burlyuk<\/b><br>University: uva<br>Gender: female","<b>Olga Sezneva<\/b><br>University: uva<br>Gender: female","<b>Ozlem Terzi<\/b><br>University: vu<br>Gender: female","<b>Pamala Wiepking<\/b><br>University: vu<br>Gender: female","<b>Pascal Koenig<\/b><br>University: vu<br>Gender: male","<b>Patrick Overeem<\/b><br>University: vu<br>Gender: male","<b>Paul Raekstad<\/b><br>University: uva<br>Gender: male","<b>Paul Vermeer<\/b><br>University: ru<br>Gender: male","<b>Paula Hoffmann<\/b><br>University: uu<br>Gender: female","<b>Paula Vrolijk<\/b><br>University: eur<br>Gender: female","<b>Paulina Pankowska<\/b><br>University: uu<br>Gender: female","<b>Pearl Dykstra<\/b><br>University: eur<br>Gender: female","<b>Peer Scheepers<\/b><br>University: ru<br>Gender: male","<b>Peer Smets<\/b><br>University: vu<br>Gender: male","<b>Petar Marceta<\/b><br>University: uvt<br>Gender: male","<b>Peter Achterberg<\/b><br>University: uvt<br>Gender: male","<b>Peter Scholten<\/b><br>University: eur<br>Gender: male","<b>Petr Kopecky<\/b><br>University: ul<br>Gender: male","<b>Petra de Jong<\/b><br>University: eur<br>Gender: female","<b>Philip Karre<\/b><br>University: eur<br>Gender: male","<b>Philip Schleifer<\/b><br>University: uva<br>Gender: male","<b>Philipp Lutz<\/b><br>University: vu<br>Gender: male","<b>Philipp Pattberg<\/b><br>University: vu<br>Gender: male","<b>Philipp Schneider<\/b><br>University: uu<br>Gender: male","<b>Pieter Wagenaar<\/b><br>University: vu<br>Gender: male","<b>Pinar Sefkatli<\/b><br>University: uva<br>Gender: female","<b>Puck Overhaart<\/b><br>University: ru<br>Gender: female","<b>Quita Muis<\/b><br>University: uvt<br>Gender: female","<b>Rachel Kollar<\/b><br>University: ru<br>Gender: female","<b>Rafael Wittek<\/b><br>University: uvg<br>Gender: male","<b>Rebecca Franco<\/b><br>University: uva<br>Gender: female","<b>Rebekka Kesberg<\/b><br>University: uva<br>Gender: female","<b>Reinout van der Veer<\/b><br>University: ru<br>Gender: male","<b>Remco Hoekman<\/b><br>University: ru<br>Gender: male","<b>Renae Loh<\/b><br>University: ru<br>Gender: female","<b>Renate Wit<\/b><br>University: ru<br>Gender: female","<b>Rene Bekkers<\/b><br>University: vu<br>Gender: male","<b>Rene Veenstra<\/b><br>University: uvg<br>Gender: male","<b>Rense Corten<\/b><br>University: uu<br>Gender: male","<b>Renske Keizer<\/b><br>University: eur<br>Gender: female","<b>Rianne Warsen<\/b><br>University: eur<br>Gender: female","<b>Rie Bosman<\/b><br>University: uvg<br>Gender: female","<b>Rob Eisinga<\/b><br>University: ru<br>Gender: male","<b>Rob Franken<\/b><br>University: ru<br>Gender: male","<b>Robin Bouwman<\/b><br>University: eur<br>Gender: male","<b>Roderik Rekker<\/b><br>University: uva<br>Gender: male","<b>Rogier van Reekum<\/b><br>University: eur<br>Gender: male","<b>Rojika Maharjan<\/b><br>University: uva<br>Gender: female","<b>Ronald Batenburg<\/b><br>University: ru<br>Gender: male","<b>Roos van der Haer<\/b><br>University: ul<br>Gender: female","<b>Rosa Kindt<\/b><br>University: ru<br>Gender: female","<b>Rowan ten Kate<\/b><br>University: uvg<br>Gender: male","<b>Roxy Damen<\/b><br>University: eur<br>Gender: female","<b>Roza Meuleman<\/b><br>University: ru<br>Gender: female","<b>Ruben van de Ven<\/b><br>University: ul<br>Gender: male","<b>Ruben van Gaalen<\/b><br>University: uva<br>Gender: male","<b>Rudy Andeweg<\/b><br>University: ul<br>Gender: male","<b>Rutger Blom<\/b><br>University: uu<br>Gender: male","<b>Ruud Luijkx<\/b><br>University: uvt<br>Gender: male","<b>Saartje Tack<\/b><br>University: vu<br>Gender: female","<b>Samantha Metselaar<\/b><br>University: eur<br>Gender: female","<b>Samira Azabar<\/b><br>University: ru<br>Gender: female","<b>Samira Chatila<\/b><br>University: vu<br>Gender: female","<b>Samuel Ornstein<\/b><br>University: vu<br>Gender: male","<b>Sandra van Thiel<\/b><br>University: eur<br>Gender: female","<b>Sanjana Singh<\/b><br>University: uu<br>Gender: female","<b>Sanne Kellij<\/b><br>University: uvg<br>Gender: female","<b>Sanne van Oosten<\/b><br>University: uva<br>Gender: female","<b>Santiago Gomez Echeverry<\/b><br>University: vu<br>Gender: male","<b>Sara Geven<\/b><br>University: uva<br>Gender: female","<b>Sara Hogye<\/b><br>University: eur<br>Gender: female","<b>Sara Wiertsema<\/b><br>University: ru<br>Gender: female","<b>Sarah Bracke<\/b><br>University: uva<br>Gender: female","<b>Sarah de Lange<\/b><br>University: uva<br>Gender: female","<b>Sarah Poss<\/b><br>University: vu<br>Gender: female","<b>Sarah Sramota<\/b><br>University: vu<br>Gender: female","<b>Sarah van Duijn<\/b><br>University: vu<br>Gender: female","<b>Saskia Bonjour<\/b><br>University: uva<br>Gender: female","<b>Saskia Glas<\/b><br>University: ru<br>Gender: female","<b>Saskia Keuzenkamp<\/b><br>University: vu<br>Gender: female","<b>Saskia Ruth<\/b><br>University: ru<br>Gender: female","<b>Sawitri Saharso<\/b><br>University: vu<br>Gender: female","<b>Serena Does<\/b><br>University: vu<br>Gender: female","<b>Siegnella Concincion<\/b><br>University: uva<br>Gender: female","<b>Siegwart Lindenberg<\/b><br>University: uvg<br>Gender: male","<b>Silvia Klokgieters<\/b><br>University: vu<br>Gender: female","<b>Simon Otjes<\/b><br>University: ul<br>Gender: male","<b>Simon Venema<\/b><br>University: uvg<br>Gender: male","<b>Simone Schneider<\/b><br>University: uva<br>Gender: female","<b>Sofie Lorijn<\/b><br>University: uvg<br>Gender: female","<b>Sofie van der Maarel<\/b><br>University: ru<br>Gender: female","<b>Sofie Wiersma<\/b><br>University: uvg<br>Gender: female","<b>Stef Bouwhuis<\/b><br>University: vu<br>Gender: male","<b>Stefan Manser<\/b><br>University: uva<br>Gender: male","<b>Stefano Merlo<\/b><br>University: vu<br>Gender: male","<b>Stephanie Steinmetz<\/b><br>University: uva<br>Gender: female","<b>Stijn Ruiter<\/b><br>University: uu<br>Gender: male","<b>Tali Spiegel<\/b><br>University: uu<br>Gender: female","<b>Tanja van der Lippe<\/b><br>University: uu<br>Gender: female","<b>Tanzhe Tang<\/b><br>University: uvg<br>Gender: female","<b>Tara Fiorito<\/b><br>University: vu<br>Gender: female","<b>Teun Eikenaar<\/b><br>University: ru<br>Gender: male","<b>Theo van Tilburg<\/b><br>University: vu<br>Gender: male","<b>Thijmen Jeroense<\/b><br>University: ru<br>Gender: male","<b>Thijs Bol<\/b><br>University: uva<br>Gender: male","<b>Thijs de Boer<\/b><br>University: vu<br>Gender: male","<b>Thijs Lindner<\/b><br>University: eur<br>Gender: male","<b>Thijs Vos<\/b><br>University: ul<br>Gender: male","<b>Thomas Feliciani<\/b><br>University: uvg<br>Gender: male","<b>Thomas Jocker<\/b><br>University: uva<br>Gender: male","<b>Thomas Swerts<\/b><br>University: eur<br>Gender: male","<b>Thomas Teekens<\/b><br>University: uvg<br>Gender: male","<b>Tibor Zingora<\/b><br>University: uvg<br>Gender: male","<b>Tijmen Weber<\/b><br>University: ru<br>Gender: male","<b>Tijs Laenen<\/b><br>University: uvt<br>Gender: male","<b>Till Hovestadt<\/b><br>University: uvg<br>Gender: male","<b>Tim Mickler<\/b><br>University: ul<br>Gender: male","<b>Tim Reeskens<\/b><br>University: uvt<br>Gender: male","<b>Tim van Meurs<\/b><br>University: eur<br>Gender: male","<b>Timo Korstenbroek<\/b><br>University: vu<br>Gender: male","<b>Tine Molendijk<\/b><br>University: ru<br>Gender: female","<b>Tineke Fokkema<\/b><br>University: eur<br>Gender: female","<b>Tobias Cinjee<\/b><br>University: uu<br>Gender: male","<b>Tom Emery<\/b><br>University: eur<br>Gender: male","<b>Tom Louwerse<\/b><br>University: ul<br>Gender: male","<b>Tom Snijders<\/b><br>University: uvg<br>Gender: male","<b>Tom Theuns<\/b><br>University: ul<br>Gender: male","<b>Tom van der Meer<\/b><br>University: uva<br>Gender: male","<b>Tomas Cirhan<\/b><br>University: ul<br>Gender: male","<b>Toon Kuppens<\/b><br>University: uvg<br>Gender: male","<b>Trineke Palm<\/b><br>University: vu<br>Gender: female","<b>Twan Huijsmans<\/b><br>University: uva<br>Gender: male","<b>Ursula Daxecker<\/b><br>University: uva<br>Gender: female","<b>Valentina Carraro<\/b><br>University: ul<br>Gender: female","<b>Vardan Barsegyan<\/b><br>University: uu<br>Gender: male","<b>Vasiliki Tsagkroni<\/b><br>University: ul<br>Gender: female","<b>Vera de Bel<\/b><br>University: uvg<br>Gender: female","<b>Victor Bekkers<\/b><br>University: eur<br>Gender: male","<b>Victor Hartman<\/b><br>University: uva<br>Gender: male","<b>Vincent Buskens<\/b><br>University: uu<br>Gender: male","<b>Vincent Homburg<\/b><br>University: eur<br>Gender: male","<b>Vincenz Frey<\/b><br>University: uvg<br>Gender: male","<b>Violet Benneker<\/b><br>University: ul<br>Gender: female","<b>Vivien Butot<\/b><br>University: eur<br>Gender: female","<b>Werner Raub<\/b><br>University: uu<br>Gender: male","<b>Wike Been<\/b><br>University: uvg<br>Gender: female","<b>Willem de Koster<\/b><br>University: eur<br>Gender: male","<b>Willem Schinkel<\/b><br>University: eur<br>Gender: male","<b>Willemijn Verkoren<\/b><br>University: ru<br>Gender: female","<b>Wojtek Przepiorka<\/b><br>University: uu<br>Gender: male","<b>Wolfgang Wagner<\/b><br>University: vu<br>Gender: male","<b>Wouter Kiekens<\/b><br>University: uvg<br>Gender: male","<b>Wouter van der Brug<\/b><br>University: uva<br>Gender: male","<b>Wouter Veenendaal<\/b><br>University: ul<br>Gender: male","<b>Wybren Nooitgedagt<\/b><br>University: eur<br>Gender: male","<b>Xiao Xu<\/b><br>University: uvg<br>Gender: female","<b>Xingna Qin<\/b><br>University: uvg<br>Gender: female","<b>Yarin Eski<\/b><br>University: vu<br>Gender: male","<b>Ying Shen<\/b><br>University: vu<br>Gender: female","<b>Younes Younes<\/b><br>University: vu<br>Gender: male","<b>Zahra Runderkamp<\/b><br>University: uva<br>Gender: female","<b>Zakia Essanhaji<\/b><br>University: vu<br>Gender: female","<b>Zhe Dong<\/b><br>University: uvg<br>Gender: male","<b>Zoltan Lippenyi<\/b><br>University: uvg<br>Gender: male"],"shape":["dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","square","square","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","square","dot","square","square","square","square","square","square","dot","dot","dot","square","square","square","square","dot","square","square","square","square","square","dot","square","square","square","dot","square","square","dot","dot","dot","dot","square","dot","dot","dot","dot","dot","dot","dot","square","dot","dot","square","square","square","square","square","square","square","dot","dot","square","dot","dot","dot","dot","square","square","square","dot","dot","dot","square","square","square","square","square","dot","square","dot","dot","dot","square","square","dot","square","dot","dot","square","dot","square","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","square","square","square","square","dot","square","dot","dot","dot","dot","square","dot","dot","dot","square","dot","square","dot","dot","dot","square","square","square","square","square","dot","square","dot","dot","dot","square","square","square","dot","square","dot","square","square","square","dot","square","square","square","dot","square","dot","dot","square","dot","square","dot","square","square","dot","dot","dot","square","dot","square","square","dot","dot","square","dot","square","dot","dot","dot","dot","dot","dot","square","square","square","square","dot","square","square","square","square","square","square","dot","square","square","square","square","square","square","square","dot","dot","dot","square","square","square","dot","square","square","square","square","square","square","square","dot","square","dot","dot","dot","dot","dot","dot","dot","square","dot","square","dot","dot","dot","dot","dot","dot","dot","dot","dot","square","square","square","dot","dot","square","dot","square","square","square","square","dot","dot","square","dot","dot","dot","dot","dot","dot","square","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","square","square","dot","dot","dot","square","dot","dot","square","square","square","square","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","square","square","dot","dot","dot","dot","square","square","square","square","dot","dot","dot","dot","square","square","square","square","square","dot","square","square","square","square","dot","dot","square","square","dot","dot","dot","square","dot","dot","square","square","square","dot","dot","dot","square","dot","square","square","dot","dot","square","square","square","square","square","dot","dot","dot","dot","square","dot","dot","dot","dot","square","square","square","square","dot","dot","dot","dot","square","square","square","square","square","square","dot","square","square","square","square","square","square","dot","dot","dot","dot","square","dot","dot","square","square","dot","dot","square","square","square","dot","dot","dot","square","square","square","square","square","dot","square","dot","dot","square","dot","dot","square","square","square","square","square","dot","dot","dot","dot","square","dot","dot","dot","dot","square","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","dot","square","dot","square","square","dot","dot","dot","dot","square","square","square","dot","square","dot","dot","dot","dot","square","square","square","square","square","square","square","square","square","square","square","square","square","square","square","square","square","square","square","dot","dot","square","square","square","square","square","square","square","square","dot","square","dot","dot","square","dot","dot","square","square","square","square","square","dot","dot","square","dot","square","square","dot","square","square","square","square","square","square","dot","dot","square","dot","square","dot","dot","square","square"],"group":["uva","uva","ul","ul","vu","vu","eur","uvg","uvg","uu","uu","uu","eur","ul","uu","uvg","ru","uva","uva","ru","uu","uvg","uvg","ru","uu","vu","uu","uva","uu","ru","uvg","vu","eur","uva","uva","ru","eur","eur","ru","ul","vu","ru","ru","uvg","vu","vu","vu","vu","ru","vu","uva","uvt","eur","eur","uva","ru","vu","ru","vu","uva","uvg","ru","eur","ru","uvt","vu","uva","eur","uvg","uu","uvg","ru","uva","uu","uvg","uu","uvt","uva","vu","vu","uu","uva","ul","ul","uvg","ru","uva","ul","uvg","uva","eur","uva","uu","uu","uvg","ul","ru","uvg","uva","uvg","uva","vu","uva","uva","vu","uu","uva","vu","uva","uva","vu","uvg","vu","eur","ul","uvt","uva","ru","uvg","ru","ru","uvg","eur","uva","ru","uu","uva","eur","vu","uvt","ru","uvt","uu","vu","uva","uvt","vu","vu","uvt","uva","eur","uvg","uva","uva","uvt","uvg","uvt","ul","ul","uu","vu","vu","eur","eur","eur","uu","uu","uva","ru","uva","uvg","uva","uvg","uva","uvt","eur","vu","eur","eur","vu","ru","eur","vu","eur","uva","vu","uva","uva","vu","uvg","vu","vu","ru","vu","uu","eur","uvt","ul","uvg","uva","uva","uu","ru","uvt","uvt","uu","vu","uvg","uva","eur","uvg","vu","ul","uvg","uva","uu","ru","uva","vu","vu","vu","vu","uva","uva","vu","eur","eur","uu","eur","ru","vu","uvg","eur","uvg","eur","uva","eur","vu","vu","uu","eur","vu","vu","eur","vu","uu","uva","ru","vu","uvg","ul","uu","ru","eur","ul","uva","ul","ru","uva","ru","uvt","vu","uvg","uu","vu","uu","eur","ru","uva","eur","ru","vu","uva","uva","uvg","eur","eur","vu","uva","uu","ul","ru","uvg","eur","ru","uva","eur","uva","uva","vu","uvg","ru","eur","vu","eur","uva","uu","uva","eur","vu","ru","ru","vu","uva","uvg","uu","uu","vu","eur","ru","vu","eur","ul","uva","vu","uvg","ru","vu","vu","ru","ul","uvg","vu","vu","vu","uvg","eur","ru","eur","uu","ru","uva","ru","vu","eur","uu","uvg","uva","vu","vu","ru","vu","eur","uva","uva","ul","ru","eur","ru","eur","vu","uva","vu","vu","ru","vu","vu","ru","uvg","vu","uva","vu","uva","eur","ru","uu","ul","ru","ul","ru","ul","uva","ru","uvt","uva","uva","uva","vu","vu","vu","vu","uva","ru","uu","eur","uu","eur","ru","vu","uvt","uvt","eur","ul","eur","eur","uva","vu","vu","uu","vu","uva","ru","uvt","ru","uvg","uva","uva","ru","ru","ru","ru","vu","uvg","uu","eur","eur","uvg","ru","ru","eur","uva","eur","uva","ru","ul","ru","uvg","eur","ru","ul","uva","ul","uu","uvt","vu","eur","ru","vu","vu","eur","uu","uvg","uva","vu","uva","eur","ru","uva","uva","vu","vu","vu","uva","ru","vu","ru","vu","vu","uva","uvg","vu","ul","uvg","uva","uvg","ru","uvg","vu","uva","vu","uva","uu","uu","uu","uvg","vu","ru","vu","ru","uva","vu","eur","ul","uvg","uva","eur","uvg","uvg","ru","uvt","uvg","ul","uvt","eur","vu","ru","eur","uu","eur","ul","uvg","ul","uva","ul","uvg","vu","uva","uva","ul","uu","ul","uvg","eur","uva","uu","eur","uvg","ul","eur","uu","uvg","eur","eur","ru","uu","vu","uvg","uva","ul","eur","uvg","uvg","vu","vu","vu","uva","vu","uvg","uvg"],"value":[2,4.449489742783178,2,3,4,2,3.732050807568877,3,3.414213562373095,3.732050807568877,4.449489742783178,3.414213562373095,3,3.414213562373095,2,3.414213562373095,3,2,3,3,3,3.732050807568877,3.414213562373095,4,3,2,2,2,3.414213562373095,3.414213562373095,3.414213562373095,3.414213562373095,3.414213562373095,2,2,3.732050807568877,3,3.732050807568877,3.414213562373095,2,2,2,4.23606797749979,3.414213562373095,3.414213562373095,3.414213562373095,3.414213562373095,3,3,3,2,2,3.414213562373095,3,3,2,3.414213562373095,3.414213562373095,2,3.414213562373095,3.732050807568877,3.732050807568877,3,3,3,3.732050807568877,3,3,3.732050807568877,3,3,3.414213562373095,4,3.732050807568877,3,3.414213562373095,3,3.414213562373095,2,3,3,3,3,2,3.732050807568877,3,2,2,3,3.414213562373095,3.414213562373095,3,3.414213562373095,2,3.732050807568877,3,2,3,4,3.414213562373095,2,3.414213562373095,2,3,3,3.414213562373095,3,3.732050807568877,3,4.449489742783178,3.732050807568877,3,4,3.732050807568877,2,3,3.732050807568877,3.414213562373095,3.732050807568877,3,4,3.414213562373095,3.414213562373095,2,3,2,2,3,2,3.414213562373095,2,3.732050807568877,3.732050807568877,2,3.732050807568877,3,3.732050807568877,3,3.414213562373095,3,2,3.732050807568877,4,2,3.414213562373095,2,3.414213562373095,3.414213562373095,3,3.732050807568877,2,2,3,2,3.732050807568877,3.732050807568877,2,2,2,3,3.414213562373095,3,3,3.414213562373095,2,3,3,3,3,3,2,3,3,3,3.414213562373095,3,2,2,3,2,3,2,2,3,2,3,3,3.414213562373095,3.414213562373095,3,3,4.23606797749979,3.732050807568877,2,3.732050807568877,2,3.414213562373095,2,3.414213562373095,3.732050807568877,3,3,2,2,3.414213562373095,3.414213562373095,3.732050807568877,3.414213562373095,2,2,3,3.732050807568877,3.414213562373095,3,3,4,2,3,3,4,3,3.414213562373095,3,3.414213562373095,3.732050807568877,3,3.732050807568877,3,3.732050807568877,3.414213562373095,3.732050807568877,3.414213562373095,3.732050807568877,3.414213562373095,3.732050807568877,3.414213562373095,3.732050807568877,3.414213562373095,2,3.414213562373095,3,3.414213562373095,3,2,3.414213562373095,3.414213562373095,3,3.732050807568877,3,4,3,3,4,3.414213562373095,3.414213562373095,3.414213562373095,3.732050807568877,4,3,2,3,3,3.732050807568877,3.414213562373095,2,3,3.732050807568877,3.414213562373095,3,3.732050807568877,3.414213562373095,3.414213562373095,3,2,3.414213562373095,3.414213562373095,3,3,3.414213562373095,3.414213562373095,3,3.414213562373095,3,2,3,3,3.414213562373095,3,3.732050807568877,2,3.732050807568877,3.732050807568877,2,3,4.23606797749979,3,3.414213562373095,3,3,3.414213562373095,3,3,2,3,2,3.414213562373095,3.732050807568877,3,3.732050807568877,3,3,2,3.414213562373095,2,4,2,2,3.732050807568877,3.414213562373095,3,3.414213562373095,2,4.449489742783178,3,2,3.414213562373095,2,3.414213562373095,3.414213562373095,4.23606797749979,3.414213562373095,2,3,3,3,3,3,3,3,3,3,3.732050807568877,3,3.414213562373095,3.414213562373095,3,3.414213562373095,3.414213562373095,2,3.414213562373095,3,3,2,3,4,3.414213562373095,3,4.645751311064591,3,3,3.732050807568877,2,2,2,2,2,2,3,3.414213562373095,3,2,3,3.414213562373095,3.414213562373095,3,4,2,2,3.414213562373095,3,3.414213562373095,3.414213562373095,3,3.414213562373095,3.414213562373095,3,3.414213562373095,3,3,3,3,3,3.414213562373095,4,3.732050807568877,3,3,3.732050807568877,3.414213562373095,3.414213562373095,3,4,3,3,2,3,2,3.414213562373095,3.414213562373095,2,3.732050807568877,3,3.414213562373095,2,3.732050807568877,3,4.23606797749979,3,3.732050807568877,3.414213562373095,2,3,3.732050807568877,3,3,3.414213562373095,4,3,2,3.732050807568877,3.414213562373095,3,3.732050807568877,3,3.414213562373095,3.414213562373095,3.414213562373095,2,4.23606797749979,3,3,3,3.414213562373095,3.414213562373095,2,3.414213562373095,3.414213562373095,2,3,3.732050807568877,3.732050807568877,4.23606797749979,3,3,3.732050807568877,3.414213562373095,3.414213562373095,3.414213562373095,3,2,3,2,3.414213562373095,4,3.414213562373095,2,2,4,4.23606797749979,3,3,3.732050807568877,3,3.414213562373095,3.414213562373095,2,3.414213562373095,3,3,3.414213562373095,3,3,4.449489742783178,3.732050807568877,3,3.414213562373095,2,2,3.414213562373095,3.732050807568877,3,2,4.23606797749979,3,2,2,4,4,3,3.414213562373095,3,3.414213562373095,2,2,3.732050807568877,3,4,3,3.732050807568877,2,2,2,3,2,3,3,3.732050807568877,4.449489742783178,3,3,3.414213562373095,3.414213562373095,2,3.414213562373095,3.414213562373095,3.414213562373095,3,3.414213562373095,2],"x":[-639.561897773837,445.9676499267235,1425.358279978397,-128.4142086664113,568.0570371719992,566.9452063191758,-624.9895595688577,-419.6079725677085,-333.95330110673,-516.153292240249,-748.4336094637466,144.483986196765,350.2814723758619,1378.343494586598,886.2031358537708,-280.107044290731,276.9195446098806,157.0268717355439,339.5929080951083,-817.3092402390647,-981.1944342875216,352.6665868350839,-1162.659772989873,353.5142537275127,-700.6940337289358,1659.846591379303,-740.3565158053061,-239.9597128721643,722.5126124040738,431.9508221278723,-1314.067747412389,697.0199233422577,225.7417502552755,691.1816285971119,-884.9724783185053,-116.4217749671021,671.049295078595,993.6138409028528,-177.0536985468966,-368.3071840285402,-2.426378391773778,-980.8420288448733,187.1305929403413,-146.6715008108712,-1796.834238335821,-1256.536040898986,1264.858019031207,-631.1438575918697,164.5224025332096,100.8868351213272,868.7719109373713,-1250.162330846533,-1062.903289754717,-947.3619991704099,1256.458905395554,664.4151132338437,-1414.185220966196,-68.55448145778759,-1221.110058463154,-898.0977197796487,-285.6419436833423,-371.122745847644,-1947.159178903296,1103.891798036113,1199.368506420647,356.6243562250453,-1344.841798537276,-7.749513439276637,456.4468462684783,320.5120461327987,-31.33635642018222,95.76321546327293,-588.6668812849607,-870.2731498213511,-639.3333218570743,-521.5180892497887,543.9687124609086,708.5209439388489,1931.608640933333,724.6153751436289,906.5741548046191,-637.235801410574,-552.1895213361696,1434.846535757568,200.1817549086576,-2028.192616445942,-2043.313656391485,482.9453198088366,1131.856896296728,797.3138675230425,-1197.235899296772,-263.8991373982714,-843.6805391921315,-841.756686979851,-209.5747787539997,-502.3430967569177,-1928.999134331657,-257.8459880685663,478.7940890573694,-106.8240237153304,-1639.774376355693,51.59721878518823,-674.662613138453,118.3316950408738,-1868.022685991546,-785.9449755456201,161.1164493245137,-24.9250529999869,880.452248219256,1020.766062906608,1854.558884091846,88.1027732463026,1905.223572054001,492.5894079348557,1474.735052332698,1073.933732170992,-68.16342862332012,-300.0328741754026,17.48607731024817,-1592.199136014103,114.696504764413,236.9235349258382,1400.766831127281,814.0841812361473,1468.62548027004,-805.3068474794555,1488.157885124535,-937.8804063212243,1444.340941372852,864.4601869263756,1303.914525729719,1092.082993736088,-592.8225470466805,487.4013588535022,-690.8454228272916,-2016.238192589859,1928.342900754502,-726.5834815087452,1009.003299053657,-69.10332368376665,-42.12208583226528,-73.60849579651871,167.2536567429495,-112.4816946901031,960.843699390737,-1337.192819402377,850.5526813976032,-1669.586689190889,580.3400974902584,234.9162796986304,1924.889736702633,-1559.906942435509,1063.579684133889,986.1103935248549,28.16154221600953,-763.5585096439063,-653.3362458624526,-708.317017587427,-340.1272223975857,-653.6002041762302,-105.9343427571181,1381.202076285878,194.6623731587468,1179.79317515436,-2064.256424316897,313.7261572441622,-1815.84235197091,-1451.035885154623,-869.5899679731832,-206.6246990518582,1584.22875432378,-1010.31771620433,1828.955307986112,727.0561754330432,755.7936420267276,-798.4571191533441,1175.070438408485,-1091.434675590928,-1465.723256087269,519.8097855187689,-1503.791741079974,-1759.383618077753,851.5191144876275,-1787.727758039835,-945.8201446812815,-809.8011253837027,149.2461472128169,-1646.26469463948,-1270.077568338666,-699.2005807743012,-577.8481646966774,567.5154570587006,384.8389452396872,767.0884774811669,1081.881083843588,-877.125203181043,1847.095798002898,1386.535655577032,806.357592382253,236.7925293874812,-184.5041961465686,-572.0875582926487,-1872.559644899133,176.1185554377088,-399.1701361619023,-269.8272473357636,458.9318940085608,1762.589784032609,-1861.120329667112,122.305724762912,-1868.812713155743,-88.42956324702888,-378.4621916334115,247.2463827130205,-944.6886327156774,1395.939765442445,-1337.132613129867,248.9774576299933,869.8580546711579,200.6578735262662,-1395.492126140902,242.8898796193756,-979.4205040604913,-308.9954200069519,1319.889803215792,1472.531777797971,1507.569358090754,1653.520657995755,400.4012565874125,801.2596510959883,727.4954149037482,799.4156540191553,1872.268291477888,1483.230417744566,-123.7019342845808,109.4662655401205,46.23107849118225,424.8430264077279,-1613.256709612262,-1274.783658598594,521.9865912969713,231.6848112673035,656.8550389844128,-1149.928826635592,-1140.580100128899,-511.430540993273,-215.2527898872974,-357.4731321873617,90.15970472784451,469.0054198291727,330.8240598866061,761.7283896109216,-1014.746323456432,-375.4808716770798,1835.883110368782,785.7069250242405,1496.313268331585,170.739056858523,-2017.544381502616,-1441.605964960521,532.6480383483702,1703.789203033925,-871.850106433957,1215.332581320687,1812.471928683138,-287.685872322548,-1004.380360019811,103.1957247445603,-2029.284642554557,-843.7883397061896,-350.3484239465507,596.5256935311357,-1212.823124156666,946.8842766810967,612.079935482726,1263.471421663016,-537.4752052200646,-2027.656179835695,320.4811544665028,927.9136321368115,-50.42850536328785,256.4198601971226,-61.99941568495375,-1491.392495252601,631.0116954696991,-1512.448087351209,-691.9986790568257,1241.636187922711,454.3151579015472,1236.045104314862,556.162043534954,-515.5114129243593,1943.521640289153,1617.603725085421,397.3377303109409,-272.045384397099,615.2766038768513,887.4025997904452,1056.289272431952,-572.8176237406316,1875.794986796112,631.0993454970851,-1799.880374248436,1031.746413943382,-1018.740943872518,-376.6857148338912,836.4953914733611,1521.317398870008,1130.871890738892,-1043.327701937324,1289.829398448869,-455.7906189684597,1947.691873172908,-475.9171083757577,-72.70932328681461,562.0939544079303,-1796.837940655465,-165.4791446160761,1295.669883943787,189.7317012820058,334.8757263602718,-486.1658086193814,-107.9748490686797,-229.4171937369964,-641.3929781727621,-172.5379040737334,422.5054780931315,1048.725603125368,-253.6267536297589,1791.589630674352,529.3597455945746,170.970934872873,-12.07337749426189,-1604.220296785725,1400.002822458438,-1245.741049678982,354.3942236104222,1386.967108297278,-938.5591185707455,-1417.059838242863,1809.112583973828,-662.0686524312541,1920.493446293383,167.3080118019246,-356.9438858471248,-85.60904597960517,-1728.687990238579,-1756.553846559648,-339.9573992603025,1672.888330095087,752.424724718364,1731.707340884181,-364.507734270346,-1258.927272570287,353.0006161996715,-84.032521745273,-1102.493209607124,281.3611012571823,-1157.192584636578,129.4889167744061,1268.154759523485,165.1427580232067,-1168.917131660126,1249.027005604203,657.7675455108771,-998.2018453431963,-1950.71972307367,341.0499217400861,597.707227662369,-1675.699644948808,-1331.068377690312,1434.154817639461,487.9984805571422,-759.7076857305555,-489.9318166572516,108.9918780152183,400.5291810923517,462.181960175837,1734.451188206347,-1650.491427838989,1126.700847370052,637.9173115114256,-1811.167600186571,548.4834783735065,-453.0915935079124,-1496.053397878873,-1257.121532386647,1922.510871644495,309.8773448752641,-872.5398599706024,-1333.016521755268,1545.101511859637,802.3053935502452,126.0709056066162,-1107.152279284114,828.9593273621171,-1348.809181768946,1444.517515534182,-562.9047829556719,-570.0893680847297,-1537.441182042035,653.4600650080208,118.7966950177645,-49.77044157828585,-317.3395403953988,-822.3933530888196,-1321.046919167832,527.7593880838377,563.5601037744406,-1470.978074025058,1100.003285170826,-1775.115969701815,88.74210663392488,-1566.82214983056,-298.780131872332,745.0076870000819,-152.4828078671432,225.4740857744675,-10.13943901082111,-1719.034264553096,-298.8507496931411,1381.143124098259,-945.9008038562772,547.3248809564757,-1307.808330155392,-1015.650825071141,323.5149917778601,525.6738155590481,1038.573854930114,-1246.479742013004,-726.7714142921952,38.37939850285137,617.1181728523977,-7.91464727520882,679.5316225362845,-433.4978123172776,-493.9765700981394,-1017.408898828717,1149.003845537188,-965.03132589389,-882.351881011513,-1945.703222810307,-246.6583658731697,354.8346730666079,-1484.109646824434,901.4567603452437,-1315.405379804261,-1327.201567182861,-800.5573123872498,-1397.992755378325,-171.7940752222991,1038.434658495634,-85.60549456269888,653.6944966803632,412.727887629063,-1917.783903948982,-1274.228165964171,168.3766232384566,-1195.034222601886,-1171.880388380059,159.2604203485436,-670.5628823346688,-1006.841829290571,-628.4998180889193,-590.1054639940872,1885.169648930498,-1678.018191136377,-48.40773242754398,277.848593115147,802.0910779589472,1279.55609539229,1248.681655989338,1242.471307136484,-47.26552364716496,1269.066585961488,-1984.814502997638,-1316.019145763124,-470.2379342338399,698.6415038480231,1115.955131187515,-647.1430881830104,1300.946782945451,765.9062678948322,1476.636378714766,1809.708489492692,-1833.794846267679,21.91425054676686,444.9372966212223,263.3552914816218,1232.609396368543,-823.7838832748449,-1163.249127535609,857.5651757898416,-1862.547068348992,-1232.687306352119,368.4834900674462,993.6768248960226,-354.406333602705,-1698.533837867316,786.5490254656953,-396.9673272790283,-722.250187536882,-1344.382406441242,-1459.890660111613,106.1575076030532,-1506.186946833356,-146.2343438395013,45.90635981220665,994.6533922524023,324.0139271475691,-1736.727333993886,1359.589736417084,-1802.684732587149,-1770.59588339037,138.0094757795693,1275.579249082841,310.4815671531265,1145.342545675039,-423.2727030519685,134.0507374147044,78.39123407448898,-287.2163574184357,-891.7613262116703,-310.0244935448165,1791.532212618637,424.968036929612,-1741.070700539682,124.0836432400921,-1405.910744901797],"y":[1675.93579297516,-150.2337760058452,517.9107562518159,2104.121955768888,-1415.126124784319,-268.9790954042968,10.63285920859584,928.0352811532437,136.5823180976068,-268.8327890338246,-0.3197977142531627,1256.073645369069,591.0251411812044,463.7503655241785,422.4521315577996,833.3815475780328,-1001.826444181746,-1516.260760274319,-1515.721632638599,-1672.899375646754,-333.37603357414,1038.18204393089,-518.690118115431,-57.72092023216908,-388.0654139115623,-137.2745759349507,-339.8805771338737,-1894.458833623534,-373.6838933670731,-1027.815170940555,-797.3437474796077,-1347.282463831782,342.8966285697298,-1588.233543783762,1944.677434069667,659.990104016391,1299.349461228456,238.9238500208967,-251.8935939535343,2103.020594491267,1714.226164012157,1295.70304950488,45.37153314743722,62.76105290957301,1053.921327437053,-1144.961695997811,1572.572189360315,-1347.155530599322,-1244.941790173843,-893.8971229922749,-201.3010454178861,32.47475269309341,139.8552718370329,101.6202174522609,-1042.492690369467,-48.46683178935287,1354.281852698067,-425.86630758025,1358.276829681036,890.2514690746968,1060.5744754692,-423.9017101167202,-547.1121121722127,-944.0236718200621,1079.938120832627,-1182.403041027407,1577.882838401911,-67.1863482968644,209.9797136521677,40.44332874437209,552.5604183042569,-1218.219291817397,-1674.713413073307,-355.7735945266343,384.8570499500144,-64.27600894221666,296.8871926951458,38.3771165271394,-338.826852795461,-1461.493739028324,-789.750533684846,-1602.499764709628,1704.442462040683,-786.1581952679871,230.7378428350818,-110.7034594778955,-193.9918005633129,1879.818880485798,1052.823015538124,-1083.484802036392,117.8682798417666,-1743.057362475236,-420.1000397255754,-108.4559675752739,1051.271990437248,1963.328365226665,773.5255597987847,1224.916773221434,273.2009541845109,289.3026959941344,1102.834929669047,1782.06625202411,908.6242529692622,-685.2851712840182,-347.7374391655393,-441.6663269773653,-1699.239316965155,-274.2754996026732,-666.9444513828976,-703.1564025928323,641.7590168588852,664.4589018826011,75.10742861088141,828.6976570561233,-715.4806632578884,1103.782197487506,-1396.422399869523,-464.1391176379506,1467.070692845179,602.1193793130335,-241.7465376482747,594.041759041058,1012.746023609829,1753.978755380861,-1021.19142464636,-512.1940771001133,1387.404188784661,-1270.297205882023,-255.5939606950706,577.6211722931939,-881.0109895020616,820.7678112807212,-28.97479389144709,-1416.782268772384,-1697.608056093328,48.29976198822554,558.5794779843567,-1365.743992687137,587.5839630553621,-559.769469895734,-191.8517957661145,961.1588452211297,-1088.21776434102,-1570.228350565797,72.31331470834571,-320.5574973350116,730.5575578928599,-774.2479668459231,2036.349879297857,-127.4348434294513,-4.072676869101111,-458.4609904867585,1688.75908019037,1755.553656185777,814.9583777161677,126.0889327925253,1917.049043556443,-1593.314173516878,-580.2335638172522,-1762.795967423422,1330.930290682436,-1200.109149796326,503.1742905463782,-1102.953288197701,114.3130715611346,1556.481926323502,-657.997877789971,-193.0034361241813,-1357.587572936975,-1014.206396670035,221.7021358847784,-1334.411580859809,433.4987558625492,1360.387297391619,1821.587200736377,1570.671535258571,-921.0074764791863,1830.663784244687,1138.768429695435,41.42332414960956,1498.564730741854,-586.2544430731385,-17.24929273538041,453.38049121925,191.2404413681361,63.55098598660599,288.6985757330701,-840.8499077651663,-339.0922221517284,1743.387963164671,-1820.878383203833,-359.3506314186011,-702.9154403241885,-141.7370656249854,893.7965135760433,159.6847453636277,24.94964413816905,1122.436548334512,-509.9415954322487,-1103.631944670163,1228.097848032216,-1417.411576856327,464.4021949250382,623.1709673033026,-1518.164904316466,-59.80833573185568,-778.6085702955154,-525.5734562271576,985.9389559254074,2111.097743663039,-730.8026866530174,-903.7099851399552,797.1273289605366,-1706.978034918374,1785.484369351394,868.5459706448768,950.9216025431022,1185.088846420383,1233.511610840381,-216.4305935847873,-1386.907466993774,742.5627800886537,597.8857804754465,1000.897104028632,914.2673989823101,-640.9417396131958,907.7036270907424,-380.8186935578339,-1222.928793469937,-632.7776930928773,953.5818881646019,-1458.233680042311,125.6044776962878,1018.651847811943,-799.565067529565,1399.024293584786,-1428.932833165297,987.146778233192,1316.80420428492,-465.2357893727695,1966.083084282248,1284.469799149642,-729.9620452728637,571.6413350717129,1757.211269050287,335.1695616375887,2061.321882091137,-250.7480501794738,-1874.232984363363,-424.641266716675,166.5403316163242,1176.343611482535,410.6231037428693,223.4899078734207,-61.08813844838954,-335.8600510854934,853.1723260719918,-406.1049166804344,520.9157740540477,-48.87889639903189,-680.9288871497491,745.2101577359266,-1562.182495105511,-850.6119487443957,-658.0159376211622,-1653.468267687394,20.3627844660245,1863.57901014905,449.7438118926488,-263.5874673114867,1953.895695772323,-217.582532753048,-479.8314918007929,1461.141465849176,-436.4255129203735,-710.9782377413511,1255.305781528843,279.979375854599,-1259.812318617882,-1269.612348323933,1399.851983715429,-43.11917118235925,1161.645515616548,1059.066048546227,-623.4969214338196,-1163.427527155923,-118.4907561971324,-1244.053378132313,-70.79471079418562,1660.198620730568,-907.7685598093341,-769.0988654555478,392.5466038647131,-690.2099168265796,-551.5959003148974,1444.979497400796,-715.9465972590172,1562.901475565105,1497.649018583666,-531.088853759217,532.7847022271563,1018.058271940873,-176.9388268351316,384.4683757650052,705.6301149495711,1136.960441419083,-924.5113919317602,-59.38846262724652,-182.1277138173804,1237.779266138739,-538.8383243354594,813.7713942551379,155.8741060701102,-1031.943509762916,-743.2118411888459,736.7119146187777,-401.9674609218724,-307.2342551414872,194.9466115357375,76.23280118600871,-1007.699051442866,-1727.481573176635,-406.029698130382,-768.3761759525427,555.215116147641,-68.91781114975431,114.4674979724771,-799.9546423979202,-927.7301464041039,104.3793616184421,-595.3730020871806,1776.453073784746,135.1818113588901,-1177.213013471332,-573.1601045485943,1096.759262017083,-502.4394917851685,46.69860247909193,-1710.733101555046,916.1127800128639,233.5554480911374,-1471.811310686395,-535.4779868023244,2022.47562303061,-495.9115334471447,1848.977647228317,1090.40358028926,832.2014679883521,4.250139782162528,11.72956905181566,453.875910405283,437.4709337422012,-1925.173756918925,271.6505034797652,-794.4421049415459,-150.1391686487064,1472.157556568437,-765.6553898077258,1518.546019624553,-999.1403140807557,404.5125607222294,-1941.134245316613,1678.122728692294,1251.45711753153,1799.258695600966,-1501.945110099764,246.8742458073318,2091.344964994973,-1161.554710425259,1263.569786135442,-1096.559010998525,1458.347442402378,-892.0071784800926,-123.9538928751446,1324.117304866402,1607.114085439572,1519.801184909897,-618.7015129737601,608.7316895465477,-1007.878476664939,775.4564468916426,1156.564627050973,-88.72298140575708,606.0913088180745,375.6422332777032,-1065.256899537531,-1396.161804066378,-438.9366402321858,1266.949581813271,1777.646219129597,1646.876917793829,312.3793474011546,-68.77781047068851,-834.8410749306037,-285.9440210754398,1898.185663648311,647.2072004702638,185.1815616099958,-793.1343023928127,-677.9270244170416,783.3623636756412,-1291.503248570299,385.1401350477273,621.4168073644923,1155.749298621924,436.9829504222344,-922.7914429896371,-744.8757948123992,-112.0503543013527,-121.6842941163572,-511.1405838563816,205.2525281524559,-1735.189089052351,689.3082641610105,2028.689451139378,-947.8706233797421,-165.2252047892309,-1376.292233899359,-469.4526512794556,-831.0767483935996,626.463865433828,-683.4616044305008,-139.9751164855274,552.5021575398912,1250.784279346654,230.1349798797809,-744.5529439341452,-1644.351000448399,-1438.445176700407,-133.5612827257673,-186.8817210316258,554.9130568003238,-1354.120161181691,1923.899047018623,373.095531977153,1361.340448428349,-827.0118099604499,-1590.88287428655,-735.4354457163911,1600.894396265807,1443.892273181973,-301.2166419287177,-1574.243530086774,-904.4246927718348,1414.128476644865,-1092.060487297608,1328.309679266284,-1447.943254823011,1954.456474179049,-384.522099989296,-722.8989567063412,-487.0217051492735,496.8754743482555,1891.807584103855,518.0187526051724,690.738270173964,-600.9794045414857,1895.522346824504,-1364.86562708781,-1146.667509003651,-478.4305178900904,-495.9658766210756,-138.6933993693785,-244.5206456663356,602.8309515186955,777.7209852622594,888.168235947189,-526.3643734203878,-227.9908919778023,289.2815166280027,1499.955230388078,648.8363844129941,-364.5466292562975,324.4821029147395,-493.1489444831833,-472.2060976565269,-397.2261461841047,1003.257533305657,516.392047595602,678.9307879491189,2005.807595372849,-411.5761260545804,102.5423253725656,954.9212962555164,816.3935793294364,749.0433941040981,-80.38046747725838,-10.14397634078438,1352.72733987175,-601.4959806135208,268.7060982133336,1092.193879806649,-341.465893288942,-18.92919729247359,545.6889131451936,2012.617769785315,-468.355223031874,-1824.789479502286,467.7985438087961,-427.4439806226544,1805.354810580427,600.0413230102653,216.5249519566117,-1242.85224870605,1066.23121233078,269.4337368139996,1053.206779982544,-668.6266207918545,1633.708152422011,1192.620924910876,-1002.177015182618,864.8870063399497,135.1381879127686,671.9523099867114,1334.30291575392,-213.912048915298,447.6158627081599,-600.4940775193062,1900.772313330009,-1349.247855202528,1241.173341148314,432.6979672172141,1540.149583786968,-821.2117714013973,563.0749394340038,-1319.810060416697,288.5256452672504,578.5805253342384,-714.7492671113474]},"edges":{"from":["82tjl2cq","82tjl2cr","82tjl2cs","82tjl2cs","82tjl2cs","82tjl2cs","82tjl2cs","82tjl2ct","82tjl2ct","82tjl2ct","82tjl2ct","82tjl2ct","82tjl2d3","82tjl2d4","82tjl2d4","82tjl2dk","82tjl2dk","82tjl2dk","82tjl2dm","82tjl2dq","82tjl2dq","82tjl2ds","82tjl2ds","82tjl2dt","82tjl2dt","82tjl2dt","82tjl2dw","82tjl2dw","82tjl2dw","82tjl2f5","82tjl2fh","82tjl2fj","82tjl2fj","82tjl2fj","82tjl2fj","82tjl2fm","82tjl2fp","82tjl2fx","82tjl2fy","82tjl2fy","82tjl2g1","82tjl2g3","82tjl2g3","82tjl2g6","82tjl2g7","82tjl2g8","82tjl2g8","82tjl2g8","82tjl2g8","82tjl2g8","82tjl2gf","82tjl2gm","82tjl2gn","82tjl2gn","82tjl2gn","82tjl2gp","82tjl2gp","82tjl2gq","82tjl2gq","82tjl2gq","82tjl2gx","82tjl2h0","82tjl2h5","82tjl2h6","82tjl2h7","82tjl2h7","82tjl2h7","82tjl2h8","82tjl2h9","82tjl2hc","82tjl2hd","82tjl2hd","82tjl2hg","82tjl2hj","82tjl2hj","82tjl2hj","82tjl2hk","82tjl2hl","82tjl2hn","82tjl2hn","82tjl2hp","82tjl2hp","82tjl2hq","82tjl2hq","82tjl2hw","82tjl2hw","82tjl2hw","82tjl2hz","82tjl2j1","82tjl2j1","82tjl2j2","82tjl2j2","82tjl2j6","82tjl2j6","82tjl2j6","82tjl2jb","82tjl2jb","82tjl2jc","82tjl2jh","82tjl2jj","82tjl2jj","82tjl2jj","82tjl2jj","82tjl2jl","82tjl2jl","82tjl2jn","82tjl2jz","82tjl2k0","82tjl2k0","82tjl2k0","82tjl2k0","82tjl2k3","82tjl2k3","82tjl2k3","82tjl2k9","82tjl2kg","82tjl2kh","82tjl2kj","82tjl2kl","82tjl2kl","82tjl2kn","82tjl2kn","82tjl2kq","82tjl2kq","82tjl2kx","82tjl2ky","82tjl2ky","82tjl2l0","82tjl2l5","82tjl2l6","82tjl2l7","82tjl2l7","82tjl2l7","82tjl2l8","82tjl2l8","82tjl2ld","82tjl2lw","82tjl2lx","82tjl2lx","82tjl2lx","82tjl2lx","82tjl2lz","82tjl2lz","82tjl2m0","82tjl2m2","82tjl2m2","82tjl2m6","82tjl2m7","82tjl2m8","82tjl2m9","82tjl2m9","82tjl2m9","82tjl2m9","82tjl2mc","82tjl2mc","82tjl2md","82tjl2md","82tjl2mk","82tjl2mp","82tjl2mp","82tjl2mq","82tjl2mq","82tjl2n0","82tjl2n0","82tjl2n0","82tjl2n7","82tjl2n7","82tjl2n7","82tjl2nc","82tjl2ng","82tjl2ng","82tjl2ng","82tjl2ng","82tjl2ng","82tjl2nm","82tjl2nq","82tjl2nq","82tjl2ns","82tjl2ns","82tjl2p4","82tjl2p8","82tjl2pb","82tjl2pb","82tjl2pg","82tjl2pj","82tjl2pm","82tjl2pm","82tjl2pm","82tjl2pp","82tjl2py","82tjl2q0","82tjl2q0","82tjl2q0","82tjl2q1","82tjl2q1","82tjl2q1","82tjl2q1","82tjl2q1","82tjl2q1","82tjl2q1","82tjl2q5","82tjl2q5","82tjl2q5","82tjl2q6","82tjl2q6","82tjl2q7","82tjl2q7","82tjl2q7","82tjl2q9","82tjl2qc","82tjl2qc","82tjl2qf","82tjl2qk","82tjl2qn","82tjl2qn","82tjl2r1","82tjl2r5","82tjl2rc","82tjl2rc","82tjl2rc","82tjl2rc","82tjl2rg","82tjl2rg","82tjl2rj","82tjl2rj","82tjl2rk","82tjl2rk","82tjl2rk","82tjl2rl","82tjl2rn","82tjl2rn","82tjl2rn","82tjl2rn","82tjl2s0","82tjl2s0","82tjl2s0","82tjl2s3","82tjl2s3","82tjl2s4","82tjl2s6","82tjl2s6","82tjl2s6","82tjl2s6","82tjl2s6","82tjl2s6","82tjl2sb","82tjl2sf","82tjl2sf","82tjl2sf","82tjl2sf","82tjl2sf","82tjl2sj","82tjl2sj","82tjl2sr","82tjl2sr","82tjl2sr","82tjl2sw","82tjl2sw","82tjl2sz","82tjl2t0","82tjl2t0","82tjl2t3","82tjl2t8","82tjl2t8","82tjl2t9","82tjl2t9","82tjl2tq","82tjl2tq","82tjl2w1","82tjl2w6","82tjl2w6","82tjl2w7","82tjl2w9","82tjl2w9","82tjl2wb","82tjl2wb","82tjl2wb","82tjl2wb","82tjl2wb","82tjl2wh","82tjl2wm","82tjl2wp","82tjl2wp","82tjl2wp","82tjl2wp","82tjl2wq","82tjl2wz","82tjl2wz","82tjl2x4","82tjl2x4","82tjl2x6","82tjl2x6","82tjl2xb","82tjl2xb","82tjl2xb","82tjl2xb","82tjl2xb","82tjl2xb","82tjl2xd","82tjl2xh","82tjl2xh","82tjl2xr","82tjl2xr","82tjl2xt","82tjl2xy","82tjl2xy","82tjl2xy","82tjl2y0","82tjl2y0","82tjl2y3","82tjl2y5","82tjl2yj","82tjl2yp","82tjl2yp","82tjl2z7","82tjl2z7","82tjl2z9","82tjl2z9","82tjl2zb","82tjl2zb","82tjl2zj","82tjl2zj","82tjl2zj","82tjl2zj","82tjl2zm","82tjl2zw","82tjl2zw","82tjl2zx","82tjl2zx","82tjl2zy","82tjl2zz","82tjl2zz","82tjl2zz","82tjl2zz","82tjl301","82tjl301","82tjl30h","82tjl30j","82tjl30n","82tjl30q","82tjl30q","82tjl30q","82tjl30r","82tjl30r","82tjl30s","82tjl30s","82tjl30x","82tjl30x","82tjl311","82tjl311","82tjl313","82tjl316","82tjl316","82tjl31f","82tjl31j","82tjl31s","82tjl31t","82tjl31t","82tjl31x","82tjl31x","82tjl324","82tjl324","82tjl328","82tjl328","82tjl328","82tjl329","82tjl32d","82tjl32d","82tjl32d","82tjl32d","82tjl32d","82tjl32d","82tjl32g","82tjl32g","82tjl32j","82tjl32m","82tjl32n","82tjl32r","82tjl32r","82tjl32s","82tjl32s","82tjl32w","82tjl32w","82tjl32w","82tjl32x","82tjl32x","82tjl32y","82tjl331","82tjl336","82tjl338","82tjl338","82tjl338","82tjl33b","82tjl33c","82tjl33c","82tjl33f","82tjl33f","82tjl33h","82tjl33h","82tjl33h","82tjl33j","82tjl33k","82tjl33n","82tjl33n","82tjl33n","82tjl33n","82tjl33s","82tjl33s","82tjl33t","82tjl33x","82tjl33x","82tjl33x","82tjl340","82tjl347","82tjl34b","82tjl34f","82tjl34g","82tjl34l","82tjl34l","82tjl34n","82tjl34n","82tjl34s","82tjl34s","82tjl34w","82tjl34w","82tjl350","82tjl350","82tjl352","82tjl356","82tjl356","82tjl359","82tjl35b","82tjl35c","82tjl35d","82tjl35d","82tjl35h","82tjl35h","82tjl35k","82tjl35k","82tjl35k","82tjl35m","82tjl35s","82tjl35s","82tjl35t","82tjl35t","82tjl35t","82tjl35y","82tjl35z","82tjl35z","82tjl35z","82tjl361","82tjl365","82tjl367","82tjl368","82tjl36d","82tjl36d","82tjl36r","82tjl36r","82tjl36y","82tjl36y","82tjl36y","82tjl36z","82tjl36z","82tjl370","82tjl370","82tjl370","82tjl37c","82tjl37d","82tjl37d","82tjl37f","82tjl37f","82tjl37f","82tjl37k","82tjl37k","82tjl37m","82tjl37s","82tjl37s","82tjl37s","82tjl381","82tjl381","82tjl381","82tjl389","82tjl38g","82tjl38g","82tjl38g","82tjl38k","82tjl38k","82tjl38l","82tjl38l","82tjl38l","82tjl38m","82tjl38p","82tjl38r","82tjl38r","82tjl38t","82tjl38t","82tjl38y","82tjl38y","82tjl390","82tjl390","82tjl392","82tjl398","82tjl398","82tjl39b","82tjl39k","82tjl39k","82tjl39l","82tjl39l","82tjl39n","82tjl39n","82tjl39z","82tjl39z","82tjl3b4","82tjl3bb","82tjl3bf","82tjl3bk","82tjl3bk","82tjl3bl","82tjl3bm","82tjl3bm","82tjl3bm","82tjl3bn","82tjl3bs","82tjl3bx","82tjl3bx","82tjl3bx","82tjl3bz","82tjl3c6","82tjl3c6","82tjl3cd","82tjl3cg","82tjl3cg","82tjl3cg","82tjl3cg","82tjl3cg","82tjl3cl","82tjl3cs","82tjl3cs","82tjl3cs","82tjl3cw","82tjl3cx","82tjl3cx","82tjl3cx","82tjl3cy","82tjl3cy","82tjl3cy","82tjl3cz","82tjl3d0","82tjl3d3","82tjl3d3","82tjl3d3","82tjl3d7","82tjl3db","82tjl3dd","82tjl3df","82tjl3df","82tjl3df","82tjl3df","82tjl3df","82tjl3df","82tjl3dh","82tjl3dh","82tjl3dj","82tjl3dn","82tjl3ds","82tjl3ds","82tjl3ds","82tjl3dt","82tjl3dy","82tjl3dy","82tjl3f0","82tjl3f0","82tjl3f0","82tjl3f1","82tjl3f1","82tjl3f2","82tjl3f5","82tjl3f5","82tjl3fg","82tjl3fh","82tjl3fh","82tjl3fk","82tjl3fk","82tjl3fp","82tjl3fp","82tjl3fr","82tjl3fr","82tjl3fx","82tjl3fx","82tjl3fx","82tjl3g2","82tjl3g2","82tjl3g2","82tjl3g2","82tjl3g5","82tjl3gc","82tjl3gc","82tjl3gc","82tjl3gd","82tjl3gj","82tjl3gk","82tjl3gl","82tjl3gl","82tjl3gl","82tjl3gl","82tjl3gl","82tjl3gn","82tjl3gn","82tjl3gn","82tjl3gq","82tjl3gq","82tjl3gq","82tjl3gs","82tjl3gs","82tjl3gz","82tjl3gz","82tjl3gz","82tjl3h0","82tjl3h0","82tjl3h4","82tjl3h5","82tjl3h7","82tjl3hg","82tjl3hg","82tjl3hp","82tjl3hq","82tjl3hq","82tjl3hq","82tjl3hs","82tjl3j1","82tjl3j1","82tjl3j1","82tjl3j3","82tjl3j3","82tjl3j3","82tjl3j5","82tjl3j5","82tjl3j8","82tjl3j8","82tjl3j9","82tjl3jd","82tjl3jf","82tjl3jr","82tjl3jr","82tjl3js","82tjl3jx","82tjl3k5","82tjl3k5","82tjl3k5","82tjl3k7","82tjl3k8","82tjl3k9","82tjl3k9","82tjl3k9","82tjl3kf","82tjl3kf","82tjl3kf","82tjl3kf","82tjl3kk","82tjl3kk","82tjl3kl","82tjl3kl","82tjl3kl","82tjl3kl","82tjl3kl","82tjl3km","82tjl3kq","82tjl3kq","82tjl3kq","82tjl3kq","82tjl3kt","82tjl3kt","82tjl3kt","82tjl3kt","82tjl3kw","82tjl3kw","82tjl3kz","82tjl3l3","82tjl3l3","82tjl3l4","82tjl3l4","82tjl3l5","82tjl3l5","82tjl3l5","82tjl3lj","82tjl3lj","82tjl3lj","82tjl3ll","82tjl3lm","82tjl3lp","82tjl3lq","82tjl3lr","82tjl3lr","82tjl3ls","82tjl3ls","82tjl3ls","82tjl3m8","82tjl3m8","82tjl3m8","82tjl3mb","82tjl3mb","82tjl3mj","82tjl3mj","82tjl3mk","82tjl3mk","82tjl3ms","82tjl3ms","82tjl3ms","82tjl3mx","82tjl3mx","82tjl3mx","82tjl3mx","82tjl3n2","82tjl3n3","82tjl3n6","82tjl3nd","82tjl3nn","82tjl3nn","82tjl3nw","82tjl3nz","82tjl3p2","82tjl3p3","82tjl3p3","82tjl3p3","82tjl3p5","82tjl3pc","82tjl3ph","82tjl3pl","82tjl3pl","82tjl3pn","82tjl3pn","82tjl3pq","82tjl3pr","82tjl3ps","82tjl3ps","82tjl3ps","82tjl3q0","82tjl3q0","82tjl3q2","82tjl3qc","82tjl3qc","82tjl3qh","82tjl3qh","82tjl3qh","82tjl3qh","82tjl3ql","82tjl3qm","82tjl3qp","82tjl3qp","82tjl3qp","82tjl3qr","82tjl3qr","82tjl3qs","82tjl3qt","82tjl3qt","82tjl3qt","82tjl3qt","82tjl3qw","82tjl3qw","82tjl3qz","82tjl3qz","82tjl3r2","82tjl3r4","82tjl3r6","82tjl3r6","82tjl3r9","82tjl3r9","82tjl3r9","82tjl3rf","82tjl3rf","82tjl3rf","82tjl3rf","82tjl3rj","82tjl3rj","82tjl3rj","82tjl3rk","82tjl3rm","82tjl3rq","82tjl3rq","82tjl3rt","82tjl3s0","82tjl3s0","82tjl3s0","82tjl3s0","82tjl3s1","82tjl3s2","82tjl3s2","82tjl3s2","82tjl3s2","82tjl3s7","82tjl3s7","82tjl3s7","82tjl3s7","82tjl3s7","82tjl3s7","82tjl3sc","82tjl3sc","82tjl3sc","82tjl3sd","82tjl3sd","82tjl3sd","82tjl3sd","82tjl3sd","82tjl3sd","82tjl3sg","82tjl3sh","82tjl3sh","82tjl3sh","82tjl3sm","82tjl3sm","82tjl3sp","82tjl3sp","82tjl3sp","82tjl3sp","82tjl3sw","82tjl3sw","82tjl3sw","82tjl3sw","82tjl3t1","82tjl3t1","82tjl3t3","82tjl3t3"],"to":["82tjl329","82tjl3h5","82tjl2fx","82tjl2hz","82tjl35d","82tjl3jk","82tjl3rf","82tjl2s6","82tjl2xb","82tjl3bx","82tjl3cl","82tjl3qz","82tjl2qn","82tjl2g7","82tjl3q0","82tjl2k0","82tjl2sf","82tjl3g0","82tjl36d","82tjl3lz","82tjl3sq","82tjl2ns","82tjl2wh","82tjl2y5","82tjl353","82tjl39f","82tjl2nc","82tjl38g","82tjl3h5","82tjl2z2","82tjl3hf","82tjl2z9","82tjl35t","82tjl3qk","82tjl3sw","82tjl2q1","82tjl3h5","82tjl3hc","82tjl3cs","82tjl3pl","82tjl2mp","82tjl2q9","82tjl3g4","82tjl2qk","82tjl2d4","82tjl2k0","82tjl2m9","82tjl2ng","82tjl38g","82tjl3rk","82tjl3gm","82tjl3by","82tjl2rc","82tjl3g0","82tjl3ph","82tjl2rc","82tjl3gn","82tjl2h2","82tjl2md","82tjl2q1","82tjl3s1","82tjl2d9","82tjl392","82tjl2qk","82tjl2ws","82tjl3cb","82tjl3ms","82tjl392","82tjl3q0","82tjl3lj","82tjl2yq","82tjl3kq","82tjl37r","82tjl2h2","82tjl2q1","82tjl2sf","82tjl38b","82tjl38p","82tjl2yp","82tjl3nn","82tjl2jd","82tjl3s0","82tjl3h5","82tjl3r6","82tjl3fp","82tjl3jr","82tjl3t1","82tjl2s8","82tjl2jy","82tjl2kl","82tjl311","82tjl316","82tjl2fx","82tjl31n","82tjl39r","82tjl2k0","82tjl3g0","82tjl31f","82tjl2wx","82tjl2ns","82tjl2wd","82tjl2y3","82tjl3f0","82tjl2k0","82tjl3h6","82tjl3h9","82tjl35c","82tjl2g8","82tjl2m9","82tjl2q1","82tjl3ll","82tjl2kw","82tjl2qf","82tjl3dg","82tjl3qc","82tjl2w1","82tjl30x","82tjl3fp","82tjl2j1","82tjl2m1","82tjl3mk","82tjl3s2","82tjl3g0","82tjl3sh","82tjl38p","82tjl2lz","82tjl3hz","82tjl353","82tjl3lj","82tjl3bx","82tjl2f4","82tjl35r","82tjl3h5","82tjl33x","82tjl3s0","82tjl39r","82tjl3jd","82tjl2gn","82tjl2q1","82tjl31n","82tjl3s0","82tjl360","82tjl37c","82tjl2s6","82tjl2rc","82tjl3gn","82tjl38b","82tjl2fm","82tjl2rt","82tjl2g8","82tjl2k0","82tjl2t9","82tjl38g","82tjl2w7","82tjl38b","82tjl2h2","82tjl3ll","82tjl341","82tjl2zz","82tjl3r1","82tjl30t","82tjl3ms","82tjl2qn","82tjl35z","82tjl3k8","82tjl2fm","82tjl2m7","82tjl3cl","82tjl3h5","82tjl2fm","82tjl2g8","82tjl2k0","82tjl2q1","82tjl3h5","82tjl3qm","82tjl2ct","82tjl2s6","82tjl2w1","82tjl3lp","82tjl3k8","82tjl3f8","82tjl3g0","82tjl3h0","82tjl3sw","82tjl3h9","82tjl2hz","82tjl37f","82tjl3nd","82tjl3k8","82tjl381","82tjl2yq","82tjl3kq","82tjl3lh","82tjl2fm","82tjl2sf","82tjl30j","82tjl33n","82tjl3mk","82tjl3mx","82tjl3s2","82tjl35r","82tjl3bm","82tjl3h5","82tjl3kl","82tjl3pr","82tjl2yq","82tjl3j1","82tjl3kq","82tjl2g3","82tjl39f","82tjl3gn","82tjl2k3","82tjl2h6","82tjl361","82tjl3sc","82tjl3q6","82tjl2sb","82tjl2s5","82tjl33x","82tjl3cs","82tjl3n2","82tjl2rc","82tjl3gn","82tjl2mq","82tjl2qd","82tjl32d","82tjl33f","82tjl34k","82tjl2sf","82tjl331","82tjl3gc","82tjl3gz","82tjl3ls","82tjl2jw","82tjl2w1","82tjl3pt","82tjl38g","82tjl3gn","82tjl3lp","82tjl2nq","82tjl2ty","82tjl2xb","82tjl2zx","82tjl35y","82tjl38l","82tjl3px","82tjl2q1","82tjl2wb","82tjl363","82tjl3hp","82tjl3s2","82tjl2hw","82tjl37d","82tjl2wt","82tjl3cd","82tjl3pl","82tjl2gn","82tjl3f5","82tjl3r4","82tjl2cs","82tjl2fx","82tjl2wb","82tjl2kq","82tjl3g0","82tjl2r4","82tjl38m","82tjl2md","82tjl2w9","82tjl30w","82tjl2mp","82tjl2x3","82tjl3j7","82tjl2r4","82tjl38g","82tjl2ct","82tjl2l6","82tjl33t","82tjl38l","82tjl3bx","82tjl2ds","82tjl37f","82tjl2r4","82tjl2s6","82tjl2xb","82tjl2zx","82tjl2kh","82tjl2xr","82tjl3k5","82tjl2hz","82tjl37f","82tjl2jc","82tjl3h5","82tjl2ct","82tjl2s6","82tjl3cg","82tjl3nn","82tjl3pz","82tjl3q0","82tjl2sf","82tjl2f4","82tjl37d","82tjl2hd","82tjl2wz","82tjl2nd","82tjl32w","82tjl3df","82tjl3kw","82tjl2k0","82tjl2qn","82tjl2jj","82tjl3s7","82tjl2lw","82tjl2hn","82tjl2q1","82tjl2hz","82tjl2x4","82tjl3sw","82tjl3t3","82tjl2ws","82tjl3ms","82tjl32d","82tjl358","82tjl369","82tjl3hl","82tjl2k9","82tjl34n","82tjl3kl","82tjl38g","82tjl3q0","82tjl3k8","82tjl2mp","82tjl2x3","82tjl3fp","82tjl3r1","82tjl2nc","82tjl3h5","82tjl30j","82tjl2fm","82tjl3qm","82tjl2yq","82tjl3j1","82tjl3kq","82tjl2m7","82tjl2n7","82tjl3hs","82tjl3r9","82tjl2kh","82tjl3hq","82tjl2j2","82tjl316","82tjl3m8","82tjl2j2","82tjl311","82tjl2jc","82tjl34g","82tjl3lp","82tjl39j","82tjl3sp","82tjl2z9","82tjl3sw","82tjl2mp","82tjl2x3","82tjl2rc","82tjl31g","82tjl347","82tjl2cq","82tjl2rc","82tjl2rk","82tjl33f","82tjl380","82tjl3gn","82tjl3qj","82tjl2h2","82tjl2sf","82tjl3dg","82tjl35s","82tjl2z7","82tjl2yq","82tjl3kq","82tjl2jr","82tjl369","82tjl2q0","82tjl2yq","82tjl3kq","82tjl2rn","82tjl3p5","82tjl3mj","82tjl3g2","82tjl2fl","82tjl2cs","82tjl35d","82tjl3rf","82tjl3r9","82tjl3hs","82tjl3r9","82tjl32d","82tjl3qw","82tjl2ds","82tjl39m","82tjl3mx","82tjl2nd","82tjl3ds","82tjl2q1","82tjl3ll","82tjl3mk","82tjl3s2","82tjl2dq","82tjl3lf","82tjl3f2","82tjl2rc","82tjl31g","82tjl3s0","82tjl3rm","82tjl31g","82tjl2h9","82tjl2jd","82tjl2ft","82tjl2f4","82tjl31f","82tjl2zw","82tjl3kl","82tjl2jr","82tjl3rk","82tjl2g0","82tjl2gw","82tjl33x","82tjl38g","82tjl2yp","82tjl2dq","82tjl3lz","82tjl3bx","82tjl3pl","82tjl2jz","82tjl2cs","82tjl3jk","82tjl30h","82tjl30j","82tjl331","82tjl3qk","82tjl3t3","82tjl3g3","82tjl2k9","82tjl37t","82tjl331","82tjl3qk","82tjl3t3","82tjl3b4","82tjl2qn","82tjl35r","82tjl3k8","82tjl2qn","82tjl2wb","82tjl2zc","82tjl3r9","82tjl39b","82tjl3bz","82tjl2q1","82tjl3mk","82tjl2jd","82tjl34f","82tjl3kl","82tjl3kl","82tjl3t3","82tjl2hn","82tjl2ns","82tjl2yp","82tjl2lz","82tjl2sj","82tjl3cx","82tjl2hz","82tjl373","82tjl3nd","82tjl2yq","82tjl3kq","82tjl3cp","82tjl397","82tjl3h5","82tjl3sp","82tjl2q1","82tjl3mx","82tjl3s2","82tjl2fh","82tjl305","82tjl3df","82tjl3qw","82tjl2zz","82tjl3r9","82tjl2s6","82tjl2xb","82tjl3cg","82tjl39j","82tjl3s0","82tjl2rd","82tjl3q8","82tjl3m0","82tjl3nn","82tjl2td","82tjl324","82tjl2ld","82tjl2tr","82tjl3nm","82tjl2nc","82tjl3h5","82tjl36d","82tjl2x8","82tjl3rj","82tjl2cs","82tjl35d","82tjl3kl","82tjl3s7","82tjl2zw","82tjl3kl","82tjl35y","82tjl3ms","82tjl2sx","82tjl2qn","82tjl3kt","82tjl2jj","82tjl35r","82tjl3cg","82tjl3h5","82tjl2kg","82tjl3bz","82tjl2g5","82tjl359","82tjl3hd","82tjl3j3","82tjl2ws","82tjl3ms","82tjl3pl","82tjl2fm","82tjl2s6","82tjl3bx","82tjl3km","82tjl3s7","82tjl2ty","82tjl2l9","82tjl3cd","82tjl3qc","82tjl3l4","82tjl2zz","82tjl37d","82tjl3fp","82tjl2dk","82tjl2rc","82tjl3g0","82tjl3dk","82tjl3dk","82tjl2mn","82tjl2rc","82tjl31g","82tjl34f","82tjl38m","82tjl2gf","82tjl2h2","82tjl32m","82tjl38g","82tjl3qh","82tjl3qm","82tjl3t0","82tjl2nc","82tjl35r","82tjl2xk","82tjl2rn","82tjl3b1","82tjl3f2","82tjl3kw","82tjl35z","82tjl2hd","82tjl38p","82tjl2jj","82tjl2wd","82tjl2y3","82tjl2s6","82tjl38l","82tjl3ds","82tjl2gn","82tjl3g0","82tjl385","82tjl2gm","82tjl3by","82tjl2cs","82tjl3rf","82tjl34t","82tjl3t1","82tjl2rc","82tjl31g","82tjl32d","82tjl3gn","82tjl3qj","82tjl2gm","82tjl331","82tjl3by","82tjl3qm","82tjl3hz","82tjl2rn","82tjl331","82tjl3ls","82tjl314","82tjl3gn","82tjl3hq","82tjl2gm","82tjl2t2","82tjl3by","82tjl3g2","82tjl3r6","82tjl2mn","82tjl2rc","82tjl2s3","82tjl32j","82tjl3bz","82tjl3jr","82tjl3bb","82tjl3ms","82tjl2rn","82tjl3g2","82tjl3p5","82tjl2rc","82tjl3g0","82tjl2mp","82tjl2nc","82tjl2ty","82tjl2rc","82tjl31g","82tjl2rk","82tjl2rb","82tjl30x","82tjl3gk","82tjl2p4","82tjl2yq","82tjl30q","82tjl3kq","82tjl36d","82tjl3bz","82tjl3fh","82tjl2h2","82tjl3mk","82tjl3bb","82tjl3ms","82tjl2q1","82tjl2lw","82tjl353","82tjl363","82tjl38p","82tjl3dg","82tjl381","82tjl2hd","82tjl2wz","82tjl35m","82tjl3h9","82tjl2zy","82tjl2ns","82tjl2qk","82tjl2wd","82tjl2gh","82tjl30w","82tjl3lm","82tjl3nk","82tjl2rc","82tjl3rk","82tjl2wt","82tjl2zw","82tjl36z","82tjl3bq","82tjl3s2","82tjl3cg","82tjl2q7","82tjl2yq","82tjl30q","82tjl3j1","82tjl2qn","82tjl2zy","82tjl35z","82tjl3r9","82tjl3ds","82tjl3f2","82tjl3kb","82tjl2l0","82tjl353","82tjl2wx","82tjl3cw","82tjl2rc","82tjl3gn","82tjl3m8","82tjl2hd","82tjl2wz","82tjl3k5","82tjl2h2","82tjl2ds","82tjl31s","82tjl2hz","82tjl2qn","82tjl31f","82tjl2rn","82tjl3g2","82tjl3gc","82tjl2ht","82tjl2p1","82tjl3l5","82tjl2t2","82tjl3r6","82tjl2tn","82tjl2xk","82tjl2q1","82tjl3s2","82tjl2rc","82tjl2ws","82tjl31f","82tjl2q1","82tjl381","82tjl38b","82tjl3s2","82tjl2rc","82tjl3h5","82tjl3dg","82tjl2hz","82tjl38t","82tjl3km","82tjl38g","82tjl2kh","82tjl2sq","82tjl2yp","82tjl3nn","82tjl3qd","82tjl3g2","82tjl3qk","82tjl3sp","82tjl341","82tjl3cd","82tjl3g2","82tjl3my","82tjl3gk","82tjl2q6","82tjl2gm","82tjl3by","82tjl3g2","82tjl2ct","82tjl2zx","82tjl3h5","82tjl3cd","82tjl3cs","82tjl2h2","82tjl2sf","82tjl2tq","82tjl3ll","82tjl2cs","82tjl3g2","82tjl2h2","82tjl2sf","82tjl3sw","82tjl32d","82tjl347","82tjl3kz","82tjl2q1","82tjl3hp","82tjl3mx","82tjl3s2","82tjl38g","82tjl3gn","82tjl2ct","82tjl3q0","82tjl326","82tjl2sz","82tjl2gm","82tjl3by","82tjl2r7","82tjl3hs","82tjl3rk","82tjl2cs","82tjl338","82tjl35d","82tjl3jk","82tjl2x8","82tjl2xy","82tjl39k","82tjl3r9","82tjl3q1","82tjl39n","82tjl3s7","82tjl358","82tjl2gn","82tjl2lx","82tjl2rn","82tjl31n","82tjl2gx","82tjl2h2","82tjl2q1","82tjl2sf","82tjl3mk","82tjl2wz","82tjl2y5","82tjl39n","82tjl3bq","82tjl3cg","82tjl3kl","82tjl2qn","82tjl2zy","82tjl3k8","82tjl2gn","82tjl2lx","82tjl2rc","82tjl2sf","82tjl3g0","82tjl3s0","82tjl3fh","82tjl2kq","82tjl2t8","82tjl3g0","82tjl2hd","82tjl2y5","82tjl2jd","82tjl31t","82tjl38m","82tjl3ph","82tjl2pg","82tjl2z9","82tjl3qk","82tjl3t3","82tjl2hw","82tjl2y5","82tjl2z9","82tjl3sw"],"width":[0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","borderWidth":0.5,"scaling":{"min":40,"max":80}},"manipulation":{"enabled":false},"edges":{"color":{"color":"rgba(120,120,120,0.5)"},"smooth":true},"physics":{"solver":"barnesHut","barnesHut":{"gravitationalConstant":-4000,"centralGravity":0.1,"avoidOverlap":0.4,"springLength":300,"springConstant":0.05}},"interaction":{"dragNodes":false,"dragView":true,"hover":true,"zoomView":true,"zoomSpeed":1}},"groups":["uva","ul","vu","eur","uvg","uu","ru","uvt"],"width":"100%","height":"800px","idselection":{"enabled":true,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select author"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","tooltipStay":300,"tooltipStyle":"position: fixed;visibility:hidden;padding: 5px;white-space: nowrap;font-family: verdana;font-size:14px;font-color:#000000;background-color: #f5f4ed;-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;border: 1px solid #808074;box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);","highlight":{"enabled":true,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"},"legend":{"width":0.2,"useGroups":true,"position":"right","ncol":1,"stepX":100,"stepY":100,"zoom":true}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+
+
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Copyright © 2026 | Jos Slabbekoorn</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
