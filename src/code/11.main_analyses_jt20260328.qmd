@@ -13,6 +13,7 @@ execute:
   eval: false
 ---
 
+
 ## Getting Started
 
 ```{r}
@@ -280,11 +281,9 @@ mask_structural_missing <- function(colnet, include_ties = FALSE, value = 10){
 }
 ```
 
-## RSiena
+## RSiena preparation
 
-### Make data object
-
-#### Set selection
+### Set selection
 
 <!-- Jos, ik blijf de ruwe data vreemd vinden. Waarom heb ik geen UVG affiliatie in 2025, waarom is Peer er uit in 2025, waarom zit Wout Ultee er enkel in in 2025? 
 Ik vind ruis in de data prima, maar ik wil wel weten waar het vandaan komt. 
@@ -295,11 +294,11 @@ De fouten bij Peer en Wout kunnen mogelijk komen door foute op de websites van d
 ```{r}
 # uni_levels = tolower(c("EUR", "RU" , "UL", "UU", "UVA", "UVG", "UVT", "VU"))
 uni_levels = tolower(c(
-  "RU"
+  "RU", "UU", "UVT"
 ))
 
 colnet <- fcolnet2(data, 
-    discipline = "Sociology",
+    discipline = c("Sociology", "Political Sciences"),
     university = toupper(uni_levels),
     type = NULL,
     waves = NULL
@@ -308,7 +307,7 @@ colnet <- fcolnet2(data,
   mask_structural_missing()
 ```
 
-#### Dependent variable 
+### Dependent variable 
 ```{r}
 wave1 = colnet[['nets']][['first']][[1]]
 wave2 = colnet[['nets']][['first']][[2]]
@@ -317,6 +316,11 @@ wave3 = colnet[['nets']][['first']][[3]]
 wave1l = colnet[['nets']][['last']][[1]]
 wave2l = colnet[['nets']][['last']][[2]]
 wave3l = colnet[['nets']][['last']][[3]]
+
+wave1a = colnet[['nets']][['all']][[1]]
+wave2a = colnet[['nets']][['all']][[2]]
+wave3a = colnet[['nets']][['all']][[3]]
+
 
 net_array <- array(
     data = c(wave1, wave2, wave3),
@@ -330,13 +334,21 @@ net_array <- array(
 )
 last <- sienaDependent(net_array, )
 
+net_array <- array(
+    data = c(wave1a, wave2a, wave3a),
+    dim = c(dim(wave1l), 3)
+)
+all <- sienaDependent(net_array, )
+
+
 ```
 
-#### time constant covariates
+### time constant covariates
 
 - gender
 - soc
 - mig (NL, M4, other)
+- lft
 
 ```{r}
 gender <- coCovar(colnet[['data']]$female)
@@ -353,16 +365,24 @@ mig <- migrant_groups[-1] |>
     coCovar(val)
   })
 
+migrantf <- as.numeric(as.factor(colnet[['data']]$migrant))
+migrant <- coCovar(migrantf)
+
+lft <- coCovar(2027 - replace_na(colnet[['data']]$career_start, 2027))
+
+
 ```
 
-#### time varying covariates
+### time varying covariates
 
 - uni  
 - funcs
 - intdis: based on subfield
+- i-index
 
-<!-- ik wil de postdocs bij de PhD --> 
+<!-- ik wil de postdocs bij de PhD en nu ik resultaten zie, wrs ook de researchers en lectureqrs, maar dat kan heel makkelijk. fijn. --> 
 <!--# I still miss I-index --> 
+<!-- we should probably set missing values for these covariates if not present --> 
 
 ```{r}
 # set values for time varying universities
@@ -415,6 +435,44 @@ funcs = funcs_levels[-1] |>
     varCovar(mat[, c(1, 2)], centered = FALSE)
   })
 
+funcs_di = colnet[['data']] |> 
+  select(position_22_b, position_24_b, position_25_b)
+funcs_levels = c(
+  "PhD Candidate", "Researcher or Lecturer", 
+  "Assistant Professor", "Associate Professor", 
+  "Full Professor"
+)
+
+#UD, UHD, HL versus other
+funcs_di <- funcs_di |>
+  mutate(
+    f22_di = as.integer(position_22_b %in% funcs_levels[3:5]),
+    f24_di = as.integer(position_24_b %in% funcs_levels[3:5]), 
+    f25_di = as.integer(position_25_b %in% funcs_levels[3:5]), 
+    .keep = "none"
+  ) |>
+  as.matrix()
+    
+funcs_di <- varCovar(funcs_di[, c(1, 2)], centered = FALSE)
+
+i_index <- colnet[['data']] |> 
+  select(i10_index_21, i10_index_23, i10_index_25) |>
+  mutate(
+    i10_index_21 = rank(ifelse(is.na(i10_index_21),0, i10_index_21), ties.method = "average"), 
+    i10_index_23 = rank(ifelse(is.na(i10_index_23),0, i10_index_23), ties.method = "average"),     
+    i10_index_25 = rank(ifelse(is.na(i10_index_25),0, i10_index_25), ties.method = "average"),
+    i10_index_21 = i10_index_21 / max(i10_index_21),
+    i10_index_23 = i10_index_23 / max(i10_index_23),
+    i10_index_25 = i10_index_25 / max(i10_index_25)
+    ) |>
+  as.matrix()
+
+i10 <- varCovar(i_index[, c(1, 2)])
+
+
+
+
+  
 add_interdisciplinarity = function(colnet, topics){
   uids = colnet$data |> pull(uid) |> unique() |> sort()
   intdis <- topics[["intdis"]][["subfield"]]
@@ -442,15 +500,12 @@ intdis <- colnet[['intdis']][,1:2] |> varCovar(centered = TRUE)
 
 ```
 
-#### time varying dyadic covars
+### time varying dyadic covars
 
 - dissim: based on subfield
 - distan: travel time?? 
+- sameuni
 
-<!-- we should construct same uni ourselves and based on the two affiliations --> 
-
-<!-- for distances, you take the first affiliation of the scholar I presume 
-I do not know exactly what RSiena does internally but for scholars not affiliated to the university of the selection, distances should be set to NA I guess. Thus we play with selection on RU scholars. Some work at different unis and get a distance.--> 
 
 ```{r}
 add_dissimilarity <- function(colnet, topics) {
@@ -508,24 +563,82 @@ colnet <- colnet |>
   add_distances(data)
 
 distan = colnet[['distances']][c('2022', '2024')] |> simplify2array() |> varDyadCovar(centered = TRUE)
+
+
+
 ```
 
-#### make data object
+```{r}
+fhomomat <- function(x, y) {
+    xmat <- matrix(x, nrow = length(x), ncol = length(x))
+    ymat <- matrix(y, nrow = length(y), ncol = length(y))
+    xmatt <- t(xmat)
+    ymatt <- t(ymat)
+    xhomo <-  (
+      (!is.na(xmat) & !is.na(xmatt) & (xmat == xmatt)) | 
+      (!is.na(ymat) & !is.na(ymatt) & (ymat == ymatt)) | 
+      (!is.na(xmat) & !is.na(ymatt) & (xmat == ymatt))
+    )
+    return(xhomo)
+}
+
+unis <- colnet[['data']] |>
+  left_join(data[['demographics']]) |> 
+  select(uid, university_22, university_24, university_25) |>
+  mutate(
+    uni22_f = sapply(strsplit(university_22, '/'), `[`, 1),
+    uni22_s = sapply(strsplit(university_22, '/'), `[`, 2),
+    uni24_f = sapply(strsplit(university_24, '/'), `[`, 1),
+    uni24_s = sapply(strsplit(university_24, '/'), `[`, 2),
+    uni25_f = sapply(strsplit(university_25, '/'), `[`, 1),
+    uni25_s = sapply(strsplit(university_25, '/'), `[`, 2)
+         )
+
+sameuni <- list()
+
+sameuni[[1]] <- (fhomomat(unis$uni22_s, unis$uni22_f)) * 1
+sameuni[[2]] <- (fhomomat(unis$uni24_s, unis$uni24_f)) * 1
+#sameuni[[3]] <- (fhomomat(unis$uni25_s, unis$uni25_f)) * 1
+
+sameuni <-  sameuni |> simplify2array() |> varDyadCovar()
+
+
+```
+### combine data into mydata
 
 ```{r}
 # combine variables into Rsiena data object
 mydata <- sienaDataCreate(
-  first, last, 
-  gender, soc, mig$M4, mig$other,
-  # uni$ru, uni$ul, uni$uu, uni$uva, uni$uvg, uni$uvt, uni$vu,
-  # uni$uu, 
-  # uni$uva, uni$uvg,
-  funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]], intdis, 
-  dissim, distan
+  first, 
+  gender, soc, mig$M4, mig$other, migrant, lft,
+  uni$uu, uni$uvt,
+  i10,
+  funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]], funcs_di, intdis, 
+  dissim, distan, sameuni
+)
+
+mydatal <- sienaDataCreate(
+  last, 
+  gender, soc, mig$M4, mig$other, migrant, lft,
+  uni$uu, uni$uvt,
+  i10,
+  funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]], funcs_di, intdis, 
+  dissim, distan, sameuni
+)
+
+mydataa <- sienaDataCreate(
+  all, 
+  gender, soc, mig$M4, mig$other, migrant, lft,
+  uni$uu, uni$uvt,
+  i10,
+  funcs[[1]], funcs[[2]], funcs[[3]], funcs[[4]], funcs_di, intdis, 
+  dissim, distan, sameuni
 )
 ```
 
-#### print01report
+## RSiena analysis
+
+### print01report
 ```{r}
 setwd(BASEDIR)
 if(!dir.exists("results")) dir.create("results")
@@ -536,33 +649,62 @@ print01Report(mydata, modelname = "./init")
 
 ```
 
-#### set algortithm
+### set algortithm
 ```{r}
 myAlgorithm <- sienaAlgorithmCreate(
   projname = "init",
   # n3 = 3000 # for publication ready results
 )
+
+myAlgorithm_un <- sienaAlgorithmCreate(
+  projname = "init",
+  modelType = c(all=3)
+  # n3 = 3000 # for publication ready results
+)
+
 ```
+### first author perspective
+
 ```{r}
 myeff <- getEffects(mydata)
 myeff <- includeEffects(myeff, density, recip, inPopSqrt, outActSqrt,gwespFF, name='first')
-myeff <- includeEffects(myeff, outIso, name='first')
+#myeff <- includeEffects(myeff, outIso, name='first')
 myeff <- includeEffects(myeff, egoX, interaction1="gender", name='first')
 myeff <- includeEffects(myeff, altX, interaction1="gender", name='first')
 myeff <- includeEffects(myeff, sameX, interaction1="gender", name='first')
-myeff <- includeEffects(myeff, egoX, interaction1="funcs[[1]]", name='first')
-myeff <- includeEffects(myeff, egoX, interaction1="funcs[[2]]", name='first')
-myeff <- includeEffects(myeff, egoX, interaction1="funcs[[3]]", name='first')
-myeff <- includeEffects(myeff, egoX, interaction1="funcs[[4]]", name='first')
-myeff <- includeEffects(myeff, altX, interaction1="funcs[[1]]", name='first')
-myeff <- includeEffects(myeff, altX, interaction1="funcs[[2]]", name='first')
-myeff <- includeEffects(myeff, altX, interaction1="funcs[[3]]", name='first')
-myeff <- includeEffects(myeff, altX, interaction1="funcs[[4]]", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="funcs_di", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="funcs_di", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="soc", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="soc", name='first')
+myeff <- includeEffects(myeff, sameX, interaction1="soc", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="mig$M4", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="mig$M4", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="mig$other", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="mig$other", name='first')
+myeff <- includeEffects(myeff, sameX, interaction1="migrant", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="i10", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="i10", name='first')
+myeff <- includeEffects(myeff, egoX, interaction1="intdis", name='first')
+myeff <- includeEffects(myeff, altX, interaction1="intdis", name='first')
+myeff <- includeEffects(myeff, absDiffX, interaction1="i10", name='first')
 myeff <- includeEffects(myeff, X, interaction1="dissim", name='first')
+myeff <- includeEffects(myeff, X, interaction1="sameuni", name='first')
+
+
+# myeff <- includeEffects(myeff, egoX, interaction1="funcs[[2]]", name='first')
+# myeff <- includeEffects(myeff, egoX, interaction1="funcs[[3]]", name='first')
+# myeff <- includeEffects(myeff, egoX, interaction1="funcs[[4]]", name='first')
+# myeff <- includeEffects(myeff, altX, interaction1="funcs[[1]]", name='first')
+# myeff <- includeEffects(myeff, altX, interaction1="funcs[[2]]", name='first')
+# myeff <- includeEffects(myeff, altX, interaction1="funcs[[3]]", name='first')
+# myeff <- includeEffects(myeff, altX, interaction1="funcs[[4]]", name='first')
+# 
 #myeff <- includeInteraction(myeff, inPopSqrt, altX, interaction1=c("", "gender"))
 #does not work, but don't know why
-myeff <- includeInteraction(myeff, inPopSqrt, altX, interaction1=c("", "gender"))
-myeff <- includeInteraction(myeff, altX, altX, interaction1=c("funcs[[4]]", "gender"))
+
+
+# myeff <- includeInteraction(myeff, inPopSqrt, altX, interaction1=c("", "gender"))
+# myeff <- includeInteraction(myeff, altX, altX, interaction1=c("funcs[[4]]", "gender"))
 
 # estimate model
 ansm1 <- siena07(
@@ -572,8 +714,104 @@ ansm1 <- siena07(
   returnDeps = TRUE
 )
 ansm1
+```
+
+### last author perspective
+
+see effect 138 altdist2!! social capital effects
+
+```{r}
+
+myeff <- getEffects(mydatal)
+
+myeff <- includeEffects(myeff, outRateLog, name='last')
+
+myeff <- includeEffects(myeff, density, recip, inPopSqrt, outActSqrt, gwespFF, cycle3, name='last')
+#myeff <- includeEffects(myeff, outIso, name='last')
+myeff <- includeEffects(myeff, egoX, interaction1="gender", name='last')
+myeff <- includeEffects(myeff, altX, interaction1="gender", name='last')
+myeff <- includeEffects(myeff, sameX, interaction1="gender", name='last')
+myeff <- includeEffects(myeff, egoX, interaction1="funcs_di", name='last')
+myeff <- includeEffects(myeff, altX, interaction1="funcs_di", name='last')
+myeff <- includeEffects(myeff, egoX, interaction1="soc", name='last')
+myeff <- includeEffects(myeff, altX, interaction1="soc", name='last')
+myeff <- includeEffects(myeff, sameX, interaction1="soc", name='last')
+myeff <- includeEffects(myeff, egoX, interaction1="mig$M4", name='last')
+myeff <- includeEffects(myeff, altX, interaction1="mig$M4", name='last')
+myeff <- includeEffects(myeff, egoX, interaction1="mig$other", name='last')
+myeff <- includeEffects(myeff, altX, interaction1="mig$other", name='last')
+myeff <- includeEffects(myeff, sameX, interaction1="migrant", name='last')
+myeff <- includeEffects(myeff, egoX, interaction1="i10", name='last')
+myeff <- includeEffects(myeff, altX, interaction1="i10", name='last')
+myeff <- includeEffects(myeff, egoX, interaction1="intdis", name='last')
+myeff <- includeEffects(myeff, altX, interaction1="intdis", name='last')
+myeff <- includeEffects(myeff, absDiffX, interaction1="i10", name='last')
+myeff <- includeEffects(myeff, absDiffX, interaction1="lft", name='last')
+myeff <- includeEffects(myeff, X, interaction1="dissim", name='last')
+myeff <- includeEffects(myeff, X, interaction1="sameuni", name='last')
+
+# estimate model
+ansm1l <- siena07(
+  myAlgorithm, 
+  data = mydatal, 
+  effects = myeff, 
+  returnDeps = FALSE,
+  useCluster = TRUE, 
+  nbrNodes = 20
+)
+ansm1l
+
 
 ```
+
+
+### all author perspective
+
+```{r}
+myeff <- getEffects(mydataa)
+
+myeff <- includeEffects(myeff, density, degPlus, parm=2, name='all')
+myeff <- includeEffects(myeff, transTriads, parm=2, name='all')
+
+myeff <- includeEffects(myeff, egoX, interaction1="gender", name='all')
+#myeff <- includeEffects(myeff, altX, interaction1="gender", name='all')
+myeff <- includeEffects(myeff, sameX, interaction1="gender", name='all')
+#myeff <- includeEffects(myeff, egoX, interaction1="funcs_di", name='all')
+#myeff <- includeEffects(myeff, altX, interaction1="funcs_di", name='all')
+#myeff <- includeEffects(myeff, egoX, interaction1="soc", name='all')
+#myeff <- includeEffects(myeff, altX, interaction1="soc", name='all')
+myeff <- includeEffects(myeff, sameX, interaction1="soc", name='all')
+#myeff <- includeEffects(myeff, egoX, interaction1="mig$M4", name='all')
+#myeff <- includeEffects(myeff, altX, interaction1="mig$M4", name='all')
+#myeff <- includeEffects(myeff, egoX, interaction1="mig$other", name='all')
+#myeff <- includeEffects(myeff, altX, interaction1="mig$other", name='all')
+myeff <- includeEffects(myeff, sameX, interaction1="migrant", name='all')
+#myeff <- includeEffects(myeff, egoX, interaction1="i10", name='all')
+#myeff <- includeEffects(myeff, altX, interaction1="i10", name='all')
+#myeff <- includeEffects(myeff, egoX, interaction1="intdis", name='all')
+#myeff <- includeEffects(myeff, altX, interaction1="intdis", name='all')
+myeff <- includeEffects(myeff, absDiffX, interaction1="i10", name='all')
+myeff <- includeEffects(myeff, absDiffX, interaction1="lft", name='all')
+myeff <- includeEffects(myeff, X, interaction1="dissim", name='all')
+myeff <- includeEffects(myeff, X, interaction1="sameuni", name='all')
+
+# estimate model
+ansm1a <- siena07(
+  myAlgorithm_un, 
+  data = mydataa, 
+  effects = myeff, 
+  useCluster = TRUE, 
+  nbrNodes = 20,
+  returnDeps = FALSE
+)
+ansm1a
+
+
+```
+
+
+
+
 
 
 ```{r}
@@ -616,6 +854,7 @@ ansm1 <- siena07(
 ansm1
 save(ansm1, file = './ansm1')
 ```
+
 ```{r}
 # myeff <- getEffects(mydata)
 # myeff <- includeDefaultEffects(myeff)
