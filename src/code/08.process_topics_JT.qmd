@@ -1,0 +1,304 @@
+---
+title: Process Topic Information
+date: today
+
+format:
+  html:
+    code-links:
+      - href: 0a.custom_functions.html
+        icon: file-code
+        text: Custom Functions
+
+execute: 
+  eval: false
+---
+
+## Getting Started
+
+```{r}
+#| warning: false
+#| output: false
+# load custom functions
+source("src/utils/custom_functions.r")
+
+# clear the global environment and set dependencies
+.clear_global_environment()
+.load_quarto_dependencies()
+```
+
+```{r}
+#| warning: false
+#| output: false
+
+# load and activate packages
+library(tidyverse)
+library(slider)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(tibble)
+library(purrr)
+```
+
+## Data
+
+```{r}
+data = freadRDS2('scholars', location = "./data/clean/")
+```
+
+## subfields per paper
+
+```{r}
+#select all works
+works <- data[['works']] |>
+  keep(~ nrow(.x) > 0) |>
+    bind_rows() 
+
+#from 1990 until now
+base_year <- 2027
+window <- 36
+
+#filter works / keep only unique
+works <- works |> 
+   filter(
+      publication_year >= (base_year - window),
+      publication_year < base_year
+    ) |>
+  distinct(work_id, .keep_all = TRUE)
+
+#for each work all subfields
+ works <- works |> 
+   select(work_id, topics) |>
+   unnest_longer(topics) |> 
+   unnest_wider(topics) |>
+   filter(type == "subfield") |> 
+   select(work_id, display_name )
+
+#each row a paper, in columns all different possible subfields.  
+ works <- works |> 
+   mutate(value = 1) |>
+    pivot_wider(
+      id_cols = work_id,
+      names_from = display_name,
+      values_from = value,
+      values_fn = sum,
+      values_fill = 0L
+    )
+
+#drop the work_id variable but keep as rowname
+ works <- works |>
+   column_to_rownames("work_id") 
+ 
+```
+
+## distance and proximity between subfields
+```{r}
+# 1 minus cosine similarity is cosine distance D
+D <- 1 - coop::cosine(works)
+
+#from distance to proximity, 
+W <- 1 - (D/max(D))^2
+```
+
+## author subfield portfolio
+
+For each author in each wave calculate the proportions of the subfields
+
+```{r}
+#select all works
+works_aut <- data[['works']] |>
+  keep(~ nrow(.x) > 0) |>
+    bind_rows() 
+
+base_year <- 2027
+window <- 36
+
+#filter works 
+works_aut <- works_aut |> 
+   filter(
+      publication_year >= (base_year - window),
+      publication_year < base_year
+    ) 
+
+#for each work all subfields
+ works_aut <- works_aut |> select(uid, work_id, publication_year, topics) |>
+   unnest_longer(topics) |> 
+   unnest_wider(topics) |>
+   filter(type == "subfield") |> 
+   select(uid, work_id, publication_year, display_name)
+
+#each row a unique uid-paper, in columns all different possible subfields.  
+ works_aut <- works_aut |> mutate(value = 1) |>
+    pivot_wider(
+      id_cols = c(uid, work_id, publication_year),
+      names_from = display_name,
+      values_from = value,
+      values_fn = sum,
+      values_fill = 0L
+    )
+
+ #construct for each author a timevarying subfield profile 
+ window <- 2
+ base_year <- 2025
+ 
+ works_aut_w3 <- works_aut |> 
+   filter(
+      publication_year >= (base_year - window),
+      publication_year < base_year
+    ) 
+ 
+ window <- 2
+ base_year <- 2023
+ 
+ works_aut_w2 <- works_aut |> 
+   filter(
+      publication_year >= (base_year - window),
+      publication_year < base_year
+    ) 
+ 
+ window <- 2
+ base_year <- 2021
+ 
+ works_aut_w1 <- works_aut |> 
+   filter(
+      publication_year >= (base_year - window),
+      publication_year < base_year
+    ) 
+ 
+#calculate the proportions the subfields occured
+ P_w1 <- works_aut_w1 |> 
+   group_by(uid) |>
+   select(-work_id, -publication_year) |> 
+   summarise_all(sum) %>%
+   mutate(rowsum = rowSums(.[-1])) %>%
+   mutate(across(.cols = names(.)[-1], ~ .x/rowsum)) |> 
+   select(-rowsum)
+
+ P_w2 <- works_aut_w2 |> 
+   group_by(uid) |>
+   select(-work_id, -publication_year) |> 
+   summarise_all(sum) %>%
+   mutate(rowsum = rowSums(.[-1])) %>%
+   mutate(across(.cols = names(.)[-1], ~ .x/rowsum)) |> 
+   select(-rowsum)
+
+  P_w3 <- works_aut_w3 |> 
+   group_by(uid) |>
+   select(-work_id, -publication_year) |> 
+   summarise_all(sum) %>%
+   mutate(rowsum = rowSums(.[-1])) %>%
+   mutate(across(.cols = names(.)[-1], ~ .x/rowsum)) |> 
+   select(-rowsum)
+ 
+  #with the subfieldportfolio and the similarity between subfields saved in W 
+  #we can calculate interdisciplinarity
+
+  #save the interdisciplinarity scores in new df
+  dfaiw1 <- data.frame(uid = P_w1$uid, AI_w1 = NA)
+  dfaiw2 <- data.frame(uid = P_w2$uid, AI_w2 = NA)
+  dfaiw3 <- data.frame(uid = P_w3$uid, AI_w3 = NA)
+  
+  for (i in 1:nrow(dfaiw1)) {
+    P <- as.matrix(P_w1[i, -1])
+    dfaiw1$AI_w1[i] <- 1 - rowSums((P %*% W) * P) 
+  }
+
+  for (i in 1:nrow(dfaiw2)) {
+    P <- as.matrix(P_w2[i, -1])
+    dfaiw2$AI_w2[i] <- 1 - rowSums((P %*% W) * P) 
+  }
+
+  for (i in 1:nrow(dfaiw3)) {
+    P <- as.matrix(P_w3[i, -1])
+    dfaiw3$AI_w3[i] <- 1 - rowSums((P %*% W) * P) 
+  }
+```
+
+## add to data
+
+```{r}
+data[['demographics']] <- data[['demographics']] %>%
+  left_join(dfaiw1) %>%
+  left_join(dfaiw2) %>%
+  left_join(dfaiw3)
+
+```
+
+## author dissimilarity
+
+This is a dyad-level variable, thus should be saved as matrix
+
+```{r}
+#create empty matrix
+
+authors <- data[['demographics']] %>%
+  pull(uid)
+
+#similarity/proximity 0 means no proximity, 1 means maximum proximity
+DS_w1 <- DS_w2 <- DS_w3 <- matrix(0, nrow = length(authors), ncol = length(authors),
+    dimnames = list(authors, authors)
+  )
+
+#wave 1
+P_w1 <- P_w1 %>%
+  column_to_rownames(var="uid")
+
+# 1 minus cosine similarity is distance D
+DS_w1_temp <- 1 - coop::cosine(t(P_w1))
+
+#from distance to proximity, 
+DS_w1_temp <- 1 - (DS_w1_temp/max(DS_w1_temp))^2
+
+# fill the matrix with all authors
+  for (i in rownames(P_w1)) {
+    for (j in rownames(P_w1)) {
+      DS_w1[i, j] <- DS_w1_temp[i, j]  
+    }
+  }
+
+#wave 2
+P_w2 <- P_w2 %>%
+  column_to_rownames(var="uid")
+
+# 1 minus cosine similarity is distance D
+DS_w2_temp <- 1 - coop::cosine(t(P_w2))
+
+#from distance to proximity, 
+DS_w2_temp <- 1 - (DS_w2_temp/max(DS_w2_temp))^2
+
+# fill the matrix with all authors
+  for (i in rownames(P_w2)) {
+    for (j in rownames(P_w2)) {
+      DS_w2[i, j] <- DS_w2_temp[i, j]  
+    }
+  }
+
+#wave 3
+P_w2 <- P_w2 %>%
+  column_to_rownames(var="uid")
+
+# 1 minus cosine similarity is distance D
+DS_w3_temp <- 1 - coop::cosine(t(P_w3))
+
+#from distance to proximity, we use this for interdisciplinarity and dyadsimilarity
+DS_w3_temp <- 1 - (DS_w3_temp/max(DS_w3_temp))^2
+
+# calculate dissimilarity per author (i) coauthor (j) pair
+  for (i in rownames(P_w3)) {
+    for (j in rownames(P_w3)) {
+      DS_w3[i, j] <- DS_w3_temp[i, j]  
+    }
+  }
+
+
+```
+
+## save everything
+
+```{r}
+fsaveRDS(topics, 'topics', './data/clean/')
+```
+
+```{r}
+topics = freadRDS2('topics', location = 'clean')
+```
